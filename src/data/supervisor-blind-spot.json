@@ -1,0 +1,263 @@
+{
+  "id": "supervisor-blind-spot",
+  "title": "The Supervisor Blind Spot",
+  "tagline": "8 questions. 5 minutes. Discover your supervisor archetype — and the blind spot most likely to hold you back.",
+  "instructions": "Answer based on how you actually behave — not how you want to.",
+  "outputPattern": "archetype-match",
+  "_distinctness": {
+    "fire-fighter": "Reacts to crisis; never invests in prevention.",
+    "coach": "Develops people; avoids holding them accountable.",
+    "friend": "Prioritizes harmony over honest feedback.",
+    "operator": "Executes the workflow; underdevelops the people.",
+    "visionary": "Paints pictures; weak on follow-through.",
+    "enforcer": "Enforces standards; doesn't invest in development.",
+    "diplomat": "Avoids conflict; lets issues fester.",
+    "builder": "Healthy synthesis: develops AND enforces."
+  },
+  "archetypes": [
+    {
+      "id": "fire-fighter",
+      "name": "The Fire Fighter",
+      "summary": "You're the one who jumps in when things go sideways — and that's exactly why your team has stopped fixing things on their own. Fast response feels like strength. Over time, it teaches the team that someone else will catch the ball.",
+      "blindSpot": "You never build the muscle for prevention because you're always reacting.",
+      "cheatCode": [
+        "Hold a 15-minute weekly 'what could go sideways this week' preview. Name risks before they become fires.",
+        "For the next two weeks, when something breaks, ask 'what would it take for the team to handle this next time?' Don't fix it yourself.",
+        "Identify the three recurring fires that keep happening. Build a one-page playbook for each. Hand the playbook to a team member.",
+        "Block 90 minutes a week called 'Not on fire.' Use it for the strategic work that keeps getting bumped.",
+        "Run a post-mortem on the last fire. Not to blame — to identify the upstream decision that lit it."
+      ],
+      "nextMoves": [
+        "Pick this week's most recent fire. Ask the team to map what would have prevented it.",
+        "Decline to handle the next non-urgent escalation. Hand it back with a question.",
+        "Block 90 minutes next week for non-reactive work and protect it."
+      ]
+    },
+    {
+      "id": "coach",
+      "name": "The Coach",
+      "summary": "You develop people. You ask good questions, you create space, you build trust. Then a high-performer underdelivers for two months and you can't bring yourself to say it directly. The development conversation crowds out the accountability one.",
+      "blindSpot": "Development without accountability isn't development — it's accommodation.",
+      "cheatCode": [
+        "For every coaching conversation this month, include one specific commitment with a date. Write it down. Follow up.",
+        "Name the gap between current performance and the bar in the first sentence of feedback, not the last.",
+        "Track the names of people who haven't gotten direct performance feedback in 60 days. Schedule it.",
+        "When a team member misses a commitment, ask 'what would you do if you were managing yourself?' Then hold them to it.",
+        "Notice the conversations you're avoiding. Have the hardest one this week."
+      ],
+      "nextMoves": [
+        "Identify one performance issue you've been gently coaching for 30+ days. Name it plainly this week.",
+        "End every 1:1 this week with a specific commitment and a date.",
+        "List the three hardest conversations you owe someone. Pick one for this week."
+      ]
+    },
+    {
+      "id": "friend",
+      "name": "The Friend",
+      "summary": "Your team likes you. They feel safe. They'd also probably tell you what you want to hear before they'd tell you the truth — and they read your discomfort with honest feedback as permission to stay quiet themselves.",
+      "blindSpot": "Being liked is not the same as being trusted to lead.",
+      "cheatCode": [
+        "Identify one piece of feedback you've been sitting on for over 30 days. Deliver it this week. Plainly.",
+        "Stop opening hard conversations with 'I just want to say…' or 'Don't take this the wrong way…'",
+        "Ask one team member: 'What do you wish I said to you that I haven't?' Listen without defending.",
+        "Schedule a recurring monthly 30-minute slot per direct report explicitly for harder conversations. Use the slot or surface what you avoided.",
+        "The next time you catch yourself softening, deliver the unsoftened version and watch what happens."
+      ],
+      "nextMoves": [
+        "Name one piece of feedback you've avoided giving. Give it this week.",
+        "Cut every softener ('just,' 'maybe,' 'sort of') from one piece of written feedback before sending it.",
+        "Ask one team member what they wish you'd told them and haven't."
+      ]
+    },
+    {
+      "id": "operator",
+      "name": "The Operator",
+      "summary": "You get things done. The list moves. Deadlines hit. Your team also reports to you, but you treat them more like a logistics function than people you're developing. They execute well. They're not growing.",
+      "blindSpot": "You're managing a workflow, not a team.",
+      "cheatCode": [
+        "Pick three direct reports. For each, write what role they should have in two years. Tell them.",
+        "Stop talking only about deliverables in 1:1s. Spend the first 10 minutes on what they're learning.",
+        "Delegate a piece of YOUR work — not a task on their existing pile, but something one level above. See what they do with it.",
+        "The next time you'd quietly redistribute someone's work, instead say what you're doing and why.",
+        "Identify a stretch assignment for one team member this quarter. Match it to where they want to grow."
+      ],
+      "nextMoves": [
+        "Reserve the first 10 minutes of every 1:1 this week for development, not delivery.",
+        "Identify one team member ready for a stretch assignment. Make the assignment this month.",
+        "Write down where each direct report should be in two years. Share it with them."
+      ]
+    },
+    {
+      "id": "visionary",
+      "name": "The Visionary",
+      "summary": "You're great in front of the team. The why is clear. The destination is inspiring. Then the meeting ends and follow-through dissolves into ambiguity. Your team knows where they're going but not what to do tomorrow.",
+      "blindSpot": "A vision the team can't operationalize is just a speech.",
+      "cheatCode": [
+        "After every team meeting, write three concrete actions with owners and dates. Send them within four hours.",
+        "For your top-line goal this quarter, write down what 'done' looks like in observable, measurable terms.",
+        "Pick a strong operator on your team. Make them your follow-through partner — their job is to translate your vision into next steps.",
+        "Stop ending meetings on inspiration. End them on a specific next move.",
+        "Audit your last 30 days. How many of your stated intentions actually shipped? If under 60%, your vision is outpacing your execution."
+      ],
+      "nextMoves": [
+        "Define 'done' in observable terms for your top quarterly goal. Write it down.",
+        "End every meeting this week with specific actions, owners, and dates.",
+        "Identify a follow-through partner on your team. Brief them on the role this week."
+      ]
+    },
+    {
+      "id": "enforcer",
+      "name": "The Enforcer",
+      "summary": "Your standards are clear. People know what's expected. They also know that falling short has a cost. What they don't always know is that you'd help them grow if they asked — because you've never made development feel like part of the deal.",
+      "blindSpot": "Compliance and capability are not the same thing.",
+      "cheatCode": [
+        "In your next three 1:1s, lead with 'How can I support you?' — and actually listen for the answer.",
+        "Identify one team member whose performance you've been pushing on. Ask what would help them, not what they need to do better.",
+        "Build in a quarterly 'what are you working on as a leader?' conversation — independent of performance management.",
+        "Praise effort and growth out loud, specifically, at least once a week.",
+        "The next time you'd give a directive, frame it as a question first. See if you get there together."
+      ],
+      "nextMoves": [
+        "Open three 1:1s this week with 'How can I support you?' and stay quiet.",
+        "Praise one specific instance of growth this week, out loud, to the person.",
+        "Replace one directive this week with a question. Notice what happens."
+      ]
+    },
+    {
+      "id": "diplomat",
+      "name": "The Diplomat",
+      "summary": "You navigate. You absorb. You translate. You also let issues fester because confronting them costs political capital you'd rather keep in reserve. The team senses it — and the conflicts you avoid become the conflicts they have to live with.",
+      "blindSpot": "Avoiding conflict doesn't make it disappear. It distributes it.",
+      "cheatCode": [
+        "Name the three biggest unresolved tensions on your team. This week, raise one of them out loud.",
+        "Replace 'managing up' with 'advocating for the team.' Pick one stakeholder ask you've been softening and deliver it plainly.",
+        "The next time two team members are clashing, broker the conversation within five business days, not five weeks.",
+        "Track conversations you're avoiding. Set an internal rule: nothing rolls past 14 days.",
+        "Accept that some people will be unhappy with you. The job isn't unanimous approval; it's clear direction."
+      ],
+      "nextMoves": [
+        "List three unresolved tensions on your team. Raise one this week.",
+        "Set a personal 14-day rule for unspoken concerns and start tracking.",
+        "Pick a stakeholder ask you've softened. Re-send it this week, plainly."
+      ]
+    },
+    {
+      "id": "builder",
+      "name": "The Builder",
+      "summary": "You're doing the hardest part of supervisory work: holding the line on accountability while genuinely investing in development. That's rare. The trap for you is becoming the team's center of gravity — they stop building muscle because you provide so much of it.",
+      "blindSpot": "Being indispensable is a sign your team isn't being developed enough.",
+      "cheatCode": [
+        "Identify three decisions you make weekly that someone on your team could make. Hand them off in writing.",
+        "Run a 'what would you do if I weren't here' thought experiment with each direct report. Use their answers.",
+        "Pick a project you'd normally lead. Sponsor someone else to lead it. Stay out of the way.",
+        "Track how often the team comes to you for answers vs. for sign-off. Push toward sign-off.",
+        "The goal isn't to be the best leader on the team. It's to make the next leader behind you."
+      ],
+      "nextMoves": [
+        "Hand off three recurring decisions to direct reports this week in writing.",
+        "Sponsor someone else to lead the next project you'd normally take.",
+        "Audit how often the team asks vs. tells you. Push toward telling."
+      ]
+    }
+  ],
+  "tiebreakOrder": [
+    "fire-fighter",
+    "coach",
+    "friend",
+    "operator",
+    "visionary",
+    "enforcer",
+    "diplomat",
+    "builder"
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "text": "When a team member misses a major deadline, your first instinct is to:",
+      "type": "multiple-choice",
+      "options": [
+        { "value": "a", "label": "Step in and finish it yourself, fast.", "weights": { "fire-fighter": 1 } },
+        { "value": "b", "label": "Have a one-on-one to understand what got in the way.", "weights": { "coach": 1 } },
+        { "value": "c", "label": "Avoid bringing it up so the relationship stays good.", "weights": { "friend": 1 } },
+        { "value": "d", "label": "Recalibrate the workload distribution across the team.", "weights": { "builder": 1 } }
+      ]
+    },
+    {
+      "id": "q2",
+      "text": "When you have feedback that someone might not want to hear, you usually:",
+      "type": "multiple-choice",
+      "options": [
+        { "value": "a", "label": "Soften it until it almost disappears.", "weights": { "diplomat": 1 } },
+        { "value": "b", "label": "Deliver it directly and move on.", "weights": { "enforcer": 1 } },
+        { "value": "c", "label": "Wait for the annual review.", "weights": { "friend": 1 } },
+        { "value": "d", "label": "Frame it as a growth conversation.", "weights": { "coach": 1 } }
+      ]
+    },
+    {
+      "id": "q3",
+      "text": "At your team meetings, you spend most of the airtime:",
+      "type": "multiple-choice",
+      "options": [
+        { "value": "a", "label": "Painting the bigger picture and where we're heading.", "weights": { "visionary": 1 } },
+        { "value": "b", "label": "Running through the task list and assignments.", "weights": { "operator": 1 } },
+        { "value": "c", "label": "Resolving urgent fires.", "weights": { "fire-fighter": 1 } },
+        { "value": "d", "label": "Asking the team what's getting in their way.", "weights": { "builder": 1 } }
+      ]
+    },
+    {
+      "id": "q4",
+      "text": "When two team members are in conflict, you:",
+      "type": "multiple-choice",
+      "options": [
+        { "value": "a", "label": "Broker a meeting and force resolution.", "weights": { "enforcer": 1 } },
+        { "value": "b", "label": "Hope it works itself out.", "weights": { "diplomat": 1 } },
+        { "value": "c", "label": "Separate their work so they don't have to interact.", "weights": { "operator": 1 } },
+        { "value": "d", "label": "Sit with each of them, then bring everyone together.", "weights": { "coach": 1 } }
+      ]
+    },
+    {
+      "id": "q5",
+      "text": "Your team would describe your standards as:",
+      "type": "multiple-choice",
+      "options": [
+        { "value": "a", "label": "Inspiring — they know what they're working toward.", "weights": { "visionary": 1 } },
+        { "value": "b", "label": "Crystal clear — they know exactly what's expected.", "weights": { "enforcer": 1 } },
+        { "value": "c", "label": "Adaptive — depends on the situation.", "weights": { "diplomat": 1 } },
+        { "value": "d", "label": "High and visible — they know what good looks like.", "weights": { "builder": 1 } }
+      ]
+    },
+    {
+      "id": "q6",
+      "text": "When a high performer underdelivers for two months running, you:",
+      "type": "multiple-choice",
+      "options": [
+        { "value": "a", "label": "Take on more of their work yourself.", "weights": { "fire-fighter": 1 } },
+        { "value": "b", "label": "Assume they're going through something and give space.", "weights": { "friend": 1 } },
+        { "value": "c", "label": "Name it and ask what's actually happening.", "weights": { "builder": 1 } },
+        { "value": "d", "label": "Quietly redistribute their assignments.", "weights": { "operator": 1 } }
+      ]
+    },
+    {
+      "id": "q7",
+      "text": "Your team's professional development looks like:",
+      "type": "multiple-choice",
+      "options": [
+        { "value": "a", "label": "Whatever they can fit in around the work.", "weights": { "operator": 1 } },
+        { "value": "b", "label": "Regular coaching conversations I lead.", "weights": { "coach": 1 } },
+        { "value": "c", "label": "The annual training budget.", "weights": { "diplomat": 1 } },
+        { "value": "d", "label": "Stretch assignments matched to where they want to grow.", "weights": { "builder": 1 } }
+      ]
+    },
+    {
+      "id": "q8",
+      "text": "When you're under pressure to deliver fast:",
+      "type": "multiple-choice",
+      "options": [
+        { "value": "a", "label": "You push the team harder.", "weights": { "enforcer": 1 } },
+        { "value": "b", "label": "You jump in and do it yourself.", "weights": { "fire-fighter": 1 } },
+        { "value": "c", "label": "You rally everyone around the why.", "weights": { "visionary": 1 } },
+        { "value": "d", "label": "You prioritize ruthlessly and protect the team's focus.", "weights": { "builder": 1 } }
+      ]
+    }
+  ]
+}

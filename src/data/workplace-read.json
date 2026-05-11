@@ -1,0 +1,214 @@
+{
+  "id": "workplace-read",
+  "title": "The Workplace Read",
+  "tagline": "20 questions. 5 minutes. A clear read on what's actually happening at work — and what to do about it.",
+  "instructions": "Answer based on your current reality — not how you wish things were.",
+  "outputPattern": "archetype-match",
+  "_distinctness": {
+    "quiet-erosion": "Slow, quiet loss of trust and engagement. Nothing visible is failing.",
+    "pressure-cooker": "Sustained overload; visible burnout signals.",
+    "politics-in-play": "Decisions driven by relationships and positioning, not merit.",
+    "drift": "No one's steering. Nothing's failing visibly, but nothing's improving either.",
+    "healthy-tension": "Real challenges exist, but the dynamics are functional. Baseline state."
+  },
+  "archetypes": [
+    {
+      "id": "quiet-erosion",
+      "name": "Quiet Erosion",
+      "summary": "From the outside, things look fine. Deadlines hit. Meetings happen. But the trust that used to be in the room has thinned. People are starting to opt out internally — quieter in meetings, slower to volunteer, less willing to push back. The work continues. The energy doesn't.",
+      "blindSpot": "Quiet erosion doesn't trip alarms. By the time it's visible, the best people have already started looking.",
+      "nextMoves": [
+        "Have an honest 1:1 with the team member you're most worried about losing. Ask what's changed.",
+        "Map the last three people who left or disengaged. Look for the upstream pattern — what did they all see?",
+        "Pick one trust-eroding behavior leadership tolerates. Name it out loud and change it."
+      ]
+    },
+    {
+      "id": "pressure-cooker",
+      "name": "Pressure Cooker",
+      "summary": "Sustained overload. Visible burnout signals — short tempers, sloppy work, weekend emails, people taking sick time who never used to. The team is delivering on momentum but the systems holding them up are showing strain.",
+      "blindSpot": "Pressure that's been on for too long stops feeling like pressure. It starts feeling like the job.",
+      "nextMoves": [
+        "Cut something this week. Pick one project, deliverable, or commitment and visibly remove it.",
+        "Force one full day off for the most burned-out person on the team. This week.",
+        "Hold a 30-minute 'what would we stop doing if we could' session with the team. Act on at least one answer."
+      ]
+    },
+    {
+      "id": "politics-in-play",
+      "name": "Politics in Play",
+      "summary": "Decisions are tracking relationships, not merit. People who are skilled at managing up are advancing. People who are skilled at the actual work are stuck. The org chart and the influence map have drifted apart — and everyone but leadership knows it.",
+      "blindSpot": "The people winning at politics are the ones telling you the politics aren't bad. The people losing at it have stopped telling you anything.",
+      "nextMoves": [
+        "Audit your last three promotions or high-visibility assignments. Were they given to the best person or the most visible person?",
+        "Ask three people who don't work in your direct line of sight: 'What's a decision around here that didn't make sense to you?'",
+        "Make one decision visibly on merit this month, even if the political path is easier."
+      ]
+    },
+    {
+      "id": "drift",
+      "name": "Drift",
+      "summary": "No fires. No emergencies. Also no momentum. The team is showing up, doing what they did last quarter, and nothing's clearly wrong. But also: nothing's improving. The org is coasting on past investments.",
+      "blindSpot": "Drift is comfortable. It's also the most expensive state to stay in — because the cost is invisible until a competitor or a shock makes it visible.",
+      "nextMoves": [
+        "Pick one decision you've been deferring for over 60 days. Make it this week.",
+        "Ask your team: 'What did we get done this quarter that wouldn't have happened without us?' If they struggle to answer, that's the signal.",
+        "Identify one ambitious bet you'd make if you weren't worried about looking foolish. Propose it."
+      ]
+    },
+    {
+      "id": "healthy-tension",
+      "name": "Healthy Tension",
+      "summary": "Real challenges are on the table. People disagree productively. Performance gets named. Decisions get made and revisited when wrong. None of it is comfortable. All of it is functional.",
+      "blindSpot": "Healthy tension is fragile. The same conditions that produce it can deteriorate fast when leadership stops modeling them.",
+      "nextMoves": [
+        "Identify the one behavior most responsible for the team's health. Make it explicit so it survives departures.",
+        "Spot the next leader behind you. What does healthy tension look like under their style?",
+        "Stress-test: what would have to change for this team to slide into drift or pressure-cooker? Watch for those changes."
+      ]
+    }
+  ],
+  "tiebreakOrder": ["healthy-tension", "quiet-erosion", "pressure-cooker", "politics-in-play", "drift"],
+  "questions": [
+    { "id": "q01", "type": "multiple-choice", "text": "Pick the line that best describes how the team's energy feels this month:",
+      "options": [
+        { "value": "a", "label": "Flat — going through the motions.", "weights": { "quiet-erosion": 1 } },
+        { "value": "b", "label": "Frayed — too much, for too long.", "weights": { "pressure-cooker": 1 } },
+        { "value": "c", "label": "Watchful — people are reading the room.", "weights": { "politics-in-play": 1 } },
+        { "value": "d", "label": "Honest — challenging but functional.", "weights": { "healthy-tension": 1 } }
+      ] },
+    { "id": "q02", "type": "multiple-choice", "text": "What's the most accurate description of what gets rewarded here?",
+      "options": [
+        { "value": "a", "label": "Quiet competence.", "weights": { "drift": 1 } },
+        { "value": "b", "label": "Visibility and relationships.", "weights": { "politics-in-play": 1 } },
+        { "value": "c", "label": "Output volume.", "weights": { "pressure-cooker": 1 } },
+        { "value": "d", "label": "Honest contribution.", "weights": { "healthy-tension": 1 } }
+      ] },
+    { "id": "q03", "type": "multiple-choice", "text": "When you imagine the next departure, you'd be most surprised by:",
+      "options": [
+        { "value": "a", "label": "A high-performer who hasn't said anything.", "weights": { "quiet-erosion": 1 } },
+        { "value": "b", "label": "Someone breaking from exhaustion.", "weights": { "pressure-cooker": 1 } },
+        { "value": "c", "label": "Honestly, you wouldn't be surprised by anyone.", "weights": { "politics-in-play": 1 } },
+        { "value": "d", "label": "Nobody — turnover is low and stable.", "weights": { "healthy-tension": 1 } }
+      ] },
+    { "id": "q04", "type": "multiple-choice", "text": "In your last all-hands or team meeting, the questions from the team were mostly:",
+      "options": [
+        { "value": "a", "label": "Scarce — people stayed quiet.", "weights": { "quiet-erosion": 1 } },
+        { "value": "b", "label": "Tactical — 'when does X land' kind of questions.", "weights": { "pressure-cooker": 1 } },
+        { "value": "c", "label": "Carefully worded — read between the lines.", "weights": { "politics-in-play": 1 } },
+        { "value": "d", "label": "Substantive — real disagreements aired.", "weights": { "healthy-tension": 1 } }
+      ] },
+    { "id": "q05", "type": "multiple-choice", "text": "When something goes wrong here, the conversation usually focuses on:",
+      "options": [
+        { "value": "a", "label": "Who's at fault.", "weights": { "politics-in-play": 1 } },
+        { "value": "b", "label": "How to get back on schedule.", "weights": { "pressure-cooker": 1 } },
+        { "value": "c", "label": "Nothing — it gets quietly absorbed.", "weights": { "drift": 1 } },
+        { "value": "d", "label": "What we'd change upstream next time.", "weights": { "healthy-tension": 1 } }
+      ] },
+    { "id": "q06", "type": "multiple-choice", "text": "The last time leadership made a decision the team disagreed with:",
+      "options": [
+        { "value": "a", "label": "They went along quietly.", "weights": { "quiet-erosion": 1 } },
+        { "value": "b", "label": "They were too tired to push back.", "weights": { "pressure-cooker": 1 } },
+        { "value": "c", "label": "They talked about it among themselves but not to leadership.", "weights": { "politics-in-play": 1 } },
+        { "value": "d", "label": "They raised it directly; we had the conversation.", "weights": { "healthy-tension": 1 } }
+      ] },
+    { "id": "q07", "type": "multiple-choice", "text": "Sick days and unplanned time off here are:",
+      "options": [
+        { "value": "a", "label": "Rare — people show up.", "weights": { "healthy-tension": 1 } },
+        { "value": "b", "label": "Rising — and not always credibly.", "weights": { "pressure-cooker": 1 } },
+        { "value": "c", "label": "Quiet — people don't say what they're missing for.", "weights": { "quiet-erosion": 1 } },
+        { "value": "d", "label": "About average. Not noteworthy.", "weights": { "drift": 1 } }
+      ] },
+    { "id": "q08", "type": "multiple-choice", "text": "If you had to grade the team's psychological safety, you'd give them:",
+      "options": [
+        { "value": "a", "label": "B+ — most things get said, with care.", "weights": { "healthy-tension": 1 } },
+        { "value": "b", "label": "C — surface conversations only.", "weights": { "quiet-erosion": 1 } },
+        { "value": "c", "label": "C-minus — strategic silence is the safest move.", "weights": { "politics-in-play": 1 } },
+        { "value": "d", "label": "B — but only because nothing's at stake.", "weights": { "drift": 1 } }
+      ] },
+    { "id": "q09", "type": "multiple-choice", "text": "Performance reviews here are:",
+      "options": [
+        { "value": "a", "label": "Honest and timely.", "weights": { "healthy-tension": 1 } },
+        { "value": "b", "label": "Vague — most everyone gets 'meets expectations.'", "weights": { "drift": 1 } },
+        { "value": "c", "label": "Late — we keep pushing them.", "weights": { "pressure-cooker": 1 } },
+        { "value": "d", "label": "Inconsistent — depends entirely on the relationship.", "weights": { "politics-in-play": 1 } }
+      ] },
+    { "id": "q10", "type": "multiple-choice", "text": "When you ask, 'what's the biggest thing slowing us down?' the answer is:",
+      "options": [
+        { "value": "a", "label": "Capacity — too much work.", "weights": { "pressure-cooker": 1 } },
+        { "value": "b", "label": "Indecision at the top.", "weights": { "drift": 1 } },
+        { "value": "c", "label": "People not saying what they actually think.", "weights": { "quiet-erosion": 1 } },
+        { "value": "d", "label": "Relationships, not roles.", "weights": { "politics-in-play": 1 } }
+      ] },
+    { "id": "q11", "type": "multiple-choice", "text": "New hires in their first three months mostly:",
+      "options": [
+        { "value": "a", "label": "Ramp fast — the team folds them in.", "weights": { "healthy-tension": 1 } },
+        { "value": "b", "label": "Get overwhelmed — there's no time to onboard properly.", "weights": { "pressure-cooker": 1 } },
+        { "value": "c", "label": "Take a while to figure out who really decides what.", "weights": { "politics-in-play": 1 } },
+        { "value": "d", "label": "Quietly disengage and become like everyone else.", "weights": { "quiet-erosion": 1 } }
+      ] },
+    { "id": "q12", "type": "multiple-choice", "text": "The last time you tried to drive change here, the main resistance was:",
+      "options": [
+        { "value": "a", "label": "Active pushback — people argued the substance.", "weights": { "healthy-tension": 1 } },
+        { "value": "b", "label": "Polite agreement that nothing actually changed.", "weights": { "drift": 1 } },
+        { "value": "c", "label": "Quiet circumvention.", "weights": { "quiet-erosion": 1 } },
+        { "value": "d", "label": "'Yes, but we don't have time.'", "weights": { "pressure-cooker": 1 } }
+      ] },
+    { "id": "q13", "type": "multiple-choice", "text": "When you imagine the team's mood meter, the needle is mostly:",
+      "options": [
+        { "value": "a", "label": "Steady.", "weights": { "healthy-tension": 1 } },
+        { "value": "b", "label": "Tired.", "weights": { "pressure-cooker": 1 } },
+        { "value": "c", "label": "Watchful.", "weights": { "politics-in-play": 1 } },
+        { "value": "d", "label": "Flat.", "weights": { "drift": 1 } }
+      ] },
+    { "id": "q14", "type": "multiple-choice", "text": "Cross-team collaboration here happens mostly through:",
+      "options": [
+        { "value": "a", "label": "Process — there's a way to do it.", "weights": { "healthy-tension": 1 } },
+        { "value": "b", "label": "Relationships — who you know.", "weights": { "politics-in-play": 1 } },
+        { "value": "c", "label": "Crisis — when we have to.", "weights": { "pressure-cooker": 1 } },
+        { "value": "d", "label": "It mostly doesn't.", "weights": { "drift": 1 } }
+      ] },
+    { "id": "q15", "type": "multiple-choice", "text": "The team's strongest performers are:",
+      "options": [
+        { "value": "a", "label": "Visibly engaged and being developed.", "weights": { "healthy-tension": 1 } },
+        { "value": "b", "label": "Quieter than they used to be.", "weights": { "quiet-erosion": 1 } },
+        { "value": "c", "label": "Stretched too thin.", "weights": { "pressure-cooker": 1 } },
+        { "value": "d", "label": "Underused — but they don't push for more.", "weights": { "drift": 1 } }
+      ] },
+    { "id": "q16", "type": "multiple-choice", "text": "Information here flows:",
+      "options": [
+        { "value": "a", "label": "Openly — context reaches everyone who needs it.", "weights": { "healthy-tension": 1 } },
+        { "value": "b", "label": "In silos — your team doesn't know what mine is doing.", "weights": { "drift": 1 } },
+        { "value": "c", "label": "Through back channels.", "weights": { "politics-in-play": 1 } },
+        { "value": "d", "label": "Late — usually after a decision is already made.", "weights": { "quiet-erosion": 1 } }
+      ] },
+    { "id": "q17", "type": "multiple-choice", "text": "The most accurate description of leadership's relationship with bad news is:",
+      "options": [
+        { "value": "a", "label": "They want it fast.", "weights": { "healthy-tension": 1 } },
+        { "value": "b", "label": "They want it filtered.", "weights": { "politics-in-play": 1 } },
+        { "value": "c", "label": "They don't get it until it's a crisis.", "weights": { "quiet-erosion": 1 } },
+        { "value": "d", "label": "Honestly, there isn't much bad news — nothing's happening.", "weights": { "drift": 1 } }
+      ] },
+    { "id": "q18", "type": "multiple-choice", "text": "The biggest unsaid thing on the team is:",
+      "options": [
+        { "value": "a", "label": "We're not going to make our targets at this pace.", "weights": { "pressure-cooker": 1 } },
+        { "value": "b", "label": "Our top performer is one bad month from leaving.", "weights": { "quiet-erosion": 1 } },
+        { "value": "c", "label": "A particular person is doing damage and we all know it.", "weights": { "politics-in-play": 1 } },
+        { "value": "d", "label": "Honestly, nothing — we say what needs saying.", "weights": { "healthy-tension": 1 } }
+      ] },
+    { "id": "q19", "type": "multiple-choice", "text": "If you had to make one bet about the next six months, you'd bet on:",
+      "options": [
+        { "value": "a", "label": "Steady improvement.", "weights": { "healthy-tension": 1 } },
+        { "value": "b", "label": "Continued grind, no real change.", "weights": { "drift": 1 } },
+        { "value": "c", "label": "Things getting harder before they get better.", "weights": { "pressure-cooker": 1 } },
+        { "value": "d", "label": "Someone significant leaving.", "weights": { "quiet-erosion": 1 } }
+      ] },
+    { "id": "q20", "type": "multiple-choice", "text": "When you describe this workplace to a friend outside it, the line that best fits is:",
+      "options": [
+        { "value": "a", "label": "'It's a real team. Hard, but real.'", "weights": { "healthy-tension": 1 } },
+        { "value": "b", "label": "'We're under a lot right now.'", "weights": { "pressure-cooker": 1 } },
+        { "value": "c", "label": "'It's fine, I guess.'", "weights": { "drift": 1 } },
+        { "value": "d", "label": "'It's complicated.'", "weights": { "politics-in-play": 1 } }
+      ] }
+  ]
+}
