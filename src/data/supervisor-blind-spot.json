@@ -1,7 +1,7 @@
 {
   "id": "supervisor-blind-spot",
   "title": "The Supervisor Blind Spot",
-  "tagline": "8 questions. 5 minutes. Discover your supervisor archetype — and the blind spot most likely to hold you back.",
+  "tagline": "10 questions. 5 minutes. Discover your supervisor archetype — and the blind spot most likely to hold you back.",
   "instructions": "Answer based on how you actually behave — not how you want to.",
   "outputPattern": "archetype-match",
   "_distinctness": {
@@ -257,6 +257,28 @@
         { "value": "b", "label": "You jump in and do it yourself.", "weights": { "fire-fighter": 1 } },
         { "value": "c", "label": "You rally everyone around the why.", "weights": { "visionary": 1 } },
         { "value": "d", "label": "You prioritize ruthlessly and protect the team's focus.", "weights": { "builder": 1 } }
+      ]
+    },
+    {
+      "id": "q9",
+      "text": "When the team is performing well, you mostly:",
+      "type": "multiple-choice",
+      "options": [
+        { "value": "a", "label": "Use it as evidence to push for the bigger vision.", "weights": { "visionary": 1 } },
+        { "value": "b", "label": "Acknowledge it and move on to the next deliverable.", "weights": { "operator": 1 } },
+        { "value": "c", "label": "Find the next thing to fix.", "weights": { "fire-fighter": 1 } },
+        { "value": "d", "label": "Name what specifically worked so people can repeat it.", "weights": { "coach": 1 } }
+      ]
+    },
+    {
+      "id": "q10",
+      "text": "When team feedback gets uncomfortable, you usually:",
+      "type": "multiple-choice",
+      "options": [
+        { "value": "a", "label": "Soften it before it lands.", "weights": { "friend": 1 } },
+        { "value": "b", "label": "Deliver it more directly than the moment requires.", "weights": { "enforcer": 1 } },
+        { "value": "c", "label": "Let it pass and revisit at the next formal review.", "weights": { "diplomat": 1 } },
+        { "value": "d", "label": "Step back and tie it to the broader direction.", "weights": { "visionary": 1 } }
       ]
     }
   ]

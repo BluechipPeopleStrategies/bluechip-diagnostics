@@ -3,8 +3,8 @@ import { matchArchetype } from '../../src/lib/scoring.js';
 import diagnostic from '../../src/data/supervisor-blind-spot.json';
 
 describe('Supervisor Blind Spot edge cases', () => {
-  it('has 8 multiple-choice questions and 8 archetypes', () => {
-    expect(diagnostic.questions.length).toBe(8);
+  it('has 10 multiple-choice questions and 8 archetypes', () => {
+    expect(diagnostic.questions.length).toBe(10);
     expect(diagnostic.archetypes.length).toBe(8);
     for (const q of diagnostic.questions) {
       expect(q.type).toBe('multiple-choice');
