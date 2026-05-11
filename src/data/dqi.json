@@ -24,7 +24,7 @@
     },
     {
       "id": "data-use",
-      "label": "Data Use",
+      "label": "Information",
       "description": "How well you incorporate evidence into the decision.",
       "scoreBands": [
         { "min": 0, "max": 40, "tier": "thin", "narrative": "You're flying on gut. Sometimes right, but not for the reasons you think." },
@@ -34,7 +34,7 @@
     },
     {
       "id": "calibration",
-      "label": "Confidence Calibration",
+      "label": "Calibration",
       "description": "How well your confidence in a decision matches your actual track record on calls of that type.",
       "scoreBands": [
         { "min": 0, "max": 40, "tier": "overconfident", "narrative": "Your confidence outruns your accuracy. You don't know what you don't know — and your team can't tell you." },
@@ -44,11 +44,11 @@
     },
     {
       "id": "review",
-      "label": "Post-Decision Review",
+      "label": "Review",
       "description": "How often and how honestly you revisit decisions after the outcome is known.",
       "scoreBands": [
         { "min": 0, "max": 40, "tier": "absent", "narrative": "You're not learning from your decisions. Same mistakes will keep showing up." },
-        { "min": 40, "max": 70, "tier": "occasional", "narrative": "You review the big ones, sometimes. The small-but-frequent decisions go unexamined." },
+        { "min": 40, "max": 70, "tier": "patchy", "narrative": "You review the big ones, sometimes. The small-but-frequent decisions go unexamined." },
         { "min": 70, "max": 100, "tier": "disciplined", "narrative": "You separate outcome from process. You can ask 'did I decide well even though the outcome was bad' (or vice versa)." }
       ]
     }
@@ -67,7 +67,7 @@
     },
     {
       "id": "analyst",
-      "name": "The Analyst",
+      "name": "The Over-Analyst",
       "summary": "You make better decisions than most — when you finish them. The problem is the windows you've missed waiting for more data. Quality is real. So is the cost of not deciding.",
       "blindSpot": "Inaction is a decision. You're making it without acknowledging the trade.",
       "nextMoves": [
@@ -89,7 +89,7 @@
     },
     {
       "id": "loudest-voice",
-      "name": "The Loudest-Voice Follower",
+      "name": "The Deferrer",
       "summary": "Your decisions track whoever speaks first, longest, or most forcefully in the room. You'd say you weigh inputs — but the timing and intensity of those inputs is doing more work than the substance.",
       "blindSpot": "Confidence is not evidence. The most confident person in the room is often the least calibrated.",
       "nextMoves": [
@@ -100,7 +100,7 @@
     },
     {
       "id": "calibrated-decider",
-      "name": "The Calibrated Decider",
+      "name": "The Calibrator",
       "summary": "You're matching speed to stakes. You gather the data you need and stop. You can name when you're guessing. This is the rarest archetype — and the easiest to slip out of when the pressure rises.",
       "blindSpot": "Your calibration is hard-won. It's also easy to lose. The pressure that erodes it is usually invisible until it's too late.",
       "nextMoves": [
