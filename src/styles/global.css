@@ -325,7 +325,16 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.18em;
   color: var(--bc-muted);
-  margin-top: 12px;
+  margin: 0 0 12px;
+}
+.bc-result-band-name {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 56px;
+  line-height: 1.1;
+  color: var(--bc-navy);
+  font-weight: 500;
+  font-style: italic;
+  margin: 0;
 }
 .bc-result-narrative { margin-bottom: 48px; }
 
@@ -342,6 +351,15 @@ body {
   margin-bottom: 6px;
 }
 .bc-dim-score { color: var(--bc-muted); font-weight: 500; }
+.bc-dim-tier {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--bc-muted);
+}
+.bc-dim-tier.is-weakest { color: var(--bc-gold); }
 .bc-dim-track {
   width: 100%;
   height: 6px;
@@ -502,6 +520,7 @@ body {
   .bc-option { padding: 16px 18px; }
   .bc-result-score { font-size: 72px; }
   .bc-result-archetype-name { font-size: 42px; }
+  .bc-result-band-name { font-size: 40px; }
   .bc-cta, .bc-cta-secondary {
     display: block; width: 100%; text-align: center; margin: 6px 0;
     box-sizing: border-box; padding: 14px 24px;
