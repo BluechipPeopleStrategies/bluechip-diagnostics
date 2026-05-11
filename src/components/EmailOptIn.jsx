@@ -36,7 +36,7 @@ export default function EmailOptIn({ diagnosticId, resultLabel }) {
     return (
       <section className="bc-optin">
         <h3>Got it.</h3>
-        <p>We'll email you a copy of your results. Thomas reads every opt-in personally — no auto-sequence.</p>
+        <p>We'll email you a copy of your results. We read every opt-in — no auto-sequence.</p>
       </section>
     );
   }
@@ -44,7 +44,7 @@ export default function EmailOptIn({ diagnosticId, resultLabel }) {
   return (
     <section className="bc-optin">
       <h3>Want this emailed to you?</h3>
-      <p>Drop your email. Thomas reads every opt-in personally — no auto-sequence.</p>
+      <p>Drop your email. We read every opt-in — no auto-sequence.</p>
       <form onSubmit={submit} className="bc-optin-row">
         <input
           type="text"
