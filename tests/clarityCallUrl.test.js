@@ -32,7 +32,7 @@ describe('buildClarityCallUrl', () => {
     expect(notes).not.toContain('Total:');
   });
 
-  it('returns the bare base URL when baseUrl is missing', () => {
+  it('returns empty string when baseUrl is empty', () => {
     const url = buildClarityCallUrl({
       baseUrl: '',
       diagnosticId: 'dqi',
@@ -40,6 +40,27 @@ describe('buildClarityCallUrl', () => {
       total: 60,
     });
     expect(url).toBe('');
+  });
+
+  it('returns empty string when baseUrl is unparseable', () => {
+    const url = buildClarityCallUrl({
+      baseUrl: 'REPLACE_ME',
+      diagnosticId: 'dqi',
+      tier: 'uneven',
+      total: 60,
+    });
+    expect(url).toBe('');
+  });
+
+  it('includes Total: 0/100 when total is zero (not falsy-dropped)', () => {
+    const url = buildClarityCallUrl({
+      baseUrl,
+      diagnosticId: 'org-pulse',
+      tier: 'exposed',
+      total: 0,
+    });
+    const notes = new URL(url).searchParams.get('notes');
+    expect(notes).toContain('Total: 0/100');
   });
 
   it('URL-encodes spaces and special characters in the notes', () => {
