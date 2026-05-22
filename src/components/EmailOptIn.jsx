@@ -5,14 +5,10 @@ export default function EmailOptIn({ diagnosticId, resultLabel }) {
   const [name, setName] = useState('');
   const [status, setStatus] = useState('idle');
 
-  const endpoint = import.meta.env.VITE_FORMSPREE_DIAGNOSTICS_ENDPOINT;
+  const endpoint = import.meta.env.VITE_SUBMIT_ENDPOINT || '/api/submit';
 
   async function submit(e) {
     e.preventDefault();
-    if (!endpoint || endpoint.includes('REPLACE_ME')) {
-      setStatus('error');
-      return;
-    }
     setStatus('submitting');
     try {
       const res = await fetch(endpoint, {
