@@ -22,7 +22,7 @@ export default async function handler(req, res) {
   const buildTemplate = TEMPLATE_BUILDERS[diagnosticId];
   let emailSent = false;
   if (buildTemplate) {
-    const { subject, html } = buildTemplate({ firstName, bandLabel, total });
+    const { subject, html } = buildTemplate({ firstName, bandLabel, total, diagnosticId });
     emailSent = await sendResendEmail({ to: email, subject, html });
   }
 
