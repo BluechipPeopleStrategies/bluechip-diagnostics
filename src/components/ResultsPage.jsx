@@ -66,7 +66,11 @@ export default function ResultsPage({ diagnostic, answers, onRestart }) {
 
       <hr />
 
-      <ClarityCallCTA />
+      <ClarityCallCTA
+        diagnosticId={diagnostic.id}
+        tier={scoreResult?.totalBand?.tier || null}
+        total={scoreResult?.total ?? null}
+      />
 
       <ShareButton diagnosticId={diagnostic.id} resultType={resultType} resultLabel={resultLabel} />
 
