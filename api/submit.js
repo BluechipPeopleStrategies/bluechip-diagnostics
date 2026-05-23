@@ -1,7 +1,13 @@
 import { buildOrgPulseEmail } from './_emails/org-pulse.js';
+import { buildDqiEmail } from './_emails/dqi.js';
+import { buildSupervisorBlindSpotEmail } from './_emails/supervisor-blind-spot.js';
+import { buildWorkplaceReadEmail } from './_emails/workplace-read.js';
 
 const TEMPLATE_BUILDERS = {
   'org-pulse': buildOrgPulseEmail,
+  'dqi': buildDqiEmail,
+  'supervisor-blind-spot': buildSupervisorBlindSpotEmail,
+  'workplace-read': buildWorkplaceReadEmail,
 };
 
 export default async function handler(req, res) {

@@ -15,13 +15,18 @@ export default function ResultsPage({ diagnostic, answers, onRestart, emailSubmi
   const scoreResult = wantsScore ? scoreLikert(diagnostic, answers) : null;
   const archetypeResult = wantsArchetype ? matchArchetype(diagnostic, answers) : null;
 
+  // Prefer score-band format when a band exists so downstream (email tier
+  // branching, Notion Band Label) gets the richer signal. Archetype-only
+  // diagnostics fall back to the archetype id.
   let resultType = 'score';
   let resultLabel = '';
-  if (archetypeResult?.archetypeId) {
+  if (scoreResult?.totalBand) {
+    resultLabel = `${scoreResult.totalBand.label} (${scoreResult.total}/100)`;
+  } else if (archetypeResult?.archetypeId) {
     resultType = 'archetype';
     resultLabel = archetypeResult.archetypeId;
   } else if (scoreResult) {
-    resultLabel = `${scoreResult.totalBand?.label || 'Score'} (${scoreResult.total}/100)`;
+    resultLabel = `Score (${scoreResult.total}/100)`;
   }
 
   const narrativeParas = [];
