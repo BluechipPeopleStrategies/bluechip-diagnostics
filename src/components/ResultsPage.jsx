@@ -48,7 +48,6 @@ export default function ResultsPage({ diagnostic, answers, onRestart, emailSubmi
   return (
     <main className="bc-page">
       <ResultHeadline scoreResult={scoreResult} archetypeResult={archetypeResult} />
-      <ResultNarrative paragraphs={narrativeParas} />
 
       <hr />
 
@@ -61,6 +60,8 @@ export default function ResultsPage({ diagnostic, answers, onRestart, emailSubmi
 
       {emailSubmitted && (
         <>
+          <ResultNarrative paragraphs={narrativeParas} />
+
           {scoreResult && diagnostic.dimensions && (
             <>
               <h2>Dimension <em>breakdown</em></h2>
