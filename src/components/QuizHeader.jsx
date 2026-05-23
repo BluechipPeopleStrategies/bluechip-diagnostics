@@ -3,7 +3,7 @@ export default function QuizHeader({ currentIndex, total, title }) {
   return (
     <div className="bc-quiz-header">
       <p className="bc-quiz-header-eyebrow">
-        Question {currentIndex + 1} of {total} — {title}
+        Question {currentIndex + 1} of {total}: {title}
       </p>
       <div className="bc-progress-track" aria-hidden="true">
         <div className="bc-progress-fill" style={{ width: `${pct}%` }} />

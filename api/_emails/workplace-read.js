@@ -21,26 +21,26 @@ function signalRich({ name, archetypeLabel, ctaUrl }) {
     subject: 'Your Workplace Read result',
     html: layout(`
       <p>Hi ${name},</p>
-      <p>Quick note — your Workplace Read came in. You landed as ${archetypeLabel}, which is signal-rich. What you flagged matches patterns we see often.</p>
-      <p>Naming the pattern is the first move, not the last. A lot of what makes a tough workplace tough is that the issues stay vague, personal, and hard to talk about. You now have language for them — that's leverage you didn't have an hour ago.</p>
+      <p>Quick note: your Workplace Read came in. You landed as ${archetypeLabel}, which is signal-rich. What you flagged matches patterns we see often.</p>
+      <p>Naming the pattern is the first move, not the last. A lot of what makes a tough workplace tough is that the issues stay vague, personal, and hard to talk about. You now have language for them. That's leverage you didn't have an hour ago.</p>
       ${cta}
-      <p>— Thomas</p>
+      <p>Thomas</p>
     `),
   };
 }
 
 function strongFoundation({ name, archetypeLabel, ctaUrl }) {
   const cta = ctaUrl
-    ? `<p>If a specific question is on your mind — a change you're weighing, a dynamic you're noticing — ${calLink(ctaUrl)}. Free, 30 minutes. Or just reply.</p>`
+    ? `<p>If a specific question is on your mind (a change you're weighing, a dynamic you're noticing), ${calLink(ctaUrl)}. Free, 30 minutes. Or just reply.</p>`
     : `<p>If a specific question is on your mind, just reply and we'll find a time.</p>`;
   return {
     subject: 'Your Workplace Read result',
     html: layout(`
       <p>Hi ${name},</p>
-      <p>Quick note — your Workplace Read came in. You landed at ${archetypeLabel}, which puts you in the healthy range. That's rarer than people realize.</p>
-      <p>A healthy workplace isn't an accident — it's built and maintained by people who pay attention to it. The leverage from here is making the read habitual: re-run this on a cadence (quarterly, or at moments of change) and the trend line is where the actual insight lives.</p>
+      <p>Quick note: your Workplace Read came in. You landed at ${archetypeLabel}, which puts you in the healthy range. That's rarer than people realize.</p>
+      <p>A healthy workplace isn't an accident. It's built and maintained by people who pay attention to it. The leverage from here is making the read habitual: re-run this on a cadence (quarterly, or at moments of change) and the trend line is where the actual insight lives.</p>
       ${cta}
-      <p>— Thomas</p>
+      <p>Thomas</p>
     `),
   };
 }

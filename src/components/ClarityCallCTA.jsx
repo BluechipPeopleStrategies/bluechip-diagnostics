@@ -8,7 +8,7 @@ export default function ClarityCallCTA({ diagnosticId, tier = null, total = null
     <>
       <h2>You've <em>earned</em> a free Clarity Call</h2>
       <p>
-        A 30-minute conversation about what your diagnostic surfaced — what's actually
+        A 30-minute conversation about what your diagnostic surfaced. What's actually
         happening in your organization, what you've tried, and whether BlueChip is the
         right fit. No charge; finishing the diagnostic is the only ask.
       </p>

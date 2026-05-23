@@ -21,10 +21,10 @@ function signalRich({ name, archetypeLabel, ctaUrl }) {
     subject: 'Your Supervisor Blind Spot result',
     html: layout(`
       <p>Hi ${name},</p>
-      <p>Quick note — your Supervisor Blind Spot read came in. You landed as ${archetypeLabel}, which is signal-rich. That's actually the most useful kind of result this diagnostic produces.</p>
-      <p>Blind spots aren't flaws — they're the development frontier. Every supervisor has them. The ones who grow fastest surface them deliberately and treat them as the work, not as something to defend against.</p>
+      <p>Quick note: your Supervisor Blind Spot read came in. You landed as ${archetypeLabel}, which is signal-rich. That's actually the most useful kind of result this diagnostic produces.</p>
+      <p>Blind spots aren't flaws. They're the development frontier. Every supervisor has them. The ones who grow fastest surface them deliberately and treat them as the work, not as something to defend against.</p>
       ${cta}
-      <p>— Thomas</p>
+      <p>Thomas</p>
     `),
   };
 }
@@ -37,10 +37,10 @@ function strongFoundation({ name, archetypeLabel, ctaUrl }) {
     subject: 'Your Supervisor Blind Spot result',
     html: layout(`
       <p>Hi ${name},</p>
-      <p>Quick note — your Supervisor Blind Spot read came in. You landed as ${archetypeLabel}, which is strong-foundation. Self-awareness at this level is rarer than it sounds.</p>
-      <p>The next move from here is usually expanding the read — self-perception is one signal, your reports' is another, peers' is a third. Strong supervisors eventually triangulate all three.</p>
+      <p>Quick note: your Supervisor Blind Spot read came in. You landed as ${archetypeLabel}, which is strong-foundation. Self-awareness at this level is rarer than it sounds.</p>
+      <p>The next move from here is usually expanding the read. Self-perception is one signal, your reports' is another, peers' is a third. Strong supervisors eventually triangulate all three.</p>
       ${cta}
-      <p>— Thomas</p>
+      <p>Thomas</p>
     `),
   };
 }

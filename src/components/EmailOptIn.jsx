@@ -37,7 +37,7 @@ export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onS
     return (
       <section className="bc-optin">
         <h3>Got it.</h3>
-        <p>Your full breakdown is unlocked below — and we'll email you a clean copy you can save. We read every opt-in — no auto-sequence.</p>
+        <p>Your full breakdown is unlocked below, and we'll email you a clean copy you can save. We read every opt-in, no auto-sequence.</p>
       </section>
     );
   }
@@ -45,7 +45,7 @@ export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onS
   return (
     <section className="bc-optin">
       <h3>Want the <em>full breakdown</em>?</h3>
-      <p>Drop your email and we'll unlock the dimension-by-dimension breakdown and your personalized next moves — plus send you a clean copy you can save. We read every opt-in — no auto-sequence.</p>
+      <p>Drop your email and we'll unlock the dimension-by-dimension breakdown and your personalized next moves, plus send you a clean copy you can save. We read every opt-in, no auto-sequence.</p>
       <form onSubmit={submit} className="bc-optin-row">
         <input
           type="text"
