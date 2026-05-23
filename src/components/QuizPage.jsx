@@ -26,16 +26,18 @@ export default function QuizPage({ shareView = false }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showResults, setShowResults] = useState(false);
 
-  console.log('[BC-DEBUG]', { slug, hasDiagnostic: !!diagnostic, questionsLen: diagnostic?.questions?.length, currentIndex, showResults, diagnosticKeys: Object.keys(diagnostics) });
-
-  // Restore state on mount (per slug)
+  // Restore state on mount (per slug). Clamp a stale saved index against the
+  // current questions length so a quiz that was lengthened/shortened — or a state
+  // that over-advanced via rapid-clicks — can't trap the user on a blank screen.
   useEffect(() => {
     if (!diagnostic) return;
+    const lastIndex = diagnostic.questions.length - 1;
     const saved = loadState(slug);
     if (saved) {
+      const savedIndex = saved.currentIndex || 0;
       setAnswers(saved.answers || {});
-      setCurrentIndex(saved.currentIndex || 0);
-      setShowResults(!!saved.showResults);
+      setCurrentIndex(Math.min(Math.max(savedIndex, 0), lastIndex));
+      setShowResults(!!saved.showResults || savedIndex > lastIndex);
     } else {
       setAnswers({});
       setCurrentIndex(0);
@@ -53,10 +55,12 @@ export default function QuizPage({ shareView = false }) {
     (value) => {
       if (!diagnostic) return;
       const q = diagnostic.questions[currentIndex];
+      if (!q) return;
       setAnswers((prev) => ({ ...prev, [q.id]: value }));
-      // Auto-advance after a short pause to register the selection visually
-      if (currentIndex < diagnostic.questions.length - 1) {
-        setTimeout(() => setCurrentIndex((i) => i + 1), 220);
+      const lastIndex = diagnostic.questions.length - 1;
+      // Clamp inside the setter so rapid clicks can't over-advance past the last question.
+      if (currentIndex < lastIndex) {
+        setTimeout(() => setCurrentIndex((i) => Math.min(i + 1, lastIndex)), 220);
       } else {
         setTimeout(() => setShowResults(true), 220);
       }
