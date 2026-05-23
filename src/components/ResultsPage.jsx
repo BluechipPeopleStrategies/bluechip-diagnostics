@@ -36,13 +36,27 @@ export default function ResultsPage({ diagnostic, answers, onRestart, emailSubmi
   }
 
   let nextMoves = [];
+  let weakestDimensionId = null;
+  if (scoreResult) {
+    const sorted = Object.entries(scoreResult.perDimension).sort(([, a], [, b]) => a - b);
+    weakestDimensionId = sorted[0]?.[0] || null;
+  }
   if (archetypeResult?.archetype?.nextMoves) {
     nextMoves = archetypeResult.archetype.nextMoves;
-  } else if (scoreResult) {
-    const sorted = Object.entries(scoreResult.perDimension).sort(([, a], [, b]) => a - b);
-    const weakestId = sorted[0]?.[0];
-    const weakestBand = weakestId ? scoreResult.dimensionBands[weakestId] : null;
+  } else if (scoreResult && weakestDimensionId) {
+    const weakestBand = scoreResult.dimensionBands[weakestDimensionId];
     if (weakestBand?.nextMoves) nextMoves = weakestBand.nextMoves;
+  }
+
+  // Detail surfaced in the result email so it reads like Thomas saw the result.
+  // For score-based diagnostics: weakest dimension's human label. For
+  // archetype diagnostics: archetype display label.
+  let detail = '';
+  if (weakestDimensionId && diagnostic.dimensions) {
+    const dim = diagnostic.dimensions.find((d) => d.id === weakestDimensionId);
+    detail = dim?.label || '';
+  } else if (archetypeResult?.archetype) {
+    detail = archetypeResult.archetype.label || archetypeResult.archetype.name || '';
   }
 
   return (
@@ -54,6 +68,7 @@ export default function ResultsPage({ diagnostic, answers, onRestart, emailSubmi
       <EmailOptIn
         diagnosticId={diagnostic.id}
         resultLabel={resultLabel}
+        detail={detail}
         onSubmitted={onEmailSubmitted}
         alreadySubmitted={emailSubmitted}
       />

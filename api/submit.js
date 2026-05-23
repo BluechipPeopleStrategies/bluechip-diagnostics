@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'method_not_allowed' });
   }
 
-  const { diagnosticId, resultLabel, email, name, submittedAt } = req.body || {};
+  const { diagnosticId, resultLabel, detail, email, name, submittedAt } = req.body || {};
 
   if (!diagnosticId || !email) {
     return res.status(400).json({ error: 'missing_required_fields' });
@@ -28,7 +28,7 @@ export default async function handler(req, res) {
   const buildTemplate = TEMPLATE_BUILDERS[diagnosticId];
   let emailSent = false;
   if (buildTemplate) {
-    const { subject, html } = buildTemplate({ firstName, bandLabel, total, diagnosticId });
+    const { subject, html } = buildTemplate({ firstName, bandLabel, total, detail: detail || '', diagnosticId });
     emailSent = await sendResendEmail({ to: email, subject, html });
   }
 

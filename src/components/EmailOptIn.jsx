@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export default function EmailOptIn({ diagnosticId, resultLabel, onSubmitted, alreadySubmitted = false }) {
+export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onSubmitted, alreadySubmitted = false }) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [status, setStatus] = useState(alreadySubmitted ? 'success' : 'idle');
@@ -21,6 +21,7 @@ export default function EmailOptIn({ diagnosticId, resultLabel, onSubmitted, alr
         body: JSON.stringify({
           diagnosticId,
           resultLabel,
+          detail,
           email,
           name,
           submittedAt: new Date().toISOString(),
