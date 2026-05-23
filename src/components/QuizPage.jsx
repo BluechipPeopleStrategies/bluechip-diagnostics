@@ -25,6 +25,7 @@ export default function QuizPage({ shareView = false }) {
   const [answers, setAnswers] = useState({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showResults, setShowResults] = useState(false);
+  const [emailSubmitted, setEmailSubmitted] = useState(false);
 
   // Restore state on mount (per slug). Clamp a stale saved index against the
   // current questions length so a quiz that was lengthened/shortened — or a state
@@ -38,18 +39,20 @@ export default function QuizPage({ shareView = false }) {
       setAnswers(saved.answers || {});
       setCurrentIndex(Math.min(Math.max(savedIndex, 0), lastIndex));
       setShowResults(!!saved.showResults || savedIndex > lastIndex);
+      setEmailSubmitted(!!saved.emailSubmitted);
     } else {
       setAnswers({});
       setCurrentIndex(0);
       setShowResults(false);
+      setEmailSubmitted(false);
     }
   }, [slug, diagnostic]);
 
   // Persist on every change
   useEffect(() => {
     if (!diagnostic) return;
-    saveState(slug, { answers, currentIndex, showResults });
-  }, [slug, diagnostic, answers, currentIndex, showResults]);
+    saveState(slug, { answers, currentIndex, showResults, emailSubmitted });
+  }, [slug, diagnostic, answers, currentIndex, showResults, emailSubmitted]);
 
   const handleAnswer = useCallback(
     (value) => {
@@ -77,6 +80,7 @@ export default function QuizPage({ shareView = false }) {
     setAnswers({});
     setCurrentIndex(0);
     setShowResults(false);
+    setEmailSubmitted(false);
   }, [slug]);
 
   if (!diagnostic) {
@@ -101,7 +105,15 @@ export default function QuizPage({ shareView = false }) {
   }
 
   if (showResults) {
-    return <ResultsPage diagnostic={diagnostic} answers={answers} onRestart={handleRestart} />;
+    return (
+      <ResultsPage
+        diagnostic={diagnostic}
+        answers={answers}
+        onRestart={handleRestart}
+        emailSubmitted={emailSubmitted}
+        onEmailSubmitted={() => setEmailSubmitted(true)}
+      />
+    );
   }
 
   const question = diagnostic.questions[currentIndex];

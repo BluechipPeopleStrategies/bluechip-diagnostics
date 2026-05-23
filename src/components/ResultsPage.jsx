@@ -8,7 +8,7 @@ import EmailOptIn from './EmailOptIn';
 import ClarityCallCTA from './ClarityCallCTA';
 import ShareButton from './ShareButton';
 
-export default function ResultsPage({ diagnostic, answers, onRestart }) {
+export default function ResultsPage({ diagnostic, answers, onRestart, emailSubmitted = false, onEmailSubmitted }) {
   const wantsScore = diagnostic.outputPattern === 'score-and-dimensions' || diagnostic.outputPattern === 'both';
   const wantsArchetype = diagnostic.outputPattern === 'archetype-match' || diagnostic.outputPattern === 'both';
 
@@ -45,24 +45,33 @@ export default function ResultsPage({ diagnostic, answers, onRestart }) {
       <ResultHeadline scoreResult={scoreResult} archetypeResult={archetypeResult} />
       <ResultNarrative paragraphs={narrativeParas} />
 
-      {scoreResult && diagnostic.dimensions && (
-        <>
-          <h2>Dimension <em>breakdown</em></h2>
-          <DimensionBreakdown
-            dimensions={diagnostic.dimensions}
-            perDimension={scoreResult.perDimension}
-            dimensionBands={scoreResult.dimensionBands}
-          />
-        </>
-      )}
-
-      {archetypeResult?.archetype && <ArchetypeProfile archetype={archetypeResult.archetype} />}
-
-      <NextMoves moves={nextMoves} />
-
       <hr />
 
-      <EmailOptIn diagnosticId={diagnostic.id} resultLabel={resultLabel} />
+      <EmailOptIn
+        diagnosticId={diagnostic.id}
+        resultLabel={resultLabel}
+        onSubmitted={onEmailSubmitted}
+        alreadySubmitted={emailSubmitted}
+      />
+
+      {emailSubmitted && (
+        <>
+          {scoreResult && diagnostic.dimensions && (
+            <>
+              <h2>Dimension <em>breakdown</em></h2>
+              <DimensionBreakdown
+                dimensions={diagnostic.dimensions}
+                perDimension={scoreResult.perDimension}
+                dimensionBands={scoreResult.dimensionBands}
+              />
+            </>
+          )}
+
+          {archetypeResult?.archetype && <ArchetypeProfile archetype={archetypeResult.archetype} />}
+
+          <NextMoves moves={nextMoves} />
+        </>
+      )}
 
       <hr />
 

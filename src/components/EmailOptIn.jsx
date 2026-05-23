@@ -1,11 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
-export default function EmailOptIn({ diagnosticId, resultLabel }) {
+export default function EmailOptIn({ diagnosticId, resultLabel, onSubmitted, alreadySubmitted = false }) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
-  const [status, setStatus] = useState('idle');
+  const [status, setStatus] = useState(alreadySubmitted ? 'success' : 'idle');
 
   const endpoint = import.meta.env.VITE_SUBMIT_ENDPOINT || '/api/submit';
+
+  useEffect(() => {
+    if (status === 'success' && onSubmitted) onSubmitted();
+  }, [status, onSubmitted]);
 
   async function submit(e) {
     e.preventDefault();
@@ -32,15 +36,15 @@ export default function EmailOptIn({ diagnosticId, resultLabel }) {
     return (
       <section className="bc-optin">
         <h3>Got it.</h3>
-        <p>We'll email you a copy of your results. We read every opt-in — no auto-sequence.</p>
+        <p>Your full breakdown is unlocked below — and we'll email you a clean copy you can save. We read every opt-in — no auto-sequence.</p>
       </section>
     );
   }
 
   return (
     <section className="bc-optin">
-      <h3>Want this emailed to you?</h3>
-      <p>Drop your email. We read every opt-in — no auto-sequence.</p>
+      <h3>Want the <em>full breakdown</em>?</h3>
+      <p>Drop your email and we'll unlock the dimension-by-dimension breakdown and your personalized next moves — plus send you a clean copy you can save. We read every opt-in — no auto-sequence.</p>
       <form onSubmit={submit} className="bc-optin-row">
         <input
           type="text"
