@@ -26,6 +26,8 @@ export default function QuizPage({ shareView = false }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showResults, setShowResults] = useState(false);
 
+  console.log('[BC-DEBUG]', { slug, hasDiagnostic: !!diagnostic, questionsLen: diagnostic?.questions?.length, currentIndex, showResults, diagnosticKeys: Object.keys(diagnostics) });
+
   // Restore state on mount (per slug)
   useEffect(() => {
     if (!diagnostic) return;
