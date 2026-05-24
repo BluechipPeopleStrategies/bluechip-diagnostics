@@ -34,7 +34,6 @@ export default async function handler(req, res) {
     source,
     ackAdvisoryOnly,
     ackDecisionsAreMine,
-    ackReadMSA,
     company, // honeypot
   } = req.body || {};
 
@@ -50,14 +49,13 @@ export default async function handler(req, res) {
   if (!isValidEmail(email)) {
     return res.status(400).json({ error: 'invalid_email' });
   }
-  if (!ackAdvisoryOnly || !ackDecisionsAreMine || !ackReadMSA) {
+  if (!ackAdvisoryOnly || !ackDecisionsAreMine) {
     return res.status(400).json({ error: 'missing_acknowledgements' });
   }
 
   const acks = {
     advisoryOnly: !!ackAdvisoryOnly,
     decisionsAreMine: !!ackDecisionsAreMine,
-    readMSA: !!ackReadMSA,
   };
   const submittedAt = new Date().toISOString();
   const cleanSource = (source || 'contact-form').toString().slice(0, 100);
@@ -149,7 +147,6 @@ async function writeNotionContactRow({ name, email, inquiry, source, submittedAt
           Status: { select: { name: 'New' } },
           'Ack: Advisory only': { checkbox: !!acks.advisoryOnly },
           'Ack: Decisions are mine': { checkbox: !!acks.decisionsAreMine },
-          'Ack: Read MSA': { checkbox: !!acks.readMSA },
         },
       }),
     });

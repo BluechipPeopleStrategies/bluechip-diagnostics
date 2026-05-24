@@ -14,7 +14,6 @@ export function buildContactNotificationEmail({ name, email, inquiry, source, ac
   const safeSource = escapeHtml(source || 'website');
   const ack1 = acks?.advisoryOnly ? '✅' : '❌';
   const ack2 = acks?.decisionsAreMine ? '✅' : '❌';
-  const ack3 = acks?.readMSA ? '✅' : '❌';
   return {
     subject: `New contact: ${name || email}`,
     html: `<!DOCTYPE html>
@@ -25,7 +24,7 @@ export function buildContactNotificationEmail({ name, email, inquiry, source, ac
     <p><strong>Inquiry:</strong></p>
     <blockquote style="border-left:3px solid #ccc;margin:0;padding-left:14px;color:#333;">${safeInquiry}</blockquote>
     <p style="font-size:13px;color:#666;margin-top:24px;">
-      Acknowledgements: ${ack1} advisory-only, ${ack2} decisions-are-mine, ${ack3} read-MSA
+      Acknowledgements: ${ack1} advisory-only, ${ack2} decisions-are-mine
     </p>
     <p style="font-size:13px;color:#666;">Hit reply to respond directly. Their email is the Reply-To header.</p>
   </div>
