@@ -42,7 +42,8 @@ export default async function handler(req, res) {
   const attendees = booking.attendees || [];
   const email = (attendees[0]?.email || booking.responses?.email?.value || '').toLowerCase().trim();
   const uid = booking.uid || '';
-  const startTime = booking.startTime || '';
+  const meetingTime = booking.startTime || '';
+  const bookedAt = event.createdAt || booking.createdAt || new Date().toISOString();
   const bookingUrl = uid ? `https://app.cal.com/booking/${uid}` : '';
   const attendeeName = attendees[0]?.name || booking.responses?.name?.value || '';
 
@@ -50,7 +51,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'missing_attendee_email' });
   }
 
-  const result = await upsertNotionBookingRow({ email, uid, startTime, bookingUrl, attendeeName });
+  const result = await upsertNotionBookingRow({ email, uid, meetingTime, bookedAt, bookingUrl, attendeeName });
   return res.status(200).json({ ok: true, ...result });
 }
 
@@ -73,7 +74,7 @@ function verifySignature(rawBody, signature, secret) {
   }
 }
 
-async function upsertNotionBookingRow({ email, uid, startTime, bookingUrl, attendeeName }) {
+async function upsertNotionBookingRow({ email, uid, meetingTime, bookedAt, bookingUrl, attendeeName }) {
   const apiKey = process.env.NOTION_API_KEY;
   const databaseId = process.env.NOTION_DATABASE_ID;
   if (!apiKey || !databaseId) {
@@ -103,7 +104,8 @@ async function upsertNotionBookingRow({ email, uid, startTime, bookingUrl, atten
 
   const bookingProps = {
     'Lead Status': { select: { name: 'Booked Clarity Call' } },
-    'Booking Time': startTime ? { date: { start: startTime } } : { date: null },
+    'Meeting Time': meetingTime ? { date: { start: meetingTime } } : { date: null },
+    'Booked At': bookedAt ? { date: { start: bookedAt } } : { date: null },
     'Cal Booking URL': bookingUrl ? { url: bookingUrl } : { url: null },
     'Cal Event UID': { rich_text: [{ text: { content: uid } }] },
   };
