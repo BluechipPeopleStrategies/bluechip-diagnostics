@@ -124,7 +124,11 @@ async function upsertNotionBookingRow({ email, uid, meetingTime, bookedAt, booki
       console.error('cal-webhook: Notion update failed', updRes.status, await updRes.text());
       return { error: 'notion_update_failed' };
     }
-    return { matched: true, pageId: existing.id };
+    // Best-effort cancel the scheduled nudge so the person doesn't get pestered after they've already booked.
+    const nudgeId = existing.properties?.['Nudge Email ID']?.rich_text?.[0]?.text?.content;
+    let nudgeCancelled = false;
+    if (nudgeId) nudgeCancelled = await cancelResendEmail(nudgeId);
+    return { matched: true, pageId: existing.id, nudgeCancelled };
   }
 
   // No matching submission row — create a booking-only row so we don't lose the lead.
@@ -149,4 +153,23 @@ async function upsertNotionBookingRow({ email, uid, meetingTime, bookedAt, booki
     return { error: 'notion_create_failed' };
   }
   return { matched: false, created: true };
+}
+
+async function cancelResendEmail(emailId) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey || !emailId) return false;
+  try {
+    const res = await fetch(`https://api.resend.com/emails/${emailId}/cancel`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}` },
+    });
+    if (!res.ok) {
+      console.warn('cal-webhook: Resend cancel failed', res.status, await res.text());
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.warn('cal-webhook: Resend cancel error', err);
+    return false;
+  }
 }

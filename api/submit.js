@@ -2,6 +2,9 @@ import { buildOrgPulseEmail } from './_emails/org-pulse.js';
 import { buildDqiEmail } from './_emails/dqi.js';
 import { buildSupervisorBlindSpotEmail } from './_emails/supervisor-blind-spot.js';
 import { buildWorkplaceReadEmail } from './_emails/workplace-read.js';
+import { buildNudgeEmail } from './_emails/nudge.js';
+
+const NUDGE_DELAY_HOURS = 24;
 
 const TEMPLATE_BUILDERS = {
   'org-pulse': buildOrgPulseEmail,
@@ -27,9 +30,25 @@ export default async function handler(req, res) {
 
   const buildTemplate = TEMPLATE_BUILDERS[diagnosticId];
   let emailSent = false;
+  let nudgeEmailId = null;
   if (buildTemplate) {
     const { subject, html } = buildTemplate({ firstName, bandLabel, total, detail: detail || '', diagnosticId });
     emailSent = await sendResendEmail({ to: email, subject, html });
+
+    const nudgeAt = new Date(Date.now() + NUDGE_DELAY_HOURS * 60 * 60 * 1000).toISOString();
+    const { subject: nudgeSubject, html: nudgeHtml } = buildNudgeEmail({
+      firstName,
+      diagnosticId,
+      bandLabel,
+      total,
+      detail: detail || '',
+    });
+    nudgeEmailId = await scheduleResendEmail({
+      to: email,
+      subject: nudgeSubject,
+      html: nudgeHtml,
+      scheduledAt: nudgeAt,
+    });
   }
 
   const notionRowCreated = await writeNotionRow({
@@ -40,9 +59,10 @@ export default async function handler(req, res) {
     total,
     resultLabel: resultLabel || '',
     submittedAt: submittedAt || new Date().toISOString(),
+    nudgeEmailId,
   });
 
-  return res.status(200).json({ ok: true, emailSent, notionRowCreated });
+  return res.status(200).json({ ok: true, emailSent, nudgeScheduled: !!nudgeEmailId, notionRowCreated });
 }
 
 function parseResultLabel(resultLabel) {
@@ -81,7 +101,32 @@ async function sendResendEmail({ to, subject, html }) {
   }
 }
 
-async function writeNotionRow({ name, email, diagnosticId, bandLabel, total, resultLabel, submittedAt }) {
+async function scheduleResendEmail({ to, subject, html, scheduledAt }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.BLUECHIP_FROM_EMAIL;
+  if (!apiKey || !from) return null;
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ from, to, subject, html, scheduled_at: scheduledAt }),
+    });
+    if (!res.ok) {
+      console.error('Resend schedule failed', res.status, await res.text());
+      return null;
+    }
+    const data = await res.json();
+    return data.id || null;
+  } catch (err) {
+    console.error('Resend schedule error', err);
+    return null;
+  }
+}
+
+async function writeNotionRow({ name, email, diagnosticId, bandLabel, total, resultLabel, submittedAt, nudgeEmailId }) {
   const apiKey = process.env.NOTION_API_KEY;
   const databaseId = process.env.NOTION_DATABASE_ID;
   if (!apiKey || !databaseId) {
@@ -107,6 +152,7 @@ async function writeNotionRow({ name, email, diagnosticId, bandLabel, total, res
           'Result Label': { rich_text: [{ text: { content: resultLabel || '' } }] },
           'Submitted At': { date: { start: submittedAt } },
           'Lead Status': { select: { name: 'New' } },
+          'Nudge Email ID': nudgeEmailId ? { rich_text: [{ text: { content: nudgeEmailId } }] } : { rich_text: [] },
         },
       }),
     });
