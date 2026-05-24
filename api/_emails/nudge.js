@@ -12,8 +12,8 @@ export function buildNudgeEmail({ firstName, diagnosticId, bandLabel, total, det
   const title = DIAGNOSTIC_TITLES[diagnosticId] || 'diagnostic';
   const ctaUrl = buildCalUrl({ diagnosticId, bandLabel, total, detail });
   const cta = ctaUrl
-    ? `<p>If you want to chat through it, ${calLink(ctaUrl)}. Free, 30 minutes, no pitch. Or just reply.</p>`
-    : `<p>If you want to chat through it, just reply to this email and we'll find a time.</p>`;
+    ? `<p>If you want to chat through it, ${calLink(ctaUrl)}. Free, 30 minutes, no pitch. Or if email is easier, hit reply and we'll figure it out that way.</p>`
+    : `<p>If you want to chat through it, hit reply and we'll figure it out over email.</p>`;
   return {
     subject: `Following up on your ${title} result`,
     html: layout(`
