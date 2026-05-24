@@ -1,4 +1,7 @@
 import crypto from 'crypto';
+import { buildCancellationFollowupEmail } from './_emails/cancellation-followup.js';
+
+const CANCEL_FOLLOWUP_DELAY_HOURS = 48;
 
 export const config = { api: { bodyParser: false } };
 
@@ -95,10 +98,12 @@ async function handleBookingCreated(event) {
 
   if (existing) {
     await patchNotionPage(existing.id, bookingProps);
+    // Cancel any pending automated emails so they don't fire after the person has booked.
     const nudgeId = existing.properties?.['Nudge Email ID']?.rich_text?.[0]?.text?.content;
-    let nudgeCancelled = false;
-    if (nudgeId) nudgeCancelled = await cancelResendEmail(nudgeId);
-    return { matched: true, pageId: existing.id, nudgeCancelled };
+    const followupId = existing.properties?.['Cancel Followup Email ID']?.rich_text?.[0]?.text?.content;
+    const nudgeCancelled = nudgeId ? await cancelResendEmail(nudgeId) : false;
+    const followupCancelled = followupId ? await cancelResendEmail(followupId) : false;
+    return { matched: true, pageId: existing.id, nudgeCancelled, followupCancelled };
   }
 
   const created = await createNotionPage({
@@ -124,7 +129,33 @@ async function handleBookingCancelled(event) {
     'Lead Status': { select: { name: 'Cancelled' } },
     'Meeting Time': { date: null },
   });
-  return { cancelled: true, pageId: row.id };
+
+  // Schedule a follow-up at +48h so the lead doesn't go silent.
+  const email = row.properties?.Email?.email || '';
+  let followupId = null;
+  if (email) {
+    const name = row.properties?.Name?.title?.[0]?.text?.content || '';
+    const firstName = name.trim().split(/\s+/)[0] || '';
+    const diagnosticId = row.properties?.Diagnostic?.select?.name || '';
+    const bandLabel = row.properties?.['Band Label']?.select?.name || '';
+    const total = row.properties?.['Total Score']?.number ?? null;
+    const followupAt = new Date(Date.now() + CANCEL_FOLLOWUP_DELAY_HOURS * 60 * 60 * 1000).toISOString();
+    const { subject, html } = buildCancellationFollowupEmail({
+      firstName,
+      diagnosticId,
+      bandLabel,
+      total,
+      detail: '',
+    });
+    followupId = await scheduleResendEmail({ to: email, subject, html, scheduledAt: followupAt });
+    if (followupId) {
+      await patchNotionPage(row.id, {
+        'Cancel Followup Email ID': { rich_text: [{ text: { content: followupId } }] },
+      });
+    }
+  }
+
+  return { cancelled: true, pageId: row.id, followupScheduled: !!followupId };
 }
 
 async function handleBookingRescheduled(event) {
@@ -224,6 +255,28 @@ async function createNotionPage(properties) {
     return false;
   }
   return true;
+}
+
+async function scheduleResendEmail({ to, subject, html, scheduledAt }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.BLUECHIP_FROM_EMAIL;
+  if (!apiKey || !from) return null;
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from, to, subject, html, scheduled_at: scheduledAt }),
+    });
+    if (!res.ok) {
+      console.error('cal-webhook: Resend schedule failed', res.status, await res.text());
+      return null;
+    }
+    const data = await res.json();
+    return data.id || null;
+  } catch (err) {
+    console.error('cal-webhook: Resend schedule error', err);
+    return null;
+  }
 }
 
 async function cancelResendEmail(emailId) {
