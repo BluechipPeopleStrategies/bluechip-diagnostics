@@ -27,8 +27,24 @@ export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onS
           submittedAt: new Date().toISOString(),
         }),
       });
+      let data = {};
+      try { data = await res.json(); } catch { /* non-JSON response */ }
+      // The API returns 200 even when email/Notion silently skip, so record the
+      // real outcome in PostHog to expose the true success rate.
+      if (typeof window !== 'undefined' && window.posthog) {
+        window.posthog.capture('lead_submitted', {
+          diagnosticId,
+          http_ok: res.ok,
+          email_sent: data.emailSent ?? null,
+          nudge_scheduled: data.nudgeScheduled ?? null,
+          notion_row_created: data.notionRowCreated ?? null,
+        });
+      }
       setStatus(res.ok ? 'success' : 'error');
     } catch {
+      if (typeof window !== 'undefined' && window.posthog) {
+        window.posthog.capture('lead_submit_failed', { diagnosticId });
+      }
       setStatus('error');
     }
   }
