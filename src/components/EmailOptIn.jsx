@@ -4,6 +4,7 @@ export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onS
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [status, setStatus] = useState(alreadySubmitted ? 'success' : 'idle');
+  const [emailSent, setEmailSent] = useState(true);
 
   const endpoint = import.meta.env.VITE_SUBMIT_ENDPOINT || '/api/submit';
 
@@ -40,6 +41,7 @@ export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onS
           notion_row_created: data.notionRowCreated ?? null,
         });
       }
+      setEmailSent(data.emailSent !== false);
       setStatus(res.ok ? 'success' : 'error');
     } catch {
       if (typeof window !== 'undefined' && window.posthog) {
@@ -53,7 +55,11 @@ export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onS
     return (
       <section className="bc-optin">
         <h3>Got it.</h3>
-        <p>Your full breakdown is unlocked below, and we'll email you a clean copy you can save. We read every opt-in, no auto-sequence.</p>
+        {emailSent ? (
+          <p>Your full breakdown is unlocked below, and we'll email you a clean copy you can save. We read every opt-in, no auto-sequence.</p>
+        ) : (
+          <p>Your full breakdown is unlocked below. We've saved your result, but the email copy didn't go through, so if it doesn't arrive shortly, reach out to thomas@bluechip-people-strategies.com and we'll send it over.</p>
+        )}
       </section>
     );
   }

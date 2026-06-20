@@ -62,7 +62,19 @@ export default async function handler(req, res) {
     nudgeEmailId,
   });
 
-  return res.status(200).json({ ok: true, emailSent, nudgeScheduled: !!nudgeEmailId, notionRowCreated });
+  // The Notion row is where leads actually land, so it is the source of truth for
+  // whether we captured this person. If it failed (e.g. missing/expired env vars),
+  // the lead is lost: do NOT report success. Return a non-2xx so the client shows
+  // the "email Thomas directly" fallback instead of a false "Got it." A failed
+  // result email alone is degraded (lead is still captured), so it does not fail
+  // the request; emailSent is reported so the client can soften its copy.
+  const captured = notionRowCreated;
+  return res.status(captured ? 200 : 502).json({
+    ok: captured,
+    emailSent,
+    nudgeScheduled: !!nudgeEmailId,
+    notionRowCreated,
+  });
 }
 
 function parseResultLabel(resultLabel) {
