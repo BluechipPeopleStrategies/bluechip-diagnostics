@@ -100,6 +100,15 @@
     greet.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
     closeBtn.addEventListener('click', close);
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && panel.classList.contains('bcw-open')) close(); });
+
+    // Any link/button marked for the chat opens it instead of navigating.
+    // Hook: <a href="#chat"> or any element with [data-bcw-open].
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest) return;
+      var trigger = e.target.closest('a[href$="#chat"], [data-bcw-open]');
+      if (trigger) { e.preventDefault(); open(); }
+    });
+    window.openBlueChipChat = open;   // programmatic open, e.g. onclick="openBlueChipChat()"
   }
 
   function addMsg(text, who) {
