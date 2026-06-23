@@ -3,6 +3,7 @@ import { buildDqiEmail } from './_emails/dqi.js';
 import { buildSupervisorBlindSpotEmail } from './_emails/supervisor-blind-spot.js';
 import { buildWorkplaceReadEmail } from './_emails/workplace-read.js';
 import { buildNudgeEmail } from './_emails/nudge.js';
+import { buildLeadNotificationEmail } from './_emails/lead-notification.js';
 
 const NUDGE_DELAY_HOURS = 24;
 
@@ -69,11 +70,37 @@ export default async function handler(req, res) {
   // result email alone is degraded (lead is still captured), so it does not fail
   // the request; emailSent is reported so the client can soften its copy.
   const captured = notionRowCreated;
+
+  // New-lead alert: ping the team the moment a lead is captured, so leads do not
+  // sit unseen in the Notion DB. Best-effort and only on successful capture: the
+  // lead is already saved, so a failed alert must NOT fail the request. Mirrors the
+  // notification in api/contact.js (same BLUECHIP_NOTIFY_EMAIL recipient).
+  let leadNotificationSent = false;
+  if (captured) {
+    const { subject: notifSubject, html: notifHtml } = buildLeadNotificationEmail({
+      name: name || '',
+      email,
+      diagnosticId,
+      bandLabel,
+      total,
+      resultLabel: resultLabel || '',
+      emailSent,
+    });
+    const notifyTo = process.env.BLUECHIP_NOTIFY_EMAIL || process.env.BLUECHIP_FROM_EMAIL;
+    leadNotificationSent = await sendResendEmail({
+      to: notifyTo,
+      subject: notifSubject,
+      html: notifHtml,
+      replyTo: email,
+    });
+  }
+
   return res.status(captured ? 200 : 502).json({
     ok: captured,
     emailSent,
     nudgeScheduled: !!nudgeEmailId,
     notionRowCreated,
+    leadNotificationSent,
   });
 }
 
@@ -86,13 +113,15 @@ function parseResultLabel(resultLabel) {
   return { bandLabel: match[1].trim(), total: Number(match[2]) };
 }
 
-async function sendResendEmail({ to, subject, html }) {
+async function sendResendEmail({ to, subject, html, replyTo }) {
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.BLUECHIP_FROM_EMAIL;
-  if (!apiKey || !from) {
+  if (!apiKey || !from || !to) {
     console.warn('Resend not configured; skipping email send');
     return false;
   }
+  const body = { from, to, subject, html };
+  if (replyTo) body.reply_to = replyTo;
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -100,7 +129,7 @@ async function sendResendEmail({ to, subject, html }) {
         Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ from, to, subject, html }),
+      body: JSON.stringify(body),
     });
     if (!res.ok) {
       console.error('Resend send failed', res.status, await res.text());
