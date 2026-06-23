@@ -1,4 +1,4 @@
-import { isHoneypot, sanitizeLead, validateLead, formatLeadSms } from './_lib/lead-helpers.js';
+import { isHoneypot, sanitizeLead, validateLead, formatLeadSms, looksLikePhone, formatVisitorConfirmation } from './_lib/lead-helpers.js';
 
 const ALLOWED_ORIGINS = [
   'https://bluechip-people-strategies.com',
@@ -20,7 +20,14 @@ export async function sendOpenPhoneSms({ to, content }) {
   const from = process.env.OPENPHONE_FROM;
   if (!apiKey || !from || !to) {
     console.warn('lead: OpenPhone not configured');
-    return false;
+    return {
+      sent: false,
+      configured: !!apiKey && !!from,
+      hasKey: !!apiKey,
+      hasFrom: !!from,
+      status: null,
+      error: 'missing_env_or_to',
+    };
   }
   try {
     const r = await fetch('https://api.openphone.com/v1/messages', {
@@ -29,13 +36,14 @@ export async function sendOpenPhoneSms({ to, content }) {
       body: JSON.stringify({ from, to: [to], content }),
     });
     if (!r.ok) {
-      console.error('lead: OpenPhone send failed', r.status, await r.text());
-      return false;
+      const text = await r.text();
+      console.error('lead: OpenPhone send failed', r.status, text);
+      return { sent: false, configured: true, hasKey: true, hasFrom: true, status: r.status, error: String(text).slice(0, 300) };
     }
-    return true;
+    return { sent: true, configured: true, hasKey: true, hasFrom: true, status: r.status, error: null };
   } catch (err) {
     console.error('lead: OpenPhone send error', err);
-    return false;
+    return { sent: false, configured: true, hasKey: true, hasFrom: true, status: null, error: String(err).slice(0, 300) };
   }
 }
 
@@ -102,8 +110,27 @@ export default async function handler(req, res) {
   const submittedAt = new Date().toISOString();
   const to = process.env.LEAD_NOTIFY_PHONE || '+15877130585';
 
-  const smsSent = await sendOpenPhoneSms({ to, content: formatLeadSms(clean) });
+  const leadResult = await sendOpenPhoneSms({ to, content: formatLeadSms(clean) });
+  const smsSent = leadResult.sent;
   const notionWritten = await writeNotionLead(clean, submittedAt);
 
-  return res.status(200).json({ ok: true, smsSent, notionWritten });
+  // Auto-confirmation back to the visitor (only when they opted in and gave a phone number).
+  let confirmationSent = false;
+  if (clean.consent && looksLikePhone(clean.contact)) {
+    const conf = await sendOpenPhoneSms({ to: clean.contact, content: formatVisitorConfirmation(clean) });
+    confirmationSent = conf.sent;
+  }
+
+  const payload = { ok: true, smsSent, notionWritten, confirmationSent };
+  if (req.query && req.query.debug === '1') {
+    payload.diag = {
+      openphoneConfigured: leadResult.configured,
+      hasKey: leadResult.hasKey,
+      hasFrom: leadResult.hasFrom,
+      openphoneStatus: leadResult.status,
+      openphoneError: leadResult.error,
+      to,
+    };
+  }
+  return res.status(200).json(payload);
 }

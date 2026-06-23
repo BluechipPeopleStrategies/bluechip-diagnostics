@@ -26,6 +26,20 @@ export function validateLead({ name, need, contact }) {
   return { ok: true };
 }
 
+// True when the string looks like a phone number (digits, not an email) so we only
+// auto-text real numbers, never an email a visitor may have typed.
+export function looksLikePhone(value) {
+  if (typeof value !== 'string' || value.includes('@')) return false;
+  const digits = value.replace(/\D/g, '');
+  return digits.length >= 7;
+}
+
+// Confirmation texted back to the visitor (they opted in via the consent box).
+export function formatVisitorConfirmation({ name }) {
+  const hi = name ? `Hi ${name}, ` : 'Hi, ';
+  return hi + "it's BlueChip People Strategies. Thanks for reaching out. We've got your note, and someone will text you back at this number, usually within a few hours on business days. Reply STOP to opt out.";
+}
+
 export function formatLeadSms({ name, need, contact, email, source, consent }) {
   const lines = [
     'New BlueChip lead',
