@@ -16,8 +16,10 @@ function setCorsHeaders(req, res) {
 }
 
 export async function sendOpenPhoneSms({ to, content }) {
-  const apiKey = process.env.OPENPHONE_API_KEY;
-  const from = process.env.OPENPHONE_FROM;
+  // Trim stray whitespace/tabs/newlines that copy-paste can leave in env vars or input.
+  const apiKey = (process.env.OPENPHONE_API_KEY || '').trim();
+  const from = (process.env.OPENPHONE_FROM || '').trim();
+  to = typeof to === 'string' ? to.trim() : to;
   if (!apiKey || !from || !to) {
     console.warn('lead: OpenPhone not configured');
     return {
@@ -108,7 +110,7 @@ export default async function handler(req, res) {
   }
 
   const submittedAt = new Date().toISOString();
-  const to = process.env.LEAD_NOTIFY_PHONE || '+15877130585';
+  const to = (process.env.LEAD_NOTIFY_PHONE || '+15877130585').trim();
 
   const leadResult = await sendOpenPhoneSms({ to, content: formatLeadSms(clean) });
   const smsSent = leadResult.sent;
