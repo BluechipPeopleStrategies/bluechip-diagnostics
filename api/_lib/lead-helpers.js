@@ -14,6 +14,7 @@ export function sanitizeLead(body = {}) {
     need: clean(body.need, CAPS.need),
     contact: clean(body.contact, CAPS.contact),
     source: clean(body.source, CAPS.source),
+    consent: body.consent === true || body.consent === 'true',
   };
 }
 
@@ -24,12 +25,13 @@ export function validateLead({ name, need, contact }) {
   return { ok: true };
 }
 
-export function formatLeadSms({ name, need, contact, source }) {
+export function formatLeadSms({ name, need, contact, source, consent }) {
   const lines = [
     'New BlueChip lead',
     `Name: ${name}`,
     `Need: ${need}`,
     `Contact: ${contact}`,
+    `Texting consent: ${consent ? 'yes' : 'NO'}`,
   ];
   if (source) lines.push(`(from ${source})`);
   return lines.join('\n');

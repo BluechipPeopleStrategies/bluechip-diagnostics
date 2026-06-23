@@ -14,7 +14,12 @@ describe('isHoneypot', () => {
 describe('sanitizeLead', () => {
   it('trims and defaults missing fields to empty string', () => {
     const out = sanitizeLead({ name: '  Jane  ', need: 'help', contact: 'jane@x.ca' });
-    expect(out).toEqual({ name: 'Jane', need: 'help', contact: 'jane@x.ca', source: '' });
+    expect(out).toEqual({ name: 'Jane', need: 'help', contact: 'jane@x.ca', source: '', consent: false });
+  });
+  it('captures texting consent as a boolean', () => {
+    expect(sanitizeLead({ name: 'Jane', need: 'help', contact: 'x', consent: true }).consent).toBe(true);
+    expect(sanitizeLead({ name: 'Jane', need: 'help', contact: 'x', consent: 'true' }).consent).toBe(true);
+    expect(sanitizeLead({ name: 'Jane', need: 'help', contact: 'x' }).consent).toBe(false);
   });
   it('caps field lengths', () => {
     const out = sanitizeLead({ name: 'a'.repeat(200), need: 'b'.repeat(2000), contact: 'c'.repeat(300), source: 'd'.repeat(200) });
@@ -35,13 +40,17 @@ describe('validateLead', () => {
 });
 
 describe('formatLeadSms', () => {
-  it('renders the lead with source', () => {
-    const msg = formatLeadSms({ name: 'Jane Doe', need: 'Termination help', contact: 'jane@x.ca', source: 'homepage chat' });
+  it('renders the lead with source and consent', () => {
+    const msg = formatLeadSms({ name: 'Jane Doe', need: 'Termination help', contact: 'jane@x.ca', source: 'homepage chat', consent: true });
     expect(msg).toContain('New BlueChip lead');
     expect(msg).toContain('Name: Jane Doe');
     expect(msg).toContain('Need: Termination help');
     expect(msg).toContain('Contact: jane@x.ca');
+    expect(msg).toContain('Texting consent: yes');
     expect(msg).toContain('(from homepage chat)');
+  });
+  it('marks missing consent as NO', () => {
+    expect(formatLeadSms({ name: 'Jane', need: 'help', contact: 'x', source: '', consent: false })).toContain('Texting consent: NO');
   });
   it('omits the source line when source is empty', () => {
     const msg = formatLeadSms({ name: 'Jane', need: 'help', contact: 'x@y.ca', source: '' });
