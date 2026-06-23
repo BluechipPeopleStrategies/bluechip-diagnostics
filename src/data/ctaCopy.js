@@ -3,8 +3,8 @@
 // Each diagnostic result gets a CTA that continues the value of THAT result instead of
 // the generic "whether BlueChip is a fit" pitch. Copy is the Infy-vetted set from
 // BlueChip/docs/diagnostics-cta-copy-infy.md: honest influence only, no invented numbers,
-// costs framed qualitatively, no em dashes. Draft pending the advisory-panel pass before
-// it deploys.
+// costs framed qualitatively, no em dashes. Cleared the 7-seat advisory panel 2026-06-23
+// (endorsed, no copy changes; see BlueChip/docs/diagnostics-cta-copy-panel.md). Live in prod.
 //
 // Keys:
 //   supervisor-blind-spot, workplace-read -> archetype id
