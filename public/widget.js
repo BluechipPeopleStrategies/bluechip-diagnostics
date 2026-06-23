@@ -134,7 +134,7 @@
 
   // ---- step 1: name ----
   function renderName() {
-    addMsg("Hi, I'm BlueChip's assistant. Whatever you're dealing with, you're in the right place. What should I call you?", 'bot');
+    addMsg("Hi, I'm Chip, BlueChip's assistant. Whatever you're dealing with, you're in the right place. What should I call you?", 'bot');
     footEl.innerHTML = '';
     var row = el('div', { 'class': 'bcw-row' });
     var input = el('input', { 'class': 'bcw-input', type: 'text', 'aria-label': 'Your name', placeholder: 'Your name' });
