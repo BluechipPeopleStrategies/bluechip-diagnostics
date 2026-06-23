@@ -79,7 +79,7 @@
       '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2z"/></svg>');
 
     greet = el('div', { 'class': 'bcw-greet', role: 'button', tabindex: '0', 'aria-label': 'Open chat' },
-      "<b>Have an HR situation you're not sure how to handle?</b><small>Start here. It's confidential.</small>");
+      "<b>Got a people situation that needs a second set of eyes?</b><small>Tell me what's going on, and we will point you to the clearest next step. No charge for the first look, and it's confidential.</small>");
 
     panel = el('div', { 'class': 'bcw-panel', id: 'bcwPanel', role: 'dialog', 'aria-modal': 'false', 'aria-label': "Let's talk", 'aria-hidden': 'true' });
     var header = el('div', { 'class': 'bcw-header' }, '<h3>Let’s talk</h3>');
@@ -165,7 +165,7 @@
 
   // ---- step 3: contact + consent ----
   function renderContact() {
-    addMsg("What's the best number to reach you? We follow up by text, not a phone call.", 'bot');
+    addMsg("That's one we work on a lot, and there's usually a clearer next step than it feels like right now. What's the best number to reach you? We follow up by text (not a cold call) with a real read on your situation, usually within a few hours on business days.", 'bot');
     footEl.innerHTML = '';
     var input = el('input', { 'class': 'bcw-input', type: 'tel', 'aria-label': 'Your phone number', placeholder: 'Phone number', style: 'width:100%' });
     var emailInput = el('input', { 'class': 'bcw-input', type: 'email', 'aria-label': 'Your email, optional', placeholder: 'Email (optional)', style: 'width:100%;margin-top:8px' });
