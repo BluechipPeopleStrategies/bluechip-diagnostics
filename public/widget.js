@@ -165,7 +165,7 @@
 
   // ---- step 3: contact + consent ----
   function renderContact() {
-    addMsg('Where can we reach you to talk it through? A number we can text works best.', 'bot');
+    addMsg("What's the best number to reach you? We follow up by text, not a phone call.", 'bot');
     footEl.innerHTML = '';
     var input = el('input', { 'class': 'bcw-input', type: 'text', 'aria-label': 'Your phone number', placeholder: 'Phone number', style: 'width:100%' });
     var hp = el('input', { 'class': 'bcw-hp', type: 'text', name: 'company', tabindex: '-1', 'aria-hidden': 'true', autocomplete: 'off' });
@@ -175,16 +175,13 @@
     cbText.textContent = "Yes, it's okay to text me at this number about my inquiry. I can reply STOP anytime.";
     consentWrap.appendChild(cb); consentWrap.appendChild(cbText);
     var fine = el('div', { 'class': 'bcw-fine' });
-    fine.textContent = "BlueChip People Strategies, Edmonton AB. We won't share your number or message you about anything unrelated.";
-    var note = el('div', { 'class': 'bcw-note' });
-    note.textContent = 'A real person reads every message. We usually reply within a few hours on business days.';
+    fine.textContent = "BlueChip People Strategies, Edmonton, Alberta. We won't share your number or message you about anything unrelated to the opt-in box above. A real person reads each message. We usually reply within a few hours on business days.";
     var send = el('button', { 'class': 'bcw-send', type: 'button', disabled: 'disabled', style: 'margin-top:12px;width:100%' }, 'Send');
 
     footEl.appendChild(input);
     footEl.appendChild(hp);
     footEl.appendChild(consentWrap);
     footEl.appendChild(fine);
-    footEl.appendChild(note);
     footEl.appendChild(send);
     input.focus();
 
