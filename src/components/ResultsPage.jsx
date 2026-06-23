@@ -84,6 +84,8 @@ export default function ResultsPage({ diagnostic, answers, onRestart, emailSubmi
         detail={detail}
         onSubmitted={onEmailSubmitted}
         alreadySubmitted={emailSubmitted}
+        hasDimensions={!!(scoreResult && diagnostic.dimensions)}
+        hasCheatSheet={!!archetypeResult?.archetype?.cheatCode?.length}
       />
 
       {emailSubmitted && (

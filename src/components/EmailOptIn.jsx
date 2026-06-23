@@ -14,7 +14,15 @@ const SECTORS = [
   'Other',
 ];
 
-export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onSubmitted, alreadySubmitted = false }) {
+export default function EmailOptIn({
+  diagnosticId,
+  resultLabel,
+  detail = '',
+  onSubmitted,
+  alreadySubmitted = false,
+  hasDimensions = false,
+  hasCheatSheet = false,
+}) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [orgSize, setOrgSize] = useState('');
@@ -69,14 +77,29 @@ export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onS
     }
   }
 
+  // Name only the deliverables this tool actually gates, so the promise is accurate
+  // (next moves are universal; the breakdown is scored-tools-only; the cheat sheet is
+  // Supervisor-only). Falls back to the agnostic next-moves promise.
+  let unlockBody;
+  if (hasDimensions) {
+    unlockBody =
+      "Add your email and we'll unlock your dimension-by-dimension breakdown and your personalized next moves, then send you a clean copy you can keep. We read every opt-in. No auto-sequence.";
+  } else if (hasCheatSheet) {
+    unlockBody =
+      "Add your email and we'll unlock your personalized next moves and your cheat sheet, built around your result, then send you a clean copy you can keep. We read every opt-in. No auto-sequence.";
+  } else {
+    unlockBody =
+      "Add your email and we'll unlock your personalized next moves, built around your result, then send you a clean copy you can keep. We read every opt-in. No auto-sequence.";
+  }
+
   if (status === 'success') {
     return (
       <section className="bc-optin">
-        <h3>Got it.</h3>
+        <h3>Got it. <em>Unlocked below.</em></h3>
         {emailSent ? (
-          <p>Your full breakdown is unlocked below, and we'll email you a clean copy you can save. We read every opt-in, no auto-sequence.</p>
+          <p>Your next moves are unlocked below, and a clean copy is on its way to your inbox. We read every opt-in. No auto-sequence.</p>
         ) : (
-          <p>Your full breakdown is unlocked below. We've saved your result, but the email copy didn't go through, so if it doesn't arrive shortly, reach out to thomas@bluechip-people-strategies.com and we'll send it over.</p>
+          <p>Your next moves are unlocked below. We've saved your result, but the email copy didn't go through, so if it doesn't arrive shortly, reach out to thomas@bluechip-people-strategies.com and we'll send it over.</p>
         )}
       </section>
     );
@@ -84,8 +107,8 @@ export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onS
 
   return (
     <section className="bc-optin">
-      <h3>Want the <em>full breakdown</em>?</h3>
-      <p>Drop your email and we'll unlock the dimension-by-dimension breakdown and your personalized next moves, plus send you a clean copy you can save. We read every opt-in, no auto-sequence.</p>
+      <h3>Now, <em>what to do</em> with it.</h3>
+      <p>{unlockBody}</p>
       <div className="bc-optin-selects">
         <select
           className="bc-input"
@@ -129,7 +152,7 @@ export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onS
           aria-label="Your email"
         />
         <button type="submit" className="bc-cta" disabled={status === 'submitting'}>
-          {status === 'submitting' ? 'Sending…' : 'Send it'}
+          {status === 'submitting' ? 'Sending…' : 'Unlock my next moves'}
         </button>
       </form>
       {status === 'error' && (
