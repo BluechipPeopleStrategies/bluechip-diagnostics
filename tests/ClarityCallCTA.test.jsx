@@ -44,4 +44,30 @@ describe('ClarityCallCTA', () => {
     expect(container.textContent).not.toMatch(/stripe/i);
     expect(container.textContent).not.toMatch(/paid/i);
   });
+
+  it('renders result-specific copy when a resultKey is given (archetype tool)', () => {
+    render(<ClarityCallCTA diagnosticId="supervisor-blind-spot" resultKey="friend" />);
+    expect(
+      screen.getByRole('heading', { name: /being liked is not the same as being trusted/i })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /help me have the hard conversation/i })).toBeInTheDocument();
+  });
+
+  it('interpolates the lowest dimension into the Org Pulse CTA', () => {
+    render(
+      <ClarityCallCTA
+        diagnosticId="org-pulse"
+        tier="exposed"
+        total={42}
+        resultKey="pressure-building"
+        lowestDimension="Accountability"
+      />
+    );
+    expect(screen.getByRole('heading', { name: /starting with accountability/i })).toBeInTheDocument();
+  });
+
+  it('falls back to the generic CTA for an unmapped result', () => {
+    render(<ClarityCallCTA diagnosticId="org-pulse" resultKey="not-a-band" />);
+    expect(screen.getByRole('heading', { name: /you've earned a free clarity call/i })).toBeInTheDocument();
+  });
 });

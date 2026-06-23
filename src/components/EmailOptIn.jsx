@@ -1,8 +1,32 @@
 import { useEffect, useState } from 'react';
 
-export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onSubmitted, alreadySubmitted = false }) {
+// Optional org-context capture (QW1): qualifies the lead and personalizes follow-up.
+// Kept optional so it never adds friction to the email step.
+const ORG_SIZES = ['Just me', '2-25', '26-250', '250+'];
+const SECTORS = [
+  'Municipal & local gov',
+  'Public safety / fire & emergency',
+  'Post-secondary & education',
+  'Non-profit & social',
+  'Professional services',
+  'Skilled trades & construction',
+  'Healthcare & clinics',
+  'Other',
+];
+
+export default function EmailOptIn({
+  diagnosticId,
+  resultLabel,
+  detail = '',
+  onSubmitted,
+  alreadySubmitted = false,
+  hasDimensions = false,
+  hasCheatSheet = false,
+}) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [orgSize, setOrgSize] = useState('');
+  const [sector, setSector] = useState('');
   const [status, setStatus] = useState(alreadySubmitted ? 'success' : 'idle');
   const [emailSent, setEmailSent] = useState(true);
 
@@ -25,6 +49,8 @@ export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onS
           detail,
           email,
           name,
+          orgSize,
+          sector,
           submittedAt: new Date().toISOString(),
         }),
       });
@@ -51,14 +77,29 @@ export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onS
     }
   }
 
+  // Name only the deliverables this tool actually gates, so the promise is accurate
+  // (next moves are universal; the breakdown is scored-tools-only; the cheat sheet is
+  // Supervisor-only). Falls back to the agnostic next-moves promise.
+  let unlockBody;
+  if (hasDimensions) {
+    unlockBody =
+      "Add your email and we'll unlock your dimension-by-dimension breakdown and your personalized next moves, then send you a clean copy you can keep. We read every opt-in. No auto-sequence.";
+  } else if (hasCheatSheet) {
+    unlockBody =
+      "Add your email and we'll unlock your personalized next moves and your cheat sheet, built around your result, then send you a clean copy you can keep. We read every opt-in. No auto-sequence.";
+  } else {
+    unlockBody =
+      "Add your email and we'll unlock your personalized next moves, built around your result, then send you a clean copy you can keep. We read every opt-in. No auto-sequence.";
+  }
+
   if (status === 'success') {
     return (
       <section className="bc-optin">
-        <h3>Got it.</h3>
+        <h3>Got it. <em>Unlocked below.</em></h3>
         {emailSent ? (
-          <p>Your full breakdown is unlocked below, and we'll email you a clean copy you can save. We read every opt-in, no auto-sequence.</p>
+          <p>Your next moves are unlocked below, and a clean copy is on its way to your inbox. We read every opt-in. No auto-sequence.</p>
         ) : (
-          <p>Your full breakdown is unlocked below. We've saved your result, but the email copy didn't go through, so if it doesn't arrive shortly, reach out to thomas@bluechip-people-strategies.com and we'll send it over.</p>
+          <p>Your next moves are unlocked below. We've saved your result, but the email copy didn't go through, so if it doesn't arrive shortly, reach out to thomas@bluechip-people-strategies.com and we'll send it over.</p>
         )}
       </section>
     );
@@ -66,8 +107,32 @@ export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onS
 
   return (
     <section className="bc-optin">
-      <h3>Want the <em>full breakdown</em>?</h3>
-      <p>Drop your email and we'll unlock the dimension-by-dimension breakdown and your personalized next moves, plus send you a clean copy you can save. We read every opt-in, no auto-sequence.</p>
+      <h3>Now, <em>what to do</em> with it.</h3>
+      <p>{unlockBody}</p>
+      <div className="bc-optin-selects">
+        <select
+          className="bc-input"
+          aria-label="Organization size (optional)"
+          value={orgSize}
+          onChange={(e) => setOrgSize(e.target.value)}
+        >
+          <option value="">Org size (optional)</option>
+          {ORG_SIZES.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+        <select
+          className="bc-input"
+          aria-label="Sector (optional)"
+          value={sector}
+          onChange={(e) => setSector(e.target.value)}
+        >
+          <option value="">Sector (optional)</option>
+          {SECTORS.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+      </div>
       <form onSubmit={submit} className="bc-optin-row">
         <input
           type="text"
@@ -87,7 +152,7 @@ export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onS
           aria-label="Your email"
         />
         <button type="submit" className="bc-cta" disabled={status === 'submitting'}>
-          {status === 'submitting' ? 'Sending…' : 'Send it'}
+          {status === 'submitting' ? 'Sending…' : 'Unlock my next moves'}
         </button>
       </form>
       {status === 'error' && (
