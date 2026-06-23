@@ -1,8 +1,24 @@
 import { useEffect, useState } from 'react';
 
+// Optional org-context capture (QW1): qualifies the lead and personalizes follow-up.
+// Kept optional so it never adds friction to the email step.
+const ORG_SIZES = ['Just me', '2-25', '26-250', '250+'];
+const SECTORS = [
+  'Municipal & local gov',
+  'Public safety / fire & emergency',
+  'Post-secondary & education',
+  'Non-profit & social',
+  'Professional services',
+  'Skilled trades & construction',
+  'Healthcare & clinics',
+  'Other',
+];
+
 export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onSubmitted, alreadySubmitted = false }) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [orgSize, setOrgSize] = useState('');
+  const [sector, setSector] = useState('');
   const [status, setStatus] = useState(alreadySubmitted ? 'success' : 'idle');
   const [emailSent, setEmailSent] = useState(true);
 
@@ -25,6 +41,8 @@ export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onS
           detail,
           email,
           name,
+          orgSize,
+          sector,
           submittedAt: new Date().toISOString(),
         }),
       });
@@ -68,6 +86,30 @@ export default function EmailOptIn({ diagnosticId, resultLabel, detail = '', onS
     <section className="bc-optin">
       <h3>Want the <em>full breakdown</em>?</h3>
       <p>Drop your email and we'll unlock the dimension-by-dimension breakdown and your personalized next moves, plus send you a clean copy you can save. We read every opt-in, no auto-sequence.</p>
+      <div className="bc-optin-selects">
+        <select
+          className="bc-input"
+          aria-label="Organization size (optional)"
+          value={orgSize}
+          onChange={(e) => setOrgSize(e.target.value)}
+        >
+          <option value="">Org size (optional)</option>
+          {ORG_SIZES.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+        <select
+          className="bc-input"
+          aria-label="Sector (optional)"
+          value={sector}
+          onChange={(e) => setSector(e.target.value)}
+        >
+          <option value="">Sector (optional)</option>
+          {SECTORS.map((s) => (
+            <option key={s} value={s}>{s}</option>
+          ))}
+        </select>
+      </div>
       <form onSubmit={submit} className="bc-optin-row">
         <input
           type="text"

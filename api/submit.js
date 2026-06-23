@@ -20,7 +20,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'method_not_allowed' });
   }
 
-  const { diagnosticId, resultLabel, detail, email, name, submittedAt } = req.body || {};
+  const { diagnosticId, resultLabel, detail, email, name, orgSize, sector, submittedAt } = req.body || {};
 
   if (!diagnosticId || !email) {
     return res.status(400).json({ error: 'missing_required_fields' });
@@ -59,6 +59,8 @@ export default async function handler(req, res) {
     bandLabel,
     total,
     resultLabel: resultLabel || '',
+    orgSize: orgSize || '',
+    sector: sector || '',
     submittedAt: submittedAt || new Date().toISOString(),
     nudgeEmailId,
   });
@@ -84,6 +86,8 @@ export default async function handler(req, res) {
       bandLabel,
       total,
       resultLabel: resultLabel || '',
+      orgSize: orgSize || '',
+      sector: sector || '',
       emailSent,
     });
     const notifyTo = process.env.BLUECHIP_NOTIFY_EMAIL || process.env.BLUECHIP_FROM_EMAIL;
@@ -167,36 +171,57 @@ async function scheduleResendEmail({ to, subject, html, scheduledAt }) {
   }
 }
 
-async function writeNotionRow({ name, email, diagnosticId, bandLabel, total, resultLabel, submittedAt, nudgeEmailId }) {
+async function writeNotionRow({ name, email, diagnosticId, bandLabel, total, resultLabel, orgSize, sector, submittedAt, nudgeEmailId }) {
   const apiKey = process.env.NOTION_API_KEY;
   const databaseId = process.env.NOTION_DATABASE_ID;
   if (!apiKey || !databaseId) {
     console.warn('Notion not configured; skipping row write');
     return false;
   }
-  try {
-    const res = await fetch('https://api.notion.com/v1/pages', {
+
+  // Always-present columns the DB is known to have.
+  const baseProps = {
+    Name: { title: [{ text: { content: name || email } }] },
+    Email: { email },
+    Diagnostic: { select: { name: diagnosticId } },
+    'Band Label': bandLabel ? { select: { name: bandLabel } } : { select: null },
+    'Total Score': total != null ? { number: total } : { number: null },
+    'Result Label': { rich_text: [{ text: { content: resultLabel || '' } }] },
+    'Submitted At': { date: { start: submittedAt } },
+    'Lead Status': { select: { name: 'New' } },
+    'Nudge Email ID': nudgeEmailId ? { rich_text: [{ text: { content: nudgeEmailId } }] } : { rich_text: [] },
+  };
+
+  // Optional org-context columns (QW1). If the DB doesn't have these select
+  // properties yet, Notion rejects the whole write, which would lose the lead.
+  // So we try with them, then retry without them on failure.
+  const optionalProps = {};
+  if (orgSize) optionalProps['Org Size'] = { select: { name: orgSize } };
+  if (sector) optionalProps['Sector'] = { select: { name: sector } };
+
+  const postRow = (properties) =>
+    fetch('https://api.notion.com/v1/pages', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
         'Notion-Version': '2022-06-28',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        parent: { database_id: databaseId },
-        properties: {
-          Name: { title: [{ text: { content: name || email } }] },
-          Email: { email },
-          Diagnostic: { select: { name: diagnosticId } },
-          'Band Label': bandLabel ? { select: { name: bandLabel } } : { select: null },
-          'Total Score': total != null ? { number: total } : { number: null },
-          'Result Label': { rich_text: [{ text: { content: resultLabel || '' } }] },
-          'Submitted At': { date: { start: submittedAt } },
-          'Lead Status': { select: { name: 'New' } },
-          'Nudge Email ID': nudgeEmailId ? { rich_text: [{ text: { content: nudgeEmailId } }] } : { rich_text: [] },
-        },
-      }),
+      body: JSON.stringify({ parent: { database_id: databaseId }, properties }),
     });
+
+  try {
+    let res = await postRow({ ...baseProps, ...optionalProps });
+    if (!res.ok && Object.keys(optionalProps).length > 0) {
+      const errText = await res.text();
+      console.warn(
+        'Notion write with org-context columns failed; retrying without Org Size/Sector. ' +
+          'Add those select properties to the DB to capture them.',
+        res.status,
+        errText
+      );
+      res = await postRow(baseProps);
+    }
     if (!res.ok) {
       console.error('Notion write failed', res.status, await res.text());
       return false;

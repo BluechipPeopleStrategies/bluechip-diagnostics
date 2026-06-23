@@ -130,6 +130,7 @@ body {
   transform: translateY(-1px);
 }
 .bc-cta:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.bc-cta-note { font-size: 13px; color: var(--bc-muted); margin: 8px 0 0; }
 
 .bc-cta-secondary {
   display: inline-block;
@@ -447,6 +448,8 @@ body {
 .bc-optin h3 { margin-top: 0; }
 .bc-optin-row { display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; }
 .bc-optin-row .bc-input { flex: 1 1 220px; }
+.bc-optin-selects { display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; margin: 0 0 12px; }
+.bc-optin-selects .bc-input { flex: 1 1 220px; }
 .bc-optin-status { font-size: 14px; margin-top: 12px; color: var(--bc-muted); }
 .bc-optin-status.is-error { color: var(--bc-error); }
 .bc-optin-status.is-success { color: var(--bc-success); }
@@ -528,5 +531,6 @@ body {
   .bc-cta-row { flex-direction: column; gap: 8px; }
   .bc-card-grid { grid-template-columns: 1fr; }
   .bc-optin-row { flex-direction: column; }
+  .bc-optin-selects { flex-direction: column; }
   .bc-page hr { margin: 48px 0; }
 }

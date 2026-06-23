@@ -1,4 +1,5 @@
 import { scoreLikert, matchArchetype } from '../lib/scoring';
+import { bandLabelToKey } from '../data/ctaCopy';
 import ResultHeadline from './ResultHeadline';
 import ResultNarrative from './ResultNarrative';
 import DimensionBreakdown from './DimensionBreakdown';
@@ -29,12 +30,6 @@ export default function ResultsPage({ diagnostic, answers, onRestart, emailSubmi
     resultLabel = `Score (${scoreResult.total}/100)`;
   }
 
-  const narrativeParas = [];
-  if (scoreResult?.totalBand?.narrative) narrativeParas.push(scoreResult.totalBand.narrative);
-  if (archetypeResult?.archetype?.summary && !narrativeParas.includes(archetypeResult.archetype.summary)) {
-    // Already shown in ArchetypeProfile; don't duplicate.
-  }
-
   let nextMoves = [];
   let weakestDimensionId = null;
   if (scoreResult) {
@@ -52,18 +47,36 @@ export default function ResultsPage({ diagnostic, answers, onRestart, emailSubmi
   // For score-based diagnostics: weakest dimension's human label. For
   // archetype diagnostics: archetype display label.
   let detail = '';
+  let weakestDimensionLabel = '';
   if (weakestDimensionId && diagnostic.dimensions) {
     const dim = diagnostic.dimensions.find((d) => d.id === weakestDimensionId);
-    detail = dim?.label || '';
+    weakestDimensionLabel = dim?.label || '';
+    detail = weakestDimensionLabel;
   } else if (archetypeResult?.archetype) {
     detail = archetypeResult.archetype.label || archetypeResult.archetype.name || '';
   }
+
+  // Result-specific Clarity Call copy (QW2): scored tools key by band label,
+  // archetype tools key by archetype id. lowestDimension fills the {lowest_dimension}
+  // token in the Org Pulse CTAs.
+  const resultKey = scoreResult?.totalBand
+    ? bandLabelToKey(scoreResult.totalBand.label)
+    : archetypeResult?.archetypeId || null;
 
   return (
     <main className="bc-page">
       <ResultHeadline scoreResult={scoreResult} archetypeResult={archetypeResult} />
 
       <hr />
+
+      {/* Free teaser: give the insight away (the read), gate the implementation (QW3). */}
+      {archetypeResult?.archetype ? (
+        <ArchetypeProfile archetype={archetypeResult.archetype} variant="insight" />
+      ) : (
+        scoreResult?.totalBand?.narrative && (
+          <ResultNarrative paragraphs={[scoreResult.totalBand.narrative]} />
+        )
+      )}
 
       <EmailOptIn
         diagnosticId={diagnostic.id}
@@ -75,7 +88,11 @@ export default function ResultsPage({ diagnostic, answers, onRestart, emailSubmi
 
       {emailSubmitted && (
         <>
-          <ResultNarrative paragraphs={narrativeParas} />
+          {/* 'both' diagnostics showed the archetype insight as the free teaser, so the
+              score-band narrative belongs here in the gated breakdown. */}
+          {archetypeResult?.archetype && scoreResult?.totalBand?.narrative && (
+            <ResultNarrative paragraphs={[scoreResult.totalBand.narrative]} />
+          )}
 
           {scoreResult && diagnostic.dimensions && (
             <>
@@ -88,7 +105,9 @@ export default function ResultsPage({ diagnostic, answers, onRestart, emailSubmi
             </>
           )}
 
-          {archetypeResult?.archetype && <ArchetypeProfile archetype={archetypeResult.archetype} />}
+          {archetypeResult?.archetype && (
+            <ArchetypeProfile archetype={archetypeResult.archetype} variant="actions" />
+          )}
 
           <NextMoves moves={nextMoves} />
         </>
@@ -100,6 +119,8 @@ export default function ResultsPage({ diagnostic, answers, onRestart, emailSubmi
         diagnosticId={diagnostic.id}
         tier={scoreResult?.totalBand?.tier || null}
         total={scoreResult?.total ?? null}
+        resultKey={resultKey}
+        lowestDimension={weakestDimensionLabel || null}
       />
 
       <ShareButton diagnosticId={diagnostic.id} resultType={resultType} resultLabel={resultLabel} />
