@@ -13,8 +13,8 @@ describe('isHoneypot', () => {
 
 describe('sanitizeLead', () => {
   it('trims and defaults missing fields to empty string', () => {
-    const out = sanitizeLead({ name: '  Jane  ', need: 'help', contact: 'jane@x.ca' });
-    expect(out).toEqual({ name: 'Jane', need: 'help', contact: 'jane@x.ca', source: '', consent: false });
+    const out = sanitizeLead({ name: '  Jane  ', need: 'help', contact: '5551234' });
+    expect(out).toEqual({ name: 'Jane', need: 'help', contact: '5551234', email: '', source: '', consent: false });
   });
   it('captures texting consent as a boolean', () => {
     expect(sanitizeLead({ name: 'Jane', need: 'help', contact: 'x', consent: true }).consent).toBe(true);
@@ -51,6 +51,10 @@ describe('formatLeadSms', () => {
   });
   it('marks missing consent as NO', () => {
     expect(formatLeadSms({ name: 'Jane', need: 'help', contact: 'x', source: '', consent: false })).toContain('Texting consent: NO');
+  });
+  it('includes an Email line only when an email is present', () => {
+    expect(formatLeadSms({ name: 'Jane', need: 'help', contact: '5551234', email: 'jane@x.ca', consent: true })).toContain('Email: jane@x.ca');
+    expect(formatLeadSms({ name: 'Jane', need: 'help', contact: '5551234', email: '', consent: true })).not.toContain('Email:');
   });
   it('omits the source line when source is empty', () => {
     const msg = formatLeadSms({ name: 'Jane', need: 'help', contact: 'x@y.ca', source: '' });

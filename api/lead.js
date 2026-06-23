@@ -58,10 +58,11 @@ export async function writeNotionLead(clean, submittedAt) {
         parent: { database_id: databaseId },
         properties: {
           Name: { title: [{ text: { content: clean.name } }] },
-          Inquiry: { rich_text: [{ text: { content: `${clean.need}\nContact: ${clean.contact}\nTexting consent: ${clean.consent ? 'yes' : 'NO'}` } }] },
+          Inquiry: { rich_text: [{ text: { content: `${clean.need}\nContact: ${clean.contact}${clean.email ? `\nEmail: ${clean.email}` : ''}\nTexting consent: ${clean.consent ? 'yes' : 'NO'}` } }] },
           Source: { rich_text: [{ text: { content: clean.source || 'chat widget' } }] },
           'Submitted At': { date: { start: submittedAt } },
           Status: { select: { name: 'New' } },
+          ...(clean.email ? { Email: { email: clean.email } } : {}),
         },
       }),
     });

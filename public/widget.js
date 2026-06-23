@@ -72,7 +72,7 @@
   }
 
   var launch, greet, panel, bodyEl, footEl, started = false;
-  var data = { name: '', need: '', contact: '' };
+  var data = { name: '', need: '', contact: '', email: '' };
 
   function build() {
     launch = el('button', { 'class': 'bcw-launch', id: 'bcwLaunch', 'aria-label': 'Open chat', 'aria-haspopup': 'dialog' },
@@ -167,7 +167,8 @@
   function renderContact() {
     addMsg("What's the best number to reach you? We follow up by text, not a phone call.", 'bot');
     footEl.innerHTML = '';
-    var input = el('input', { 'class': 'bcw-input', type: 'text', 'aria-label': 'Your phone number', placeholder: 'Phone number', style: 'width:100%' });
+    var input = el('input', { 'class': 'bcw-input', type: 'tel', 'aria-label': 'Your phone number', placeholder: 'Phone number', style: 'width:100%' });
+    var emailInput = el('input', { 'class': 'bcw-input', type: 'email', 'aria-label': 'Your email, optional', placeholder: 'Email (optional)', style: 'width:100%;margin-top:8px' });
     var hp = el('input', { 'class': 'bcw-hp', type: 'text', name: 'company', tabindex: '-1', 'aria-hidden': 'true', autocomplete: 'off' });
     var consentWrap = el('label', { 'class': 'bcw-consent' });
     var cb = el('input', { type: 'checkbox' });
@@ -179,24 +180,27 @@
     var send = el('button', { 'class': 'bcw-send', type: 'button', disabled: 'disabled', style: 'margin-top:12px;width:100%' }, 'Send');
 
     footEl.appendChild(input);
+    footEl.appendChild(emailInput);
     footEl.appendChild(hp);
     footEl.appendChild(consentWrap);
     footEl.appendChild(fine);
     footEl.appendChild(send);
     input.focus();
 
-    function refresh() { send.disabled = !(input.value.trim() && cb.checked); }
+    function refresh() { send.disabled = !(input.value.trim() && cb.checked); }   // phone + consent required; email optional
     input.addEventListener('input', refresh);
     cb.addEventListener('change', refresh);
 
     function go() {
       if (send.disabled) return;
       data.contact = input.value.trim();
+      data.email = emailInput.value.trim();
       submitLead(hp.value);
       finish();
     }
     send.addEventListener('click', go);
     input.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+    emailInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
   }
 
   function pageLabel() {
@@ -211,7 +215,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: data.name, need: data.need, contact: data.contact,
+          name: data.name, need: data.need, contact: data.contact, email: data.email,
           consent: true, source: pageLabel(), company: companyHp || ''
         })
       }).catch(function () { /* failures logged server-side; user still sees confirmation */ });

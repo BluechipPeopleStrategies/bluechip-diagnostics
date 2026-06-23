@@ -1,4 +1,4 @@
-const CAPS = { name: 120, need: 1500, contact: 200, source: 100 };
+const CAPS = { name: 120, need: 1500, contact: 200, email: 200, source: 100 };
 
 export function isHoneypot(body) {
   return typeof body?.company === 'string' && body.company.trim().length > 0;
@@ -13,6 +13,7 @@ export function sanitizeLead(body = {}) {
     name: clean(body.name, CAPS.name),
     need: clean(body.need, CAPS.need),
     contact: clean(body.contact, CAPS.contact),
+    email: clean(body.email, CAPS.email),
     source: clean(body.source, CAPS.source),
     consent: body.consent === true || body.consent === 'true',
   };
@@ -25,14 +26,15 @@ export function validateLead({ name, need, contact }) {
   return { ok: true };
 }
 
-export function formatLeadSms({ name, need, contact, source, consent }) {
+export function formatLeadSms({ name, need, contact, email, source, consent }) {
   const lines = [
     'New BlueChip lead',
     `Name: ${name}`,
     `Need: ${need}`,
     `Contact: ${contact}`,
-    `Texting consent: ${consent ? 'yes' : 'NO'}`,
   ];
+  if (email) lines.push(`Email: ${email}`);
+  lines.push(`Texting consent: ${consent ? 'yes' : 'NO'}`);
   if (source) lines.push(`(from ${source})`);
   return lines.join('\n');
 }
