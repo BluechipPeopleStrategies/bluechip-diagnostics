@@ -123,16 +123,5 @@ export default async function handler(req, res) {
     confirmationSent = conf.sent;
   }
 
-  const payload = { ok: true, smsSent, notionWritten, confirmationSent };
-  if (req.query && req.query.debug === '1') {
-    payload.diag = {
-      openphoneConfigured: leadResult.configured,
-      hasKey: leadResult.hasKey,
-      hasFrom: leadResult.hasFrom,
-      openphoneStatus: leadResult.status,
-      openphoneError: leadResult.error,
-      to,
-    };
-  }
-  return res.status(200).json(payload);
+  return res.status(200).json({ ok: true, smsSent, notionWritten, confirmationSent });
 }
