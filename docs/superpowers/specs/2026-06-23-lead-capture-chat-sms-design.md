@@ -124,6 +124,52 @@ still returns 200 (and still writes Notion). Nothing crashes.
 - `source` defaults to the page path label (e.g. "homepage chat",
   "services chat") so texts say where the lead came from.
 
+## Visual design (brand-matched)
+
+The widget must look native to the site, not a generic chat plugin. Tokens are
+copied from `bluechip-website/embed/code-inject-header.html`.
+
+### Tokens
+
+| Token | Value | Use |
+|-------|-------|-----|
+| Navy | `#0a2540` | bubble fill, header bar, send button, sent bubbles |
+| Gold | `#c9a961` | hover state, accent line, focus ring |
+| White | `#ffffff` | panel bg, button text on navy |
+| Cream | `#e8e5df` | borders, received-bubble bg |
+| Text | `#2c2c2c` | body copy |
+| Shadow | `0 4px 16px rgba(10,37,64,.04)` (panel), `0 8px 24px rgba(10,37,64,.18)` (bubble) |
+| Serif | `'Cormorant Garamond', Georgia, serif` | panel title |
+| Sans | `'Montserrat', sans-serif` | messages, inputs, button |
+
+All widget CSS is **namespaced under `.bcw-`** and lives inside the footer
+injection (scoped, won't collide with Squarespace or the `.bc-` site styles).
+Fonts: use the families above; they are already loaded site-wide, so the widget
+inherits them with a system fallback if a page lacks them.
+
+### Components
+
+- **Launcher bubble** (bottom-right, fixed): 60px navy circle, white chat icon,
+  shadow `0 8px 24px rgba(10,37,64,.18)`. Hover → gold fill, navy icon,
+  `translateY(-1px)`. A small gold dot/"Chat with us" pill label on first load.
+- **Panel**: ~360px wide, white, `border-radius:16px`, cream border, panel
+  shadow. Navy header bar with serif title "Let's talk" + close ×.
+- **Messages**: received = cream bubble, left; sent = navy bubble white text,
+  right. Montserrat 15px, comfortable line-height.
+- **Input row**: single text field, cream border, gold focus ring; pill **Send**
+  button in the site's exact `.bc-cta` language (navy→gold hover, uppercase
+  Montserrat 12px / `0.1em`).
+- **Confirmation**: gold check + "Thanks — Thomas will reach out shortly."
+- **Motion**: panel fade/slide-up ~180ms; respect
+  `prefers-reduced-motion`.
+
+### Responsive / a11y
+
+- Mobile (<480px): panel becomes near-full-width with safe-area insets.
+- Keyboard: focus trap in open panel, Esc closes, Enter sends.
+- Contrast: navy/white and navy/gold pairs meet AA. Never color-only state
+  (use icon + text for the confirmation), per Thomas's colorblind preference.
+
 ## Security / cost
 
 - No secrets in the browser; the page only knows the Vercel `/api/lead` URL.
