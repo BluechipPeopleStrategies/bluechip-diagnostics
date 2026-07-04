@@ -26,6 +26,7 @@ export default function QuizPage({ shareView = false }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [emailSubmitted, setEmailSubmitted] = useState(false);
+  const [orgSize, setOrgSize] = useState('');
 
   // Restore state on mount (per slug). Clamp a stale saved index against the
   // current questions length so a quiz that was lengthened/shortened — or a state
@@ -40,19 +41,21 @@ export default function QuizPage({ shareView = false }) {
       setCurrentIndex(Math.min(Math.max(savedIndex, 0), lastIndex));
       setShowResults(!!saved.showResults || savedIndex > lastIndex);
       setEmailSubmitted(!!saved.emailSubmitted);
+      setOrgSize(saved.orgSize || '');
     } else {
       setAnswers({});
       setCurrentIndex(0);
       setShowResults(false);
       setEmailSubmitted(false);
+      setOrgSize('');
     }
   }, [slug, diagnostic]);
 
   // Persist on every change
   useEffect(() => {
     if (!diagnostic) return;
-    saveState(slug, { answers, currentIndex, showResults, emailSubmitted });
-  }, [slug, diagnostic, answers, currentIndex, showResults, emailSubmitted]);
+    saveState(slug, { answers, currentIndex, showResults, emailSubmitted, orgSize });
+  }, [slug, diagnostic, answers, currentIndex, showResults, emailSubmitted, orgSize]);
 
   const handleAnswer = useCallback(
     (value) => {
@@ -81,6 +84,7 @@ export default function QuizPage({ shareView = false }) {
     setCurrentIndex(0);
     setShowResults(false);
     setEmailSubmitted(false);
+    setOrgSize('');
   }, [slug]);
 
   if (!diagnostic) {
@@ -112,6 +116,8 @@ export default function QuizPage({ shareView = false }) {
         onRestart={handleRestart}
         emailSubmitted={emailSubmitted}
         onEmailSubmitted={() => setEmailSubmitted(true)}
+        orgSize={orgSize}
+        onOrgSize={setOrgSize}
       />
     );
   }

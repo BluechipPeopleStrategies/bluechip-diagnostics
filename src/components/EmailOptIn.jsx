@@ -22,6 +22,7 @@ export default function EmailOptIn({
   alreadySubmitted = false,
   hasDimensions = false,
   hasCheatSheet = false,
+  onOrgSize,
 }) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -114,7 +115,10 @@ export default function EmailOptIn({
           className="bc-input"
           aria-label="Organization size (optional)"
           value={orgSize}
-          onChange={(e) => setOrgSize(e.target.value)}
+          onChange={(e) => {
+            setOrgSize(e.target.value);
+            if (onOrgSize) onOrgSize(e.target.value);
+          }}
         >
           <option value="">Org size (optional)</option>
           {ORG_SIZES.map((s) => (
