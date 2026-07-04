@@ -36,8 +36,9 @@ const ORG_SIZE_BRIDGE = {
     'the call and we can talk through how leadership development works at your size.',
 };
 
-// Team/board on-ramp (QW8): only the two org-level tools, same booking flow.
-const TEAM_ONRAMP_IDS = ['org-pulse', 'workplace-read'];
+// Team/board on-ramp (QW8): only the org-level tools, same booking flow. For the
+// governance tool the "team" is the board itself, where side-by-side reads matter most.
+const TEAM_ONRAMP_IDS = ['org-pulse', 'workplace-read', 'governance-eval-readiness'];
 const TEAM_ONRAMP =
   "Right now this reflects one person's read of the organization. If you are curious how " +
   "your leadership team's reads would line up side by side, mention it when you book and " +

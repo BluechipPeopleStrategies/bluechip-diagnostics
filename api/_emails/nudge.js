@@ -5,6 +5,7 @@ const DIAGNOSTIC_TITLES = {
   'dqi': 'DQI',
   'supervisor-blind-spot': 'Supervisor Blind Spot',
   'workplace-read': 'Workplace Read',
+  'governance-eval-readiness': 'Governance Evaluation Readiness',
 };
 
 export function buildNudgeEmail({ firstName, diagnosticId, bandLabel, total, detail }) {

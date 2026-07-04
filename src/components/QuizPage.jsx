@@ -10,12 +10,14 @@ import orgPulse from '../data/org-pulse.json';
 import dqi from '../data/dqi.json';
 import workplaceRead from '../data/workplace-read.json';
 import supervisorBlindSpot from '../data/supervisor-blind-spot.json';
+import governanceEvalReadiness from '../data/governance-eval-readiness.json';
 
 const diagnostics = {
   'org-pulse': orgPulse,
   dqi: dqi,
   'workplace-read': workplaceRead,
   'supervisor-blind-spot': supervisorBlindSpot,
+  'governance-eval-readiness': governanceEvalReadiness,
 };
 
 export default function QuizPage({ shareView = false }) {
