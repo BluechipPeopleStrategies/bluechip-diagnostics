@@ -9,7 +9,15 @@ import EmailOptIn from './EmailOptIn';
 import ClarityCallCTA from './ClarityCallCTA';
 import ShareButton from './ShareButton';
 
-export default function ResultsPage({ diagnostic, answers, onRestart, emailSubmitted = false, onEmailSubmitted }) {
+export default function ResultsPage({
+  diagnostic,
+  answers,
+  onRestart,
+  emailSubmitted = false,
+  onEmailSubmitted,
+  orgSize = null,
+  onOrgSize,
+}) {
   const wantsScore = diagnostic.outputPattern === 'score-and-dimensions' || diagnostic.outputPattern === 'both';
   const wantsArchetype = diagnostic.outputPattern === 'archetype-match' || diagnostic.outputPattern === 'both';
 
@@ -86,6 +94,7 @@ export default function ResultsPage({ diagnostic, answers, onRestart, emailSubmi
         alreadySubmitted={emailSubmitted}
         hasDimensions={!!(scoreResult && diagnostic.dimensions)}
         hasCheatSheet={!!archetypeResult?.archetype?.cheatCode?.length}
+        onOrgSize={onOrgSize}
       />
 
       {emailSubmitted && (
@@ -123,6 +132,7 @@ export default function ResultsPage({ diagnostic, answers, onRestart, emailSubmi
         total={scoreResult?.total ?? null}
         resultKey={resultKey}
         lowestDimension={weakestDimensionLabel || null}
+        orgSize={orgSize}
       />
 
       <ShareButton diagnosticId={diagnostic.id} resultType={resultType} resultLabel={resultLabel} />

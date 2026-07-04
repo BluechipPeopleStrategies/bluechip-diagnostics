@@ -131,6 +131,7 @@ body {
 }
 .bc-cta:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 .bc-cta-note { font-size: 13px; color: var(--bc-muted); margin: 8px 0 0; }
+.bc-proof { font-size: 13px; color: var(--bc-muted); font-style: italic; margin: 0 0 16px; }
 
 .bc-cta-secondary {
   display: inline-block;
