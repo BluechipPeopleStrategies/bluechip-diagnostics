@@ -1,0 +1,96 @@
+{
+  "id": "governance-eval-readiness",
+  "title": "Governance Evaluation Readiness",
+  "tagline": "15 questions. 4 minutes. How defensible is your board's evaluation of its CAO, CEO, or Executive Director?",
+  "instructions": "Answer for how your board's evaluation of its senior leader actually works today, not how the bylaws say it should.",
+  "outputPattern": "score-and-dimensions",
+  "_distinctness": {
+    "process": "A defined, recurring evaluation process with criteria set in advance and a documented record.",
+    "evidence": "Evidence sits alongside impressions: goals set up front, multiple inputs, results reviewed against them.",
+    "candor": "The board can be honest: the conversation is protected from politics, personal loyalty, and the loudest voice.",
+    "followthrough": "The leader receives clear feedback, a development path follows, and last year's themes get revisited.",
+    "clarity": "Success is defined: the mandate is clear and the board speaks to the leader with one voice."
+  },
+  "dimensions": [
+    {
+      "id": "process",
+      "label": "Process & Structure",
+      "description": "Whether a defined, recurring evaluation process exists: criteria set in advance, a timeline, a documented record.",
+      "scoreBands": [
+        { "min": 0, "max": 40, "tier": "exposed", "narrative": "There is no real process to point to. The evaluation happens when someone remembers, against criteria invented in the room. If the result were ever challenged, there is little on paper to stand behind." },
+        { "min": 40, "max": 70, "tier": "uneven", "narrative": "A process exists on paper but it bends year to year. Criteria shift, timing slips, and the record depends on who took notes. It works until the year it matters most." },
+        { "min": 70, "max": 100, "tier": "healthy", "narrative": "The process is defined, recurring, and documented. Criteria are set before the year starts, not assembled after it ends. That structure is what makes the result stand up." }
+      ]
+    },
+    {
+      "id": "evidence",
+      "label": "Evidence & Inputs",
+      "description": "Whether the evaluation weighs evidence alongside impressions: goals set up front, multiple inputs, results reviewed against them.",
+      "scoreBands": [
+        { "min": 0, "max": 40, "tier": "exposed", "narrative": "The evaluation runs mostly on impressions, and often on the most recent quarter's impressions at that. Without goals set up front, a strong year and a strong final month can look the same." },
+        { "min": 40, "max": 70, "tier": "uneven", "narrative": "Some evidence makes it into the room, but not consistently. Goals may exist without being the yardstick, and input tends to come from whoever is closest to the board." },
+        { "min": 70, "max": 100, "tier": "healthy", "narrative": "Goals are set up front and results are reviewed against them, with input from more than one vantage point. Feelings still count; they just do not carry the file alone." }
+      ]
+    },
+    {
+      "id": "candor",
+      "label": "Candor & Independence",
+      "description": "Whether the board can be fully honest: the conversation is protected from politics, personal loyalty, and the loudest voice in the room.",
+      "scoreBands": [
+        { "min": 0, "max": 40, "tier": "exposed", "narrative": "Honest observations are being softened or left unsaid, out of loyalty, politics, or not wanting to be the one who says it. The leader is probably not hearing the board's real read." },
+        { "min": 40, "max": 70, "tier": "uneven", "narrative": "Candor depends on who is in the room and what else is going on. Some years the real conversation happens; other years it happens in the parking lot afterward." },
+        { "min": 70, "max": 100, "tier": "healthy", "narrative": "The board can say the hard thing in the room, and the process protects the people saying it. What the leader hears matches what the board actually thinks." }
+      ]
+    },
+    {
+      "id": "followthrough",
+      "label": "Feedback & Follow-through",
+      "description": "Whether the leader receives clear, useful feedback, a development path follows, and last year's themes are revisited.",
+      "scoreBands": [
+        { "min": 0, "max": 40, "tier": "exposed", "narrative": "The evaluation ends when the meeting ends. The leader gets little they can act on, and nothing set this year gets checked next year. Senior people rarely grow on feedback this thin." },
+        { "min": 40, "max": 70, "tier": "uneven", "narrative": "Feedback lands, but unevenly. Development gets discussed more than it gets planned, and last year's themes resurface only if someone brings the file." },
+        { "min": 70, "max": 100, "tier": "healthy", "narrative": "The leader walks out with a clear read and a development path, and the board comes back to it. Evaluation here is how a senior leader keeps growing, not a verdict." }
+      ]
+    },
+    {
+      "id": "clarity",
+      "label": "Role Clarity & Expectations",
+      "description": "Whether success is defined: the leader's mandate is clear and the board speaks to the leader with one voice.",
+      "scoreBands": [
+        { "min": 0, "max": 40, "tier": "exposed", "narrative": "The leader is being measured against a target no one has written down, and different board members likely carry different versions of it. That gap is unfair to the leader and risky for the board." },
+        { "min": 40, "max": 70, "tier": "uneven", "narrative": "There is broad agreement on what the leader is for, but the edges are soft. When board members disagree, the leader hears more than one set of expectations." },
+        { "min": 70, "max": 100, "tier": "healthy", "narrative": "Success is defined and shared. The leader could state their mandate, the board would recognize it, and direction arrives with one voice." }
+      ]
+    }
+  ],
+  "questions": [
+    { "id": "q01", "dimension": "process", "type": "likert-5", "reverseScored": false, "text": "Our board evaluates our senior leader on a defined, recurring schedule, not just when an issue forces it.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+    { "id": "q02", "dimension": "process", "type": "likert-5", "reverseScored": false, "text": "The criteria the leader will be evaluated on are agreed in writing before the year begins.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+    { "id": "q03", "dimension": "process", "type": "likert-5", "reverseScored": true, "text": "If our last evaluation were challenged, we would struggle to produce a documented record of how we reached it.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+
+    { "id": "q04", "dimension": "evidence", "type": "likert-5", "reverseScored": false, "text": "The evaluation reviews results against goals that were set up front, not assembled afterward.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+    { "id": "q05", "dimension": "evidence", "type": "likert-5", "reverseScored": true, "text": "In practice, our read on the leader rests mostly on impressions from the last few months.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+    { "id": "q06", "dimension": "evidence", "type": "likert-5", "reverseScored": false, "text": "The evaluation draws on more than one vantage point, not only what board members see directly.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+
+    { "id": "q07", "dimension": "candor", "type": "likert-5", "reverseScored": true, "text": "Board members soften or withhold honest observations about the leader out of loyalty, politics, or discomfort.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+    { "id": "q08", "dimension": "candor", "type": "likert-5", "reverseScored": true, "text": "The real conversation about the leader's performance tends to happen outside the formal process.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+    { "id": "q09", "dimension": "candor", "type": "likert-5", "reverseScored": false, "text": "Our process makes it safe for any board member to raise a hard observation in the room.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+
+    { "id": "q10", "dimension": "followthrough", "type": "likert-5", "reverseScored": false, "text": "Our leader leaves the evaluation with feedback specific enough to act on.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+    { "id": "q11", "dimension": "followthrough", "type": "likert-5", "reverseScored": false, "text": "The evaluation produces a development plan or goals that we actually revisit the following year.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+    { "id": "q12", "dimension": "followthrough", "type": "likert-5", "reverseScored": true, "text": "Once the evaluation meeting ends, the results rarely come up again.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+
+    { "id": "q13", "dimension": "clarity", "type": "likert-5", "reverseScored": false, "text": "Our leader could state what success in their role looks like this year, and the board would recognize it.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+    { "id": "q14", "dimension": "clarity", "type": "likert-5", "reverseScored": true, "text": "Different board members hold noticeably different expectations of what the leader should prioritize.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+    { "id": "q15", "dimension": "clarity", "type": "likert-5", "reverseScored": false, "text": "When the board gives the leader direction, it arrives as one voice, not several.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] }
+  ],
+  "scoring": {
+    "method": "weighted-dimension-sum",
+    "totalRange": [0, 100],
+    "totalBands": [
+      { "min": 0, "max": 50, "label": "Exposure showing", "narrative": "Your evaluation practice is running on goodwill more than structure, and it would be hard to stand behind if it were ever tested. That is common; most boards inherit their process rather than design it. The dimension scoring lowest below is where the exposure is most concrete, and the good news is that structure is buildable." },
+      { "min": 50, "max": 75, "label": "Goodwill dependent", "narrative": "Parts of your practice are solid, but it leans on relationships and memory more than on structure. That tends to hold right up until the year it matters: a contested result, a leader transition, a new board. The lowest dimension below is the one to shore up before that year arrives." },
+      { "min": 75, "max": 100, "label": "Defensible", "narrative": "Your evaluation practice has real structure, a level many boards never reach. The remaining work is protecting it through board turnover and sharpening the weakest dimension below, so the process keeps producing a result the board, the leader, and the public can stand behind." }
+    ]
+  }
+}

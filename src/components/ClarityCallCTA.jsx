@@ -36,12 +36,18 @@ const ORG_SIZE_BRIDGE = {
     'the call and we can talk through how leadership development works at your size.',
 };
 
-// Team/board on-ramp (QW8): only the two org-level tools, same booking flow.
-const TEAM_ONRAMP_IDS = ['org-pulse', 'workplace-read'];
+// Team/board on-ramp (QW8): only the org-level tools, same booking flow. For the
+// governance tool the "team" is the board itself, and a councillor or director who is
+// not the chair is explicitly invited to take their read to the chair.
+const TEAM_ONRAMP_IDS = ['org-pulse', 'workplace-read', 'governance-eval-readiness'];
 const TEAM_ONRAMP =
   "Right now this reflects one person's read of the organization. If you are curious how " +
   "your leadership team's reads would line up side by side, mention it when you book and " +
   'we will set up the team version.';
+const GOVERNANCE_ONRAMP =
+  'You do not need to be the chair to take the next step. Bring your result to your chair ' +
+  'or raise it at your next board meeting. If the board wants its reads side by side, ' +
+  'mention it when you book and we will set that up.';
 
 export default function ClarityCallCTA({
   diagnosticId,
@@ -73,7 +79,11 @@ export default function ClarityCallCTA({
           {copy.button} →
         </a>
       </div>
-      {teamOnramp && <p className="bc-cta-note">{TEAM_ONRAMP}</p>}
+      {teamOnramp && (
+        <p className="bc-cta-note">
+          {diagnosticId === 'governance-eval-readiness' ? GOVERNANCE_ONRAMP : TEAM_ONRAMP}
+        </p>
+      )}
     </>
   );
 }

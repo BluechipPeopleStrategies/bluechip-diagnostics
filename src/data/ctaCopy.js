@@ -120,6 +120,24 @@ export const CTA_COPY = {
       button: 'Plan my next 30 days',
     },
   },
+
+  'governance-eval-readiness': {
+    'exposure-showing': {
+      headline: 'Right now the evaluation would be hard to stand behind. {lowest_dimension} is where it shows first.',
+      body: 'A score in this range usually means the evaluation runs on goodwill rather than structure, and {lowest_dimension} is where that exposure is most concrete. The risk is not this year, it is the year the result gets questioned: a contested review, a transition, a new board. In 30 minutes we will map what a defensible process looks like for a board like yours and the first piece to put in place.',
+      button: 'Show me what defensible looks like',
+    },
+    'goodwill-dependent': {
+      headline: 'Your process holds because your people are good. Structure is what holds when they change.',
+      body: 'A goodwill-dependent read usually means the evaluation works because of the relationships in the room right now, and {lowest_dimension} is the piece leaning on them hardest. Boards turn over; structure is what carries the practice through. We will spend 30 minutes on how to shore up {lowest_dimension} before the year it gets tested.',
+      button: 'Shore up my process',
+    },
+    defensible: {
+      headline: 'Your practice is stronger than many boards ever build. Keep it that way through turnover.',
+      body: 'A defensible read is worth protecting, and {lowest_dimension} is your clearest place to sharpen. The call is not a rescue, it is a 30 minute read on what to protect as board members change and whether an outside facilitator would add rigor or just cost. We will give you an honest answer either way.',
+      button: 'Pressure test my process',
+    },
+  },
 };
 
 /**

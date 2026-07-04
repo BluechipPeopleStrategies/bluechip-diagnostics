@@ -73,6 +73,9 @@ describe('ClarityCallCTA', () => {
     expect(container.querySelectorAll('a').length).toBe(1);
     rerender(<ClarityCallCTA diagnosticId="workplace-read" resultKey="drift" />);
     expect(container.textContent).toMatch(/one person's read/i);
+    rerender(<ClarityCallCTA diagnosticId="governance-eval-readiness" resultKey="goodwill-dependent" />);
+    expect(container.textContent).toMatch(/you do not need to be the chair/i);
+    expect(container.querySelectorAll('a').length).toBe(1);
     rerender(<ClarityCallCTA diagnosticId="supervisor-blind-spot" resultKey="friend" />);
     expect(container.textContent).not.toMatch(/one person's read/i);
     rerender(<ClarityCallCTA diagnosticId="dqi" tier="uneven" total={60} />);

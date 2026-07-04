@@ -3,6 +3,7 @@ import orgPulse from '../data/org-pulse.json';
 import dqi from '../data/dqi.json';
 import workplaceRead from '../data/workplace-read.json';
 import supervisorBlindSpot from '../data/supervisor-blind-spot.json';
+import governanceEvalReadiness from '../data/governance-eval-readiness.json';
 
 // audience = the "who it's for" routing line so a visitor self-selects the right tool
 // instead of guessing (QW6). startHere flags the broadest org-level tool.
@@ -12,6 +13,11 @@ const diagnostics = [
     data: orgPulse,
     audience: 'For execs and boards reading the whole organization.',
     startHere: true,
+  },
+  {
+    slug: 'governance-eval-readiness',
+    data: governanceEvalReadiness,
+    audience: 'For board chairs, mayors, councillors, and directors: anyone who sits on a board that evaluates a CAO, CEO, or Executive Director.',
   },
   {
     slug: 'dqi',
