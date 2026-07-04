@@ -17,7 +17,7 @@ const diagnostics = [
   {
     slug: 'governance-eval-readiness',
     data: governanceEvalReadiness,
-    audience: 'For board chairs, mayors, and directors who evaluate a CAO, CEO, or Executive Director.',
+    audience: 'For board chairs, mayors, councillors, and directors: anyone who sits on a board that evaluates a CAO, CEO, or Executive Director.',
   },
   {
     slug: 'dqi',
