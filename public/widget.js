@@ -95,6 +95,16 @@
     document.body.appendChild(greet);
     document.body.appendChild(panel);
 
+    // On the homepage the hero instrument gets the first beat: Chip's greet
+    // bubble waits 12s (launch button stays visible the whole time). Other
+    // pages keep the immediate greeting.
+    if (location.pathname === '/' || location.pathname === '') {
+      greet.style.display = 'none';
+      setTimeout(function () {
+        if (!started && !panel.classList.contains('bcw-open')) greet.style.display = '';
+      }, 12000);
+    }
+
     launch.addEventListener('click', toggle);
     greet.addEventListener('click', open);
     greet.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
