@@ -6,18 +6,19 @@ import supervisorBlindSpot from '../data/supervisor-blind-spot.json';
 import governanceEvalReadiness from '../data/governance-eval-readiness.json';
 
 // audience = the "who it's for" routing line so a visitor self-selects the right tool
-// instead of guessing (QW6). startHere flags the broadest org-level tool.
+// instead of guessing (QW6). Governance leads: it feeds the lead service, so it gets
+// first position and the startHere badge (Thomas, 2026-07-04).
 const diagnostics = [
-  {
-    slug: 'org-pulse',
-    data: orgPulse,
-    audience: 'For execs and boards reading the whole organization.',
-    startHere: true,
-  },
   {
     slug: 'governance-eval-readiness',
     data: governanceEvalReadiness,
     audience: 'For board chairs, mayors, councillors, and directors: anyone who sits on a board that evaluates a CAO, CEO, or Executive Director.',
+    startHere: true,
+  },
+  {
+    slug: 'org-pulse',
+    data: orgPulse,
+    audience: 'For execs and boards reading the whole organization.',
   },
   {
     slug: 'dqi',
