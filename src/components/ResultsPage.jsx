@@ -1,3 +1,4 @@
+import { CLARITY_CALL_ENABLED } from '../lib/siteFeatures';
 import { scoreLikert, matchArchetype } from '../lib/scoring';
 import { bandLabelToKey } from '../data/ctaCopy';
 import ResultHeadline from './ResultHeadline';
@@ -126,14 +127,14 @@ export default function ResultsPage({
 
       <hr />
 
-      <ClarityCallCTA
+      {CLARITY_CALL_ENABLED && <ClarityCallCTA
         diagnosticId={diagnostic.id}
         tier={scoreResult?.totalBand?.tier || null}
         total={scoreResult?.total ?? null}
         resultKey={resultKey}
         lowestDimension={weakestDimensionLabel || null}
         orgSize={orgSize}
-      />
+      />}
 
       <ShareButton diagnosticId={diagnostic.id} resultType={resultType} resultLabel={resultLabel} />
 

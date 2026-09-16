@@ -21,7 +21,7 @@
 html, body { margin: 0; padding: 0; }
 body {
   background: var(--bc-beige);
-  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   color: var(--bc-text);
   line-height: 1.65;
   font-size: 17px;
@@ -39,7 +39,7 @@ body {
 
 /* ===== Typography ===== */
 .bc-page h1 {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 60px;
   line-height: 1.05;
   margin: 0 0 32px;
@@ -50,7 +50,7 @@ body {
 .bc-page h1 em { color: var(--bc-gold); font-style: italic; font-weight: 500; }
 
 .bc-page h2 {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 36px;
   margin: 64px 0 20px;
   color: var(--bc-navy);
@@ -61,7 +61,7 @@ body {
 .bc-page h2 em { color: var(--bc-gold); font-style: italic; font-weight: 500; }
 
 .bc-page h3 {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 19px;
   margin: 36px 0 14px;
   color: var(--bc-navy);
@@ -80,7 +80,7 @@ body {
 .bc-page strong { color: var(--bc-navy); font-weight: 600; }
 
 .bc-page em {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-style: italic;
   color: var(--bc-navy);
   font-weight: 500;
@@ -115,7 +115,7 @@ body {
   border: 1.5px solid var(--bc-navy);
   border-radius: 999px;
   text-decoration: none !important;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: 12px;
   letter-spacing: 0.1em;
@@ -141,7 +141,7 @@ body {
   border: 1.5px solid var(--bc-navy);
   border-radius: 999px;
   text-decoration: none !important;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: 12px;
   letter-spacing: 0.1em;
@@ -166,7 +166,7 @@ body {
 
 /* ===== Eyebrow ===== */
 .bc-eyebrow {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
@@ -183,7 +183,7 @@ body {
   border: 1px solid var(--bc-border);
   border-radius: 6px;
   padding: 12px 14px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 16px;
   line-height: 1.5;
   color: var(--bc-text);
@@ -201,7 +201,7 @@ body {
 /* ===== Quiz header ===== */
 .bc-quiz-header { margin: 24px 0 32px; }
 .bc-quiz-header-eyebrow {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
@@ -224,7 +224,7 @@ body {
 
 /* ===== Question + options ===== */
 .bc-question-text {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 36px;
   line-height: 1.2;
   color: var(--bc-navy);
@@ -242,7 +242,7 @@ body {
   border: 1px solid var(--bc-border);
   border-radius: 12px;
   padding: 20px 24px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 16px;
   line-height: 1.5;
   color: var(--bc-text);
@@ -271,7 +271,7 @@ body {
   font-size: 11px;
   font-weight: 700;
   margin-right: 14px;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
   flex-shrink: 0;
 }
 .bc-option.is-selected .bc-option-shortcut { background: var(--bc-gold); color: var(--bc-navy); }
@@ -289,7 +289,7 @@ body {
   background: none;
   border: none;
   color: var(--bc-muted);
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -304,7 +304,7 @@ body {
 /* ===== Results ===== */
 .bc-result-headline { text-align: center; margin: 32px 0 48px; }
 .bc-result-score {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 96px;
   line-height: 1;
   color: var(--bc-navy);
@@ -312,7 +312,7 @@ body {
 }
 .bc-result-score-suffix { font-size: 36px; color: var(--bc-muted); font-style: italic; }
 .bc-result-archetype-name {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-style: italic;
   font-size: 60px;
   color: var(--bc-gold);
@@ -321,7 +321,7 @@ body {
   margin: 16px 0;
 }
 .bc-result-tier-label {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 14px;
   font-weight: 600;
   text-transform: uppercase;
@@ -330,7 +330,7 @@ body {
   margin: 0 0 12px;
 }
 .bc-result-band-name {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 56px;
   line-height: 1.1;
   color: var(--bc-navy);
@@ -345,7 +345,7 @@ body {
 .bc-dim-row { margin-bottom: 20px; }
 .bc-dim-header {
   display: flex; justify-content: space-between; align-items: baseline;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -354,7 +354,7 @@ body {
 }
 .bc-dim-score { color: var(--bc-muted); font-weight: 500; }
 .bc-dim-tier {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
@@ -389,7 +389,7 @@ body {
 .bc-archetype-summary { font-size: 16px; line-height: 1.7; margin-bottom: 24px; color: var(--bc-text-soft); }
 .bc-archetype-blind-spot {
   font-style: italic;
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   color: var(--bc-gold);
   font-size: 19px;
   margin: 0 0 24px;
@@ -410,7 +410,7 @@ body {
   content: counter(cheat-counter);
   position: absolute;
   left: 0; top: 14px;
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-style: italic;
   font-size: 32px;
   font-weight: 500;
@@ -463,7 +463,7 @@ body {
   background: none;
   border: none;
   color: var(--bc-muted);
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   cursor: pointer;
   padding: 8px 0;
@@ -497,7 +497,7 @@ body {
   box-shadow: 0 12px 32px rgba(10, 37, 64, 0.1);
 }
 .bc-card-link-block h3 {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Playfair Display', Georgia, serif;
   font-size: 28px;
   font-weight: 500;
   color: var(--bc-navy);
@@ -506,7 +506,7 @@ body {
 .bc-card-link-tagline { font-size: 15px; line-height: 1.65; color: var(--bc-text-soft); margin: 0 0 12px; }
 .bc-card-badge {
   display: inline-block;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
@@ -519,7 +519,7 @@ body {
 }
 .bc-card-audience { font-size: 13px; line-height: 1.55; color: var(--bc-text-soft); font-style: italic; margin: 0 0 16px; }
 .bc-card-link-cta {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
@@ -549,3 +549,24 @@ body {
   .bc-optin-selects { flex-direction: column; }
   .bc-page hr { margin: 48px 0; }
 }
+
+/* Shared BlueChip presentation, 2026-09-16. Scoring and assessment content unchanged. */
+:root{--bc-navy:#0b1a33;--bc-gold:#a87928;--bc-beige:#f5efe6;--bc-white:#fffdf9;--bc-border:#d2cabe;--bc-divider:#d2cabe;--bc-text:#0b1a33;--bc-text-soft:#46566b;--bc-muted:#526174;--bc-card-shadow:none;}
+body{font-size:16px;}
+.bc-page{max-width:960px;padding:32px 24px;}
+.bc-page h1{font-size:clamp(34px,4.5vw,52px);font-weight:600;line-height:1.18;letter-spacing:-.025em;margin-bottom:24px;}
+.bc-page h2{font-size:clamp(27px,3vw,36px);font-weight:600;line-height:1.25;letter-spacing:-.02em;margin:40px 0 16px;}
+.bc-page h3{font-size:23px;line-height:1.3;margin:24px 0 12px;}
+.bc-page p{font-size:16px;line-height:1.7;margin-bottom:16px;}
+.bc-card,.bc-card-link-block{padding:24px;border-radius:6px;box-shadow:none;}
+.bc-card-link-block:hover{transform:none;box-shadow:none;}
+.bc-cta,.bc-cta-secondary{min-height:44px;display:inline-flex;align-items:center;justify-content:center;padding:10px 18px;border-radius:4px;font-size:14px;line-height:22px;letter-spacing:0;text-transform:none;transform:none;}
+.bc-quiz-header{margin:16px 0 24px;}
+.bc-question-text{font-size:clamp(26px,3vw,34px);font-weight:600;line-height:1.3;margin-bottom:24px;}
+.bc-option{padding:16px 20px;min-height:52px;border-radius:6px;}
+.bc-nav-link{min-height:44px;padding:10px 4px;}
+.bc-input,.bc-select{min-height:44px;}
+.bc-result-headline{margin:24px 0 32px;}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #a87928;outline-offset:3px;}
+@media(max-width:600px){.bc-page{padding:24px 16px;}.bc-card,.bc-card-link-block{padding:20px;}.bc-option{padding:14px 16px;}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important;}}
