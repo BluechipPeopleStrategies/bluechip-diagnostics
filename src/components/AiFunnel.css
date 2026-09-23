@@ -26,3 +26,6 @@
 .ai-context { border-left:3px solid #C9A24B; padding-left:18px; }
 .ai-draft { border-top-color:#5B6675; }
 @media(max-width:600px) { .ai-options,.ai-inclusions { grid-template-columns:1fr; } .ai-funnel { padding-top:24px; } .ai-panel { padding:22px; } }
+
+.ai-legal { margin-top:40px; font-size:13px; color:#526174; text-align:center; }
+.ai-legal a { color:#0b1a33; text-underline-offset:3px; }
