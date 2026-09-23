@@ -142,7 +142,7 @@ export default function ResultsPage({
 
       <div className="bc-cta-row">
         <button type="button" className="bc-cta-secondary" onClick={onRestart}>
-          Retake the {diagnostic.title}
+          Retake the {diagnostic.title.replace(/^The /, '')}
         </button>
       </div>
     </main>

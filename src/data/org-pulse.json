@@ -98,7 +98,7 @@
     "method": "weighted-dimension-sum",
     "totalRange": [0, 100],
     "totalBands": [
-      { "min": 0, "max": 50, "label": "Pressure building", "narrative": "Pressure is building. The org is showing signs of strain in multiple dimensions. Most people would tell you something has to give — but the conversation hasn't happened openly. Start with the dimension scoring lowest below; that's where the leverage is highest." },
+      { "min": 0, "max": 50, "label": "Pressure building", "narrative": "Pressure is building. The org is showing signs of strain in multiple dimensions. Most people would tell you something has to give — but the conversation hasn't happened openly. Your dimension breakdown, available below, shows where to start, because that's where the leverage is highest." },
       { "min": 50, "max": 75, "label": "Mixed signal", "narrative": "Some parts of the organization are healthy; others are exposed. The risk is letting the exposed dimensions drag the healthy ones down. Pick the lowest-scoring dimension below and spend the next 30 days focused there." },
       { "min": 75, "max": 100, "label": "Healthy", "narrative": "Most signals point healthy. The work now is protecting it — staying honest about emerging weak spots before they become structural problems." }
     ]
