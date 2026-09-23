@@ -29,3 +29,13 @@ export function getOpportunity(answers) {
   const toolAdvice = { microsoft: 'Start by checking the Microsoft 365 features and licences you already have.', google: 'Start by checking the Google Workspace features and licences you already have.', mixed: 'List your current tools and the handoffs between them before adding another subscription.', unsure: 'Make a short inventory of your current tools and who can approve their use.' }[answers.tools] || '';
   return { ...workflow, route, next, toolAdvice };
 }
+
+export function defaultHours(workload) {
+  return workload === 'under5' ? 2 : 5;
+}
+
+export function estimateCapacity({ hours, rate, weeks }) {
+  const h = Number(hours), r = Number(rate), w = Number(weeks);
+  if (![h, r, w].every(Number.isFinite) || h <= 0 || r <= 0 || w <= 0) return 0;
+  return h * r * w;
+}
