@@ -30,7 +30,7 @@
       ['Do you implement the recommendations?', 'No. Your organization implements the recommendations and is responsible for the costs of doing so, including software subscriptions and licences, configuration, integrations, automation builds, training and ongoing support. The audit fee covers the audit only. The report documents one redesigned workflow, the recommended tools, responsibilities, human checkpoints and implementation steps, and lists the expected software costs and setup effort so you can budget and decide what is worth doing before you commit. If you would like help with implementation, it can be quoted separately.'],
       ['When will I receive the report?', 'Within five business days after both the discovery session and receipt of the information needed for the audit. A 30-minute findings call walks you through the recommendations.'],
       ['What does the C$8,000 example mean?', 'Five hours a week multiplied by C$40 per hour and 40 working weeks equals C$8,000 a year in potential staff capacity. Those are illustrative assumptions, not guaranteed cash or payroll savings. Software and implementation costs are not included in the audit fee.'],
-      ['Do I have to buy a retainer?', 'No. The Practical AI Audit is standalone. You keep the report and can implement it yourself or with another provider. If the audit leads into a BlueChip advisory engagement, its fee is credited against your first advisory invoice.']
+      ['Do I have to buy a retainer?', 'No. The Practical AI Audit is standalone. You keep the report and can implement it yourself or with another provider. If the audit leads into a Practical AI and/or Embedded HR Retainer (six-month minimum), its fee is credited against your first invoice.']
     ] },
     { title: 'Free AI Opportunity Check', need: 'Free AI Opportunity Check', url: 'https://bluechip-diagnostics.vercel.app/ai-opportunity-check', link: 'Open the free AI Opportunity Check', answers: [
       ['What does the free check give me?', 'Six questions about your recurring work, tools and readiness lead to a practical starting point and a preparation step. You can use that result on its own or explore the paid Practical AI Audit.'],
@@ -272,7 +272,7 @@
       addMsg('Your report arrives within five business days after discovery and receipt of the required information. If we cannot identify evidence-backed potential to save five net hours per week across your organization in total, we refund the audit fee in full. You implement the recommendations. Software, setup and training costs are not included in the audit fee.', 'bot');
     } else {
       addMsg('Embedded HR + AI Advisory brings senior people advice and practical AI adoption into the work of your organization. Support can focus on AI alone or combine HR and AI. The scope and fee are agreed for your engagement.', 'bot');
-      addMsg('You can also start with the standalone Practical AI Audit. Its C$999 fee, including applicable tax, is credited against your first advisory invoice if it leads to an advisory engagement.', 'bot');
+      addMsg('You can also start with the standalone Practical AI Audit. Its C$999 fee, including applicable tax, is credited against your first invoice if it leads to a Practical AI and/or Embedded HR Retainer (six-month minimum).', 'bot');
     }
     var next = el('button', { 'class': 'bcw-choice', type: 'button' });
     next.textContent = 'Discuss this with BlueChip';
