@@ -88,7 +88,7 @@
     "method": "weighted-dimension-sum",
     "totalRange": [0, 100],
     "totalBands": [
-      { "min": 0, "max": 50, "label": "Exposure showing", "narrative": "Your evaluation practice is running on goodwill more than structure, and it would be hard to stand behind if it were ever tested. That is common; most boards inherit their process rather than design it. The dimension scoring lowest below is where the exposure is most concrete, and the good news is that structure is buildable." },
+      { "min": 0, "max": 50, "label": "Exposure showing", "narrative": "Your evaluation practice is running on goodwill more than structure, and it would be hard to stand behind if it were ever tested. That is common; most boards inherit their process rather than design it. Your dimension breakdown, available below, shows where the exposure is most concrete, and the good news is that structure is buildable." },
       { "min": 50, "max": 75, "label": "Goodwill dependent", "narrative": "Parts of your practice are solid, but it leans on relationships and memory more than on structure. That tends to hold right up until the year it matters: a contested result, a leader transition, a new board. The lowest dimension below is the one to shore up before that year arrives." },
       { "min": 75, "max": 100, "label": "Defensible", "narrative": "Your evaluation practice has real structure, a level many boards never reach. The remaining work is protecting it through board turnover and sharpening the weakest dimension below, so the process keeps producing a result the board, the leader, and the public can stand behind." }
     ]
