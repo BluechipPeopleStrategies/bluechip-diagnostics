@@ -1,6 +1,6 @@
 {
   "id": "governance-eval-readiness",
-  "title": "Governance Evaluation Readiness",
+  "title": "Governance Health Check",
   "tagline": "15 questions. 4 minutes. How defensible is your board's evaluation of its CAO, CEO, or Executive Director?",
   "instructions": "Answer for how your board's evaluation of its senior leader actually works today, not how the bylaws say it should.",
   "outputPattern": "score-and-dimensions",
