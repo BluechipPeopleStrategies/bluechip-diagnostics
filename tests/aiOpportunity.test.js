@@ -5,7 +5,7 @@ import {
   tailoredLines, questions, HOUR_CAP_PER_AREA, HOUR_CAP_TOTAL, PEOPLE_MAX_BEFORE_ORG_SIZE,
   lowerFirst, joinList, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
   AREAS, AREA_RATE_MAP, RATE_TABLE, groupedOptions, sanitizeAreaLabel, sanitizeShortText,
-  areaLookoutLines, OTHER_AREA_LOOKOUT, crossCuttingCards, nextSteps,
+  areaLookoutLines, OTHER_AREA_LOOKOUT, crossCuttingCards, nextSteps, areaHoursRangeLabel,
 } from '../src/lib/aiOpportunity';
 
 describe('range maths', () => {
@@ -376,5 +376,60 @@ describe('"free next steps" (always exactly 3, tailored and deduplicated)', () =
     const vendors = /chatgpt|copilot|gemini|claude|deepseek|kimi|perplexity|grok|meta ai|mistral/i;
     nextSteps({ heldBack: ['notSureStart', 'staffHesitant', 'budget'], owner: 'variesOrNoOne' }, 'a top area')
       .forEach(s => expect(s).not.toMatch(vendors));
+  });
+});
+
+describe('areaHoursRangeLabel (collapses to one number when equal, never "X to X")', () => {
+  it('shows a range when the two values round differently', () => {
+    expect(areaHoursRangeLabel(0.6, 1.1)).toBe('0.6 to 1.1');
+    expect(areaHoursRangeLabel(1.0, 2.0)).toBe('1.0 to 2.0');
+  });
+  it('collapses to one number when both values round to the same label', () => {
+    expect(areaHoursRangeLabel(0.4, 0.9)).toBe('0.4 to 0.9'); // genuinely different, stays a range
+    expect(areaHoursRangeLabel(0.41, 0.44)).toBe('0.4'); // both round to 0.4 -- collapses
+    expect(areaHoursRangeLabel(0, 0)).toBe('0');
+  });
+  it('never produces "under 1 to under 1" -- the bug this helper replaces', () => {
+    // Proposals alone at the default 5 hrs x 1 person (reports rate 0.08/0.18): low=0.4, likely=0.9.
+    const label = areaHoursRangeLabel(5 * 1 * 0.08, 5 * 1 * 0.18);
+    expect(label).not.toMatch(/under 1 to under 1/);
+    expect(label).toBe('0.4 to 0.9');
+  });
+});
+
+describe('live-preview sum: correspondence + proposals at the default 5 hrs x 1 person', () => {
+  it('reproduces the exact scenario Thomas reported and confirms the sum is correct (not a dropped-area bug)', () => {
+    // correspondence (0.12/0.22) + proposals, mapped to "reports" (0.08/0.18): low 0.6+0.4=1.0,
+    // likely 1.1+0.9=2.0. Verified this matches the live app via CDP before writing this test --
+    // the "under 1 to under 1" report traced to picking a single low-rate area (or lower hours),
+    // not a state bug that drops a picked area from the sum.
+    const rows = [
+      { area: 'correspondence', hours: 5, people: 1 },
+      { area: 'proposals', hours: 5, people: 1 },
+    ];
+    const { low, likely, rows: detail } = computeRange(rows, undefined);
+    expect(low).toBeCloseTo(1.0, 6);
+    expect(likely).toBeCloseTo(2.0, 6);
+    expect(detail).toHaveLength(2); // both picked areas present, none dropped
+    expect(areaHoursRangeLabel(low, likely)).toBe('1.0 to 2.0');
+  });
+});
+
+describe('Q3 (toolsToday) option list, 2026-09-24 revision', () => {
+  const q3 = questions.find(q => q.id === 'toolsToday');
+  it('has the full list in the specified order, ending with Other then Not sure', () => {
+    expect(q3.options.map(o => o[0])).toEqual([
+      'm365', 'google', 'accounting', 'hrPayroll', 'industry', 'projectMgmt',
+      'chatVideo', 'designDocs', 'toolsOther', 'notSureTools',
+    ]);
+  });
+  it('keeps "Not sure" as the sole exclusive pick', () => {
+    expect(q3.options.filter(o => o[2])).toEqual([['notSureTools', 'Not sure', true]]);
+  });
+  it('does not feed tailoredLines, crossCuttingCards or nextSteps -- new values are safe by construction', () => {
+    const answers = { toolsToday: ['hrPayroll', 'projectMgmt', 'chatVideo', 'designDocs', 'toolsOther'] };
+    expect(tailoredLines(answers)).toEqual([]);
+    expect(crossCuttingCards(answers)).toEqual([]);
+    expect(nextSteps(answers, null)).toHaveLength(3); // falls back to the generic 3, unaffected
   });
 });

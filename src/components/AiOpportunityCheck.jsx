@@ -5,7 +5,7 @@ import {
   suggestedAreas, AREA_LABELS, lowerFirst, joinList, groupedOptions,
   sanitizeAreaLabel, sanitizeShortText, areaLookoutLines, crossCuttingCards, nextSteps,
   peopleCapForOrgSize, orgSizeMidpoint, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
-  PEOPLE_MAX_BEFORE_ORG_SIZE, areaHoursLabel } from '../lib/aiOpportunity';
+  PEOPLE_MAX_BEFORE_ORG_SIZE, areaHoursLabel, areaHoursRangeLabel } from '../lib/aiOpportunity';
 import { prefersReducedMotion } from '../lib/useRollingNumber';
 import SiteHeader from './SiteHeader';
 import AreaIcon, { CheckCircleIcon } from './AreaIcon';
@@ -46,6 +46,7 @@ export default function AiOpportunityCheck() {
   const [weeks, setWeeks] = useState(48);
   const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
   const [ownerOtherText, setOwnerOtherText] = useState(''); // Q9 "Someone else" free text, optional
+  const [toolsOtherText, setToolsOtherText] = useState(''); // Q3 "Other" free text, optional
   const headingRef = useRef(null);
 
   const question = questions[qIndex];
@@ -102,6 +103,7 @@ export default function AiOpportunityCheck() {
   const atCap = question?.maxPicks && picks.length >= question.maxPicks;
   const isAreas = question?.id === 'areas';
   const isOwner = question?.id === 'owner';
+  const isToolsToday = question?.id === 'toolsToday';
   const isGrouped = !!question?.groups;
   const peopleMaxDuringQ2 = answers.orgSize ? peopleCapForOrgSize(answers.orgSize) : PEOPLE_MAX_BEFORE_ORG_SIZE;
   const pickedRows = isAreas ? picks.map(a => ({ area: a, hours: areaInputs[a]?.hours ?? 5, people: areaInputs[a]?.people ?? 1 })) : [];
@@ -163,12 +165,31 @@ export default function AiOpportunityCheck() {
               : question.options.map(renderTile)}
           </div>
           {isAreas && <p className="ai-note">Up to four. Each one you pick gets its own hours and people below.</p>}
-          {livePreview && <p className="ai-live-preview">About {roundHoursLabel(livePreview.low)} to {roundHoursLabel(livePreview.likely)} hours a week back, so far.</p>}
+          {livePreview && <>
+            <p className="ai-live-preview">About {areaHoursRangeLabel(livePreview.low, livePreview.likely)} hours a week back, so far.</p>
+            <div className="ai-live-preview-detail">
+              {livePreview.rows.map(r => {
+                const rowLabel = r.area === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[r.area];
+                const lowPct = Math.round(r.rate.low * 100);
+                const likelyPct = Math.round(r.rate.likely * 100);
+                return <p className="ai-note" key={r.area}>
+                  {rowLabel}: {r.hours} hrs &times; {r.people} {r.people === 1 ? 'person' : 'people'} &times; {lowPct}% to {likelyPct}% = {areaHoursRangeLabel(r.low, r.likely)} hrs back
+                </p>;
+              })}
+              <p className="ai-note">The percentages are the share of that time AI can realistically save after someone checks its work.</p>
+            </div>
+          </>}
           {isOwner && value === 'someoneElse' && <div className="ai-other-label-field">
             <label className="ai-hours-field-label" htmlFor="owner-other-text">Who is it? (a role is fine, e.g. finance lead)</label>
             <input id="owner-other-text" type="text" className="ai-compact-text-input" maxLength={60}
               value={ownerOtherText} onChange={(e) => setOwnerOtherText(e.target.value)} />
             {sanitizeShortText(ownerOtherText) && <p className="ai-note">You said: {sanitizeShortText(ownerOtherText)}</p>}
+          </div>}
+          {isToolsToday && picks.includes('toolsOther') && <div className="ai-other-label-field">
+            <label className="ai-hours-field-label" htmlFor="tools-other-text">What tool? (optional)</label>
+            <input id="tools-other-text" type="text" className="ai-compact-text-input" maxLength={60}
+              value={toolsOtherText} onChange={(e) => setToolsOtherText(e.target.value)} />
+            {sanitizeShortText(toolsOtherText) && <p className="ai-note">You said: {sanitizeShortText(toolsOtherText)}</p>}
           </div>}
         </fieldset>
 

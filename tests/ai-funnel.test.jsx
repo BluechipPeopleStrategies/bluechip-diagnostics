@@ -122,6 +122,43 @@ describe('the free check stepper', () => {
     expect(screen.getByText('2')).toBeInTheDocument();
   });
 
+  it('the hours label is reworded and renders as plain text, not a bordered tile-styled box', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    expect(screen.getByText('Hours a week one person spends on this')).toBeInTheDocument();
+    expect(screen.queryByText('Hours a week, one person')).not.toBeInTheDocument();
+    const label = container.querySelector('label[for="hours-correspondence"]');
+    expect(label.className).toBe('ai-hours-field-label'); // not a .ai-tile-wrap/.ai-options label
+  });
+
+  it('the people-count label is dynamic, uses the live hours value, and falls back at 0', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    expect(screen.getByText('People at your organization who spend about 5 hrs a week on this')).toBeInTheDocument();
+    fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '12' } });
+    expect(screen.getByText('People at your organization who spend about 12 hrs a week on this')).toBeInTheDocument();
+    fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '0' } });
+    expect(screen.getByText('People at your organization who spend time on this')).toBeInTheDocument();
+  });
+
+  it('shows a per-area breakdown line with the rate percentages under the live-preview total, plus the honesty note', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    fireEvent.click(container.querySelector('input[name="areas"][value="proposals"]'));
+    // Reproduces Thomas's exact reported scenario: both areas at the default 5 hrs x 1 person.
+    expect(screen.getByText('About 1.0 to 2.0 hours a week back, so far.')).toBeInTheDocument();
+    const detail = container.querySelector('.ai-live-preview-detail');
+    expect(within(detail).getByText(/Emails and correspondence: 5 hrs × 1 person × 12% to 22% = 0.6 to 1.1 hrs back/)).toBeInTheDocument();
+    expect(within(detail).getByText(/Proposals, quotes and grant applications: 5 hrs × 1 person × 8% to 18% = 0.4 to 0.9 hrs back/)).toBeInTheDocument();
+    expect(within(detail).getByText('The percentages are the share of that time AI can realistically save after someone checks its work.')).toBeInTheDocument();
+  });
+
   it('the Back button returns to the previous question and is disabled on question 1', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     expect(screen.getByRole('button', { name: 'Back' })).toBeDisabled();
@@ -269,6 +306,32 @@ describe('the free check stepper', () => {
     await driveToResult(container, { areas: ['otherArea'] });
     const suggestion = screen.queryByText(/Where we'd also look/);
     if (suggestion) expect(suggestion.textContent).not.toMatch(/other \(type your own\)/i);
+  });
+
+  it('Q3 has the full 10-option tools list, and "Other" reveals an optional, sanitized text field', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    await waitFor(() => expect(screen.getByText(/Question 3 of 12/)).toBeInTheDocument());
+    ['Microsoft 365', 'Google Workspace', 'Accounting software', 'HR or payroll software',
+      'Industry software (for example practice management, ERP or CRM)',
+      'Project or task management (for example Asana, Monday or Trello)',
+      'Chat and video calls (for example Slack or Zoom)',
+      'Design and document tools (for example Canva or Adobe)',
+      'Other (type your own)', 'Not sure',
+    ].forEach(name => expect(screen.getByText(name)).toBeInTheDocument());
+
+    expect(container.querySelector('#tools-other-text')).not.toBeInTheDocument();
+    fireEvent.click(container.querySelector('input[name="toolsToday"][value="toolsOther"]'));
+    const otherInput = container.querySelector('#tools-other-text');
+    expect(otherInput).toBeInTheDocument();
+    fireEvent.change(otherInput, { target: { value: '<b>Notion</b>' } });
+    expect(screen.getByText('You said: bNotion/b')).toBeInTheDocument();
+    expect(container.querySelector('.ai-other-label-field b')).not.toBeInTheDocument();
+    // Optional: Next is still enabled with just toolsOther picked, no text required.
+    expect(screen.getByRole('button', { name: 'Next' })).not.toBeDisabled();
   });
 
   it('the AI-tools question (Q4) groups its options under three headings plus an ungrouped "None yet"', async () => {
