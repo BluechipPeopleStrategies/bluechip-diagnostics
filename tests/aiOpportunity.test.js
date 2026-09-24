@@ -6,6 +6,7 @@ import {
   lowerFirst, joinList, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
   AREAS, AREA_RATE_MAP, RATE_TABLE, groupedOptions, sanitizeAreaLabel, sanitizeShortText,
   areaLookoutLines, OTHER_AREA_LOOKOUT, crossCuttingCards, nextSteps, areaHoursRangeLabel,
+  isSingularHourLabel,
 } from '../src/lib/aiOpportunity';
 
 describe('range maths', () => {
@@ -394,6 +395,21 @@ describe('areaHoursRangeLabel (collapses to one number when equal, never "X to X
     const label = areaHoursRangeLabel(5 * 1 * 0.08, 5 * 1 * 0.18);
     expect(label).not.toMatch(/under 1 to under 1/);
     expect(label).toBe('0.4 to 0.9');
+  });
+});
+
+describe('isSingularHourLabel (Infy edit, 2026-09-24: "1 hr back a week", not "1 hrs")', () => {
+  it('is true only for the collapsed single-value case when that value is exactly 1', () => {
+    expect(isSingularHourLabel('1.0')).toBe(true);
+  });
+  it('is false for any other collapsed value', () => {
+    expect(isSingularHourLabel('0.4')).toBe(false);
+    expect(isSingularHourLabel('2.0')).toBe(false);
+    expect(isSingularHourLabel('0')).toBe(false);
+  });
+  it('is false for a genuine range, even one that starts or ends at 1', () => {
+    expect(isSingularHourLabel('1.0 to 2.0')).toBe(false);
+    expect(isSingularHourLabel('0.6 to 1.1')).toBe(false);
   });
 });
 

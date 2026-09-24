@@ -27,7 +27,7 @@ export default function AreaHoursInput({ area, hours, people, peopleMax, onHours
       <p className="ai-note ai-slider-hint">Not sure? Leave it at 5.</p>
       <PeopleStepper
         label={hours > 0
-          ? `People at your organization who spend about ${hours} hrs a week on this`
+          ? `People at your organization who spend about ${hours} ${hours === 1 ? 'hr' : 'hrs'} a week on this`
           : 'People at your organization who spend time on this'}
         value={people} max={peopleMax} onChange={onPeopleChange}
       />

@@ -133,7 +133,7 @@ describe('the free check stepper', () => {
     expect(label.className).toBe('ai-hours-field-label'); // not a .ai-tile-wrap/.ai-options label
   });
 
-  it('the people-count label is dynamic, uses the live hours value, and falls back at 0', async () => {
+  it('the people-count label is dynamic, uses the live hours value, is singular at exactly 1, and falls back at 0', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
@@ -141,6 +141,8 @@ describe('the free check stepper', () => {
     expect(screen.getByText('People at your organization who spend about 5 hrs a week on this')).toBeInTheDocument();
     fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '12' } });
     expect(screen.getByText('People at your organization who spend about 12 hrs a week on this')).toBeInTheDocument();
+    fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '1' } });
+    expect(screen.getByText('People at your organization who spend about 1 hr a week on this')).toBeInTheDocument();
     fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '0' } });
     expect(screen.getByText('People at your organization who spend time on this')).toBeInTheDocument();
   });
@@ -154,8 +156,8 @@ describe('the free check stepper', () => {
     // Reproduces Thomas's exact reported scenario: both areas at the default 5 hrs x 1 person.
     expect(screen.getByText('About 1.0 to 2.0 hours a week back, so far.')).toBeInTheDocument();
     const detail = container.querySelector('.ai-live-preview-detail');
-    expect(within(detail).getByText(/Emails and correspondence: 5 hrs × 1 person × 12% to 22% = 0.6 to 1.1 hrs back/)).toBeInTheDocument();
-    expect(within(detail).getByText(/Proposals, quotes and grant applications: 5 hrs × 1 person × 8% to 18% = 0.4 to 0.9 hrs back/)).toBeInTheDocument();
+    expect(within(detail).getByText(/Emails and correspondence: 5 hrs × 1 person × 12% to 22% = 0.6 to 1.1 hrs back a week/)).toBeInTheDocument();
+    expect(within(detail).getByText(/Proposals, quotes and grant applications: 5 hrs × 1 person × 8% to 18% = 0.4 to 0.9 hrs back a week/)).toBeInTheDocument();
     expect(within(detail).getByText('The percentages are the share of that time AI can realistically save after someone checks its work.')).toBeInTheDocument();
   });
 

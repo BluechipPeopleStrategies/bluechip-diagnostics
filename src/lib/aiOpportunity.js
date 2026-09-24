@@ -431,6 +431,13 @@ export function areaHoursRangeLabel(low, likely) {
   const likelyLabel = areaHoursLabel(likely);
   return lowLabel === likelyLabel ? likelyLabel : `${lowLabel} to ${likelyLabel}`;
 }
+// True when a rendered range label (from areaHoursRangeLabel) is the collapsed single-value case
+// AND that value is exactly 1 -- the one case where "hrs" should read as "hr". A genuine "X to Y"
+// range always has two different display strings, so only the collapsed case can ever be exactly
+// 1; the " to " check short-circuits Number() on a range string (which would otherwise be NaN).
+export function isSingularHourLabel(label) {
+  return !label.includes(' to ') && Number(label) === 1;
+}
 export function roundDollars(n) {
   return n > 100000 ? Math.round(n / 1000) * 1000 : Math.round(n / 100) * 100;
 }

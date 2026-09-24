@@ -5,7 +5,7 @@ import {
   suggestedAreas, AREA_LABELS, lowerFirst, joinList, groupedOptions,
   sanitizeAreaLabel, sanitizeShortText, areaLookoutLines, crossCuttingCards, nextSteps,
   peopleCapForOrgSize, orgSizeMidpoint, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
-  PEOPLE_MAX_BEFORE_ORG_SIZE, areaHoursLabel, areaHoursRangeLabel } from '../lib/aiOpportunity';
+  PEOPLE_MAX_BEFORE_ORG_SIZE, areaHoursLabel, areaHoursRangeLabel, isSingularHourLabel } from '../lib/aiOpportunity';
 import { prefersReducedMotion } from '../lib/useRollingNumber';
 import SiteHeader from './SiteHeader';
 import AreaIcon, { CheckCircleIcon } from './AreaIcon';
@@ -172,8 +172,9 @@ export default function AiOpportunityCheck() {
                 const rowLabel = r.area === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[r.area];
                 const lowPct = Math.round(r.rate.low * 100);
                 const likelyPct = Math.round(r.rate.likely * 100);
+                const rangeLabel = areaHoursRangeLabel(r.low, r.likely);
                 return <p className="ai-note" key={r.area}>
-                  {rowLabel}: {r.hours} hrs &times; {r.people} {r.people === 1 ? 'person' : 'people'} &times; {lowPct}% to {likelyPct}% = {areaHoursRangeLabel(r.low, r.likely)} hrs back
+                  {rowLabel}: {r.hours} hrs &times; {r.people} {r.people === 1 ? 'person' : 'people'} &times; {lowPct}% to {likelyPct}% = {rangeLabel} {isSingularHourLabel(rangeLabel) ? 'hr' : 'hrs'} back a week
                 </p>;
               })}
               <p className="ai-note">The percentages are the share of that time AI can realistically save after someone checks its work.</p>
