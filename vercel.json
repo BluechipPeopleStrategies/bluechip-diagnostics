@@ -1,9 +1,26 @@
 {
   "redirects": [
-    { "source": "/ai-audit", "destination": "/ai-handoff-plan", "permanent": true },
-    { "source": "/ai-check", "destination": "/ai-opportunity-check", "permanent": true }
+    {
+      "source": "/ai-audit",
+      "destination": "/ai-handoff-plan",
+      "permanent": true
+    },
+    {
+      "source": "/ai-check",
+      "destination": "/ai-opportunity-check",
+      "permanent": true
+    }
   ],
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/lead-selftest",
+      "schedule": "0 14 * * *"
+    }
   ]
 }

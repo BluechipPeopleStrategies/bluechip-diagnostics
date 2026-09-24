@@ -9,11 +9,13 @@
 
   var LEAD_ENDPOINT = 'https://bluechip-diagnostics.vercel.app/api/lead';
 
+  // Browse questions and answers is hidden for now (Thomas, 2026-09-24). Reconsider around 2026-10-08.
+  var SHOW_BROWSE = false;
+
   var NAVY = '#0B1A33', GOLD = '#C9A24B', CREAM = '#F5EFE6', TEXT = '#2c2c2c';
 
   var CHOICES = [
     'Termination or workplace investigation',
-    'Free AI Opportunity Check',
     'The AI Handoff Plan',
     'Practical AI and/or Embedded HR Retainers',
     'Leadership coaching',
@@ -187,7 +189,7 @@
     var send = el('button', { 'class': 'bcw-send', type: 'button' }, 'Send');
     row.appendChild(input); row.appendChild(send);
     footEl.appendChild(row);
-    choiceButton('Browse questions and answers', renderTopics);
+    if (SHOW_BROWSE) choiceButton('Browse questions and answers', renderTopics);
     input.focus();
     function go() {
       var v = input.value.trim();
@@ -259,7 +261,7 @@
       });
       footEl.appendChild(b);
     });
-    choiceButton('Browse questions and answers', renderTopics);
+    if (SHOW_BROWSE) choiceButton('Browse questions and answers', renderTopics);
   }
 
   function renderOffering() {
@@ -270,11 +272,12 @@
       checkLink.textContent = 'Start the free AI Opportunity Check';
       footEl.appendChild(checkLink);
     } else if (data.need === 'The AI Handoff Plan' || data.need === 'Practical AI Audit') {
-      addMsg("The AI Handoff Plan (formerly the Practical AI Audit) is a practical AI audit of your organization's recurring work. We map that work with you in a 60-minute discovery session, scan it for AI tools with evidence-backed potential to save time, and redesign one priority workflow. You get a written plan within five business days of having what we need from you, and a 30-minute findings call to walk through it. It's C$999, taxes included.", 'bot');
-      addMsg("If the plan can't find tools with evidence-backed potential to save at least 5 net hours a week across your organization, your full fee comes back within 10 business days, no forms, no hoops. The plan is yours, and your team puts it in place. If you'd like a rough sense of the hours first, the free AI Opportunity Check takes about three minutes.", 'bot');
+      addMsg("The AI Handoff Plan looks at your team's recurring work and finds where AI can give you time back. It's C$999, taxes included.", 'bot');
+      addMsg("Here's the deal. If we find at least 5 net hours a week of time savings across your organization, you get a plan to go get them. If we can't, your full fee comes back within 10 business days. No forms, no hoops.", 'bot');
+      addMsg('The plan is yours to put in place, on your own or with our help.', 'bot');
     } else {
       addMsg('Practical AI and/or Embedded HR Retainers bring practical AI adoption and senior people advice into the work of your organization. Support can focus on AI alone or combine HR and AI. The scope and fee are agreed for your engagement.', 'bot');
-      addMsg('You can also start with the standalone Practical AI Audit. Its C$999 fee, including applicable tax, is credited against your first invoice if it leads to a Practical AI and/or Embedded HR Retainer (six-month minimum).', 'bot');
+      addMsg('You can also start with The AI Handoff Plan. Its C$999 fee, taxes included, is credited against your first invoice if you start a Practical AI and/or Embedded HR Retainer (six-month minimum) within 60 days of your findings call.', 'bot');
     }
     var next = el('button', { 'class': 'bcw-choice', type: 'button' });
     next.textContent = 'Discuss this with BlueChip';
@@ -283,15 +286,15 @@
     back.textContent = 'Choose a different service';
     back.addEventListener('click', renderChoices);
     footEl.appendChild(next); footEl.appendChild(back);
-    choiceButton('Browse questions and answers', renderTopics);
+    if (SHOW_BROWSE) choiceButton('Browse questions and answers', renderTopics);
   }
 
   // ---- step 3: contact + consent ----
   function renderContact() {
-    addMsg("What's the best number for BlueChip to text you about this? We usually reply within a few hours on business days. This sends an inquiry; it does not book or charge you for an audit. Please keep employee and client details out of this chat.", 'bot');
+    addMsg("What's the best number and email for BlueChip to reach you about this? We usually reply within a few hours on business days. This sends an inquiry. It doesn't book anything or charge you. Please keep employee and client details out of this chat.", 'bot');
     footEl.innerHTML = '';
     var input = el('input', { 'class': 'bcw-input', type: 'tel', 'aria-label': 'Your phone number', placeholder: 'Phone number', style: 'width:100%' });
-    var emailInput = el('input', { 'class': 'bcw-input', type: 'email', 'aria-label': 'Your email, optional', placeholder: 'Email (optional)', style: 'width:100%;margin-top:8px' });
+    var emailInput = el('input', { 'class': 'bcw-input', type: 'email', 'aria-label': 'Your email', placeholder: 'Email', autocomplete: 'email', style: 'width:100%;margin-top:8px' });
     var hp = el('input', { 'class': 'bcw-hp', type: 'text', name: 'bc_hp_trap', tabindex: '-1', 'aria-hidden': 'true', autocomplete: 'off' });   // not "company": browsers autofill that and flagged real visitors as bots
     var consentWrap = el('label', { 'class': 'bcw-consent' });
     var cb = el('input', { type: 'checkbox' });
@@ -310,8 +313,9 @@
     footEl.appendChild(send);
     input.focus();
 
-    function refresh() { send.disabled = !(input.value.trim() && cb.checked); }   // phone + consent required; email optional
+    function refresh() { send.disabled = !(input.value.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim()) && cb.checked); }   // phone, email and consent all required
     input.addEventListener('input', refresh);
+    emailInput.addEventListener('input', refresh);
     cb.addEventListener('change', refresh);
 
     function go() {
