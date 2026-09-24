@@ -15,7 +15,7 @@
     'Termination or workplace investigation',
     'Free AI Opportunity Check',
     'Practical AI Audit',
-    'Embedded HR + AI Advisory',
+    'Practical AI and/or Embedded HR Retainers',
     'Leadership coaching',
     'Governance or CEO evaluation',
     "Something else (I'm not sure yet)"
@@ -37,7 +37,7 @@
       ['Do I need to give my email?', 'No email or contact details are required for the free check. Its answers stay on the page and clear when you reload. Please do not enter confidential information.'],
       ['Does the free check prove I will save five hours?', 'No. It gives a starting point, not an audit or savings estimate, and does not confirm the audit guarantee. The paid audit examines the actual work and the evidence for potential savings.']
     ] },
-    { title: 'Embedded HR + AI Advisory', need: 'Embedded HR + AI Advisory', url: 'https://www.bluechip-people-strategies.com/embedded-hr-retainers', link: 'Explore Embedded HR + AI Advisory', answers: [
+    { title: 'Practical AI and/or Embedded HR Retainers', need: 'Practical AI and/or Embedded HR Retainers', url: 'https://www.bluechip-people-strategies.com/embedded-hr-retainers', link: 'Explore Practical AI and/or Embedded HR Retainers', answers: [
       ['Can I retain BlueChip for AI alone?', 'Yes. Support can focus on practical AI adoption alone or combine AI with embedded HR advice. The scope and fee are agreed for your engagement.'],
       ['What does embedded HR cover?', 'Senior advice on people decisions: hiring strategy, organizational design, performance management, compensation philosophy, leadership and change. It is strategic advisory, not payroll or benefits administration.'],
       ['How are tools and sensitive information handled?', 'Tools need your approval. Employee or client information should not go into a system you have not cleared. The work identifies where human judgment and review belong. Please keep personnel records and confidential client information out of this chat.'],
@@ -252,7 +252,7 @@
       b.textContent = c;
       b.addEventListener('click', function () {
         data.need = c; addMsg(c, 'user');
-        if (c === 'Free AI Opportunity Check' || c === 'Practical AI Audit' || c === 'Embedded HR + AI Advisory') renderOffering();
+        if (c === 'Free AI Opportunity Check' || c === 'Practical AI Audit' || c === 'Practical AI and/or Embedded HR Retainers') renderOffering();
         else renderContact();
       });
       footEl.appendChild(b);
@@ -271,7 +271,7 @@
       addMsg('The Practical AI Audit is C$999 per organization, including applicable tax. It includes a 60-minute discovery session, an organization-wide opportunity scan, one priority workflow redesigned, a written report and a 30-minute findings call.', 'bot');
       addMsg('Your report arrives within five business days after discovery and receipt of the required information. If we cannot identify evidence-backed potential to save five net hours per week across your organization in total, we refund the audit fee in full. You implement the recommendations. Software, setup and training costs are not included in the audit fee.', 'bot');
     } else {
-      addMsg('Embedded HR + AI Advisory brings senior people advice and practical AI adoption into the work of your organization. Support can focus on AI alone or combine HR and AI. The scope and fee are agreed for your engagement.', 'bot');
+      addMsg('Practical AI and/or Embedded HR Retainers bring practical AI adoption and senior people advice into the work of your organization. Support can focus on AI alone or combine HR and AI. The scope and fee are agreed for your engagement.', 'bot');
       addMsg('You can also start with the standalone Practical AI Audit. Its C$999 fee, including applicable tax, is credited against your first invoice if it leads to a Practical AI and/or Embedded HR Retainer (six-month minimum).', 'bot');
     }
     var next = el('button', { 'class': 'bcw-choice', type: 'button' });
