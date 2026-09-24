@@ -293,7 +293,7 @@
   function renderContact() {
     addMsg("What's the best number and email for BlueChip to reach you about this? We usually reply within a few hours on business days. This sends an inquiry. It doesn't book anything or charge you. Please keep employee and client details out of this chat.", 'bot');
     footEl.innerHTML = '';
-    var input = el('input', { 'class': 'bcw-input', type: 'tel', 'aria-label': 'Your phone number', placeholder: 'Phone number', style: 'width:100%' });
+    var input = el('input', { 'class': 'bcw-input', type: 'tel', 'aria-label': 'Your phone number', placeholder: 'Phone number (Canada or US)', style: 'width:100%' });
     var emailInput = el('input', { 'class': 'bcw-input', type: 'email', 'aria-label': 'Your email', placeholder: 'Email', autocomplete: 'email', style: 'width:100%;margin-top:8px' });
     var hp = el('input', { 'class': 'bcw-hp', type: 'text', name: 'bc_hp_trap', tabindex: '-1', 'aria-hidden': 'true', autocomplete: 'off' });   // not "company": browsers autofill that and flagged real visitors as bots
     var consentWrap = el('label', { 'class': 'bcw-consent' });
@@ -302,7 +302,7 @@
     cbText.textContent = "Yes, it's okay to text me at this number about my inquiry. I can reply STOP anytime.";
     consentWrap.appendChild(cb); consentWrap.appendChild(cbText);
     var fine = el('div', { 'class': 'bcw-fine' });
-    fine.textContent = "BlueChip People Strategies, Edmonton, Alberta. We won't share your number or message you about anything unrelated to the opt-in box above. A real person reads each message. We usually reply within a few hours on business days.";
+    fine.textContent = "We text Canadian and US numbers. Outside North America? We'll reply by email. BlueChip People Strategies, Edmonton, Alberta. We won't share your number or message you about anything unrelated to the opt-in box above. A real person reads each message. We usually reply within a few hours on business days.";
     var send = el('button', { 'class': 'bcw-send', type: 'button', disabled: 'disabled', style: 'margin-top:12px;width:100%' }, 'Send');
 
     footEl.appendChild(input);

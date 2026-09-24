@@ -81,3 +81,15 @@ describe('formatLeadSms', () => {
     expect(msg).not.toContain('(from');
   });
 });
+
+import { isNorthAmericanPhone } from '../api/_lib/lead-helpers.js';
+describe('isNorthAmericanPhone', () => {
+  it('accepts Canadian and US numbers', () => {
+    expect(isNorthAmericanPhone('780-555-0100')).toBe(true);
+    expect(isNorthAmericanPhone('+1 (212) 555-0100')).toBe(true);
+  });
+  it('rejects numbers outside North America', () => {
+    expect(isNorthAmericanPhone('+44 20 7946 0958')).toBe(false);
+    expect(isNorthAmericanPhone('12345')).toBe(false);
+  });
+});
