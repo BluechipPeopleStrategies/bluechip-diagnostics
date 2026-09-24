@@ -50,10 +50,14 @@ export function sanitizeLead(body = {}) {
   };
 }
 
-export function validateLead({ name, need, contact }) {
+export function validateLead({ name, need, contact, email }) {
   if (!name || !need || !contact) {
     return { ok: false, error: 'missing_required_fields' };
   }
+  // Email is required from the widget (2026-09-24). An older cached widget may still send
+  // none, so a missing email is accepted here rather than losing the lead.
+  // Never reject a lead over an odd-looking email: the email copy still reaches Thomas.
+  void email;
   return { ok: true };
 }
 

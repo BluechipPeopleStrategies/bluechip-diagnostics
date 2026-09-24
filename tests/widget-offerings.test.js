@@ -23,7 +23,8 @@ function choose(label) {
   return ui;
 }
 describe('new offering intake', () => {
-  it('lets visitors browse accurate answers anonymously and preserves the topic for handoff', () => {
+  // Browse is hidden (SHOW_BROWSE = false, 2026-09-24). Re-enable these two when it comes back.
+  it.skip('lets visitors browse accurate answers anonymously and preserves the topic for handoff', () => {
     const ui = within(document.body);
     fireEvent.click(document.querySelector('#bcwLaunch'));
     fireEvent.click(ui.getByRole('button', { name: 'Browse questions and answers' }));
@@ -42,7 +43,7 @@ describe('new offering intake', () => {
     fireEvent.click(ui.getByRole('button', { name: 'Send', exact: true }));
     expect(JSON.parse(fetchMock.mock.calls[0][1].body).need).toBe('The AI Handoff Plan');
   });
-  it('supports returning to topics and links resources without collecting details', () => {
+  it.skip('supports returning to topics and links resources without collecting details', () => {
     const ui = within(document.body);
     fireEvent.click(document.querySelector('#bcwLaunch'));
     fireEvent.click(ui.getByRole('button', { name: 'Browse questions and answers' }));
@@ -57,13 +58,14 @@ describe('new offering intake', () => {
   it('explains price and scope before contact, and requires consent before submitting', () => {
     const ui = choose('The AI Handoff Plan');
     expect(document.body.textContent).toContain('C$999, taxes included');
-    expect(document.body.textContent).toContain('redesign one priority workflow');
-    expect(document.body.textContent).toContain('save at least 5 net hours a week across your organization');
-    expect(document.body.textContent).toContain('no forms, no hoops');
+    expect(document.body.textContent).toContain('at least 5 net hours a week of time savings across your organization');
+    expect(document.body.textContent).toContain('your full fee comes back within 10 business days');
+    expect(document.body.textContent).toContain('No forms, no hoops');
     expect(ui.queryByLabelText('Your phone number')).toBeNull();
     expect(fetchMock).not.toHaveBeenCalled();
     fireEvent.click(ui.getByRole('button', { name: 'Discuss this with BlueChip' }));
     fireEvent.change(ui.getByLabelText('Your phone number'), { target: { value: '7805550100' } });
+    fireEvent.change(ui.getByLabelText('Your email'), { target: { value: 'test@example.com' } });
     const send = ui.getByRole('button', { name: 'Send', exact: true });
     expect(send).toBeDisabled();
     fireEvent.click(ui.getByRole('checkbox'));
@@ -87,10 +89,14 @@ describe('new offering intake', () => {
     expect(formatVisitorConfirmation({ need: 'Practical AI and/or Embedded HR Retainers' })).toContain('Practical AI and/or Embedded HR Retainers inquiry');
     expect(formatVisitorConfirmation({ need: 'Leadership coaching' })).not.toContain('C$999');
   });
-  it('links the free check without submitting contact details', () => {
-    const ui = choose('Free AI Opportunity Check');
-    expect(ui.getByRole('link', { name: 'Start the free AI Opportunity Check' })).toHaveAttribute('href', 'https://bluechip-diagnostics.vercel.app/ai-opportunity-check');
-    expect(fetchMock).not.toHaveBeenCalled();
+  it('no longer offers the free check or browse on the topic list', () => {
+    const ui = within(document.body);
+    fireEvent.click(document.querySelector('#bcwLaunch'));
+    expect(ui.queryByRole('button', { name: 'Browse questions and answers' })).toBeNull();
+    fireEvent.change(ui.getByLabelText('Your name'), { target: { value: 'Test' } });
+    fireEvent.click(ui.getByRole('button', { name: 'Send', exact: true }));
+    expect(ui.queryByRole('button', { name: 'Free AI Opportunity Check', exact: true })).toBeNull();
+    expect(ui.getByRole('button', { name: 'The AI Handoff Plan', exact: true })).toBeVisible();
   });
   it('opens intake for an incoming audit discussion link', () => {
     window.history.replaceState(null, '', '/#chat');
