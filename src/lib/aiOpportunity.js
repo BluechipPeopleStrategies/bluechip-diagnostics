@@ -326,6 +326,12 @@ export function roundHoursLabel(n) {
   if (n < 1) return 'under 1';
   return String(Math.round(n));
 }
+// Per-area bars: one decimal under 10 hours ("0.4 to 0.8"), whole hours above, so small areas
+// never read as "under 1 to under 1".
+export function areaHoursLabel(n) {
+  if (!(n > 0)) return '0';
+  return n < 10 ? (Math.round(n * 10) / 10).toFixed(1) : String(Math.round(n));
+}
 export function roundDollars(n) {
   return n > 100000 ? Math.round(n / 1000) * 1000 : Math.round(n / 100) * 100;
 }

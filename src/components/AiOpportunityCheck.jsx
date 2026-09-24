@@ -4,8 +4,7 @@ import {
   questions, isComplete, toggleMulti, computeRange, roundHoursLabel, roundDollars, money,
   suggestedAreas, tailoredLines, AREA_LABELS, lowerFirst, joinList,
   peopleCapForOrgSize, orgSizeMidpoint, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
-  PEOPLE_MAX_BEFORE_ORG_SIZE,
-} from '../lib/aiOpportunity';
+  PEOPLE_MAX_BEFORE_ORG_SIZE, areaHoursLabel } from '../lib/aiOpportunity';
 import { prefersReducedMotion } from '../lib/useRollingNumber';
 import SiteHeader from './SiteHeader';
 import AreaIcon from './AreaIcon';
@@ -274,7 +273,7 @@ function AreaBarRow({ label, low, likely, max }) {
     <div className="ai-area-bar-row">
       <span className="ai-area-bar-label">{label}</span>
       <div className="ai-area-bar-track"><div className="ai-area-bar-fill" style={{ left: `${lowPct}%`, width: `${Math.max(2, likelyPct - lowPct)}%` }} /></div>
-      <span className="ai-area-bar-value">{roundHoursLabel(low)} to {roundHoursLabel(likely)} hrs/week</span>
+      <span className="ai-area-bar-value">{areaHoursLabel(low)} to {areaHoursLabel(likely)} hrs/week</span>
     </div>
   );
 }
