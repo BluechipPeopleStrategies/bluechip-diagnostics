@@ -31,13 +31,34 @@ describe('lead handler', () => {
     expect(res.statusCode).toBe(405);
   });
 
-  it('returns 200 ok on honeypot without calling fetch', async () => {
-    const req = { method: 'POST', headers: {}, body: { name: 'x', need: 'y', contact: 'z', company: 'bot' } };
+  it('honeypot: returns 200, sends no text, but emails a flagged copy', async () => {
+    process.env.RESEND_API_KEY = 're_test'; process.env.BLUECHIP_FROM_EMAIL = 'hi@bc.ca'; process.env.BLUECHIP_NOTIFY_EMAIL = 't@bc.ca';
+    const req = { method: 'POST', headers: {}, body: { name: 'x', need: 'y', contact: 'z', bc_hp_trap: 'bot' } };
     const res = mockRes();
     await handler(req, res);
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({ ok: true });
-    expect(global.fetch).not.toHaveBeenCalled();
+    expect(global.fetch.mock.calls.some(c => String(c[0]).includes('openphone'))).toBe(false);
+    const mail = global.fetch.mock.calls.find(c => String(c[0]).includes('resend'));
+    expect(JSON.parse(mail[1].body).subject).toMatch(/spam trap/);
+  });
+
+  it('an autofilled legacy "company" field no longer drops the lead', async () => {
+    const req = { method: 'POST', headers: {}, body: { name: 'Jo', need: 'The AI Handoff Plan', contact: '7805551234', consent: true, company: 'Acme Ltd' } };
+    const res = mockRes();
+    await handler(req, res);
+    expect(res.body.smsSent).toBe(true);
+  });
+
+  it('emails every lead and skips the visitor confirmation when it is our own number', async () => {
+    process.env.RESEND_API_KEY = 're_test'; process.env.BLUECHIP_FROM_EMAIL = 'hi@bc.ca'; process.env.BLUECHIP_NOTIFY_EMAIL = 't@bc.ca';
+    const req = { method: 'POST', headers: {}, body: { name: 'T', need: 'The AI Handoff Plan', contact: '587-555-0000', consent: true } };
+    const res = mockRes();
+    await handler(req, res);
+    expect(res.body.emailSent).toBe(true);
+    expect(res.body.confirmationSent).toBe(false);
+    const texts = global.fetch.mock.calls.filter(c => String(c[0]).includes('openphone'));
+    expect(texts.length).toBe(1);
   });
 
   it('returns 400 when required fields missing', async () => {
