@@ -46,7 +46,7 @@ export default function SavingsEquation({ defaultPerPersonHours = 1, defaultEmpl
 
       <p className="ai-eyebrow">Across your team</p>
       <h3>What could that time be worth for your organization?</h3>
-      <p className="ai-note">An illustration of your team's time, not a guarantee or a cash saving. The plan's guarantee is 5 net hours a week across your whole organization.</p>
+      <p className="ai-note">An illustration of your team's time, not a guarantee or a cash saving. The plan's guarantee is 5 net hours a week found across your whole organization.</p>
 
       <div className="ai-team-calc-grid">
         <div>

@@ -377,7 +377,7 @@ export function tailoredLines(answers) {
     heldBack.includes('notSureStart') && 'The plan ranks what it finds, so you know which opportunity to start with.',
     heldBack.includes('noTime') && 'The plan lists the setup effort for each recommendation, so you can see what it asks of your team before you commit to anything.',
     heldBack.includes('budget') && 'The plan lists the expected software cost of each recommendation, and it starts with tools you already pay for where they fit.',
-    heldBack.includes('privacySecurity') && 'The plan includes practical guidance on which information can safely go into which tool.',
+    heldBack.includes('privacySecurity') && 'The plan includes practical guidance on which information should go into which tool.',
     owner === 'it' && 'Your IT team gets written setup steps for the redesigned workflow and guidance on which information goes where.',
     timing === 'exploring' && "If you're just exploring, this estimate may be all you need for now.",
   ].filter(Boolean);

@@ -111,7 +111,7 @@ export default function AiOpportunityCheck() {
       {qIndex === 0 && <>
         <p className="ai-eyebrow">Free AI Opportunity Check</p>
         <h1 ref={headingRef} tabIndex={-1}>How much time could AI give back to your team?</h1>
-        <p>Find out roughly how many hours a week AI could give your team back. About two minutes, no email.</p>
+        <p>Find out roughly how many hours a week AI could give your team back. About three minutes, no email.</p>
         <p className="ai-note">Answers stay on this page and clear when you reload. Please don't enter confidential information.</p>
       </>}
 
@@ -252,9 +252,9 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
     {lines.length > 0 && <p className="ai-tailored-chip">{lines[0]}</p>}
 
     <section className="ai-next-step">
-      <p>Want to know exactly which tasks and tools would get you there? That's what The AI Handoff Plan works out, measured against your actual work.</p>
+      <p>Want to know which tasks and tools could get you there? That's what The AI Handoff Plan works out, measured against your actual work.</p>
       <p><Link className="ai-secondary" to={`/ai-handoff-plan?perPersonHours=${carryHours}&employees=${carryEmployees}`}>See how the plan works</Link></p>
-      <p className="ai-note">At least 5 net hours a week found, or your fee back.</p>
+      <p className="ai-note">At least 5 net hours a week found across your organization, or your fee back.</p>
     </section>
 
     <details className="ai-disclosure">

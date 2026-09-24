@@ -51,7 +51,7 @@ describe('the free check stepper', () => {
   it('is 11 questions, with no mention of the plan, price or guarantee before the result', () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     expect(screen.getByText('How much time could AI give back to your team?')).toBeInTheDocument();
-    expect(screen.getByText('Find out roughly how many hours a week AI could give your team back. About two minutes, no email.')).toBeInTheDocument();
+    expect(screen.getByText('Find out roughly how many hours a week AI could give your team back. About three minutes, no email.')).toBeInTheDocument();
     expect(screen.getByText('Question 1 of 11. 0 of 11 answered.')).toBeInTheDocument();
     // Scoped to the stepper content, not the shared SiteHeader nav (which always names the
     // plan as a navigation link -- that's wayfinding, not sales copy).
@@ -200,7 +200,7 @@ describe('the free check stepper', () => {
     expect(cta.className).toContain('ai-secondary');
     expect(cta.className).not.toContain('ai-button');
     expect(cta.getAttribute('href')).toMatch(/^\/ai-handoff-plan\?perPersonHours=[\d.]+&employees=\d+$/);
-    expect(screen.getByText('At least 5 net hours a week found, or your fee back.')).toBeInTheDocument();
+    expect(screen.getByText('At least 5 net hours a week found across your organization, or your fee back.')).toBeInTheDocument();
   });
 
   it('keeps the "not a promise of results" honesty line, folded into the disclosure', async () => {

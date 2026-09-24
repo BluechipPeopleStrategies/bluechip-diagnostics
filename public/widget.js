@@ -65,7 +65,7 @@
     'You can also start with The AI Handoff Plan. Its C$999 fee, taxes included, is credited against your first invoice if you start a Practical AI and/or Embedded HR Retainer (six-month minimum) within 60 days of your findings call.'
   ];
   var FREE_CHECK_BUBBLES = [
-    'Twelve quick questions about your recurring work, about three minutes in all. The free check gives you a starting range of hours, with no email required. It is not the plan and not a confirmation of the guarantee.'
+    'Twelve quick questions about your recurring work, about three minutes in all. The free check gives you a starting range of hours, with no email required. It is not the plan, and it does not confirm the guarantee.'
   ];
 
   // ---- styles ----
@@ -304,7 +304,7 @@
   function renderTopics() {
     typingGeneration++;
     footEl.innerHTML = '';
-    sayBotSequence(['Browse approved answers about BlueChip. No contact details are needed to explore.'], function () {
+    sayBotSequence(['Browse common questions about BlueChip. No contact details needed.'], function () {
       KNOWLEDGE.forEach(function (topic) {
         choiceButton(topic.title, function () { renderQuestions(topic); });
       });
