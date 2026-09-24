@@ -191,13 +191,15 @@ describe('the free check stepper', () => {
     expect(screen.queryByText('You get the plan, and your team puts it in place.')).not.toBeInTheDocument();
   });
 
-  it('the suggested-areas sentence lowercases area names and uses a serial-comma join', async () => {
+  it('the suggested-areas sentence lowercases area names, uses a serial-comma join, and folds into the lookout section as "Also worth a look"', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     // professional's suggestions are correspondence, proposals, findingInfo; picking
     // correspondence and reports leaves proposals + findingInfo suggested.
     await driveToResult(container);
-    expect(screen.getByText(
-      "Where we'd also look in an organization like yours: proposals, quotes and grant applications, and finding information."
+    expect(screen.queryByText(/Where we'd also look/)).not.toBeInTheDocument();
+    const lookout = container.querySelector('.ai-lookout-section');
+    expect(within(lookout).getByText(
+      "Also worth a look: proposals, quotes and grant applications, and finding information."
     )).toBeInTheDocument();
   });
 
@@ -383,7 +385,7 @@ describe('the free check stepper', () => {
     expect(within(mainEq).getByText('hrs/week')).toBeInTheDocument();
     expect(within(mainEq).getByText('hrs/year')).toBeInTheDocument();
     expect(within(mainEq).getByText('a year, potential staff time value')).toBeInTheDocument();
-    expect(within(mainEq).getAllByText(/as low as/).length).toBe(3); // hrs/week, hrs/year, the total
+    expect(within(mainEq).getAllByText(/low estimate/).length).toBe(3); // hrs/week, hrs/year, the total
     const weeksInput = within(mainEq).getByLabelText('Working weeks a year');
     expect(weeksInput).toHaveValue(48);
     fireEvent.change(weeksInput, { target: { value: '50' } });
@@ -403,11 +405,11 @@ describe('the free check stepper', () => {
     expect(within(eq).getByText('25')).toBeInTheDocument(); // default headcount for the 11-50 org-size band
   });
 
-  it('shows a "What we\'d look at" card for every picked area, plus up to 2 cross-cutting cards', async () => {
+  it('shows a "Where to look" card for every picked area, plus up to 2 cross-cutting cards', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(container, { information: ['health'], protectInfo: ['nothingFormal'] });
     const section = container.querySelector('.ai-lookout-section');
-    expect(within(section).getByText('What we\'d look at, based on your answers')).toBeInTheDocument();
+    expect(within(section).getByText('Where to look, based on your answers')).toBeInTheDocument();
     expect(within(section).getByText('Emails and correspondence')).toBeInTheDocument();
     expect(within(section).getByText('Recurring reports')).toBeInTheDocument();
     expect(within(section).getByText('Information handling')).toBeInTheDocument();
@@ -418,7 +420,7 @@ describe('the free check stepper', () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(container);
     const section = container.querySelector('.ai-next-steps-section');
-    expect(within(section).getByText('Free next steps you can take this week')).toBeInTheDocument();
+    expect(within(section).getByText('Next steps you can take this week')).toBeInTheDocument();
     expect(section.querySelectorAll('.ai-next-steps-list li').length).toBe(3);
 
     const writeText = vi.fn().mockResolvedValue(undefined);
@@ -447,6 +449,16 @@ describe('the free check stepper', () => {
     const vendors = /chatgpt|microsoft copilot|google gemini|claude|deepseek|kimi|perplexity|grok|meta ai|mistral/i;
     const resultBody = container.querySelector('main');
     expect(resultBody.textContent).not.toMatch(vendors);
+  });
+
+  it('moves focus to the result h1, not the eyebrow, and the eyebrow carries no tabIndex/ref', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container);
+    const h1 = container.querySelector('.ai-result-headline');
+    await waitFor(() => expect(h1).toHaveFocus()); // the focus() call is scheduled via setTimeout(0)
+    const eyebrow = container.querySelector('.ai-eyebrow');
+    expect(eyebrow.textContent).toBe('Your estimate');
+    expect(eyebrow).not.toHaveAttribute('tabindex');
   });
 });
 

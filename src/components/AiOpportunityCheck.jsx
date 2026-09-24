@@ -222,8 +222,8 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
   const carryEmployees = orgSizeMidpoint(answers.orgSize);
 
   return <>
-    <p className="ai-eyebrow" ref={headingRef} tabIndex={-1}>Your estimate</p>
-    <h1 className="ai-result-headline">
+    <p className="ai-eyebrow">Your estimate</p>
+    <h1 className="ai-result-headline" ref={headingRef} tabIndex={-1}>
       About <RollingNumber value={low} format={(n) => roundHoursLabel(n)} /> to <RollingNumber value={likely} format={(n) => roundHoursLabel(n)} /> hours a week
     </h1>
     <p className="ai-result-sub">across the areas you picked</p>
@@ -244,11 +244,11 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
       </div>
     </div>
 
-    <div className="ai-eq ai-eq--result" role="img" aria-label={`${roundHoursLabel(likely)} hours a week, as low as ${roundHoursLabel(low)}, times ${weeks} working weeks equals ${roundHoursLabel(likely * weeks)} hours a year, as low as ${roundHoursLabel(low * weeks)}. At ${money(rate)} an hour that is ${money(roundDollars(valueLikely))} a year in potential staff time value, as low as ${money(roundDollars(valueLow))}.`}>
+    <div className="ai-eq ai-eq--result" role="img" aria-label={`${roundHoursLabel(likely)} hours a week, low estimate ${areaHoursLabel(low)}, times ${weeks} working weeks equals ${roundHoursLabel(likely * weeks)} hours a year, low estimate ${roundHoursLabel(low * weeks)}. At ${money(rate)} an hour that is ${money(roundDollars(valueLikely))} a year in potential staff time value, low estimate ${money(roundDollars(valueLow))}.`}>
       <div className="ai-term ai-hrs">
-        <strong><RollingNumber value={likely} format={roundHoursLabel} /></strong>
-        <span>hrs/week</span>
-        <span className="ai-term-low">as low as <RollingNumber value={low} format={roundHoursLabel} /></span>
+        <strong><RollingNumber value={likely} format={areaHoursLabel} /></strong>
+        <span className="ai-term-unit">hrs/week</span>
+        <span className="ai-term-low">low estimate <RollingNumber value={low} format={areaHoursLabel} /></span>
       </div>
       <div className="ai-op" aria-hidden="true">&times;</div>
       <div className="ai-term ai-term--editable">
@@ -257,8 +257,8 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
       <div className="ai-op" aria-hidden="true">=</div>
       <div className="ai-term ai-hrs">
         <strong><RollingNumber value={likely * weeks} format={roundHoursLabel} /></strong>
-        <span>hrs/year</span>
-        <span className="ai-term-low">as low as <RollingNumber value={low * weeks} format={roundHoursLabel} /></span>
+        <span className="ai-term-unit">hrs/year</span>
+        <span className="ai-term-low">low estimate <RollingNumber value={low * weeks} format={roundHoursLabel} /></span>
       </div>
       <div className="ai-op" aria-hidden="true">&times;</div>
       <div className="ai-term ai-term--editable">
@@ -266,9 +266,9 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
       </div>
       <div className="ai-op" aria-hidden="true">=</div>
       <div className="ai-term ai-total">
-        <strong><RollingNumber value={valueLikely} format={(n) => money(roundDollars(n))} /></strong>
-        <span>a year, potential staff time value</span>
-        <span className="ai-term-low">as low as <RollingNumber value={valueLow} format={(n) => money(roundDollars(n))} /></span>
+        <strong><span className="ai-term-currency">C$</span><RollingNumber value={valueLikely} format={(n) => roundDollars(n).toLocaleString('en-CA')} /></strong>
+        <span className="ai-term-unit">a year, potential staff time value</span>
+        <span className="ai-term-low">low estimate <RollingNumber value={valueLow} format={(n) => money(roundDollars(n))} /></span>
       </div>
     </div>
     <p className="ai-note">Time for other work, not a cash saving.</p>
@@ -297,41 +297,39 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
         </div>
       </div>
 
-      <div className="ai-eq ai-eq--result" role="img" aria-label={`${roundHoursLabel(perPersonLikely)} hours a week per person, as low as ${roundHoursLabel(perPersonLow)}, times ${headcount} people, times ${weeks} working weeks, times ${money(rate)} an hour, equals ${money(roundDollars(scaledValueLikely))} a year in potential staff time value, as low as ${money(roundDollars(scaledValueLow))}.`}>
+      <div className="ai-eq ai-eq--result" role="img" aria-label={`${areaHoursLabel(perPersonLikely)} hours a week per person, low estimate ${areaHoursLabel(perPersonLow)}, times ${headcount} people, times ${weeks} working weeks, times ${money(rate)} an hour, equals ${money(roundDollars(scaledValueLikely))} a year in potential staff time value, low estimate ${money(roundDollars(scaledValueLow))}.`}>
         <div className="ai-term ai-hrs">
-          <strong><RollingNumber value={perPersonLikely} format={roundHoursLabel} /></strong>
-          <span>hrs/week, per person</span>
-          <span className="ai-term-low">as low as <RollingNumber value={perPersonLow} format={roundHoursLabel} /></span>
+          <strong><RollingNumber value={perPersonLikely} format={areaHoursLabel} /></strong>
+          <span className="ai-term-unit">hrs/week, per person</span>
+          <span className="ai-term-low">low estimate <RollingNumber value={perPersonLow} format={areaHoursLabel} /></span>
         </div>
         <div className="ai-op" aria-hidden="true">&times;</div>
         <div className="ai-term">
           <strong><RollingNumber value={headcount} format={(n) => String(Math.round(n))} /></strong>
-          <span>people</span>
+          <span className="ai-term-unit">people</span>
         </div>
         <div className="ai-op" aria-hidden="true">&times;</div>
         <div className="ai-term">
           <strong>{weeks}</strong>
-          <span>weeks</span>
+          <span className="ai-term-unit">weeks</span>
         </div>
         <div className="ai-op" aria-hidden="true">&times;</div>
         <div className="ai-term">
-          <strong>{money(rate)}</strong>
-          <span>an hour</span>
+          <strong><span className="ai-term-currency">C$</span>{rate}</strong>
+          <span className="ai-term-unit">an hour</span>
         </div>
         <div className="ai-op" aria-hidden="true">=</div>
         <div className="ai-term ai-total">
-          <strong><RollingNumber value={scaledValueLikely} format={(n) => money(roundDollars(n))} /></strong>
-          <span>a year, potential staff time value</span>
-          <span className="ai-term-low">as low as <RollingNumber value={scaledValueLow} format={(n) => money(roundDollars(n))} /></span>
+          <strong><span className="ai-term-currency">C$</span><RollingNumber value={scaledValueLikely} format={(n) => roundDollars(n).toLocaleString('en-CA')} /></strong>
+          <span className="ai-term-unit">a year, potential staff time value</span>
+          <span className="ai-term-low">low estimate <RollingNumber value={scaledValueLow} format={(n) => money(roundDollars(n))} /></span>
         </div>
       </div>
       <p className="ai-note">An illustration that assumes each person saves about what one person in your answers does. Real results vary by role, and the plan measures what's actually there.</p>
     </section>
 
-    {areas.length > 0 && <p>Where we'd also look in an organization like yours: {joinList(areas.map(a => lowerFirst(AREA_LABELS[a])))}.</p>}
-
     {lookoutCards.length > 0 && <section className="ai-panel ai-lookout-section" aria-labelledby="ai-lookout-title">
-      <h2 id="ai-lookout-title">What we'd look at, based on your answers</h2>
+      <h2 id="ai-lookout-title">Where to look, based on your answers</h2>
       <div className="ai-lookout-grid">
         {lookoutCards.map((card, ci) => <div className="ai-lookout-card" key={ci}>
           <h3>{card.title}</h3>
@@ -340,10 +338,11 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
           </ul>
         </div>)}
       </div>
+      {areas.length > 0 && <p className="ai-note ai-lookout-also">Also worth a look: {joinList(areas.map(a => lowerFirst(AREA_LABELS[a])))}.</p>}
     </section>}
 
     <section className="ai-panel ai-next-steps-section" aria-labelledby="ai-next-steps-title">
-      <h2 id="ai-next-steps-title">Free next steps you can take this week</h2>
+      <h2 id="ai-next-steps-title">Next steps you can take this week</h2>
       <ol className="ai-next-steps-list">
         {steps.map((s, si) => <li key={si}><span className="ai-flow-num">{si + 1}</span><span>{s}</span></li>)}
       </ol>

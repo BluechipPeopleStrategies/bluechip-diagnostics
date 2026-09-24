@@ -529,7 +529,7 @@ export function crossCuttingCards(answers) {
     },
     hasExistingTools && {
       title: 'What you already pay for',
-      lines: ['licences or features that may already cover some of this', 'which of those already fits this kind of work'],
+      lines: ['licences or features that may already cover some of this', 'whether any of those fits this kind of work'],
     },
     lowComfort && {
       title: "Who'll run it",
@@ -554,12 +554,12 @@ export function nextSteps(answers, topAreaLabel) {
   const readiness = answers.readiness;
 
   const candidates = [
-    topAreaLabel && { id: 'timeTopArea', text: `Time ${topAreaLabel} for one week: a simple tally of task, minutes, and who did it.` },
+    topAreaLabel && { id: 'timeTopArea', text: `Track the time spent on ${topAreaLabel} for one week: a simple tally of task, minutes, and who did it.` },
     sensitive && weakProtection && { id: 'writePolicy', text: 'Write a one-page rule on what information should never go into an AI tool.' },
     heldBack.includes('notSureStart') && { id: 'rankTasks', text: 'List your three most repetitive tasks and rank them by how many hours a week they take.' },
     (heldBack.includes('staffHesitant') || feel === 'worried') && { id: 'askTeam', text: 'Ask two or three team members what would make them comfortable trying a new tool, before choosing one.' },
     heldBack.includes('budget') && { id: 'checkExisting', text: 'Check whether your current software already includes an AI feature you are not using yet.' },
-    (owner === 'variesOrNoOne' || readiness === 'notYetReady' || readiness === 'somewhatGuidance') && { id: 'pickOwner', text: 'Pick one person to own trying one workflow for two weeks, even informally.' },
+    (owner === 'variesOrNoOne' || readiness === 'notYetReady' || readiness === 'somewhatGuidance') && { id: 'pickOwner', text: 'Pick one person to try one workflow for two weeks, even informally.' },
     { id: 'listTools', text: 'List the AI tools people on your team already use, including personal accounts.' },
   ].filter(Boolean);
 

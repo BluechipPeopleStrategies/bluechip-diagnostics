@@ -361,7 +361,7 @@ describe('"free next steps" (always exactly 3, tailored and deduplicated)', () =
   });
   it('leads with a time-the-top-area step when a top area label is given', () => {
     const steps = nextSteps({}, 'emails and correspondence');
-    expect(steps[0]).toMatch(/Time emails and correspondence for one week/);
+    expect(steps[0]).toMatch(/Track the time spent on emails and correspondence for one week/);
   });
   it('includes the write-a-policy step when sensitive info has weak protection', () => {
     const steps = nextSteps({ information: ['health'], protectInfo: ['noIdeaProtect'] }, 'a top area');

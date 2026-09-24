@@ -20,6 +20,12 @@
 .ai-funnel .ai-button { display:inline-block; font:600 16px/1.5 Inter,sans-serif; color:#0b1a33; background:var(--ai-gold); border:2px solid var(--ai-gold); border-radius:5px; padding:15px 24px; text-decoration:none; cursor:pointer; }
 .ai-funnel .ai-button:hover { background:var(--ai-gold-2); border-color:var(--ai-gold-2); color:#0b1a33; }
 .ai-funnel :focus-visible { outline:3px solid var(--ai-gold); outline-offset:4px; }
+/* These headings are focused programmatically on every step change (for screen-reader
+   announcement), not by the visitor tabbing in -- Chrome's :focus-visible heuristic still
+   matched that programmatic focus here, so the blanket rule above put a gold ring around
+   "Your estimate" on every result load. Belt-and-suspenders: also scope :focus:not(:focus-visible)
+   on the specific elements, since the ring is never wanted for a focus the visitor didn't drive. */
+.ai-eyebrow:focus:not(:focus-visible), .ai-result-headline:focus:not(:focus-visible) { outline:none; }
 .ai-funnel .ai-secondary { display:inline-block; margin:28px 0 0; border:0; background:none; padding:10px 0; font:600 15px/1.5 Inter,sans-serif; text-decoration:underline; text-decoration-color:var(--ai-gold); cursor:pointer; color:var(--ai-ink); }
 /* Depth system: three elevation levels. Flat (default section spacing, no card) < raised
    (.ai-panel: a card with a hairline border) < focal (.ai-panel--focal: the one thing on the
@@ -60,15 +66,29 @@
 .ai-op { font:400 30px/1 'Playfair Display',Georgia,serif; color:rgba(199,208,220,.45); padding-top:6px; }
 .ai-term-low { display:block; margin-top:2px; color:#7f91a8; font-size:11.5px; }
 /* Compact variant for the free-check result (the plan page's own .ai-save equation stays full
-   size). align-items:center (overriding the plan-page equation's flex-start) because this
-   version mixes big serif numbers with a shorter editable-field box, and top-aligning mismatched
-   heights left the operators looking like they floated at the wrong height. */
-.ai-eq--result { margin:20px 0 12px; align-items:center; row-gap:16px; }
-.ai-eq--result .ai-term strong { font-size:30px; }
-.ai-eq--result .ai-term-low { margin-top:5px; }
-.ai-eq--result .ai-total { padding:12px 18px; margin-top:0; }
-.ai-eq--result .ai-total strong { font-size:34px; }
-.ai-eq--result .ai-op { padding-top:0; }
+   size). align-items:flex-start (matching the plan-page equation, not :center) with a tuned
+   padding-top on the operator so it lines up with the TOP line of each term (the big value) --
+   centering the whole flex item instead centers against the full 3-line stack (value/unit/low),
+   which visually floats the operator too low relative to the number it belongs next to. */
+.ai-eq--result { margin:20px 0 12px; align-items:flex-start; row-gap:20px; }
+.ai-eq--result .ai-term strong { font-size:40px; }
+.ai-eq--result .ai-term-unit { font-size:13px; margin-top:6px; }
+.ai-eq--result .ai-term-low { margin-top:3px; }
+.ai-eq--result .ai-total { padding:14px 20px; margin-top:0; }
+.ai-eq--result .ai-total strong { font-size:44px; }
+.ai-eq--result .ai-op { padding-top:11px; font-size:26px; }
+/* "C$" in Inter, smaller and baseline-aligned, ahead of the Playfair Display digits -- a mixed
+   treatment for the money terms only (the hour terms have no currency prefix). display:inline
+   is needed explicitly: .ai-term span { display:block } (higher specificity than a bare
+   .ai-term-currency) would otherwise stack it above the number instead of beside it -- the same
+   issue the .ai-inline-field fix above addresses, for a different element. */
+.ai-term .ai-term-currency { display:inline; font-family:Inter,sans-serif; font-size:0.45em; font-weight:600; margin-right:2px; margin-top:0; vertical-align:0.14em; }
+/* The RollingNumber wrapper is also a <span>, so it's also caught by .ai-term span's
+   display:block -- invisible when it's the only child of <strong> (a lone block child of an
+   inline element just renders the same as inline would), but here it's a SIBLING of
+   .ai-term-currency, and a block sibling forces its own line regardless of the other span's
+   own display value. Keep it inline so "C$" and the number share one line. */
+.ai-term strong .ai-rolling-number { display:inline; margin-top:0; }
 .ai-eq--result .ai-term--editable .ai-inline-field { padding:9px 12px; }
 .ai-eq--result .ai-term--editable .ai-inline-field input { font-size:18px; width:52px; }
 /* .ai-term span { display:block } (higher specificity than a bare .ai-inline-field) was forcing
@@ -77,12 +97,18 @@
 .ai-term .ai-inline-field { display:inline-flex; }
 .ai-term .ai-inline-field span { display:inline; margin-top:0; }
 @media (max-width:700px) {
-  .ai-eq--result { display:grid; grid-template-columns:30px 1fr; gap:6px 10px; align-items:center; }
-  .ai-eq--result .ai-op { grid-column:1; padding:0; font-size:24px; text-align:center; }
-  .ai-eq--result .ai-term { grid-column:2; display:flex; align-items:baseline; gap:12px; }
-  .ai-eq--result .ai-term strong { font-size:26px; }
-  .ai-eq--result .ai-term span { margin:0; max-width:none; }
-  .ai-eq--result .ai-total { flex-direction:column; align-items:flex-start; gap:2px; }
+  /* A plain vertical stack: each term (still its own internal value/unit/low-estimate block)
+     and each operator gets its own full-width row. The plan page's OWN mobile override further
+     down this file sets a bare `.ai-term { display:flex; align-items:baseline; gap:12px }` for
+     ITS equation -- that selector isn't scoped to --result, so it reaches this equation too and
+     was turning each term's 3 stacked lines into a horizontal, interleaved row. Reasserting
+     display:block here (2-class specificity) is what actually fixes it, not the column/gap
+     rules on their own. */
+  .ai-eq--result { display:flex; flex-direction:column; align-items:stretch; gap:14px; }
+  .ai-eq--result .ai-term, .ai-eq--result .ai-op { width:100%; box-sizing:border-box; }
+  .ai-eq--result .ai-term { display:block; }
+  .ai-eq--result .ai-op { text-align:left; font-size:20px; padding:0; }
+  .ai-eq--result .ai-term strong { font-size:34px; }
 }
 .ai-save-fee { display:flex; gap:16px; align-items:center; margin-top:22px; padding-top:18px; border-top:1px solid rgba(199,208,220,.14); }
 .ai-fee { flex:none; font:600 26px 'Playfair Display',Georgia,serif; color:#f5efe6; padding:8px 14px; border-radius:10px; border:1px solid rgba(199,208,220,.14); background:rgba(8,20,40,.5); }
