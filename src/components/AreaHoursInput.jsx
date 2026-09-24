@@ -18,15 +18,17 @@ export default function AreaHoursInput({ area, hours, people, peopleMax, onHours
           placeholder="e.g. grant reporting" value={otherLabel || ''}
           onChange={(e) => onOtherLabelChange?.(e.target.value)} />
       </div>}
-      <label className="ai-hours-field-label" htmlFor={`hours-${area}`}>Hours a week, one person</label>
+      <label className="ai-hours-field-label" htmlFor={`hours-${area}`}>Hours a week one person spends on this</label>
       <GoldSlider
         id={`hours-${area}`} min={0} max={HOUR_CAP_PER_AREA} step={1} value={hours}
-        onChange={onHoursChange} ariaLabel="Hours a week, one person, for this area"
+        onChange={onHoursChange} ariaLabel="Hours a week one person spends on this, for this area"
         format={(h) => `${h} hrs/week`} ticks={[0, 5, 10, 15, 20, 25]}
       />
       <p className="ai-note ai-slider-hint">Not sure? Leave it at 5.</p>
       <PeopleStepper
-        label="People who spend at least that many hours a week"
+        label={hours > 0
+          ? `People at your organization who spend about ${hours} ${hours === 1 ? 'hr' : 'hrs'} a week on this`
+          : 'People at your organization who spend time on this'}
         value={people} max={peopleMax} onChange={onPeopleChange}
       />
       <p className="ai-note ai-people-helper">Count everyone at your organization who does this, not just you.</p>

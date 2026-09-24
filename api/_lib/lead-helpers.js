@@ -7,11 +7,23 @@ export function isHoneypot(body) {
   return typeof body?.bc_hp_trap === 'string' && body.bc_hp_trap.trim().length > 0;
 }
 
-// Canadian or US number (North American plan, +1). Visitor confirmation texts only go to these;
-// anyone else gets their reply by email.
-export function isNorthAmericanPhone(value) {
+// Canadian area codes, from the Canadian Numbering Administrator's NPA relief history
+// (cnac.ca/npa_codes/NPA_History.pdf, updated 29 May 2026), including codes already set aside
+// for future Canadian relief. Visitor confirmation texts only go to Canadian numbers: texting US
+// numbers needs US carrier (A2P 10DLC) registration on the Quo number. Everyone else gets their
+// reply by email.
+export const CANADIAN_AREA_CODES = new Set([
+  '204', '226', '236', '249', '250', '257', '263', '273', '289', '306', '343', '354', '365', '367',
+  '368', '382', '387', '403', '416', '418', '428', '431', '437', '438', '450', '468', '474', '506',
+  '514', '519', '537', '548', '568', '579', '581', '584', '587', '604', '613', '639', '647', '672',
+  '683', '705', '709', '742', '753', '778', '780', '782', '807', '819', '825', '851', '867', '873',
+  '879', '902', '905', '942',
+]);
+
+export function isCanadianPhone(value) {
   const d = String(value || '').replace(/\D/g, '');
-  return d.length === 10 || (d.length === 11 && d.startsWith('1'));
+  const ten = d.length === 10 ? d : (d.length === 11 && d.startsWith('1') ? d.slice(1) : null);
+  return !!ten && CANADIAN_AREA_CODES.has(ten.slice(0, 3));
 }
 
 // Same phone number, compared on the last 10 digits (ignores +1, spaces and dashes).

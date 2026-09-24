@@ -170,6 +170,13 @@
 .ai-save h3 { margin:0 0 8px; font-size:20px; }
 .ai-team-calc-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin:18px 0 8px; }
 .ai-hours-field-label { display:block; font-size:13px; font-weight:600; color:var(--ai-ink); margin-bottom:10px; }
+/* .ai-options label and .ai-tile-wrap label (both 1 class + 1 element, specificity 0,0,1,1) beat
+   a bare .ai-hours-field-label (1 class alone, 0,0,1,0) for any label nested inside a ticked Q2
+   tile's .ai-area-input -- confirmed via CSS.getMatchedStylesForNode, both matched with border,
+   padding:15px, background, min-height:56px and cursor:pointer, rendering this plain text label
+   as an empty-looking ~890x55px bordered box. Two-class scoping resets it back to plain text;
+   same specificity shape as the .ai-term span and .bc-page p gotchas found earlier this session. */
+.ai-area-input .ai-hours-field-label { border:none; padding:0; background:none; min-height:auto; cursor:default; }
 .ai-calc-hours { margin:10px 0 4px; font-size:15px; color:#c7d0dc; }
 .ai-calc-hours b { color:#f0d99a; font-weight:600; font-variant-numeric:lining-nums tabular-nums; font-feature-settings:"lnum" 1,"tnum" 1; }
 @media (max-width: 700px) {
@@ -234,7 +241,12 @@
 .ai-stepper-question legend { display:flex; align-items:baseline; gap:10px; font-size:22px; }
 .ai-stepper-count { font-size:13px; color:var(--ai-gold); flex:none; }
 .ai-stepper-nav { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-top:8px; }
-.ai-live-preview { margin:16px 0 0; padding:12px 16px; border-radius:8px; background:rgba(212,182,113,.08); border:1px solid rgba(212,182,113,.35); color:var(--ai-ink); font-weight:600; font-size:14.5px; }
+.ai-live-preview { margin:16px 0 0; padding:12px 16px; border-radius:8px 8px 0 0; background:rgba(212,182,113,.08); border:1px solid rgba(212,182,113,.35); border-bottom:0; color:var(--ai-ink); font-weight:600; font-size:14.5px; }
+.ai-live-preview-detail { margin:0 0 4px; padding:2px 16px 12px; border-radius:0 0 8px 8px; background:rgba(212,182,113,.04); border:1px solid rgba(212,182,113,.35); border-top:1px solid rgba(212,182,113,.18); display:flex; flex-direction:column; gap:6px; }
+/* Two-class selector deliberately, not a bare `p` -- `.bc-page p { margin:0 0 20px }` is
+   1 class + 1 element (equal-tier tie with a bare descendant `p` selector here), and this
+   session already found two other places where that tie went the wrong way. */
+.ai-live-preview-detail .ai-note { margin:0; font-size:12.5px; }
 
 /* option tiles: shared by single-select (radio) and pick-all (checkbox) questions */
 .ai-tile-wrap { position:relative; }

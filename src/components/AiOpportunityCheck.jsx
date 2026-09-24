@@ -5,7 +5,7 @@ import {
   suggestedAreas, AREA_LABELS, lowerFirst, joinList, groupedOptions,
   sanitizeAreaLabel, sanitizeShortText, areaLookoutLines, crossCuttingCards, nextSteps,
   orgSizeMidpoint, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
-  PEOPLE_MAX, areaHoursLabel } from '../lib/aiOpportunity';
+  PEOPLE_MAX, areaHoursLabel, areaHoursRangeLabel, isSingularHourLabel } from '../lib/aiOpportunity';
 import { prefersReducedMotion } from '../lib/useRollingNumber';
 import SiteHeader from './SiteHeader';
 import AreaIcon, { CheckCircleIcon } from './AreaIcon';
@@ -46,6 +46,7 @@ export default function AiOpportunityCheck() {
   const [weeks, setWeeks] = useState(48);
   const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
   const [ownerOtherText, setOwnerOtherText] = useState(''); // Q9 "Someone else" free text, optional
+  const [toolsOtherText, setToolsOtherText] = useState(''); // Q3 "Other" free text, optional
   const headingRef = useRef(null);
 
   const question = questions[qIndex];
@@ -102,6 +103,7 @@ export default function AiOpportunityCheck() {
   const atCap = question?.maxPicks && picks.length >= question.maxPicks;
   const isAreas = question?.id === 'areas';
   const isOwner = question?.id === 'owner';
+  const isToolsToday = question?.id === 'toolsToday';
   const isGrouped = !!question?.groups;
   const pickedRows = isAreas ? picks.map(a => ({ area: a, hours: areaInputs[a]?.hours ?? 5, people: areaInputs[a]?.people ?? 1 })) : [];
   const livePreview = isAreas && pickedRows.some(r => r.hours > 0) ? computeRange(pickedRows) : null;
@@ -161,13 +163,33 @@ export default function AiOpportunityCheck() {
               ]).filter(Boolean)
               : question.options.map(renderTile)}
           </div>
-          {isAreas && <p className="ai-note">Up to six. Each one you pick gets its own hours and people below.</p>}
-          {livePreview && <p className="ai-live-preview">About {roundHoursLabel(livePreview.low)} to {roundHoursLabel(livePreview.likely)} hours a week back, so far.</p>}
+          {isAreas && <p className="ai-note">Each one you pick gets its own hours and people below.</p>}
+          {livePreview && <>
+            <p className="ai-live-preview">About {areaHoursRangeLabel(livePreview.low, livePreview.likely)} hours a week back, so far.</p>
+            <div className="ai-live-preview-detail">
+              {livePreview.rows.map(r => {
+                const rowLabel = r.area === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[r.area];
+                const lowPct = Math.round(r.rate.low * 100);
+                const likelyPct = Math.round(r.rate.likely * 100);
+                const rangeLabel = areaHoursRangeLabel(r.low, r.likely);
+                return <p className="ai-note" key={r.area}>
+                  {rowLabel}: {r.hours} hrs &times; {r.people} {r.people === 1 ? 'person' : 'people'} &times; {lowPct}% to {likelyPct}% = {rangeLabel} {isSingularHourLabel(rangeLabel) ? 'hr' : 'hrs'} back a week
+                </p>;
+              })}
+              <p className="ai-note">The percentages are the share of that time AI can realistically save after someone checks its work.</p>
+            </div>
+          </>}
           {isOwner && value === 'someoneElse' && <div className="ai-other-label-field">
             <label className="ai-hours-field-label" htmlFor="owner-other-text">Who is it? (a role is fine, e.g. finance lead)</label>
             <input id="owner-other-text" type="text" className="ai-compact-text-input" maxLength={60}
               value={ownerOtherText} onChange={(e) => setOwnerOtherText(e.target.value)} />
             {sanitizeShortText(ownerOtherText) && <p className="ai-note">You said: {sanitizeShortText(ownerOtherText)}</p>}
+          </div>}
+          {isToolsToday && picks.includes('toolsOther') && <div className="ai-other-label-field">
+            <label className="ai-hours-field-label" htmlFor="tools-other-text">What tool? (optional)</label>
+            <input id="tools-other-text" type="text" className="ai-compact-text-input" maxLength={60}
+              value={toolsOtherText} onChange={(e) => setToolsOtherText(e.target.value)} />
+            {sanitizeShortText(toolsOtherText) && <p className="ai-note">You said: {sanitizeShortText(toolsOtherText)}</p>}
           </div>}
         </fieldset>
 
@@ -247,7 +269,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
         <strong><RollingNumber value={valueLow} format={(n) => money(roundDollars(n))} /> to <RollingNumber value={valueLikely} format={(n) => money(roundDollars(n))} /> <span className="ai-stat-suffix">a year</span></strong>
       </div>
     </div>
-    {likely < 5 && <p className="ai-note ai-under-five">This counts only the people you entered. The same task done by several people adds up quickly, so try the team slider below.</p>}
+    {likely < 5 && <p className="ai-note ai-under-five">This counts only the people you entered. When several people do the same task, the hours can add up quickly, and the team slider below shows what that looks like.</p>}
 
     <div className="ai-eq ai-eq--result" role="img" aria-label={`${areaHoursLabel(low)} hours a week, up to ${roundHoursLabel(likely)}, times ${weeks} working weeks equals ${roundHoursLabel(low * weeks)} hours a year, up to ${roundHoursLabel(likely * weeks)}. At ${money(rate)} an hour that is ${money(roundDollars(valueLow))} a year in potential staff time value, up to ${money(roundDollars(valueLikely))}.`}>
       <div className="ai-term ai-hrs">
