@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getOpportunity, questions, estimateCapacity, defaultHours } from '../lib/aiOpportunity';
 import AiCalculator, { money } from './AiCalculator';
+import Emblem from './Emblem';
 import './AiFunnel.css';
 
 export default function AiOpportunityCheck() {
@@ -28,8 +29,8 @@ export default function AiOpportunityCheck() {
 
   return <main className="bc-page ai-funnel">
     <Link to="/">BlueChip diagnostics</Link>
-    <p className="ai-eyebrow">Free AI Opportunity Check</p>
-    <h1 ref={heading} tabIndex={-1}>{step === 'result' ? 'Your next practical step' : 'Find a useful place to start with AI.'}</h1>
+    <header className="ai-hero"><div><p className="ai-eyebrow">Free AI Opportunity Check</p>
+    <h1 ref={heading} tabIndex={-1}>{step === 'result' ? 'Your next practical step' : 'Find a useful place to start with AI.'}</h1></div><Emblem slug="ai-check" /></header>
 
     {step !== 'result' && <>
       <p>Six questions about the work your organisation already does. Get a useful starting point before deciding whether you need an audit.</p>

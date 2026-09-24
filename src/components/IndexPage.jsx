@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import Emblem from './Emblem';
 import orgPulse from '../data/org-pulse.json';
 import dqi from '../data/dqi.json';
 import workplaceRead from '../data/workplace-read.json';
@@ -44,6 +45,7 @@ export default function IndexPage() {
       <p>Short, sharp, and built to surface the thing you already half-suspect. Pick the one that fits your seat.</p>
       <div className="bc-card-grid">
         <Link to="/ai-opportunity-check" className="bc-card-link-block">
+          <Emblem slug="ai-check" size="md" />
           <h3>AI Opportunity Check</h3>
           <p className="bc-card-link-tagline">Find a practical place to start with AI.</p>
           <p className="bc-card-audience">For organisations exploring tools to reduce recurring work. Free, with no email required.</p>
@@ -51,6 +53,7 @@ export default function IndexPage() {
         </Link>
         {diagnostics.map(({ slug, data, audience, startHere }) => (
           <Link key={slug} to={`/${slug}`} className="bc-card-link-block">
+            <Emblem slug={slug} size="md" />
             {startHere && <span className="bc-card-badge">Start here</span>}
             <h3>{data.title}</h3>
             <p className="bc-card-link-tagline">{data.tagline}</p>

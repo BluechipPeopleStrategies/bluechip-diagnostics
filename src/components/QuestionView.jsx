@@ -13,7 +13,7 @@ export default function QuestionView({ question, selectedValue, onAnswer }) {
   }, [question, onAnswer]);
 
   return (
-    <div>
+    <div className="bc-question" key={question.id}>
       <h2 className="bc-question-text">{question.text}</h2>
       <ul className="bc-option-list">
         {question.options.map((opt, i) => (

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import AiCalculator from './AiCalculator';
+import Emblem from './Emblem';
 import { workflows } from '../lib/aiOpportunity';
 import './AiFunnel.css';
 
@@ -11,9 +12,9 @@ export default function AiAuditPage() {
   const [calc, setCalc] = useState({ hours: 5, rate: 40, weeks: 40 });
   return <main className="bc-page ai-funnel">
     <Link to="/ai-opportunity-check">Free AI Opportunity Check</Link>
-    <p className="ai-eyebrow">Practical AI Audit</p>
+    <header className="ai-hero"><div><p className="ai-eyebrow">Practical AI Audit</p>
     <h1>A clear plan for where AI can give your organisation time back.</h1>
-    <p>Understand which tools fit your work, what they could save and how to get started.</p>
+    <p>Understand which tools fit your work, what they could save and how to get started.</p></div><Emblem slug="ai-audit" /></header>
     {workflow && <p className="ai-context">Your starting point: <strong>{workflow.label}</strong>. We examine how the work happens before recommending a tool.</p>}
     <section className="ai-panel"><h2>C$999 per organisation</h2><p><strong>Including applicable tax.</strong></p><p>Your audit fee is refunded in full if we can't identify tool recommendations with evidence-backed potential to save your organisation at least five net hours a week in total. That is five hours across the organisation, not per employee.</p><p>For a sense of scale, five hours a week could be worth about <strong>$8,000 a year in staff capacity</strong>, based on an illustrative employee cost of $40 an hour over 40 working weeks. That's an estimate of potential capacity, not a guaranteed cash saving, and your own figure will depend on your actual staff costs.</p><p>The guarantee covers identifying the opportunities. You implement the recommendations, and actual results depend on implementation, adoption and workload.</p><p>If you cancel before your discovery session, before any audit work has begun, your fee is refunded in full. See the <a href="https://www.bluechip-people-strategies.com/refund">Refund Policy</a> for how refunds work.</p></section>
     <section className="ai-calc-inline" aria-labelledby="ai-calc-inline-title"><p className="ai-eyebrow">Calculator</p><h2 id="ai-calc-inline-title">What could that time be worth?</h2><p>Adjust the numbers to fit your organisation. Nothing leaves this page.</p><AiCalculator calc={calc} setCalc={setCalc} /></section>

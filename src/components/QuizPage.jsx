@@ -136,7 +136,7 @@ export default function QuizPage({ shareView = false }) {
 
   return (
     <main className="bc-page">
-      <QuizHeader currentIndex={currentIndex} total={diagnostic.questions.length} title={diagnostic.title} />
+      <QuizHeader currentIndex={currentIndex} total={diagnostic.questions.length} title={diagnostic.title} slug={slug} />
       <QuestionView question={question} selectedValue={selectedValue} onAnswer={handleAnswer} />
       <NavControls onBack={handleBack} onRestart={handleRestart} canGoBack={currentIndex > 0} />
     </main>

@@ -107,7 +107,7 @@ export default function EmailOptIn({
   }
 
   return (
-    <section className="bc-optin">
+    <section className="bc-optin" id="bc-optin">
       <h3>Now, <em>what to do</em> with it.</h3>
       <p>{unlockBody}</p>
       <div className="bc-optin-selects">
