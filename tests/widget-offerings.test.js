@@ -70,7 +70,7 @@ describe('new offering intake', () => {
     expect(payload).toMatchObject({ need: 'Practical AI Audit', consent: true });
   });
   it('keeps AI-only and combined advisory options and supports changing service', () => {
-    const ui = choose('Embedded HR + AI Advisory');
+    const ui = choose('Practical AI and/or Embedded HR Retainers');
     expect(document.body.textContent).toContain('Support can focus on AI alone or combine HR and AI');
     fireEvent.click(ui.getByRole('button', { name: 'Choose a different service' }));
     expect(ui.getByRole('button', { name: 'Practical AI Audit', exact: true })).toBeVisible();
@@ -82,6 +82,7 @@ describe('new offering intake', () => {
     expect(audit).toContain('not a booking or payment');
     expect(audit).toContain('STOP');
     expect(formatVisitorConfirmation({ need: 'Embedded HR + AI Advisory' })).toContain('AI alone or combine HR and AI');
+    expect(formatVisitorConfirmation({ need: 'Practical AI and/or Embedded HR Retainers' })).toContain('Practical AI and/or Embedded HR Retainers inquiry');
     expect(formatVisitorConfirmation({ need: 'Leadership coaching' })).not.toContain('C$999');
   });
   it('links the free check without submitting contact details', () => {
