@@ -214,7 +214,7 @@ html, body {
 .bc-share-button { color: var(--v-gold) !important; }
 
 /* one continuous ground (body was repainting the gradient under short pages) */
-html { min-height: 100%; }
+
 body { background: transparent !important; }
 /* no vh-based min-height here: inside the Squarespace iframe, 100vh = frame height, and the frame is
    sized from scrollHeight, so any vh minimum grows the frame without limit (found live 2026-09-23). */
