@@ -1,4 +1,4 @@
-import { isHoneypot, sanitizeLead, validateLead, formatLeadSms, looksLikePhone, formatVisitorConfirmation, samePhone, buildChatLeadEmail } from './_lib/lead-helpers.js';
+import { isHoneypot, sanitizeLead, validateLead, formatLeadSms, looksLikePhone, formatVisitorConfirmation, samePhone, buildChatLeadEmail, isNorthAmericanPhone } from './_lib/lead-helpers.js';
 
 export async function sendLeadEmail({ subject, html, replyTo }) {
   const apiKey = (process.env.RESEND_API_KEY || '').trim();
@@ -157,6 +157,8 @@ export default async function handler(req, res) {
   if (clean.consent && looksLikePhone(clean.contact)) {
     if (samePhone(clean.contact, process.env.OPENPHONE_FROM)) {
       confirmationNote = "skipped: the visitor's number is BlueChip's own texting number";
+    } else if (!isNorthAmericanPhone(clean.contact)) {
+      confirmationNote = 'skipped: not a Canadian or US number, so reply by email';
     } else {
       const conf = await sendOpenPhoneSms({ to: clean.contact, content: formatVisitorConfirmation(clean) });
       confirmationSent = conf.sent;
