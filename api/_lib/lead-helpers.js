@@ -78,17 +78,17 @@ export function looksLikePhone(value) {
 
 // Confirmation texted back to the visitor (they opted in via the consent box).
 export function formatVisitorConfirmation({ name, need }) {
-  const hi = name ? `Hi ${name}, ` : 'Hi, ';
+  const hi = name ? `Hi ${name}, ` : 'Hi, ';   // reads: "Hi T, it's Chip with BlueChip People Strategies."
   // "Practical AI Audit" is the old label, kept so inquiries from a cached widget (or an old
   // shared link) still get the right confirmation text after the rename to The AI Handoff Plan.
   if (need === 'The AI Handoff Plan' || need === 'Practical AI Audit') {
-    return hi + "it's BlueChip People Strategies. We received your AI Handoff Plan inquiry (C$999 including applicable tax). This is not a booking or payment. We'll text you about next steps, usually within a few hours on business days. Reply STOP to opt out.";
+    return hi + "it's Chip with BlueChip People Strategies. We received your AI Handoff Plan inquiry (C$999, taxes included). This is not a booking or payment. We'll text you about next steps, usually within a few hours on business days. Reply STOP to opt out.";
   }
   // Old label kept so inquiries from a cached widget still get the right text.
   if (need === 'Practical AI and/or Embedded HR Retainers' || need === 'Embedded HR + AI Advisory') {
-    return hi + "it's BlueChip People Strategies. We received your Practical AI and/or Embedded HR Retainers inquiry. Support can focus on AI alone or combine HR and AI. We'll text you about next steps, usually within a few hours on business days. Reply STOP to opt out.";
+    return hi + "it's Chip with BlueChip People Strategies. We received your Practical AI and/or Embedded HR Retainers inquiry. Support can focus on AI alone or combine HR and AI. We'll text you about next steps, usually within a few hours on business days. Reply STOP to opt out.";
   }
-  return hi + "it's BlueChip People Strategies. Thanks for reaching out. We've got your note, and someone will text you back at this number, usually within a few hours on business days. Reply STOP to opt out.";
+  return hi + "it's Chip with BlueChip People Strategies. Thanks for reaching out. We've got your note, and someone will text you back at this number, usually within a few hours on business days. Reply STOP to opt out.";
 }
 
 export function formatLeadSms({ name, need, contact, email, source, consent }) {
