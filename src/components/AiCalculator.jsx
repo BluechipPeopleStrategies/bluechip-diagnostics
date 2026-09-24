@@ -17,7 +17,7 @@ export default function AiCalculator({ calc, setCalc }) {
       <label>Employee cost per hour (C$)
         <input type="number" inputMode="decimal" min="15" max="250" value={calc.rate} onChange={(e) => setField('rate', e.target.value, 15, 250)} />
       </label>
-      <label>Working weeks a year
+      <label>Weeks a year
         <input type="number" inputMode="numeric" min="20" max="52" value={calc.weeks} onChange={(e) => setField('weeks', e.target.value, 20, 52)} />
       </label>
     </div>

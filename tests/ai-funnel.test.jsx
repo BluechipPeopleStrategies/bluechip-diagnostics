@@ -41,12 +41,12 @@ describe('AI opportunity routing', () => {
     questions.forEach(q => fireEvent.click(container.querySelector(`input[name="${q.id}"][value="${ready[q.id]}"]`)));
     fireEvent.submit(container.querySelector('form'));
     expect(screen.queryByText('Your next practical step')).not.toBeInTheDocument();
-    expect(screen.getByText('C$8,000')).toBeInTheDocument();
+    expect(screen.getByText('C$10,400')).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText(/Employee cost per hour/), {target:{value:'50'}});
-    expect(screen.getByText('C$10,000')).toBeInTheDocument();
+    expect(screen.getByText('C$13,000')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button',{name:'Show my result'}));
     expect(screen.getByText('Your next practical step')).toBeInTheDocument();
-    expect(screen.getByText(/5 hours a week could be worth about C\$10,000 a year/)).toBeInTheDocument();
+    expect(screen.getByText(/5 hours a week could be worth about C\$13,000 a year/)).toBeInTheDocument();
   });
   it('estimates capacity safely', () => {
     expect(estimateCapacity({hours:5, rate:40, weeks:40})).toBe(8000);
