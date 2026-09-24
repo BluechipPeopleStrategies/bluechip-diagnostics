@@ -40,8 +40,9 @@ export function formatVisitorConfirmation({ name, need }) {
   if (need === 'Practical AI Audit') {
     return hi + "it's BlueChip People Strategies. We received your Practical AI Audit inquiry (C$999 including applicable tax). This is not a booking or payment. We'll text you about next steps, usually within a few hours on business days. Reply STOP to opt out.";
   }
-  if (need === 'Embedded HR + AI Advisory') {
-    return hi + "it's BlueChip People Strategies. We received your Embedded HR + AI Advisory inquiry. Support can focus on AI alone or combine HR and AI. We'll text you about next steps, usually within a few hours on business days. Reply STOP to opt out.";
+  // Old label kept so inquiries from a cached widget still get the right text.
+  if (need === 'Practical AI and/or Embedded HR Retainers' || need === 'Embedded HR + AI Advisory') {
+    return hi + "it's BlueChip People Strategies. We received your Practical AI and/or Embedded HR Retainers inquiry. Support can focus on AI alone or combine HR and AI. We'll text you about next steps, usually within a few hours on business days. Reply STOP to opt out.";
   }
   return hi + "it's BlueChip People Strategies. Thanks for reaching out. We've got your note, and someone will text you back at this number, usually within a few hours on business days. Reply STOP to opt out.";
 }
