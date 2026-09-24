@@ -247,6 +247,7 @@ describe('topic preselect (plan-page CTA and #chat?topic=)', () => {
     fireEvent.click(ui.getByRole('button', { name: 'Discuss this with BlueChip' }));
     flushBot();
     fireEvent.change(ui.getByLabelText('Your phone number'), { target: { value: '7805550100' } });
+    fireEvent.change(ui.getByLabelText('Your email'), { target: { value: 'sam@example.com' } });
     fireEvent.click(ui.getByRole('checkbox'));
     fireEvent.click(ui.getByRole('button', { name: 'Send', exact: true }));
     expect(JSON.parse(fetchMock.mock.calls[0][1].body).need).toBe('The AI Handoff Plan');
