@@ -1,4 +1,4 @@
-/* BlueChip People Strategies -- lead-capture chat widget.
+/* BlueChip People Strategies — lead-capture chat widget.
    Served from Vercel and loaded on Squarespace with a single:
    <script defer src="https://bluechip-diagnostics.vercel.app/widget.js"></script>
    Self-injecting: builds its own styles, DOM, and handlers. No dependencies. */
@@ -12,14 +12,14 @@
   // Browse questions and answers is hidden for now (Thomas, 2026-09-24). Reconsider around 2026-10-08.
   var SHOW_BROWSE = false;
 
-  var NAVY = '#0B1A33', GOLD = '#C9A24B', CREAM = '#F5EFE6', BONE = '#F5EFE6', TEXT = '#2c2c2c';
+  var NAVY = '#0B1A33', GOLD = '#C9A24B', CREAM = '#F5EFE6', TEXT = '#2c2c2c';
 
   var CHOICES = [
-    'Termination or workplace investigation',
     'The AI Handoff Plan',
     'Practical AI and/or Embedded HR Retainers',
     'Leadership coaching',
     'Governance or CEO evaluation',
+    'Termination or workplace investigation',
     "Something else (I'm not sure yet)"
   ];
 
@@ -30,10 +30,15 @@
       ['What does The AI Handoff Plan cost?', 'C$999 per organization, including applicable tax. An inquiry does not book the plan or take payment. BlueChip confirms the next steps with you. If you cancel before discovery, before any work on your plan has begun, the fee is refunded in full.'],
       ['What is included?', 'One 60-minute discovery session, an organization-wide opportunity scan, one priority workflow redesigned in detail, a written plan and a 30-minute findings call. The plan is yours to keep.'],
       ['How does the five-hour guarantee work?', "If The AI Handoff Plan can't find tools with evidence-backed potential to save at least 5 net hours a week across your organization, your full fee comes back automatically within 10 business days of your findings call, no forms, no hoops. That's five hours in total, not five per person, and they can come from several opportunities, not only the one workflow we redesign. You get a copy of the hours tally that scores it, and if you think we've scored it wrong, tell us within 30 days and we'll review it together. That review can only add to what you're owed. For a sense of scale, five hours a week could be worth about C$9,600 a year in staff capacity, based on an illustrative C$40 an hour over 48 working weeks. That's potential capacity, not a cash saving. The guarantee covers finding the hours. Your team puts the plan in place, and the hours you actually get back depend on that."],
-      ['Do you set the tools up for us?', 'Not as part of the plan itself. The plan gives you the tools and the setup steps. If you go further with us, yes. In an Implementation Sprint we set up the redesigned workflow with your team. On a Practical AI Retainer we handle the setup, then keep the tools tuned and updated as the software changes. Software licences and any installs your IT team needs to do stay with you.'],
+      ['Do you set the tools up for us?', 'Not as part of the plan. You get the plan, the recommended tools and what it takes to set them up, with setup steps for the workflow we redesign, and your team puts it in place. We favour tools you already have or can start with right away. If you would like a hand, we can work alongside your team through a retainer (six-month minimum), and the plan fee is credited if you start within 60 days of your findings call.'],
       ['When will I receive the plan?', 'Within five business days after both the discovery session and receipt of the information needed for the plan. A 30-minute findings call walks you through the recommendations.'],
       ['What does the C$9,600 example mean?', 'Five hours a week multiplied by C$40 per hour and 48 working weeks equals C$9,600 a year in potential staff capacity. Those are illustrative assumptions, not guaranteed cash or payroll savings. Software and implementation costs are not included in the plan fee.'],
-      ['Do I have to buy a retainer?', "No. The AI Handoff Plan is standalone. You keep the plan and can implement it yourself or with another provider. If it leads into a Practical AI and/or Embedded HR Retainer, its fee is credited against your first invoice."]
+      ['Do I have to buy a retainer?', 'No. The AI Handoff Plan is standalone. You keep the plan and can implement it yourself or with another provider. If it leads into a Practical AI and/or Embedded HR Retainer (six-month minimum), its fee is credited against your first invoice.']
+    ] },
+    { slug: 'free-check', title: 'Free AI Opportunity Check', need: 'Free AI Opportunity Check', url: 'https://bluechip-diagnostics.vercel.app/ai-opportunity-check', link: 'Open the free AI Opportunity Check', answers: [
+      ['What does the free check give me?', "Twelve quick questions about your recurring work, about three minutes in all. You'll get a starting range of the hours in play, and the areas where we'd start looking, before deciding whether you want The AI Handoff Plan."],
+      ['Do I need to give my email?', 'No email or contact details are required for the free check. Its answers stay on the page and clear when you reload. Please do not enter confidential information.'],
+      ['Does the free check prove I will save five hours?', "No. It's a starting estimate from your own answers and published studies, not a plan and not a confirmation of the guarantee. The plan checks your actual work to see where you really land."]
     ] },
     { slug: 'retainers', title: 'Practical AI and/or Embedded HR Retainers', need: 'Practical AI and/or Embedded HR Retainers', url: 'https://www.bluechip-people-strategies.com/embedded-hr-retainers', link: 'Explore Practical AI and/or Embedded HR Retainers', answers: [
       ['Can I retain BlueChip for AI alone?', 'Yes. Support can focus on practical AI adoption alone or combine AI with embedded HR advice. The scope and fee are agreed for your engagement.'],
@@ -54,6 +59,13 @@
     "The AI Handoff Plan looks at your team's recurring work and finds where AI can give you time back. It's C$999, taxes included.",
     "Here's the deal. If we find at least 5 net hours a week of time savings across your organization, you get a plan to go get them. If we can't, your full fee comes back within 10 business days. No forms, no hoops.",
     'The plan is yours to put in place, on your own or with our help.'
+  ];
+  var RETAINER_BUBBLES = [
+    'Practical AI and/or Embedded HR Retainers bring practical AI adoption and senior people advice into the work of your organization. Support can focus on AI alone or combine HR and AI. The scope and fee are agreed for your engagement.',
+    'You can also start with The AI Handoff Plan. Its C$999 fee, taxes included, is credited against your first invoice if you start a Practical AI and/or Embedded HR Retainer (six-month minimum) within 60 days of your findings call.'
+  ];
+  var FREE_CHECK_BUBBLES = [
+    'Twelve quick questions about your recurring work, about three minutes in all. The free check gives you a starting range of hours, with no email required. It is not the plan and not a confirmation of the guarantee.'
   ];
 
   // ---- styles ----
@@ -81,9 +93,6 @@
     '.bcw-foot{border-top:1px solid ' + CREAM + ';padding:9px 12px;max-height:32dvh;overflow-y:auto}' +
     '.bcw-panel{max-height:calc(100dvh - 110px);display:flex;flex-direction:column}.bcw-body{min-height:0;flex:1 1 auto}.bcw-header{flex-shrink:0}.bcw-foot{flex-shrink:0;box-sizing:border-box}.bcw-choice{box-sizing:border-box}.bcw-choice:focus-visible{outline:3px solid ' + GOLD + ';outline-offset:2px}' +
     '.bcw-row{display:flex;gap:8px}' +
-    // Light color-scheme + explicit white bg/navy text (with -webkit-text-fill-color, which
-    // wins over UA/dark-mode form-control styling in iOS Safari where plain `color` does not),
-    // and 16px font so iOS Safari does not auto-zoom on focus.
     '.bcw-panel{color-scheme:light}' +
     '.bcw-input{flex:1;font-family:inherit;font-size:16px;color:' + NAVY + ' !important;-webkit-text-fill-color:' + NAVY + ';background:#fff !important;padding:11px 12px;border:1.5px solid rgba(11,26,51,.35) !important;border-radius:10px;outline:none;box-sizing:border-box}' +
     '.bcw-input::placeholder{color:#6b7686 !important;-webkit-text-fill-color:#6b7686;opacity:1}' +
@@ -92,7 +101,7 @@
     '.bcw-send:hover:not(:disabled){background:' + GOLD + ';border-color:' + GOLD + ';color:' + NAVY + ';transform:translateY(-1px)}' +
     '.bcw-send:disabled{background:#e4e0d8;border-color:#d8d3c8;color:#8a8578;opacity:1;cursor:not-allowed}' +
     // Topic chips: clearly visible (navy border on bone, gold on hover/focus), 44px min height, small arrow.
-    '.bcw-choice{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;margin:0 0 6px;padding:11px 12px;min-height:44px;font-family:inherit;font-weight:600;font-size:13.5px;line-height:1.35;letter-spacing:normal;color:' + NAVY + ';background:' + BONE + ';border:1.5px solid rgba(11,26,51,.35);border-radius:10px;cursor:pointer;transition:border-color .15s ease,background .15s ease,box-shadow .15s ease;box-sizing:border-box}' +
+    '.bcw-choice{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;margin:0 0 6px;padding:11px 12px;min-height:44px;font-family:inherit;font-weight:600;font-size:13.5px;line-height:1.35;letter-spacing:normal;color:' + NAVY + ';background:#f5efe6;border:1.5px solid rgba(11,26,51,.35);border-radius:10px;cursor:pointer;transition:border-color .15s ease,background .15s ease,box-shadow .15s ease;box-sizing:border-box}' +
     '.bcw-choice::after{content:"\\2192";flex:none;color:' + GOLD + ';font-weight:700}' +
     '.bcw-choice:hover,.bcw-choice:focus-visible{border-color:' + GOLD + ';background:#faf3e3}' +
     '.bcw-choice:focus-visible{outline:2px solid ' + GOLD + ';outline-offset:2px;box-shadow:0 0 0 3px rgba(201,169,97,.25)}' +
@@ -339,7 +348,7 @@
       CHOICES.forEach(function (c) {
         choiceButton(c, function () {
           data.need = c; addMsg(c, 'user');
-          if (c === 'The AI Handoff Plan' || c === 'Practical AI and/or Embedded HR Retainers') renderOffering();
+          if (c === 'Free AI Opportunity Check' || c === 'The AI Handoff Plan' || c === 'Practical AI and/or Embedded HR Retainers') renderOffering();
           else renderContact();
         });
       });
@@ -360,17 +369,32 @@
   }
 
   function offeringBubbles(topic) {
+    if (!topic) return PLAN_BUBBLES.slice();
     if (topic.slug === 'ai-handoff-plan') return PLAN_BUBBLES.slice();
-    return [
-      'Practical AI and/or Embedded HR Retainers bring practical AI adoption and senior people advice into the work of your organization. Support can focus on AI alone or combine HR and AI. The scope and fee are agreed for your engagement.',
-      'You can also start with The AI Handoff Plan. Its C$999 fee, taxes included, is credited against your first invoice if you start a Practical AI and/or Embedded HR Retainer (six-month minimum) within 60 days of your findings call.'
-    ];
+    if (topic.slug === 'retainers') return RETAINER_BUBBLES.slice();
+    if (topic.slug === 'free-check') return FREE_CHECK_BUBBLES.slice();
+    return PLAN_BUBBLES.slice();
   }
 
   function renderOffering(topic) {
     typingGeneration++;
-    var t = topic || topicBySlug(data.need === 'The AI Handoff Plan' ? 'ai-handoff-plan' : 'retainers');
+    var t = topic || topicBySlug(
+      data.need === 'The AI Handoff Plan' ? 'ai-handoff-plan'
+        : data.need === 'Free AI Opportunity Check' ? 'free-check'
+          : 'retainers'
+    );
     footEl.innerHTML = '';
+    if (t.slug === 'free-check') {
+      sayBotSequence(offeringBubbles(t), function () {
+        var checkLink = el('a', { 'class': 'bcw-choice', href: 'https://bluechip-diagnostics.vercel.app/ai-opportunity-check' });
+        var checkSpan = document.createElement('span'); checkSpan.textContent = 'Start the free AI Opportunity Check';
+        checkLink.appendChild(checkSpan);
+        footEl.appendChild(checkLink);
+        if (SHOW_BROWSE) choiceButton('Browse questions and answers', renderTopics);
+        focusChoices();
+      });
+      return;
+    }
     sayBotSequence(offeringBubbles(t), function () {
       var next = el('button', { 'class': 'bcw-choice', type: 'button' });
       var nextSpan = document.createElement('span'); nextSpan.textContent = 'Discuss this with BlueChip';
@@ -391,7 +415,7 @@
     typingGeneration++;
     footEl.innerHTML = '';
     sayBotSequence(["What's the best number and email for BlueChip to reach you about this? We usually reply within a few hours on business days. This sends an inquiry. It doesn't book anything or charge you. Please keep employee and client details out of this chat."], function () {
-      var input = el('input', { 'class': 'bcw-input', type: 'tel', 'aria-label': 'Your phone number', placeholder: 'Phone number', style: 'width:100%' });
+      var input = el('input', { 'class': 'bcw-input', type: 'tel', 'aria-label': 'Your phone number', placeholder: 'Phone number (Canada or US)', style: 'width:100%' });
       var emailInput = el('input', { 'class': 'bcw-input', type: 'email', 'aria-label': 'Your email', placeholder: 'Email', autocomplete: 'email', style: 'width:100%;margin-top:8px' });
       var hp = el('input', { 'class': 'bcw-hp', type: 'text', name: 'bc_hp_trap', tabindex: '-1', 'aria-hidden': 'true', autocomplete: 'off' });   // not "company": browsers autofill that and flagged real visitors as bots
       var consentWrap = el('label', { 'class': 'bcw-consent' });
@@ -400,7 +424,7 @@
       cbText.textContent = "Yes, it's okay to text me at this number about my inquiry. I can reply STOP anytime.";
       consentWrap.appendChild(cb); consentWrap.appendChild(cbText);
       var fine = el('div', { 'class': 'bcw-fine' });
-      fine.textContent = "BlueChip People Strategies, Edmonton, Alberta. We won't share your number or message you about anything unrelated to the opt-in box above. A real person reads each message. We usually reply within a few hours on business days.";
+      fine.textContent = "We text Canadian and US numbers. Outside North America? We'll reply by email. BlueChip People Strategies, Edmonton, Alberta. We won't share your number or message you about anything unrelated to the opt-in box above. A real person reads each message. We usually reply within a few hours on business days.";
       var send = el('button', { 'class': 'bcw-send', type: 'button', disabled: 'disabled', style: 'margin-top:12px;width:100%' }, 'Send');
 
       footEl.appendChild(input);

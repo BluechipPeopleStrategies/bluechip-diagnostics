@@ -7,6 +7,13 @@ export function isHoneypot(body) {
   return typeof body?.bc_hp_trap === 'string' && body.bc_hp_trap.trim().length > 0;
 }
 
+// Canadian or US number (North American plan, +1). Visitor confirmation texts only go to these;
+// anyone else gets their reply by email.
+export function isNorthAmericanPhone(value) {
+  const d = String(value || '').replace(/\D/g, '');
+  return d.length === 10 || (d.length === 11 && d.startsWith('1'));
+}
+
 // Same phone number, compared on the last 10 digits (ignores +1, spaces and dashes).
 export function samePhone(a, b) {
   const d = (v) => String(v || '').replace(/\D/g, '').slice(-10);
