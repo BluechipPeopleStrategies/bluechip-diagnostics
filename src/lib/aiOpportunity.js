@@ -34,8 +34,14 @@ export function defaultHours(workload) {
   return workload === 'under5' ? 2 : 5;
 }
 
-export function estimateCapacity({ hours, rate, weeks }) {
-  const h = Number(hours), r = Number(rate), w = Number(weeks);
-  if (![h, r, w].every(Number.isFinite) || h <= 0 || r <= 0 || w <= 0) return 0;
-  return h * r * w;
+// people = how many staff get time back; hours = hours a week each (defaults keep the old one-person maths).
+export function teamHours({ hours, people = 1 }) {
+  const h = Number(hours), p = Number(people);
+  if (![h, p].every(Number.isFinite) || h <= 0 || p <= 0) return 0;
+  return h * p;
+}
+export function estimateCapacity({ hours, rate, weeks, people = 1 }) {
+  const r = Number(rate), w = Number(weeks), t = teamHours({ hours, people });
+  if (![r, w].every(Number.isFinite) || r <= 0 || w <= 0 || t <= 0) return 0;
+  return t * r * w;
 }
