@@ -82,13 +82,18 @@
    is needed explicitly: .ai-term span { display:block } (higher specificity than a bare
    .ai-term-currency) would otherwise stack it above the number instead of beside it -- the same
    issue the .ai-inline-field fix above addresses, for a different element. */
-.ai-term .ai-term-currency { display:inline; font-family:Inter,sans-serif; font-size:0.45em; font-weight:600; margin-right:2px; margin-top:0; vertical-align:0.14em; }
+.ai-term .ai-term-currency { display:inline; font-family:Inter,sans-serif; font-size:0.6em; font-weight:600; margin-right:2px; margin-top:0; vertical-align:baseline; }
 /* The RollingNumber wrapper is also a <span>, so it's also caught by .ai-term span's
    display:block -- invisible when it's the only child of <strong> (a lone block child of an
    inline element just renders the same as inline would), but here it's a SIBLING of
    .ai-term-currency, and a block sibling forces its own line regardless of the other span's
-   own display value. Keep it inline so "C$" and the number share one line. */
-.ai-term strong .ai-rolling-number { display:inline; margin-top:0; }
+   own display value. Keep it inline so "C$" and the number share one line. Same rule ALSO sets
+   an explicit font-size:12.5px on every .ai-term span (it's the unit-label rule) -- that matched
+   this span too and silently won on font-size regardless of display, which is why every
+   RollingNumber-driven value (not just the ones with a currency sibling) rendered at the unit
+   label's size instead of the big value size computed on its <strong> parent. font-size:inherit
+   here is what actually fixes the size, not the display fix above on its own. */
+.ai-term strong .ai-rolling-number { display:inline; margin-top:0; font-size:inherit; }
 .ai-eq--result .ai-term--editable .ai-inline-field { padding:9px 12px; }
 .ai-eq--result .ai-term--editable .ai-inline-field input { font-size:18px; width:52px; }
 /* .ai-term span { display:block } (higher specificity than a bare .ai-inline-field) was forcing

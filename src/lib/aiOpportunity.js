@@ -482,14 +482,14 @@ export function tailoredLines(answers) {
   return priority.slice(0, 1);
 }
 
-// "What we'd look at, based on your answers" (result screen): 2-3 short, informational lines per
+// "Where to look, based on your answers" (result screen): 2-3 short, informational lines per
 // picked area, never naming a specific tool. Every AREAS value gets its own set; anything not
 // listed (shouldn't happen, but a typed-in area would otherwise have no set) falls back to
 // OTHER_AREA_LOOKOUT, the same generic set the "Other" tile itself uses.
 export const AREA_LOOKOUT = {
   correspondence: ['which replies repeat week to week', 'how long drafting takes versus checking', 'who reviews before anything goes out'],
-  reports: ['which numbers get pulled the same way each time', 'how much of the report is copied from other sources', 'who checks the final version before it goes out'],
-  meetingNotes: ['time spent writing up after meetings', 'whether action items get tracked', 'which meetings need a formal record'],
+  reports: ['which numbers get pulled the same way each time', 'how much of each report is pasted in from other sources', 'who checks the final version before it goes out'],
+  meetingNotes: ['how long write-ups take after each meeting', 'how action items get tracked afterward', 'which meetings need a formal record'],
   findingInfo: ['how often the same question gets researched from scratch', 'where the answer usually already lives', 'how long a typical search takes'],
   scheduling: ['how much back and forth it takes to land on a time', 'how often a change means re-coordinating everyone', 'whether reminders happen automatically or by hand'],
   invoicing: ['how many fields get typed in by hand', 'how often the same data gets entered more than once', 'who double-checks the totals'],
@@ -497,7 +497,7 @@ export const AREA_LOOKOUT = {
   enquiries: ['which questions come up again and again', 'how long a typical reply takes to draft', 'which enquiries need judgment versus a standard answer'],
   caseNotes: ['how long notes take to write up after each contact', 'how consistent the format is from one note to the next', "who reviews notes before they're filed"],
   proposals: ['how many sections repeat from one proposal to the next', 'how long it takes to pull the numbers together', 'who signs off before it goes out'],
-  writingEditing: ['how many drafts go through rounds of edits', "whether there's a house style to follow", 'how much editing is wording versus substance'],
+  writingEditing: ['how many rounds of edits a typical draft goes through', "whether there's a house style to follow", 'how much editing is wording versus substance'],
   research: ['how long a typical summary takes to put together', 'how many sources usually get checked', 'how often the same document gets summarized for different audiences'],
   spreadsheets: ['how much of the work is copying, sorting or matching data by hand', 'how often the same cleanup steps repeat', "who checks the results before they're used"],
   socialContent: ['how long a typical post or newsletter takes to draft', 'how much of it follows a repeatable format', "who reviews before it's posted or sent"],
@@ -528,18 +528,18 @@ export function crossCuttingCards(answers) {
       lines: ['which information can go into which tool', 'whether staff have written guidance'],
     },
     hasExistingTools && {
-      title: 'What you already pay for',
-      lines: ['licences or features that may already cover some of this', 'whether any of those fits this kind of work'],
+      title: 'Tools you already have',
+      lines: ['which licences or features may already cover some of this', 'whether they fit this kind of work'],
     },
     lowComfort && {
       title: "Who'll run it",
-      lines: ['pick one owner and start with one workflow', "what guidance or support they'd need to get started"],
+      lines: ['who could own one workflow to start', "what guidance or support they'd need to get started"],
     },
   ].filter(Boolean);
   return candidates.slice(0, 2);
 }
 
-// "Free next steps you can take this week" (result screen): exactly 3 tailored, doable-today
+// "Next steps you can take this week" (result screen): exactly 3 tailored, doable-today
 // steps, ordered by relevance to the answers, deduplicated by id, padded from a fixed default
 // set if fewer than 3 conditions matched. Informational only, never names a specific tool.
 export function nextSteps(answers, topAreaLabel) {

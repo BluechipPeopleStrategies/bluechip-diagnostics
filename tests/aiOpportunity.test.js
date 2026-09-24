@@ -334,9 +334,9 @@ describe('cross-cutting "what we\'d look at" cards (up to 2, priority ordered)',
     const cards = crossCuttingCards({ information: ['health'], protectInfo: ['writtenPolicy'] });
     expect(cards.find(c => c.title === 'Information handling')).toBeUndefined();
   });
-  it('shows "What you already pay for" when the team uses Copilot or Gemini', () => {
+  it('shows "Tools you already have" when the team uses Copilot or Gemini', () => {
     const cards = crossCuttingCards({ aiTools: ['copilot'] });
-    expect(cards.some(c => c.title === 'What you already pay for')).toBe(true);
+    expect(cards.some(c => c.title === 'Tools you already have')).toBe(true);
   });
   it('shows "Who\'ll run it" for low tech comfort or wanting outside guidance', () => {
     expect(crossCuttingCards({ readiness: 'notYetReady' }).some(c => c.title === "Who'll run it")).toBe(true);
