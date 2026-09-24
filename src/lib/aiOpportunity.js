@@ -212,7 +212,7 @@ export const questions = [
   },
   {
     id: 'readiness', number: 7, type: 'single',
-    label: 'Does someone on your team have the tech skills and AI comfort to put new tools in place?',
+    label: 'Is there someone on your team who is comfortable setting up new tech or AI tools?',
     options: [
       ['yesHaveSomeone', 'Yes, we have someone'],
       ['somewhatGuidance', "Somewhat, they'd want some guidance"],
@@ -445,7 +445,7 @@ export function tailoredLines(answers) {
     // outranks a general "no policy yet" nudge, which outranks the generic fallback.
     const overseasTool = aiTools.some(v => ['deepseek', 'kimi'].includes(v));
     if (overseasTool) {
-      return ['Some AI tools store what you type on servers outside Canada. The plan checks which tools fit the information you handle.'];
+      return ['Some AI tools store what you type on servers outside Canada. It is worth checking where each tool keeps your data before you use it with sensitive information.'];
     }
     const protectInfo = answers.protectInfo || [];
     const noProtection = protectInfo.some(v => ['nothingFormal', 'noIdeaProtect'].includes(v));
@@ -470,8 +470,8 @@ export function tailoredLines(answers) {
   const priority = [
     heldBack.includes('triedDidntStick') && "The plan starts with one workflow, redesigned from start to finish, so there's one clear place to begin.",
     (heldBack.includes('staffHesitant') || feel === 'worried') && 'The redesigned workflow keeps human checkpoints in place, so your people stay in charge of what goes out.',
-    owner === 'variesOrNoOne' && "The redesigned workflow names who's responsible for each step, so the work has an owner before it starts.",
-    owner === 'outsideGuidance' && 'Some teams start with outside help for the first workflow, then run it themselves.',
+    owner === 'variesOrNoOne' && "Workflows tend to hold up better when each step has a named owner before the work starts.",
+    owner === 'outsideGuidance' && 'Some teams bring in outside help for their first workflow. Others start with one small workflow in-house and build from there.',
     heldBack.includes('notSureStart') && 'The plan ranks what it finds, so you know which opportunity to start with.',
     heldBack.includes('noTime') && 'The plan lists the setup effort for each recommendation, so you can see what it asks of your team before you commit to anything.',
     heldBack.includes('budget') && 'The plan lists the expected software cost of each recommendation, and it starts with tools you already pay for where they fit.',

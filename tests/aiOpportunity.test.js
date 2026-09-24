@@ -279,7 +279,7 @@ describe('tailored lines: at most one, sensitive wins outright', () => {
   it('when sensitive info is picked and the team uses DeepSeek or Kimi, names the overseas-storage line instead of the generic sensitive line', () => {
     const lines = tailoredLines({ information: ['health'], aiTools: ['deepseek'] });
     expect(lines).toHaveLength(1);
-    expect(lines[0]).toBe('Some AI tools store what you type on servers outside Canada. The plan checks which tools fit the information you handle.');
+    expect(lines[0]).toBe('Some AI tools store what you type on servers outside Canada. It is worth checking where each tool keeps your data before you use it with sensitive information.');
     const kimi = tailoredLines({ information: ['legal'], aiTools: ['kimi'] });
     expect(kimi[0]).toMatch(/servers outside Canada/);
   });
@@ -295,10 +295,10 @@ describe('tailored lines: at most one, sensitive wins outright', () => {
   });
   it('names a neutral outside-guidance line when Q9 owner is "We\'d want outside guidance"', () => {
     const lines = tailoredLines({ owner: 'outsideGuidance' });
-    expect(lines).toEqual(['Some teams start with outside help for the first workflow, then run it themselves.']);
+    expect(lines).toEqual(['Some teams bring in outside help for their first workflow. Others start with one small workflow in-house and build from there.']);
   });
   it('keeps the "no named owner" line for the renamed "It varies, or no one yet" value', () => {
     const lines = tailoredLines({ owner: 'variesOrNoOne' });
-    expect(lines[0]).toMatch(/names who's responsible/);
+    expect(lines[0]).toMatch(/named owner before the work starts/);
   });
 });
