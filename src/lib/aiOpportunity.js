@@ -144,13 +144,24 @@ export const questions = [
     options: [...AREAS.map(([v, l], i) => [v, l, i === AREAS.length - 1])],
   },
   {
+    // toolsToday feeds nothing downstream (not read by tailoredLines, crossCuttingCards,
+    // nextSteps, any lead payload -- this funnel submits no lead at all, "no email" per its own
+    // intro -- or the plan-page carry-over): confirmed by a full repo grep before adding options
+    // here, so new values (including toolsOther's free text) are safe by construction. If a
+    // future change starts reading toolsToday into result copy, map any typed-in value through
+    // sanitizeShortText and never surface it as a named tool, matching the areas "Other" pattern.
     id: 'toolsToday', number: 3, type: 'multi',
     label: 'Which tools does your team use every day? Pick all that apply.',
     options: [
       ['m365', 'Microsoft 365'],
       ['google', 'Google Workspace'],
-      ['industry', 'Industry software (for example practice management, ERP or CRM)'],
       ['accounting', 'Accounting software'],
+      ['hrPayroll', 'HR or payroll software'],
+      ['industry', 'Industry software (for example practice management, ERP or CRM)'],
+      ['projectMgmt', 'Project or task management (for example Asana, Monday or Trello)'],
+      ['chatVideo', 'Chat and video calls (for example Slack or Zoom)'],
+      ['designDocs', 'Design and document tools (for example Canva or Adobe)'],
+      ['toolsOther', 'Other (type your own)'],
       ['notSureTools', 'Not sure', true],
     ],
   },
@@ -411,6 +422,21 @@ export function roundHoursLabel(n) {
 export function areaHoursLabel(n) {
   if (!(n > 0)) return '0';
   return n < 10 ? (Math.round(n * 10) / 10).toFixed(1) : String(Math.round(n));
+}
+// "X to Y", or just "X" when the two labels are identical after rounding (e.g. the Q2 live
+// preview showing "under 1 to under 1" for two small, genuinely-different values before this
+// helper existed -- collapsing to one number is honest about the precision, "X to X" isn't).
+export function areaHoursRangeLabel(low, likely) {
+  const lowLabel = areaHoursLabel(low);
+  const likelyLabel = areaHoursLabel(likely);
+  return lowLabel === likelyLabel ? likelyLabel : `${lowLabel} to ${likelyLabel}`;
+}
+// True when a rendered range label (from areaHoursRangeLabel) is the collapsed single-value case
+// AND that value is exactly 1 -- the one case where "hrs" should read as "hr". A genuine "X to Y"
+// range always has two different display strings, so only the collapsed case can ever be exactly
+// 1; the " to " check short-circuits Number() on a range string (which would otherwise be NaN).
+export function isSingularHourLabel(label) {
+  return !label.includes(' to ') && Number(label) === 1;
 }
 export function roundDollars(n) {
   return n > 100000 ? Math.round(n / 1000) * 1000 : Math.round(n / 100) * 100;
