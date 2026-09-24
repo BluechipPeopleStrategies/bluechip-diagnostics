@@ -109,12 +109,16 @@
    centering the whole flex item instead centers against the full 3-line stack (value/unit/low),
    which visually floats the operator too low relative to the number it belongs next to. */
 .ai-eq--result { margin:20px 0 12px; align-items:flex-start; row-gap:20px; }
-.ai-eq--result .ai-term strong { font-size:40px; }
+/* Tightened 2026-09-24 (coordinator review): 40/44px read too large next to the smaller stat
+   tiles above; 34/38px still reads as the headline number but stops crowding the strip. */
+.ai-eq--result .ai-term strong { font-size:34px; }
 .ai-eq--result .ai-term-unit { font-size:13px; margin-top:6px; }
 .ai-eq--result .ai-term-low { margin-top:3px; }
 .ai-eq--result .ai-total { padding:14px 20px; margin-top:0; }
-.ai-eq--result .ai-total strong { font-size:44px; }
-.ai-eq--result .ai-op { padding-top:11px; font-size:26px; }
+.ai-eq--result .ai-total strong { font-size:38px; }
+/* >=10px each side of every operator: the base .ai-eq column-gap (14px) already clears that, this
+   just makes it explicit and immune to a future gap change on the shared .ai-eq rule. */
+.ai-eq--result .ai-op { padding-top:11px; font-size:26px; margin:0 4px; }
 /* "C$" in Inter, smaller and baseline-aligned, ahead of the Playfair Display digits -- a mixed
    treatment for the money terms only (the hour terms have no currency prefix). display:inline
    is needed explicitly: .ai-term span { display:block } (higher specificity than a bare
@@ -132,8 +136,12 @@
    label's size instead of the big value size computed on its <strong> parent. font-size:inherit
    here is what actually fixes the size, not the display fix above on its own. */
 .ai-term strong .ai-rolling-number { display:inline; margin-top:0; font-size:inherit; }
-.ai-eq--result .ai-term--editable .ai-inline-field { padding:9px 12px; }
+/* white-space:nowrap on both the pill and its unit label: without it, "weeks" (the widest
+   suffix) could wrap under the narrower fonts/padding here and poke out past the pill's rounded
+   border instead of sitting inside it. */
+.ai-eq--result .ai-term--editable .ai-inline-field { padding:9px 14px; white-space:nowrap; }
 .ai-eq--result .ai-term--editable .ai-inline-field input { font-size:18px; width:52px; }
+.ai-eq--result .ai-term--editable .ai-compact-unit { white-space:nowrap; }
 /* .ai-term span { display:block } (higher specificity than a bare .ai-inline-field) was forcing
    the editable field's own inline-flex layout to block, stacking "C$" above the number instead
    of beside it. Two-class overrides here outrank that descendant rule. */
@@ -335,7 +343,17 @@
 @media (prefers-reduced-motion:reduce) { .ai-loading-fill { animation:none; width:100%; } }
 
 /* ---------- result headline + stat tiles ---------- */
-.ai-result-headline { margin:8px 0 4px; }
+/* Focus lands on this h1 after the loading screen (see the headingRef effect in
+   AiOpportunityCheck.jsx). The default browser focus-scroll doesn't know the site header is
+   position:sticky -- it can land the h1's top at the very top of the page, taking the "Your
+   estimate" eyebrow directly above it under the header with it. scroll-margin-top reserves space
+   above the h1 equal to the sticky header's own height plus the eyebrow's, so scrolling the h1
+   into view clears both. The header nearly doubles in height below 600px (its nav row wraps),
+   so the mobile value is larger. Values confirmed by CDP measurement of the built page. */
+.ai-result-headline { margin:8px 0 4px; scroll-margin-top:120px; }
+@media (max-width:600px) {
+  .ai-result-headline { scroll-margin-top:175px; }
+}
 .ai-result-sub { margin:0 0 6px; color:var(--ai-soft); font-size:15px; }
 .ai-rolling-number { font-variant-numeric:lining-nums tabular-nums; font-feature-settings:"lnum" 1,"tnum" 1; }
 .ai-stat-tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:22px 0 10px; }

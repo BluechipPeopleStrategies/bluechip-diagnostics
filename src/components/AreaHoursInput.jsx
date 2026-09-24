@@ -31,6 +31,7 @@ export default function AreaHoursInput({ area, hours, people, peopleMax, onHours
           : 'People at your organization who spend time on this'}
         value={people} max={peopleMax} onChange={onPeopleChange}
       />
+      <p className="ai-note ai-people-helper">Count everyone at your organization who does this, not just you.</p>
     </div>
   );
 }

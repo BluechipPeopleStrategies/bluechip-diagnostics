@@ -1,17 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import {
   computeRange, capRowHours, roundHoursLabel, roundDollars, money, formatHours,
-  toggleMulti, peopleCapForOrgSize, orgSizeMidpoint, rateForArea, suggestedAreas,
-  tailoredLines, questions, HOUR_CAP_PER_AREA, HOUR_CAP_TOTAL, PEOPLE_MAX_BEFORE_ORG_SIZE,
+  toggleMulti, orgSizeMidpoint, rateForArea, suggestedAreas,
+  tailoredLines, questions, HOUR_CAP_PER_AREA, HOUR_CAP_TOTAL, PEOPLE_MAX,
   lowerFirst, joinList, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
   AREAS, AREA_RATE_MAP, RATE_TABLE, groupedOptions, sanitizeAreaLabel, sanitizeShortText,
-  areaLookoutLines, OTHER_AREA_LOOKOUT, crossCuttingCards, nextSteps, areaHoursRangeLabel,
-  isSingularHourLabel,
+  areaLookoutLines, OTHER_AREA_LOOKOUT, crossCuttingCards, nextSteps, ORG_AREA_SUGGESTIONS,
+  areaHoursRangeLabel, isSingularHourLabel,
 } from '../src/lib/aiOpportunity';
 
 describe('range maths', () => {
   it('multiplies hours x people x the low/likely net rate for the row area', () => {
-    const { low, likely, rows } = computeRange([{ area: 'correspondence', hours: 5, people: 2 }], '11-50');
+    const { low, likely, rows } = computeRange([{ area: 'correspondence', hours: 5, people: 2 }]);
     expect(rows[0].people).toBe(2);
     expect(low).toBeCloseTo(5 * 2 * 0.12, 6);
     expect(likely).toBeCloseTo(5 * 2 * 0.22, 6);
@@ -20,7 +20,7 @@ describe('range maths', () => {
     const { low, likely } = computeRange([
       { area: 'correspondence', hours: 5, people: 1 },
       { area: 'reports', hours: 3, people: 2 },
-    ], '11-50');
+    ]);
     expect(low).toBeCloseTo(5 * 1 * 0.12 + 3 * 2 * 0.08, 6);
     expect(likely).toBeCloseTo(5 * 1 * 0.22 + 3 * 2 * 0.18, 6);
   });
@@ -33,9 +33,12 @@ describe('range maths', () => {
     expect(rate).not.toHaveProperty('high');
     expect(Object.keys(rate).sort()).toEqual(['label', 'likely', 'low', 'sources'].sort());
   });
-  it('falls back to a 500-person cap when org size is not answered yet (still on Q2)', () => {
-    const { rows } = computeRange([{ area: 'correspondence', hours: 5, people: 999 }], undefined);
-    expect(rows[0].people).toBe(PEOPLE_MAX_BEFORE_ORG_SIZE);
+  // Org size (Q7) plays no part in the maths (Thomas, 2026-09-24 correction): computeRange takes
+  // only rows, and the flat 500-person cap applies the same whether or not Q7 has been answered.
+  it('caps people at a flat 500, with no org-size argument at all', () => {
+    const { rows } = computeRange([{ area: 'correspondence', hours: 5, people: 999 }]);
+    expect(rows[0].people).toBe(PEOPLE_MAX);
+    expect(PEOPLE_MAX).toBe(500);
   });
 });
 
@@ -58,12 +61,12 @@ describe('caps', () => {
     expect(rows[0].hours).toBeCloseTo(rows[1].hours, 6);
     expect(capped).toBe(true);
   });
-  it('caps people at the team size from question 7 once it is known', () => {
-    expect(peopleCapForOrgSize('1-10')).toBe(10);
-    expect(peopleCapForOrgSize('500+')).toBe(1000);
-    const { rows, peopleCapped } = computeRange([{ area: 'correspondence', hours: 5, people: 999 }], '1-10');
-    expect(rows[0].people).toBe(10);
-    expect(peopleCapped).toBe(true);
+  it('the flat 500-person cap does not change with a large org size (org size does not scale it)', () => {
+    const small = computeRange([{ area: 'correspondence', hours: 5, people: 999 }]);
+    const large = computeRange([{ area: 'correspondence', hours: 5, people: 999 }]);
+    expect(small.rows[0].people).toBe(500);
+    expect(large.rows[0].people).toBe(500);
+    expect(small.peopleCapped).toBe(true);
   });
 });
 
@@ -139,9 +142,9 @@ describe('multi-select state', () => {
   it('removes an existing pick', () => {
     expect(toggleMulti(['correspondence', 'reports'], 'correspondence', q.options, q.maxPicks)).toEqual(['reports']);
   });
-  it('stops adding once the pick cap is reached', () => {
-    const four = ['correspondence', 'reports', 'meetingNotes', 'findingInfo'];
-    expect(toggleMulti(four, 'scheduling', q.options, q.maxPicks)).toEqual(four);
+  it('stops adding once the pick cap (6) is reached', () => {
+    const six = ['correspondence', 'reports', 'meetingNotes', 'findingInfo', 'scheduling', 'invoicing'];
+    expect(toggleMulti(six, 'hiring', q.options, q.maxPicks)).toEqual(six);
   });
   it('picking the exclusive option clears every other pick', () => {
     expect(toggleMulti(['correspondence', 'reports'], 'notSureArea', q.options, q.maxPicks)).toEqual(['notSureArea']);
@@ -182,14 +185,43 @@ describe('new Q2 area tiles (2026-09-24)', () => {
     expect(q.options[q.options.length - 1]).toEqual(['notSureArea', 'Not sure yet', true]);
     expect(q.options.filter(o => o[2])).toHaveLength(1);
   });
-  it('the four-pick cap still holds with the larger option set', () => {
+  it('the six-pick cap holds with the larger option set', () => {
     const q = questions.find(q => q.id === 'areas');
-    const four = ['correspondence', 'writingEditing', 'research', 'otherArea'];
-    expect(toggleMulti(four, 'policies', q.options, q.maxPicks)).toEqual(four);
+    const six = ['correspondence', 'writingEditing', 'research', 'otherArea', 'spreadsheets', 'policies'];
+    expect(toggleMulti(six, 'socialContent', q.options, q.maxPicks)).toEqual(six);
   });
   it('"Other (type your own)" uses the floor rate, so it can only understate', () => {
     expect(rateForArea('otherArea')).toEqual(rateForArea('notSureArea'));
     expect(AREA_RATE_MAP.otherArea).toBe('floor');
+  });
+});
+
+describe('"Answering staff questions" area (2026-09-24 org-wide-estimate pass)', () => {
+  it('maps to the "Finding information" rate bucket, no new numbers', () => {
+    expect(AREA_RATE_MAP.staffQuestions).toBe('search');
+    expect(rateForArea('staffQuestions')).toEqual(RATE_TABLE.search);
+  });
+  it('is a Q2 tile with a label naming policies, onboarding and how-to', () => {
+    expect(AREAS.some(([v]) => v === 'staffQuestions')).toBe(true);
+    const label = AREAS.find(([v]) => v === 'staffQuestions')[1];
+    expect(label).toBe('Answering staff questions (policies, onboarding, how-to)');
+  });
+  it('is offered as a suggested area for municipal, postsecondary, nonprofit and healthcare orgs', () => {
+    ['municipal', 'postsecondary', 'nonprofit', 'healthcare'].forEach(orgType => {
+      expect(ORG_AREA_SUGGESTIONS[orgType]).toContain('staffQuestions');
+      // Appended as the 4th candidate: only surfaces once one of the top 3 is already picked.
+      expect(suggestedAreas(orgType, [])).not.toContain('staffQuestions');
+      const firstThreePicked = ORG_AREA_SUGGESTIONS[orgType].slice(0, 3);
+      expect(suggestedAreas(orgType, firstThreePicked)).toContain('staffQuestions');
+    });
+  });
+});
+
+describe('Q2 pick limit raised to six (2026-09-24 org-wide-estimate pass)', () => {
+  it('maxPicks is 6, and the label says "Pick up to six"', () => {
+    const q = questions.find(q => q.id === 'areas');
+    expect(q.maxPicks).toBe(6);
+    expect(q.label).toBe('Where would you most like time back? Pick up to six.');
   });
 });
 
