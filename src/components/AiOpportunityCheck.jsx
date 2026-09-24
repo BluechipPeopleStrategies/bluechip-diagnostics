@@ -1,33 +1,33 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  questions, isComplete, toggleMulti, defaultHours, computeRange, roundHoursLabel, roundDollars,
-  money, suggestedAreas, tailoredLines, bandLine, AREA_LABELS, lowerFirst, joinList,
-} from '../lib/aiOpportunity';
+  questions, isComplete, toggleMulti, computeRange, roundHoursLabel, roundDollars, money,
+  suggestedAreas, tailoredLines, AREA_LABELS, lowerFirst, joinList,
+  peopleCapForOrgSize, orgSizeMidpoint, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
+  PEOPLE_MAX_BEFORE_ORG_SIZE, areaHoursLabel } from '../lib/aiOpportunity';
+import { prefersReducedMotion } from '../lib/useRollingNumber';
 import SiteHeader from './SiteHeader';
-import AiRangeCalculator from './AiRangeCalculator';
-import HoursRangeTrack from './HoursRangeTrack';
 import AreaIcon from './AreaIcon';
+import AreaHoursInput from './AreaHoursInput';
+import GoldSlider from './GoldSlider';
+import ChipsRow from './ChipsRow';
+import RollingNumber from './RollingNumber';
 import Emblem from './Emblem';
 import './AiFunnel.css';
 
-const GUARANTEE_HEADLINE = 'The AI Handoff Plan: find 5 hours a week, or your money back.';
-const GUARANTEE_SUPPORT = "If the plan can't find tools with evidence-backed potential to save at least 5 net hours a week across your organization, your full fee comes back within 10 business days, no forms, no hoops.";
-
-function GuaranteeBand() {
-  return (
-    <div className="ai-guarantee-band">
-      <p className="ai-guarantee-headline">{GUARANTEE_HEADLINE}</p>
-      <p className="ai-guarantee-support">{GUARANTEE_SUPPORT}</p>
-    </div>
-  );
-}
+const LOADING_MESSAGES = [
+  'Matching your answers to published studies...',
+  'Netting out checking time...',
+  'Adding it up...',
+];
+const LOADING_MS_FULL = 1800;
+const LOADING_MS_REDUCED = 600;
 
 // Moves focus to the next/previous sibling input inside an option grid on the arrow keys, so a
 // "pick all" checkbox group behaves like the native roving-focus radios do automatically.
 function handleGridArrowKeys(e) {
   if (!['ArrowDown', 'ArrowRight', 'ArrowUp', 'ArrowLeft'].includes(e.key)) return;
-  const inputs = Array.from(e.currentTarget.querySelectorAll('input'));
+  const inputs = Array.from(e.currentTarget.querySelectorAll('input[type="checkbox"], input[type="radio"]'));
   const i = inputs.indexOf(document.activeElement);
   if (i === -1) return;
   e.preventDefault();
@@ -39,11 +39,11 @@ function handleGridArrowKeys(e) {
 export default function AiOpportunityCheck() {
   const [answers, setAnswers] = useState({});
   const [qIndex, setQIndex] = useState(0);
-  const [step, setStep] = useState('questions'); // questions -> calculator -> result
-  const [rows, setRows] = useState([]);
+  const [step, setStep] = useState('questions'); // questions -> loading -> result
+  const [areaInputs, setAreaInputs] = useState({}); // { [area]: { hours, people } }
   const [rate, setRate] = useState(40);
   const [weeks, setWeeks] = useState(48);
-  const [skipped, setSkipped] = useState(false);
+  const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
   const headingRef = useRef(null);
 
   const question = questions[qIndex];
@@ -52,31 +52,40 @@ export default function AiOpportunityCheck() {
 
   useEffect(() => { setTimeout(() => headingRef.current?.focus(), 0); }, [step, qIndex]);
 
-  // Builds one calculator row per picked area, prefilled from the Q5 workload answer (panel
-  // condition 3). Takes the answers object explicitly so the last question's auto-advance can
-  // hand off the value it just set without waiting on a state update to be visible.
-  function enterCalculator(ans) {
-    setRows(ans.areas.map(area => ({ area, hours: defaultHours(ans.workload), people: 1 })));
-    setStep('calculator');
-  }
+  // Cycles the loading copy, then reveals the result. Reduced motion: a short static beat only.
+  useEffect(() => {
+    if (step !== 'loading') return;
+    const reduced = prefersReducedMotion();
+    if (reduced) {
+      const t = setTimeout(() => setStep('result'), LOADING_MS_REDUCED);
+      return () => clearTimeout(t);
+    }
+    setLoadingMsgIndex(0);
+    const msgTimer = setInterval(() => setLoadingMsgIndex(i => (i + 1) % LOADING_MESSAGES.length), LOADING_MS_FULL / LOADING_MESSAGES.length);
+    const done = setTimeout(() => setStep('result'), LOADING_MS_FULL);
+    return () => { clearInterval(msgTimer); clearTimeout(done); };
+  }, [step]);
 
   function selectSingle(value) {
     const next = { ...answers, [question.id]: value };
     setAnswers(next);
     setTimeout(() => {
       if (qIndex < questions.length - 1) setQIndex(i => i + 1);
-      else enterCalculator(next);
+      else setStep('loading');
     }, 200);
   }
 
   function toggleOption(value) {
     setAnswers(prev => ({ ...prev, [question.id]: toggleMulti(prev[question.id] || [], value, question.options, question.maxPicks) }));
+    if (question.id === 'areas') {
+      setAreaInputs(prev => (prev[value] ? prev : { ...prev, [value]: { hours: 5, people: 1 } }));
+    }
   }
 
   function goNext() {
     if (!isComplete(question, answers)) return;
     if (qIndex < questions.length - 1) setQIndex(i => i + 1);
-    else enterCalculator();
+    else setStep('loading');
   }
   function goBack() {
     if (qIndex > 0) setQIndex(i => i - 1);
@@ -84,12 +93,15 @@ export default function AiOpportunityCheck() {
   function reviewAnswers() {
     setStep('questions');
     setQIndex(0);
-    setSkipped(false);
   }
 
   const value = answers[question?.id];
   const picks = Array.isArray(value) ? value : [];
   const atCap = question?.maxPicks && picks.length >= question.maxPicks;
+  const isAreas = question?.id === 'areas';
+  const peopleMaxDuringQ2 = answers.orgSize ? peopleCapForOrgSize(answers.orgSize) : PEOPLE_MAX_BEFORE_ORG_SIZE;
+  const pickedRows = isAreas ? picks.map(a => ({ area: a, hours: areaInputs[a]?.hours ?? 5, people: areaInputs[a]?.people ?? 1 })) : [];
+  const livePreview = isAreas && pickedRows.some(r => r.hours > 0) ? computeRange(pickedRows, answers.orgSize) : null;
 
   return <main className="bc-page ai-funnel">
     <SiteHeader />
@@ -98,10 +110,8 @@ export default function AiOpportunityCheck() {
       {qIndex === 0 && <>
         <p className="ai-eyebrow">Free AI Opportunity Check</p>
         <h1 ref={headingRef} tabIndex={-1}>How much time could AI give back to your team?</h1>
-        <p>Twelve quick questions about the work your organization already does, about three minutes in all. You'll get a starting estimate of the hours in play, before deciding whether you want a plan.</p>
-        <p className="ai-note">No email required. Answers stay on this page and clear when you reload. Please don't enter confidential information.</p>
-        <GuaranteeBand />
-        <p className="ai-note ai-guarantee-fineprint">This check is free. The guarantee belongs to the paid plan.</p>
+        <p>Find out roughly how many hours a week AI could give your team back. About three minutes, no email.</p>
+        <p className="ai-note">Answers stay on this page and clear when you reload. Please don't enter confidential information.</p>
       </>}
 
       <div className="ai-stepper">
@@ -111,21 +121,31 @@ export default function AiOpportunityCheck() {
         <fieldset className="ai-stepper-question">
           <legend>{qIndex > 0 && <span className="ai-stepper-count">{qIndex + 1} / {questions.length}</span>} <span ref={qIndex > 0 ? headingRef : null} tabIndex={qIndex > 0 ? -1 : undefined}>{question.label}</span></legend>
 
-          <div className="ai-options ai-options--tiles" onKeyDown={question.type === 'multi' ? handleGridArrowKeys : undefined}>
+          <div className={`ai-options ai-options--tiles ${isAreas ? 'ai-options--areas' : ''}`} onKeyDown={question.type === 'multi' ? handleGridArrowKeys : undefined}>
             {question.options.map(([val, label]) => {
               const disabledByCap = question.type === 'multi' && atCap && !picks.includes(val);
-              return <label key={val} className={disabledByCap ? 'is-disabled' : ''}>
-                {question.type === 'multi'
-                  ? <input type="checkbox" name={question.id} value={val} checked={picks.includes(val)} disabled={disabledByCap}
-                    onChange={() => toggleOption(val)} />
-                  : <input type="radio" name={question.id} value={val} checked={value === val}
-                    onChange={() => selectSingle(val)} />}
-                {question.id === 'areas' && <AreaIcon area={val} />}
-                <span>{label}</span>
-              </label>;
+              const checked = question.type === 'multi' ? picks.includes(val) : value === val;
+              return <div className={`ai-tile-wrap ${disabledByCap ? 'is-disabled' : ''}`} key={val}>
+                <label>
+                  {question.type === 'multi'
+                    ? <input type="checkbox" name={question.id} value={val} checked={checked} disabled={disabledByCap}
+                      onChange={() => toggleOption(val)} />
+                    : <input type="radio" name={question.id} value={val} checked={checked}
+                      onChange={() => selectSingle(val)} />}
+                  {isAreas && <AreaIcon area={val} />}
+                  <span>{label}</span>
+                </label>
+                {isAreas && checked && <AreaHoursInput
+                  area={val} hours={areaInputs[val]?.hours ?? 5} people={areaInputs[val]?.people ?? 1}
+                  peopleMax={peopleMaxDuringQ2}
+                  onHoursChange={(h) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], hours: h } }))}
+                  onPeopleChange={(p) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], people: p } }))}
+                />}
+              </div>;
             })}
           </div>
-          {question.id === 'areas' && <p className="ai-note">Up to four. The calculator below adds one row per area you pick here.</p>}
+          {isAreas && <p className="ai-note">Up to four. Each one you pick gets its own hours and people below.</p>}
+          {livePreview && <p className="ai-live-preview">About {roundHoursLabel(livePreview.low)} to {roundHoursLabel(livePreview.likely)} hours a week back, so far.</p>}
         </fieldset>
 
         <div className="ai-stepper-nav">
@@ -137,61 +157,135 @@ export default function AiOpportunityCheck() {
       </div>
     </>}
 
-    {step === 'calculator' && <AiRangeCalculator
-      rows={rows} setRows={setRows} orgSize={answers.orgSize} rate={rate} weeks={weeks}
-      onRate={setRate} onWeeks={setWeeks}
-      onShowResult={() => { setSkipped(false); setStep('result'); }}
-      onSkip={() => { setSkipped(true); setStep('result'); }}
-    />}
+    {step === 'loading' && <LoadingScreen messageIndex={loadingMsgIndex} headingRef={headingRef} />}
 
-    {step === 'result' && <ResultScreen answers={answers} rows={rows} rate={rate} weeks={weeks} skipped={skipped} onReview={reviewAnswers} headingRef={headingRef} />}
+    {step === 'result' && <ResultScreen answers={answers} areaInputs={areaInputs} rate={rate} weeks={weeks}
+      onRate={setRate} onWeeks={setWeeks} onReview={reviewAnswers} headingRef={headingRef} />}
   </main>;
 }
 
-function ResultScreen({ answers, rows, rate, weeks, skipped, onReview, headingRef }) {
-  const { low, likely } = computeRange(rows, answers.orgSize);
-  const likelyUnderOne = !skipped && likely < 1;
+function LoadingScreen({ messageIndex, headingRef }) {
+  return <div className="ai-loading" role="status" aria-live="off">
+    <p className="ai-eyebrow" ref={headingRef} tabIndex={-1}>Calculating your estimate...</p>
+    <div className="ai-loading-track" aria-hidden="true"><div className="ai-loading-fill" /></div>
+    <p className="ai-loading-message" aria-hidden="true">{LOADING_MESSAGES[messageIndex]}</p>
+  </div>;
+}
+
+function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onReview, headingRef }) {
+  const rows = (answers.areas || []).map(a => ({ area: a, hours: areaInputs[a]?.hours ?? 5, people: areaInputs[a]?.people ?? 1 }));
+  const { low, likely, rows: rowDetail } = computeRange(rows, answers.orgSize);
   const areas = suggestedAreas(answers.orgType, answers.areas || []);
   const lines = tailoredLines(answers);
-  const valueLow = roundDollars(low * rate * weeks);
-  const valueLikely = roundDollars(likely * rate * weeks);
+  const valueLow = low * rate * weeks;
+  const valueLikely = likely * rate * weeks;
+
+  const peopleMax = answers.orgSize ? peopleCapForOrgSize(answers.orgSize) : PEOPLE_MAX_BEFORE_ORG_SIZE;
+  const totalPeopleEntered = Math.max(1, rowDetail.reduce((s, r) => s + r.people, 0));
+  const defaultHeadcount = Math.min(peopleMax, orgSizeMidpoint(answers.orgSize));
+  const [headcount, setHeadcount] = useState(defaultHeadcount);
+  const perPersonLow = low / totalPeopleEntered;
+  const perPersonLikely = likely / totalPeopleEntered;
+  const scaledLow = Math.min(HOURS_DISPLAY_CAP, perPersonLow * headcount);
+  const scaledLikely = Math.min(HOURS_DISPLAY_CAP, perPersonLikely * headcount);
+  const scaledValueLow = scaledLow * rate * weeks;
+  const scaledValueLikely = scaledLikely * rate * weeks;
+
+  const carryHours = perPersonHoursForCarry(rows);
+  const carryEmployees = orgSizeMidpoint(answers.orgSize);
 
   return <>
-    <p className="ai-eyebrow">Your starting estimate</p>
-    <h1 ref={headingRef} tabIndex={-1}>
-      {skipped
-        ? "You skipped the hours, so there's no range yet. Your answers still show where we'd start looking."
-        : likelyUnderOne
-          ? 'Your answers point to under an hour a week in these areas. The bigger opportunities may sit somewhere else.'
-          : `Your team could get back about ${roundHoursLabel(low)} to ${roundHoursLabel(likely)} hours a week across the areas you picked.`}
+    <p className="ai-eyebrow" ref={headingRef} tabIndex={-1}>Your estimate</p>
+    <h1 className="ai-result-headline">
+      About <RollingNumber value={low} format={(n) => roundHoursLabel(n)} /> to <RollingNumber value={likely} format={(n) => roundHoursLabel(n)} /> hours a week
     </h1>
+    <p className="ai-result-sub">across the areas you picked</p>
+    <p className="ai-note">This estimate is based on the people you entered. Most of it comes from one person's time in each area.</p>
 
-    {!skipped && <>
-      <HoursRangeTrack low={low} likely={likely} />
-      <p>It's built from your numbers for a team of {answers.orgSize ? answers.orgSize.replace('+', ' or more') : 'your'} people and the time savings published studies measured for this kind of work in other workplaces, minus the time it takes to check the tools' work.</p>
-      <p>At {money(rate)} an hour over {weeks} working weeks, that's roughly {money(valueLow)} to {money(valueLikely)} a year in potential staff capacity. That's time for other work, not a cash saving.</p>
-    </>}
+    <div className="ai-stat-tiles">
+      <div className="ai-stat-tile">
+        <span className="ai-stat-label">Hours a week</span>
+        <strong><RollingNumber value={low} format={(n) => roundHoursLabel(n)} /> to <RollingNumber value={likely} format={(n) => roundHoursLabel(n)} /></strong>
+      </div>
+      <div className="ai-stat-tile">
+        <span className="ai-stat-label">Hours a year</span>
+        <strong><RollingNumber value={low * weeks} format={(n) => roundHoursLabel(n)} /> to <RollingNumber value={likely * weeks} format={(n) => roundHoursLabel(n)} /></strong>
+      </div>
+      <div className="ai-stat-tile">
+        <span className="ai-stat-label">Staff time value</span>
+        <strong><RollingNumber value={valueLow} format={(n) => money(roundDollars(n))} /> to <RollingNumber value={valueLikely} format={(n) => money(roundDollars(n))} /> <span className="ai-stat-suffix">a year</span></strong>
+      </div>
+    </div>
+    <p className="ai-note ai-tiles-caption">
+      At <CompactField value={rate} onChange={onRate} min={15} max={250} prefix="C$" suffix="/hr" ariaLabel="Employee cost per hour" /> an hour,
+      {' '}<CompactField value={weeks} onChange={onWeeks} min={20} max={52} suffix="weeks" ariaLabel="Working weeks a year" />.
+      Time for other work, not a cash saving.
+    </p>
+
+    {rowDetail.length > 0 && <div className="ai-area-breakdown">
+      {rowDetail.map(r => <AreaBarRow key={r.area} label={AREA_LABELS[r.area]} low={r.low} likely={r.likely} max={Math.max(likely, 1) * 1.15} />)}
+    </div>}
+
+    <section className="ai-panel ai-headcount-section" aria-labelledby="ai-headcount-title">
+      <h2 id="ai-headcount-title">What if more of your team works like this?</h2>
+      <GoldSlider min={1} max={500} step={1} value={headcount} onChange={setHeadcount}
+        ariaLabel="Number of people" format={(n) => `${n} people`} />
+      <ChipsRow ariaLabel="Quick-pick headcount"
+        chips={[10, 25, 50, 100, 250].map(n => ({ label: String(n), value: n }))}
+        current={headcount} onPick={(n) => setHeadcount(Math.min(peopleMax, n))} />
+      <div className="ai-stat-tiles ai-stat-tiles--pair">
+        <div className="ai-stat-tile">
+          <span className="ai-stat-label">Hours a week across {headcount}</span>
+          <strong><RollingNumber value={scaledLow} format={(n) => roundHoursLabel(n)} /> to <RollingNumber value={scaledLikely} format={(n) => roundHoursLabel(n)} /></strong>
+        </div>
+        <div className="ai-stat-tile">
+          <span className="ai-stat-label">Potential staff capacity</span>
+          <strong><RollingNumber value={scaledValueLow} format={(n) => money(roundDollars(n))} /> to <RollingNumber value={scaledValueLikely} format={(n) => money(roundDollars(n))} /> <span className="ai-stat-suffix">a year</span></strong>
+        </div>
+      </div>
+      <p className="ai-note">An illustration that assumes each person saves about what one person in your answers does. Real results vary by role, and the plan measures what's actually there.</p>
+    </section>
 
     {areas.length > 0 && <p>Where we'd also look in an organization like yours: {joinList(areas.map(a => lowerFirst(AREA_LABELS[a])))}.</p>}
 
-    {lines.length > 0 && <ul className="ai-tailored-lines">{lines.map((l, i) => <li key={i}>{l}</li>)}</ul>}
+    {lines.length > 0 && <p className="ai-tailored-chip">{lines[0]}</p>}
 
-    <GuaranteeBand />
-
-    {!skipped && <p>{bandLine(low, likely)}</p>}
-
-    <p>You get the plan, and your team puts it in place.</p>
-
-    <p><Link className="ai-button" to="/ai-handoff-plan">See what the plan includes</Link></p>
-
-    <p className="ai-note">This is an estimate from your answers and published studies. It isn't a promise of results or a cash saving.</p>
+    <section className="ai-next-step">
+      <p>Want to know which tasks and tools could get you there? That's what The AI Handoff Plan works out, measured against your actual work.</p>
+      <p><Link className="ai-secondary" to={`/ai-handoff-plan?perPersonHours=${carryHours}&employees=${carryEmployees}`}>See how the plan works</Link></p>
+      <p className="ai-note">At least 5 net hours a week found across your organization, or your fee back.</p>
+    </section>
 
     <details className="ai-disclosure">
       <summary>How this estimate works</summary>
-      <p>For each area you picked, we multiply the hours one person spends by the number of people, then by a low and a likely net rate taken from published studies of similar work. The net rate is the time saving those studies measured, minus an allowance for checking the tools' work. Where no study matches an area closely, we use our most conservative rate. Hours are capped at 20 a week per person for each area and 30 in total. The dollar figure uses the hourly cost and working weeks shown in the calculator. The range is only as good as the numbers you enter, and your own results could land outside it.</p>
+      <p>It's built from your numbers for a team of {answers.orgSize ? answers.orgSize.replace('+', ' or more') : 'your'} people. For each area you picked, we multiply the hours one person spends by the number of people, then by a low and a likely net rate taken from published studies of similar work. The net rate is the time saving those studies measured, minus an allowance for checking the tools' work. Where no study matches an area closely, we use our most conservative rate. To keep the estimate realistic, we count at most 25 hours a week per person for any one area, and at most 30 hours a week per person in total across every area. The dollar figure uses the hourly cost and working weeks shown above. This is an estimate from your answers and published studies. It isn't a promise of results or a cash saving, and your own results could land outside it.</p>
     </details>
 
     <button type="button" className="ai-secondary" onClick={onReview}>Review my answers</button>
     <Emblem slug="ai-opportunity-check" />
   </>;
+}
+
+function AreaBarRow({ label, low, likely, max }) {
+  const lowPct = Math.max(0, Math.min(100, (low / max) * 100));
+  const likelyPct = Math.max(0, Math.min(100, (likely / max) * 100));
+  return (
+    <div className="ai-area-bar-row">
+      <span className="ai-area-bar-label">{label}</span>
+      <div className="ai-area-bar-track"><div className="ai-area-bar-fill" style={{ left: `${lowPct}%`, width: `${Math.max(2, likelyPct - lowPct)}%` }} /></div>
+      <span className="ai-area-bar-value">{areaHoursLabel(low)} to {areaHoursLabel(likely)} hrs/week</span>
+    </div>
+  );
+}
+
+// A small inline-editable number, used in the tight "At C$40 an hour, 48 weeks" caption line.
+function CompactField({ value, onChange, min, max, prefix, suffix, ariaLabel }) {
+  return (
+    <span className="ai-inline-field">
+      {prefix && <span className="ai-compact-unit">{prefix}</span>}
+      <input type="number" inputMode="decimal" min={min} max={max} value={value} aria-label={ariaLabel}
+        onChange={(e) => { const n = Number(e.target.value); if (Number.isFinite(n)) onChange(Math.min(max, Math.max(min, n))); }} />
+      {suffix && <span className="ai-compact-unit">{suffix}</span>}
+    </span>
+  );
 }

@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import {
-  computeRange, capRowHours, roundHoursLabel, roundDollars, money,
-  toggleMulti, peopleCapForOrgSize, rateForArea, suggestedAreas, bandLine,
-  tailoredLines, questions, HOUR_CAP_PER_AREA, HOUR_CAP_TOTAL, lowerFirst, joinList,
+  computeRange, capRowHours, roundHoursLabel, roundDollars, money, formatHours,
+  toggleMulti, peopleCapForOrgSize, orgSizeMidpoint, rateForArea, suggestedAreas,
+  tailoredLines, questions, HOUR_CAP_PER_AREA, HOUR_CAP_TOTAL, PEOPLE_MAX_BEFORE_ORG_SIZE,
+  lowerFirst, joinList, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
 } from '../src/lib/aiOpportunity';
 
 describe('range maths', () => {
@@ -25,17 +26,21 @@ describe('range maths', () => {
     expect(rateForArea('scheduling').low).toBe(0.05);
   });
   it('never uses a high rate, only low and likely', () => {
-    Object.values(rateForArea('correspondence')).forEach(() => {});
     const rate = rateForArea('meetings');
     expect(rate).not.toHaveProperty('high');
     expect(Object.keys(rate).sort()).toEqual(['label', 'likely', 'low', 'sources'].sort());
   });
+  it('falls back to a 500-person cap when org size is not answered yet (still on Q2)', () => {
+    const { rows } = computeRange([{ area: 'correspondence', hours: 5, people: 999 }], undefined);
+    expect(rows[0].people).toBe(PEOPLE_MAX_BEFORE_ORG_SIZE);
+  });
 });
 
 describe('caps', () => {
-  it('caps a single row at 20 hours a week per area', () => {
-    const { rows, capped } = capRowHours([{ area: 'correspondence', hours: 25, people: 1 }]);
+  it('caps a single row at 25 hours a week per area', () => {
+    const { rows, capped } = capRowHours([{ area: 'correspondence', hours: 40, people: 1 }]);
     expect(rows[0].hours).toBe(HOUR_CAP_PER_AREA);
+    expect(HOUR_CAP_PER_AREA).toBe(25);
     expect(capped).toBe(true);
   });
   it('leaves rows under the caps untouched', () => {
@@ -50,12 +55,31 @@ describe('caps', () => {
     expect(rows[0].hours).toBeCloseTo(rows[1].hours, 6);
     expect(capped).toBe(true);
   });
-  it('caps people at the team size from question 8', () => {
+  it('caps people at the team size from question 7 once it is known', () => {
     expect(peopleCapForOrgSize('1-10')).toBe(10);
     expect(peopleCapForOrgSize('500+')).toBe(1000);
     const { rows, peopleCapped } = computeRange([{ area: 'correspondence', hours: 5, people: 999 }], '1-10');
     expect(rows[0].people).toBe(10);
     expect(peopleCapped).toBe(true);
+  });
+});
+
+describe('org size midpoints (headcount defaults and plan-page carry-over)', () => {
+  it('gives a clean representative headcount per band', () => {
+    expect(orgSizeMidpoint('1-10')).toBe(5);
+    expect(orgSizeMidpoint('51-200')).toBe(100);
+    expect(orgSizeMidpoint('500+')).toBe(500);
+  });
+  it('defaults to 25 when org size is unknown', () => {
+    expect(orgSizeMidpoint(undefined)).toBe(25);
+  });
+});
+
+describe('carry-over to the plan page', () => {
+  it('sums and caps per-person hours across picked areas, clamped to the plan-page slider range', () => {
+    expect(perPersonHoursForCarry([{ area: 'correspondence', hours: 3 }])).toBe(3);
+    expect(perPersonHoursForCarry([{ area: 'correspondence', hours: 0.2 }])).toBe(0.5);
+    expect(perPersonHoursForCarry([{ area: 'correspondence', hours: 25 }, { area: 'reports', hours: 25 }])).toBeLessThanOrEqual(10);
   });
 });
 
@@ -72,8 +96,35 @@ describe('display rounding', () => {
     expect(roundDollars(9640)).toBe(9600);
     expect(roundDollars(9660)).toBe(9700);
   });
+  it('rounds dollars to the nearest C$1,000 above C$100k', () => {
+    expect(roundDollars(104200)).toBe(104000);
+    expect(roundDollars(104600)).toBe(105000);
+  });
   it('formats money with the C$ prefix and thousands separators', () => {
     expect(money(9600)).toBe('C$9,600');
+  });
+  it('caps the display cap constant at 10,000 hours', () => {
+    expect(HOURS_DISPLAY_CAP).toBe(10000);
+  });
+});
+
+describe('hour pluralization (formatHours)', () => {
+  it('shows a half hour as "0.5 hours"', () => {
+    expect(formatHours(0.5)).toBe('0.5 hours');
+  });
+  it('singularizes exactly one hour', () => {
+    expect(formatHours(1)).toBe('1 hour');
+  });
+  it('pluralizes two or more hours', () => {
+    expect(formatHours(2)).toBe('2 hours');
+    expect(formatHours(1.5)).toBe('1.5 hours');
+  });
+  it('rounds to the nearest half hour', () => {
+    expect(formatHours(1.24)).toBe('1 hour');
+    expect(formatHours(1.26)).toBe('1.5 hours');
+  });
+  it('adds a thousands separator for large totals (e.g. hours a year across a big team)', () => {
+    expect(formatHours(23040)).toBe('23,040 hours');
   });
 });
 
@@ -97,16 +148,21 @@ describe('multi-select state', () => {
   });
 });
 
-describe('suggested areas and the band line', () => {
+describe('the check is 11 questions (Q5 workload merged into Q2)', () => {
+  it('has 11 questions, numbered 1 to 11', () => {
+    expect(questions.length).toBe(11);
+    expect(questions.map(q => q.number)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+  });
+  it('no longer has a standalone workload question', () => {
+    expect(questions.find(q => q.id === 'workload')).toBeUndefined();
+  });
+});
+
+describe('suggested areas', () => {
   it('suggests up to three areas the visitor did not already pick', () => {
     const areas = suggestedAreas('professional', ['correspondence']);
     expect(areas).not.toContain('correspondence');
     expect(areas.length).toBeLessThanOrEqual(3);
-  });
-  it('picks the right band line for low/likely against the 5-hour threshold', () => {
-    expect(bandLine(6, 8)).toMatch(/even the low end/);
-    expect(bandLine(3, 6)).toMatch(/your range crosses/);
-    expect(bandLine(1, 2)).toMatch(/may not be the right next step/);
   });
 });
 
@@ -130,19 +186,21 @@ describe('sentence casing and list join for area names', () => {
   });
 });
 
-describe('tailored lines', () => {
-  it('shows the sensitive add-on when information includes a sensitive category', () => {
-    const lines = tailoredLines({ information: ['payroll'] });
+describe('tailored lines: at most one, sensitive wins outright', () => {
+  it('shows only the sensitive add-on when information includes a sensitive category, even with other signals present', () => {
+    const lines = tailoredLines({ information: ['payroll'], aiTools: ['chatgpt'], heldBack: ['triedDidntStick'] });
+    expect(lines).toHaveLength(1);
     expect(lines[0]).toMatch(/private or approved tools/);
   });
-  it('never shows more than one Q4 line plus up to two Q9-Q12 lines (max 3 total, plus the sensitive add-on)', () => {
-    const lines = tailoredLines({
-      information: ['payroll'],
-      aiTools: ['chatgpt'],
-      heldBack: ['triedDidntStick', 'budget'],
-      owner: 'nobody',
-    });
-    expect(lines.length).toBeLessThanOrEqual(4);
+  it('falls back to the Q4 AI-tools line when nothing is sensitive', () => {
+    const lines = tailoredLines({ aiTools: ['copilot'] });
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toMatch(/licences or features/);
+  });
+  it('falls back to a single held-back/owner/feel/timing line when neither applies', () => {
+    const lines = tailoredLines({ heldBack: ['budget'] });
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toMatch(/software cost/);
   });
   it('returns no lines for a neutral answer set', () => {
     expect(tailoredLines({})).toEqual([]);

@@ -23,9 +23,10 @@
     "Something else (I'm not sure yet)"
   ];
 
-  // Approved fixed answers. Update alongside the service pages when offers change.
+  // Approved fixed answers. Update alongside the service pages when offers change. `slug` is
+  // used by the topic-preselect API/hash param (window.BlueChipChat.open, #chat?topic=).
   var KNOWLEDGE = [
-    { title: 'The AI Handoff Plan', need: 'The AI Handoff Plan', url: 'https://bluechip-diagnostics.vercel.app/ai-handoff-plan', link: 'Read the full plan details', answers: [
+    { slug: 'ai-handoff-plan', title: 'The AI Handoff Plan', need: 'The AI Handoff Plan', url: 'https://bluechip-diagnostics.vercel.app/ai-handoff-plan', link: 'Read the full plan details', answers: [
       ['What does The AI Handoff Plan cost?', 'C$999 per organization, including applicable tax. An inquiry does not book the plan or take payment. BlueChip confirms the next steps with you. If you cancel before discovery, before any work on your plan has begun, the fee is refunded in full.'],
       ['What is included?', 'One 60-minute discovery session, an organization-wide opportunity scan, one priority workflow redesigned in detail, a written plan and a 30-minute findings call. The plan is yours to keep.'],
       ['How does the five-hour guarantee work?', "If The AI Handoff Plan can't find tools with evidence-backed potential to save at least 5 net hours a week across your organization, your full fee comes back automatically within 10 business days of your findings call, no forms, no hoops. That's five hours in total, not five per person, and they can come from several opportunities, not only the one workflow we redesign. You get a copy of the hours tally that scores it, and if you think we've scored it wrong, tell us within 30 days and we'll review it together. That review can only add to what you're owed. For a sense of scale, five hours a week could be worth about C$9,600 a year in staff capacity, based on an illustrative C$40 an hour over 48 working weeks. That's potential capacity, not a cash saving. The guarantee covers finding the hours. Your team puts the plan in place, and the hours you actually get back depend on that."],
@@ -34,23 +35,37 @@
       ['What does the C$9,600 example mean?', 'Five hours a week multiplied by C$40 per hour and 48 working weeks equals C$9,600 a year in potential staff capacity. Those are illustrative assumptions, not guaranteed cash or payroll savings. Software and implementation costs are not included in the plan fee.'],
       ['Do I have to buy a retainer?', 'No. The AI Handoff Plan is standalone. You keep the plan and can implement it yourself or with another provider. If it leads into a Practical AI and/or Embedded HR Retainer (six-month minimum), its fee is credited against your first invoice.']
     ] },
-    { title: 'Free AI Opportunity Check', need: 'Free AI Opportunity Check', url: 'https://bluechip-diagnostics.vercel.app/ai-opportunity-check', link: 'Open the free AI Opportunity Check', answers: [
+    { slug: 'free-check', title: 'Free AI Opportunity Check', need: 'Free AI Opportunity Check', url: 'https://bluechip-diagnostics.vercel.app/ai-opportunity-check', link: 'Open the free AI Opportunity Check', answers: [
       ['What does the free check give me?', "Twelve quick questions about your recurring work, about three minutes in all. You'll get a starting range of the hours in play, and the areas where we'd start looking, before deciding whether you want The AI Handoff Plan."],
       ['Do I need to give my email?', 'No email or contact details are required for the free check. Its answers stay on the page and clear when you reload. Please do not enter confidential information.'],
       ['Does the free check prove I will save five hours?', "No. It's a starting estimate from your own answers and published studies, not a plan and not a confirmation of the guarantee. The plan checks your actual work to see where you really land."]
     ] },
-    { title: 'Practical AI and/or Embedded HR Retainers', need: 'Practical AI and/or Embedded HR Retainers', url: 'https://www.bluechip-people-strategies.com/embedded-hr-retainers', link: 'Explore Practical AI and/or Embedded HR Retainers', answers: [
+    { slug: 'retainers', title: 'Practical AI and/or Embedded HR Retainers', need: 'Practical AI and/or Embedded HR Retainers', url: 'https://www.bluechip-people-strategies.com/embedded-hr-retainers', link: 'Explore Practical AI and/or Embedded HR Retainers', answers: [
       ['Can I retain BlueChip for AI alone?', 'Yes. Support can focus on practical AI adoption alone or combine AI with embedded HR advice. The scope and fee are agreed for your engagement.'],
       ['What does embedded HR cover?', 'Senior advice on people decisions: hiring strategy, organizational design, performance management, compensation philosophy, leadership and change. It is strategic advisory, not payroll or benefits administration.'],
       ['How are tools and sensitive information handled?', 'Tools need your approval. Employee or client information should not go into a system you have not cleared. The work identifies where human judgment and review belong. Please keep personnel records and confidential client information out of this chat.'],
       ['How much is ongoing advisory?', 'Advisory pricing is scoped to your engagement. The C$999 plan price is a one-time plan fee, not a monthly advisory price. BlueChip can discuss the work and propose the appropriate scope.']
     ] },
-    { title: 'Other BlueChip services', need: 'Other BlueChip services', url: 'https://www.bluechip-people-strategies.com/services', link: 'Explore BlueChip services', answers: [
+    { slug: 'other', title: 'Other BlueChip services', need: 'Other BlueChip services', url: 'https://www.bluechip-people-strategies.com/services', link: 'Explore BlueChip services', answers: [
       ['What is a governance evaluation?', 'A structured, independent review for a board or council and its senior leader. The engagement may include stakeholder interviews, leadership assessment, a written report, a presentation and a forward-looking performance plan. Scope and pricing are discussed with BlueChip.'],
       ['What are Leadership Academies?', 'Cohort-based development for senior leaders, combining leadership assessment, peer learning and practical development over nine months. BlueChip can discuss whether a regional or single-organization cohort fits your team.'],
       ['Can I get a standalone assessment?', 'Yes. BlueChip offers individual leadership, team and organizational assessments, either on their own or within a larger engagement. The tool, scope and price depend on the question you want to answer.'],
       ['What if my question is not listed?', 'These are approved answers to common questions, not a live AI conversation. Ask BlueChip for a response about your situation. Share a high-level description rather than employee or client details.']
     ] }
+  ];
+
+  // The AI Handoff Plan's answer, as three short bubbles: what it is, the deal, whose it is.
+  var PLAN_BUBBLES = [
+    "The AI Handoff Plan looks at your team's recurring work and finds where AI can give you time back. It's C$999, taxes included.",
+    "Here's the deal. If we find at least 5 net hours a week of time savings across your organization, you get a plan to go get them. If we can't, your full fee comes back within 10 business days. No forms, no hoops.",
+    'The plan is yours to put in place, on your own or with our help.'
+  ];
+  var RETAINER_BUBBLES = [
+    'Practical AI and/or Embedded HR Retainers bring practical AI adoption and senior people advice into the work of your organization. Support can focus on AI alone or combine HR and AI. The scope and fee are agreed for your engagement.',
+    'You can also start with The AI Handoff Plan. Its C$999 fee, taxes included, is credited against your first invoice if you start a Practical AI and/or Embedded HR Retainer (six-month minimum) within 60 days of your findings call.'
+  ];
+  var FREE_CHECK_BUBBLES = [
+    'Twelve quick questions about your recurring work, about three minutes in all. The free check gives you a starting range of hours, with no email required. It is not the plan, and it does not confirm the guarantee.'
   ];
 
   // ---- styles ----
@@ -71,6 +86,10 @@
     '.bcw-msg{font-size:15px;line-height:1.5;margin:0 0 12px;max-width:88%;padding:10px 14px;border-radius:14px}' +
     '.bcw-msg-bot{background:' + CREAM + ';color:' + TEXT + ';border-bottom-left-radius:4px}' +
     '.bcw-msg-user{background:' + NAVY + ';color:#fff;margin-left:auto;border-bottom-right-radius:4px}' +
+    '.bcw-typing{display:flex;gap:4px;align-items:center;width:fit-content;margin:0 0 12px;padding:12px 14px;border-radius:14px;border-bottom-left-radius:4px;background:' + CREAM + '}' +
+    '.bcw-typing span{width:6px;height:6px;border-radius:50%;background:#8b8b8b;animation:bcwBounce 1s infinite ease-in-out}' +
+    '.bcw-typing span:nth-child(2){animation-delay:.15s}.bcw-typing span:nth-child(3){animation-delay:.3s}' +
+    '@keyframes bcwBounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-4px);opacity:1}}' +
     '.bcw-foot{border-top:1px solid ' + CREAM + ';padding:9px 12px;max-height:32dvh;overflow-y:auto}' +
     '.bcw-panel{max-height:calc(100dvh - 110px);display:flex;flex-direction:column}.bcw-body{min-height:0;flex:1 1 auto}.bcw-header{flex-shrink:0}.bcw-foot{flex-shrink:0;box-sizing:border-box}.bcw-choice{box-sizing:border-box}.bcw-choice:focus-visible{outline:3px solid ' + GOLD + ';outline-offset:2px}' +
     '.bcw-row{display:flex;gap:8px}' +
@@ -80,9 +99,12 @@
     '.bcw-input:focus{border-color:' + GOLD + ';box-shadow:0 0 0 3px rgba(201,169,97,.25)}' +
     '.bcw-send{background:' + NAVY + ';color:#fff;border:1.5px solid ' + NAVY + ';border-radius:999px;padding:10px 20px;font-family:inherit;font-weight:600;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .2s ease,color .2s ease,transform .1s ease}' +
     '.bcw-send:hover:not(:disabled){background:' + GOLD + ';border-color:' + GOLD + ';color:' + NAVY + ';transform:translateY(-1px)}' +
-    '.bcw-send:disabled{opacity:.45;cursor:not-allowed}' +
-    '.bcw-choice{display:block;width:100%;text-align:left;margin:0 0 5px;padding:8px 10px;min-height:36px;font-family:inherit;font-size:13px;line-height:1.35;letter-spacing:normal;color:' + NAVY + ';font-weight:600;background:#f5efe6;border:1.5px solid rgba(11,26,51,.35);border-radius:10px;cursor:pointer;transition:border-color .15s ease,background .15s ease}' +
-    '.bcw-choice:hover{border-color:' + GOLD + ';background:#fcfbf8}' +
+    '.bcw-send:disabled{background:#e4e0d8;border-color:#d8d3c8;color:#8a8578;opacity:1;cursor:not-allowed}' +
+    // Topic chips: clearly visible (navy border on bone, gold on hover/focus), 44px min height, small arrow.
+    '.bcw-choice{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;margin:0 0 6px;padding:11px 12px;min-height:44px;font-family:inherit;font-weight:600;font-size:13.5px;line-height:1.35;letter-spacing:normal;color:' + NAVY + ';background:#f5efe6;border:1.5px solid rgba(11,26,51,.35);border-radius:10px;cursor:pointer;transition:border-color .15s ease,background .15s ease,box-shadow .15s ease;box-sizing:border-box}' +
+    '.bcw-choice::after{content:"\\2192";flex:none;color:' + GOLD + ';font-weight:700}' +
+    '.bcw-choice:hover,.bcw-choice:focus-visible{border-color:' + GOLD + ';background:#faf3e3}' +
+    '.bcw-choice:focus-visible{outline:2px solid ' + GOLD + ';outline-offset:2px;box-shadow:0 0 0 3px rgba(201,169,97,.25)}' +
     '.bcw-consent{display:flex;gap:9px;align-items:flex-start;margin:10px 2px 4px;font-size:13px;line-height:1.4;color:' + TEXT + '}' +
     '.bcw-consent input{margin-top:2px;width:16px;height:16px;accent-color:' + NAVY + ';flex:0 0 auto}' +
     '.bcw-fine{margin:6px 2px 0;font-size:11px;line-height:1.4;color:#6b6b6b}' +
@@ -90,8 +112,8 @@
     '.bcw-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}' +
     '.bcw-done{text-align:center;padding:22px 18px;color:' + TEXT + ';font-size:14px;line-height:1.5}' +
     '.bcw-done svg{width:34px;height:34px;fill:' + GOLD + ';margin-bottom:8px}' +
-    '@media (prefers-reduced-motion:reduce){.bcw-panel,.bcw-launch,.bcw-send{transition:none}}' +
-    '@media (max-width:480px){.bcw-panel{right:8px;left:8px;bottom:84px;width:auto;max-width:none}.bcw-greet{display:none}.bcw-choice{min-height:40px}}';
+    '@media (prefers-reduced-motion:reduce){.bcw-panel,.bcw-launch,.bcw-send{transition:none}.bcw-typing span{animation:none;opacity:1}}' +
+    '@media (max-width:480px){.bcw-panel{right:8px;left:8px;bottom:84px;width:auto;max-width:none}.bcw-greet{display:none}.bcw-choice{min-height:44px}}';
 
   function injectStyle() {
     var s = document.createElement('style');
@@ -110,6 +132,12 @@
 
   var launch, greet, panel, bodyEl, footEl, started = false;
   var data = { name: '', need: '', contact: '', email: '' };
+  var typingGeneration = 0; // bumped to cancel any in-flight typing sequence
+
+  function reducedMotion() {
+    try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
+    catch { return false; }
+  }
 
   function build() {
     launch = el('button', { 'class': 'bcw-launch', id: 'bcwLaunch', 'aria-label': 'Chat with Chip', 'aria-haspopup': 'dialog' },
@@ -142,20 +170,35 @@
       }, 12000);
     }
 
-    launch.addEventListener('click', toggle);
-    greet.addEventListener('click', open);
+    launch.addEventListener('click', function () { toggle(); });
+    greet.addEventListener('click', function () { open(); });
     greet.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
-    closeBtn.addEventListener('click', close);
+    closeBtn.addEventListener('click', function () { close(); });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && panel.classList.contains('bcw-open')) close(); });
 
     // Any link/button marked for the chat opens it instead of navigating.
-    // Hook: <a href="#chat"> or any element with [data-bcw-open].
+    // Hook: <a href="#chat">, <a href="#chat?topic=...">, or any element with [data-bcw-open]
+    // (which may also carry [data-bcw-topic]).
     document.addEventListener('click', function (e) {
       if (!e.target.closest) return;
-      var trigger = e.target.closest('a[href$="#chat"], [data-bcw-open]');
-      if (trigger) { e.preventDefault(); open(); }
+      var trigger = e.target.closest('a[href^="#chat"], [data-bcw-open]');
+      if (!trigger) return;
+      e.preventDefault();
+      var topic = trigger.getAttribute('data-bcw-topic') || topicFromHash(trigger.getAttribute('href') || '');
+      open(topic ? { topic: topic } : undefined);
     });
     window.openBlueChipChat = open;   // programmatic open, e.g. onclick="openBlueChipChat()"
+    window.BlueChipChat = { open: open, close: close }; // window.BlueChipChat.open({ topic: 'ai-handoff-plan' })
+  }
+
+  function topicFromHash(href) {
+    var m = /[?&]topic=([^&]+)/.exec(href || '');
+    return m ? decodeURIComponent(m[1]) : null;
+  }
+  function topicBySlug(slug) {
+    if (!slug) return null;
+    for (var i = 0; i < KNOWLEDGE.length; i++) if (KNOWLEDGE[i].slug === slug) return KNOWLEDGE[i];
+    return null;
   }
 
   function addMsg(text, who) {
@@ -166,15 +209,55 @@
     return p;
   }
 
+  // Reveals `messages` (an array of bot bubble strings) one at a time, each behind its own
+  // typing indicator, with a delay that scales with message length (600ms + 25ms/char, clamped
+  // 900-2600ms; reduced motion: a flat 400ms, no dot animation). `after` runs once the last
+  // bubble has landed -- callers use it to reveal chips/fields only then. Cancellable: bumping
+  // typingGeneration (on close, or whenever a new render*() starts) stops any queued step from
+  // doing anything further, so closing the panel or clicking a chip early never lets a stale
+  // bubble or its chips appear later.
+  function sayBotSequence(messages, after) {
+    var myGen = typingGeneration;
+    var reduced = reducedMotion();
+    var i = 0;
+    function step() {
+      if (myGen !== typingGeneration) return;
+      if (i >= messages.length) { if (after) after(); return; }
+      var text = messages[i++];
+      var indicator = el('div', { 'class': 'bcw-typing', 'aria-hidden': 'true' }, '<span></span><span></span><span></span>');
+      bodyEl.appendChild(indicator);
+      bodyEl.scrollTop = bodyEl.scrollHeight;
+      var delay = reduced ? 400 : Math.max(900, Math.min(2600, 600 + text.length * 25));
+      setTimeout(function () {
+        if (myGen !== typingGeneration) return;
+        indicator.remove();
+        addMsg(text, 'bot');
+        setTimeout(step, 50);
+      }, delay);
+    }
+    setTimeout(step, 500); // "after the user sends something, wait about 500ms before the first indicator"
+  }
+
   function toggle() { panel.classList.contains('bcw-open') ? close() : open(); }
 
-  function open() {
+  function open(opts) {
     if (greet) greet.style.display = 'none';
     panel.classList.add('bcw-open');
     panel.setAttribute('aria-hidden', 'false');
-    if (!started) { started = true; renderName(); }
+    var topic = opts && opts.topic ? topicBySlug(opts.topic) : null;
+    if (!started) {
+      started = true;
+      renderName(topic ? function () { renderPreselected(topic); } : undefined);
+    } else if (topic) {
+      // Already mid-conversation and asked to jump to a topic: cancel whatever was queued and
+      // go straight there (skips re-asking for a name if we already have one).
+      typingGeneration++;
+      footEl.innerHTML = '';
+      if (data.name) renderPreselected(topic); else renderName(function () { renderPreselected(topic); });
+    }
   }
   function close() {
+    typingGeneration++; // cancel any queued typing sequence so nothing lands after close
     panel.classList.remove('bcw-open');
     panel.setAttribute('aria-hidden', 'true');
     launch.focus();
@@ -182,27 +265,31 @@
 
   // ---- step 1: name ----
   function renderName(onNext) {
-    addMsg("Hi, I'm Chip, BlueChip's assistant. Whatever you're dealing with, you're in the right place. What should I call you?", 'bot');
+    typingGeneration++;
     footEl.innerHTML = '';
-    var row = el('div', { 'class': 'bcw-row' });
-    var input = el('input', { 'class': 'bcw-input', type: 'text', 'aria-label': 'Your name', placeholder: 'Your name' });
-    var send = el('button', { 'class': 'bcw-send', type: 'button' }, 'Send');
-    row.appendChild(input); row.appendChild(send);
-    footEl.appendChild(row);
-    if (SHOW_BROWSE) choiceButton('Browse questions and answers', renderTopics);
-    input.focus();
-    function go() {
-      var v = input.value.trim();
-      if (!v) return;
-      data.name = v; addMsg(v, 'user'); if (typeof onNext === 'function') onNext(); else renderChoices();
-    }
-    send.addEventListener('click', go);
-    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+    sayBotSequence(["Hi, I'm Chip, BlueChip's assistant. Whatever you're dealing with, you're in the right place. What should I call you?"], function () {
+      var row = el('div', { 'class': 'bcw-row' });
+      var input = el('input', { 'class': 'bcw-input', type: 'text', 'aria-label': 'Your name', placeholder: 'Your name' });
+      var send = el('button', { 'class': 'bcw-send', type: 'button' }, 'Send');
+      row.appendChild(input); row.appendChild(send);
+      footEl.appendChild(row);
+      if (SHOW_BROWSE) choiceButton('Browse questions and answers', renderTopics);
+      input.focus();
+      function go() {
+        var v = input.value.trim();
+        if (!v) return;
+        data.name = v; addMsg(v, 'user'); if (typeof onNext === 'function') onNext(); else renderChoices();
+      }
+      send.addEventListener('click', go);
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+    });
   }
 
   function choiceButton(label, action) {
     var b = el('button', { 'class': 'bcw-choice', type: 'button' });
-    b.textContent = label;
+    var span = document.createElement('span');
+    span.textContent = label;
+    b.appendChild(span);
     b.addEventListener('click', action);
     footEl.appendChild(b);
     return b;
@@ -215,29 +302,35 @@
   }
 
   function renderTopics() {
-    addMsg('Browse approved answers about BlueChip. No contact details are needed to explore.', 'bot');
+    typingGeneration++;
     footEl.innerHTML = '';
-    KNOWLEDGE.forEach(function (topic) {
-      choiceButton(topic.title, function () { renderQuestions(topic); });
+    sayBotSequence(['Browse common questions about BlueChip. No contact details needed.'], function () {
+      KNOWLEDGE.forEach(function (topic) {
+        choiceButton(topic.title, function () { renderQuestions(topic); });
+      });
+      choiceButton('Ask BlueChip a different question', function () {
+        data.need = 'General service inquiry';
+        if (data.name) renderContact(); else renderName(renderContact);
+      });
+      focusChoices();
     });
-    choiceButton('Ask BlueChip a different question', function () {
-      data.need = 'General service inquiry';
-      if (data.name) renderContact(); else renderName(renderContact);
-    });
-    focusChoices();
   }
 
   function renderQuestions(topic) {
+    typingGeneration++;
     footEl.innerHTML = '';
     topic.answers.forEach(function (answer) {
       choiceButton(answer[0], function () {
-        addMsg(answer[0], 'user'); var answerEl = addMsg(answer[1], 'bot');
-        renderQuestions(topic);
-        bodyEl.scrollTop = Math.max(0, answerEl.offsetTop - bodyEl.offsetTop - 8);
+        typingGeneration++;
+        addMsg(answer[0], 'user');
+        sayBotSequence([answer[1]], function () {
+          renderQuestions(topic);
+        });
       });
     });
     var resource = el('a', { 'class': 'bcw-choice', href: topic.url });
-    resource.textContent = topic.link;
+    var resSpan = document.createElement('span'); resSpan.textContent = topic.link;
+    resource.appendChild(resSpan);
     footEl.appendChild(resource);
     choiceButton('Ask BlueChip about this', function () {
       data.need = topic.need;
@@ -249,85 +342,115 @@
 
   // ---- step 2: choice ----
   function renderChoices() {
-    addMsg('Thanks, ' + data.name + '. What’s on your plate?', 'bot');
+    typingGeneration++;
     footEl.innerHTML = '';
-    CHOICES.forEach(function (c) {
-      var b = el('button', { 'class': 'bcw-choice', type: 'button' });
-      b.textContent = c;
-      b.addEventListener('click', function () {
-        data.need = c; addMsg(c, 'user');
-        if (c === 'Free AI Opportunity Check' || c === 'The AI Handoff Plan' || c === 'Practical AI and/or Embedded HR Retainers') renderOffering();
-        else renderContact();
+    sayBotSequence(['Thanks, ' + data.name + '. What’s on your plate?'], function () {
+      CHOICES.forEach(function (c) {
+        choiceButton(c, function () {
+          data.need = c; addMsg(c, 'user');
+          if (c === 'Free AI Opportunity Check' || c === 'The AI Handoff Plan' || c === 'Practical AI and/or Embedded HR Retainers') renderOffering();
+          else renderContact();
+        });
       });
-      footEl.appendChild(b);
+      if (SHOW_BROWSE) choiceButton('Browse questions and answers', renderTopics);
+      focusChoices();
     });
-    if (SHOW_BROWSE) choiceButton('Browse questions and answers', renderTopics);
   }
 
-  function renderOffering() {
+  // A visitor who arrived pre-selected onto a topic (plan-page CTA, or #chat?topic=...) skips
+  // the topic chooser and goes straight into that topic's normal answer flow.
+  function renderPreselected(topic) {
+    typingGeneration++;
+    data.need = topic.need;
     footEl.innerHTML = '';
-    if (data.need === 'Free AI Opportunity Check') {
-      addMsg('Twelve quick questions about your recurring work, about three minutes in all. The free check gives you a starting range of hours, with no email required. It is not the plan and not a confirmation of the guarantee.', 'bot');
-      var checkLink = el('a', { 'class': 'bcw-choice', href: 'https://bluechip-diagnostics.vercel.app/ai-opportunity-check' });
-      checkLink.textContent = 'Start the free AI Opportunity Check';
-      footEl.appendChild(checkLink);
-    } else if (data.need === 'The AI Handoff Plan' || data.need === 'Practical AI Audit') {
-      addMsg("The AI Handoff Plan looks at your team's recurring work and finds where AI can give you time back. It's C$999, taxes included.", 'bot');
-      addMsg("Here's the deal. If we find at least 5 net hours a week of time savings across your organization, you get a plan to go get them. If we can't, your full fee comes back within 10 business days. No forms, no hoops.", 'bot');
-      addMsg('The plan is yours to put in place, on your own or with our help.', 'bot');
-    } else {
-      addMsg('Practical AI and/or Embedded HR Retainers bring practical AI adoption and senior people advice into the work of your organization. Support can focus on AI alone or combine HR and AI. The scope and fee are agreed for your engagement.', 'bot');
-      addMsg('You can also start with The AI Handoff Plan. Its C$999 fee, taxes included, is credited against your first invoice if you start a Practical AI and/or Embedded HR Retainer (six-month minimum) within 60 days of your findings call.', 'bot');
+    sayBotSequence(['Thanks, ' + data.name + '. You’re looking at ' + topic.title + '. What would you like to know, or shall I tell you how it works?'], function () {
+      renderOffering(topic);
+    });
+  }
+
+  function offeringBubbles(topic) {
+    if (!topic) return PLAN_BUBBLES.slice();
+    if (topic.slug === 'ai-handoff-plan') return PLAN_BUBBLES.slice();
+    if (topic.slug === 'retainers') return RETAINER_BUBBLES.slice();
+    if (topic.slug === 'free-check') return FREE_CHECK_BUBBLES.slice();
+    return PLAN_BUBBLES.slice();
+  }
+
+  function renderOffering(topic) {
+    typingGeneration++;
+    var t = topic || topicBySlug(
+      data.need === 'The AI Handoff Plan' ? 'ai-handoff-plan'
+        : data.need === 'Free AI Opportunity Check' ? 'free-check'
+          : 'retainers'
+    );
+    footEl.innerHTML = '';
+    if (t.slug === 'free-check') {
+      sayBotSequence(offeringBubbles(t), function () {
+        var checkLink = el('a', { 'class': 'bcw-choice', href: 'https://bluechip-diagnostics.vercel.app/ai-opportunity-check' });
+        var checkSpan = document.createElement('span'); checkSpan.textContent = 'Start the free AI Opportunity Check';
+        checkLink.appendChild(checkSpan);
+        footEl.appendChild(checkLink);
+        if (SHOW_BROWSE) choiceButton('Browse questions and answers', renderTopics);
+        focusChoices();
+      });
+      return;
     }
-    var next = el('button', { 'class': 'bcw-choice', type: 'button' });
-    next.textContent = 'Discuss this with BlueChip';
-    next.addEventListener('click', renderContact);
-    var back = el('button', { 'class': 'bcw-choice', type: 'button' });
-    back.textContent = 'Choose a different service';
-    back.addEventListener('click', renderChoices);
-    footEl.appendChild(next); footEl.appendChild(back);
-    if (SHOW_BROWSE) choiceButton('Browse questions and answers', renderTopics);
+    sayBotSequence(offeringBubbles(t), function () {
+      var next = el('button', { 'class': 'bcw-choice', type: 'button' });
+      var nextSpan = document.createElement('span'); nextSpan.textContent = 'Discuss this with BlueChip';
+      next.appendChild(nextSpan);
+      next.addEventListener('click', renderContact);
+      var back = el('button', { 'class': 'bcw-choice', type: 'button' });
+      var backSpan = document.createElement('span'); backSpan.textContent = 'Choose a different service';
+      back.appendChild(backSpan);
+      back.addEventListener('click', renderChoices);
+      footEl.appendChild(next); footEl.appendChild(back);
+      if (SHOW_BROWSE) choiceButton('Browse questions and answers', renderTopics);
+      focusChoices();
+    });
   }
 
   // ---- step 3: contact + consent ----
   function renderContact() {
-    addMsg("What's the best number and email for BlueChip to reach you about this? We usually reply within a few hours on business days. This sends an inquiry. It doesn't book anything or charge you. Please keep employee and client details out of this chat.", 'bot');
+    typingGeneration++;
     footEl.innerHTML = '';
-    var input = el('input', { 'class': 'bcw-input', type: 'tel', 'aria-label': 'Your phone number', placeholder: 'Phone number (Canada or US)', style: 'width:100%' });
-    var emailInput = el('input', { 'class': 'bcw-input', type: 'email', 'aria-label': 'Your email', placeholder: 'Email', autocomplete: 'email', style: 'width:100%;margin-top:8px' });
-    var hp = el('input', { 'class': 'bcw-hp', type: 'text', name: 'bc_hp_trap', tabindex: '-1', 'aria-hidden': 'true', autocomplete: 'off' });   // not "company": browsers autofill that and flagged real visitors as bots
-    var consentWrap = el('label', { 'class': 'bcw-consent' });
-    var cb = el('input', { type: 'checkbox' });
-    var cbText = document.createElement('span');
-    cbText.textContent = "Yes, it's okay to text me at this number about my inquiry. I can reply STOP anytime.";
-    consentWrap.appendChild(cb); consentWrap.appendChild(cbText);
-    var fine = el('div', { 'class': 'bcw-fine' });
-    fine.textContent = "We text Canadian and US numbers. Outside North America? We'll reply by email. BlueChip People Strategies, Edmonton, Alberta. We won't share your number or message you about anything unrelated to the opt-in box above. A real person reads each message. We usually reply within a few hours on business days.";
-    var send = el('button', { 'class': 'bcw-send', type: 'button', disabled: 'disabled', style: 'margin-top:12px;width:100%' }, 'Send');
+    sayBotSequence(["What's the best number and email for BlueChip to reach you about this? We usually reply within a few hours on business days. This sends an inquiry. It doesn't book anything or charge you. Please keep employee and client details out of this chat."], function () {
+      var input = el('input', { 'class': 'bcw-input', type: 'tel', 'aria-label': 'Your phone number', placeholder: 'Phone number (Canada or US)', style: 'width:100%' });
+      var emailInput = el('input', { 'class': 'bcw-input', type: 'email', 'aria-label': 'Your email', placeholder: 'Email', autocomplete: 'email', style: 'width:100%;margin-top:8px' });
+      var hp = el('input', { 'class': 'bcw-hp', type: 'text', name: 'bc_hp_trap', tabindex: '-1', 'aria-hidden': 'true', autocomplete: 'off' });   // not "company": browsers autofill that and flagged real visitors as bots
+      var consentWrap = el('label', { 'class': 'bcw-consent' });
+      var cb = el('input', { type: 'checkbox' });
+      var cbText = document.createElement('span');
+      cbText.textContent = "Yes, it's okay to text me at this number about my inquiry. I can reply STOP anytime.";
+      consentWrap.appendChild(cb); consentWrap.appendChild(cbText);
+      var fine = el('div', { 'class': 'bcw-fine' });
+      fine.textContent = "We text Canadian and US numbers. Outside North America? We'll reply by email. BlueChip People Strategies, Edmonton, Alberta. We won't share your number or message you about anything unrelated to the opt-in box above. A real person reads each message. We usually reply within a few hours on business days.";
+      var send = el('button', { 'class': 'bcw-send', type: 'button', disabled: 'disabled', style: 'margin-top:12px;width:100%' }, 'Send');
 
-    footEl.appendChild(input);
-    footEl.appendChild(emailInput);
-    footEl.appendChild(hp);
-    footEl.appendChild(consentWrap);
-    footEl.appendChild(fine);
-    footEl.appendChild(send);
-    input.focus();
+      footEl.appendChild(input);
+      footEl.appendChild(emailInput);
+      footEl.appendChild(hp);
+      footEl.appendChild(consentWrap);
+      footEl.appendChild(fine);
+      footEl.appendChild(send);
+      input.focus();
 
-    function refresh() { send.disabled = !(input.value.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim()) && cb.checked); }   // phone, email and consent all required
-    input.addEventListener('input', refresh);
-    emailInput.addEventListener('input', refresh);
-    cb.addEventListener('change', refresh);
+      function refresh() { send.disabled = !(input.value.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim()) && cb.checked); }   // phone, email and consent all required
+      input.addEventListener('input', refresh);
+      emailInput.addEventListener('input', refresh);
+      cb.addEventListener('change', refresh);
 
-    function go() {
-      if (send.disabled) return;
-      data.contact = input.value.trim();
-      data.email = emailInput.value.trim();
-      submitLead(hp.value);
-      finish();
-    }
-    send.addEventListener('click', go);
-    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
-    emailInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+      function go() {
+        if (send.disabled) return;
+        data.contact = input.value.trim();
+        data.email = emailInput.value.trim();
+        submitLead(hp.value);
+        finish();
+      }
+      send.addEventListener('click', go);
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+      emailInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+    });
   }
 
   function pageLabel() {
@@ -350,6 +473,7 @@
   }
 
   function finish() {
+    typingGeneration++;
     footEl.innerHTML = '';
     var done = el('div', { 'class': 'bcw-done' },
       '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>');
@@ -362,7 +486,10 @@
 
   function init() {
     injectStyle(); build();
-    if (location.hash === '#chat') open();
+    if (location.hash.indexOf('#chat') === 0) {
+      var topic = topicFromHash(location.hash);
+      open(topic ? { topic: topic } : undefined);
+    }
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
