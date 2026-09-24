@@ -70,7 +70,7 @@ export const ORG_AREA_SUGGESTIONS = {
   other: ['correspondence', 'meetingNotes', 'reports'],
 };
 
-// Q8 org size band -> the cap this file uses on "people" in a calculator row (the band's top;
+// Q7 org size band -> the cap this file uses on "people" in an area's row (the band's top;
 // 1,000 for "More than 500" is the existing input maximum).
 export const ORG_SIZE_PEOPLE_CAP = {
   '1-10': 10,
@@ -80,8 +80,13 @@ export const ORG_SIZE_PEOPLE_CAP = {
   '500+': 1000,
 };
 
-export const HOUR_CAP_PER_AREA = 20; // hours a week, one person, per area
-export const HOUR_CAP_TOTAL = 30;    // hours a week, one person, summed across every row
+// Org size (Q7) is asked after the area sliders (Q2), so the people stepper has no team-size
+// cap to apply yet while the visitor is answering Q2. This is its fallback ceiling until Q7 is
+// answered, per Thomas's "max from team size or 500."
+export const PEOPLE_MAX_BEFORE_ORG_SIZE = 500;
+
+export const HOUR_CAP_PER_AREA = 25; // hours a week, one person, per area (the slider's hard max)
+export const HOUR_CAP_TOTAL = 30;    // hours a week, one person, summed across every picked area
 
 export const questions = [
   {
@@ -129,16 +134,7 @@ export const questions = [
     ],
   },
   {
-    id: 'workload', number: 5, type: 'single',
-    label: 'Roughly how much time does the work you picked take each week, added up across everyone who does it?',
-    options: [
-      ['under5', 'Less than five hours'],
-      ['5plus', 'Five hours or more'],
-      ['unsure', "We haven't measured it"],
-    ],
-  },
-  {
-    id: 'information', number: 6, type: 'multi',
+    id: 'information', number: 5, type: 'multi',
     label: 'What kinds of information does this work involve? Pick all that apply.',
     options: [
       ['public', 'Public or non-sensitive information'],
@@ -152,7 +148,7 @@ export const questions = [
     ],
   },
   {
-    id: 'readiness', number: 7, type: 'single',
+    id: 'readiness', number: 6, type: 'single',
     label: 'Could someone on your team put a plan in place?',
     options: [
       ['assign', 'Yes, we can assign someone'],
@@ -161,7 +157,7 @@ export const questions = [
     ],
   },
   {
-    id: 'orgSize', number: 8, type: 'single',
+    id: 'orgSize', number: 7, type: 'single',
     label: 'How many people work in your organization?',
     options: [
       ['1-10', '1 to 10'],
@@ -172,7 +168,7 @@ export const questions = [
     ],
   },
   {
-    id: 'owner', number: 9, type: 'single',
+    id: 'owner', number: 8, type: 'single',
     label: "Who would own this work on your side?",
     options: [
       ['exec', 'Owner or executive'],
@@ -184,7 +180,7 @@ export const questions = [
     ],
   },
   {
-    id: 'heldBack', number: 10, type: 'multi',
+    id: 'heldBack', number: 9, type: 'multi',
     label: 'What has held you back so far? Pick all that apply.',
     options: [
       ['notSureStart', 'Not sure where to start'],
@@ -197,7 +193,7 @@ export const questions = [
     ],
   },
   {
-    id: 'feel', number: 11, type: 'single',
+    id: 'feel', number: 10, type: 'single',
     label: 'How does your team feel about AI right now?',
     options: [
       ['keen', 'Mostly keen'],
@@ -207,7 +203,7 @@ export const questions = [
     ],
   },
   {
-    id: 'timing', number: 12, type: 'single',
+    id: 'timing', number: 11, type: 'single',
     label: 'When would you want to start?',
     options: [
       ['thisMonth', 'This month'],
@@ -234,12 +230,21 @@ export function toggleMulti(current = [], value, options, maxPicks) {
   return [...next, value];
 }
 
-export function defaultHours(workload) {
-  return workload === 'under5' ? 2 : 5;
-}
-
 export function peopleCapForOrgSize(orgSize) {
   return ORG_SIZE_PEOPLE_CAP[orgSize] || ORG_SIZE_PEOPLE_CAP['1-10'];
+}
+
+// A clean representative headcount for an org-size band (used to default the "what if more of
+// your team works like this" slider, and to carry a team size across to the plan page).
+export const ORG_SIZE_MIDPOINT = {
+  '1-10': 5,
+  '11-50': 25,
+  '51-200': 100,
+  '201-500': 300,
+  '500+': 500,
+};
+export function orgSizeMidpoint(orgSize) {
+  return ORG_SIZE_MIDPOINT[orgSize] || 25;
 }
 
 export function rateForArea(area) {
@@ -263,9 +268,11 @@ export function capRowHours(rows) {
   return { rows: clamped.map(r => ({ ...r, hours: r.hours * scale })), capped: true };
 }
 
-// net range = hours spent x people x [low, likely] net rate for the row's area, summed across rows.
+// net range = hours spent x people x [low, likely] net rate for the row's area, summed across
+// rows. orgSize (Q7) may not be known yet (the visitor is still on Q2), so the people cap falls
+// back to PEOPLE_MAX_BEFORE_ORG_SIZE until it is.
 export function computeRange(rows, orgSize) {
-  const peopleCap = peopleCapForOrgSize(orgSize);
+  const peopleCap = orgSize ? peopleCapForOrgSize(orgSize) : PEOPLE_MAX_BEFORE_ORG_SIZE;
   const { rows: capped, capped: hoursCapped } = capRowHours(rows);
   let low = 0, likely = 0, peopleCapped = false;
   const detail = capped.map(r => {
@@ -279,6 +286,14 @@ export function computeRange(rows, orgSize) {
     return { area: r.area, hours: r.hours, people, low: rowLow, likely: rowLikely, rate };
   });
   return { low, likely, rows: detail, hoursCapped, peopleCapped, capped: hoursCapped || peopleCapped };
+}
+
+// Total per-person hours across the picked areas (after capping), clamped to the plan page's
+// carry-over slider range. Used for the "See how the plan works" handoff.
+export function perPersonHoursForCarry(rows) {
+  const { rows: capped } = capRowHours(rows);
+  const total = capped.reduce((sum, r) => sum + r.hours, 0);
+  return Math.min(10, Math.max(0.5, Math.round(total * 2) / 2));
 }
 
 // Area labels are written for tile/heading use ("Emails and correspondence"), capitalized as
@@ -303,39 +318,51 @@ export function suggestedAreas(orgType, pickedAreas = []) {
   return suggested.filter(a => !pickedAreas.includes(a)).slice(0, 3);
 }
 
-// Display rules: whole hours ("under 1" instead of 0), dollars to the nearest C$100. If rounding
-// makes low equal likely, the caller shows "about {likely} hours a week" instead of a range.
+// Display rules: whole hours ("under 1" instead of 0), dollars to the nearest C$100 (nearest
+// C$1,000 above C$100k, where the extra precision stops meaning anything). If rounding makes
+// low equal likely, the caller shows "about {likely} hours a week" instead of a range.
 export function roundHoursLabel(n) {
   if (n <= 0) return '0';
   if (n < 1) return 'under 1';
   return String(Math.round(n));
 }
 export function roundDollars(n) {
-  return Math.round(n / 100) * 100;
+  return n > 100000 ? Math.round(n / 1000) * 1000 : Math.round(n / 100) * 100;
 }
 export function money(n) {
   return 'C$' + Math.round(n).toLocaleString('en-CA');
 }
+// Cap on the scaled "what if more of your team works like this" hours display, so a pathological
+// headcount x rate combination never renders an absurd number.
+export const HOURS_DISPLAY_CAP = 10000;
 
+// "0.5 hours", "1 hour", "2 hours" -- half-steps are real inputs here (the plan-page slider
+// moves in 0.5s), and "1 hours" is simply wrong. Rounds to the nearest half hour.
+export function formatHours(n) {
+  const rounded = Math.round(Number(n) * 2) / 2;
+  const label = Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+  return `${label} ${rounded === 1 ? 'hour' : 'hours'}`;
+}
+
+// At most one tailored line: the sensitive-information add-on wins outright if it applies,
+// otherwise the single most relevant line from the AI-tools answer or the "what's held you
+// back" / owner / feel / timing priority list.
 export function tailoredLines(answers) {
-  const lines = [];
   const information = answers.information || [];
   const sensitiveKeys = ['payroll', 'customer', 'health', 'student', 'legal', 'notSureInfo'];
   const sensitive = information.some(v => sensitiveKeys.includes(v));
   if (sensitive) {
-    lines.push('If some of your work is sensitive, it may need private or approved tools, and we check that before the plan recommends anything.');
+    return ['If some of your work is sensitive, it may need private or approved tools, and we check that before the plan recommends anything.'];
   }
 
   const aiTools = answers.aiTools || [];
   let q4Line = null;
-  if ((aiTools.includes('chatgpt') || aiTools.includes('claude')) && sensitive) {
-    q4Line = 'If anyone uses a personal AI account for sensitive work, the plan covers which information can safely go into which tool.';
-  } else if (aiTools.some(v => ['copilot', 'gemini', 'builtin'].includes(v))) {
+  if (aiTools.some(v => ['copilot', 'gemini', 'builtin'].includes(v))) {
     q4Line = 'You may already have licences or features that cover some of this. The plan starts with what you have before suggesting anything new.';
   } else if (aiTools.includes('none')) {
     q4Line = "You'd be starting fresh, so the plan begins with the tools you already pay for.";
   }
-  if (q4Line) lines.push(q4Line);
+  if (q4Line) return [q4Line];
 
   const heldBack = answers.heldBack || [];
   const owner = answers.owner;
@@ -348,19 +375,11 @@ export function tailoredLines(answers) {
     heldBack.includes('notSureStart') && 'The plan ranks what it finds, so you know which opportunity to start with.',
     heldBack.includes('noTime') && 'The plan lists the setup effort for each recommendation, so you can see what it asks of your team before you commit to anything.',
     heldBack.includes('budget') && 'The plan lists the expected software cost of each recommendation, and it starts with tools you already pay for where they fit.',
-    heldBack.includes('privacySecurity') && !sensitive && 'The plan includes practical guidance on which information can safely go into which tool.',
+    heldBack.includes('privacySecurity') && 'The plan includes practical guidance on which information can safely go into which tool.',
     owner === 'it' && 'Your IT team gets written setup steps for the redesigned workflow and guidance on which information goes where.',
     timing === 'exploring' && "If you're just exploring, this estimate may be all you need for now.",
   ].filter(Boolean);
-  lines.push(...priority.slice(0, 2));
-
-  return lines;
-}
-
-export function bandLine(low, likely) {
-  if (low >= 5) return 'Across the areas you picked, even the low end of your range is above that line. The plan is where that gets checked.';
-  if (likely >= 5) return 'Across the areas you picked, your range crosses that line, and the plan checks your actual work to see where you really land.';
-  return 'Across the areas you picked, your range comes in under that line. The plan looks across your whole organization, but if these areas are most of your recurring work, the plan may not be the right next step yet.';
+  return priority.slice(0, 1);
 }
 
 // Legacy ?workflow= values from the pre-launch 6-question check, kept working per the launch

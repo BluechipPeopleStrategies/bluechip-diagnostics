@@ -15,7 +15,7 @@ export default function SiteHeader({ showCta = false }) {
           <Link to="/ai-handoff-plan">The AI Handoff Plan</Link>
         </nav>
         {showCta && (
-          <a className="ai-button bc-site-header-cta" href="#chat">Start the conversation</a>
+          <a className="ai-button bc-site-header-cta" href="#chat?topic=ai-handoff-plan">Start the conversation</a>
         )}
       </div>
     </header>

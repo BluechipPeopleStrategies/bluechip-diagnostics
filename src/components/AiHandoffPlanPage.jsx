@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import AiCalculator from './AiCalculator';
 import Emblem from './Emblem';
 import SavingsEquation from './SavingsEquation';
 import SiteHeader from './SiteHeader';
@@ -9,11 +8,27 @@ import { usePageMeta } from '../lib/seo';
 import { loadChatWidget } from '../lib/chatWidget';
 import './AiFunnel.css';
 
+const FLOW_STEPS = [
+  { time: '60 minutes', name: 'Discovery', youGet: 'a review of your actual work, covering tasks, handoffs, tools and people.' },
+  { time: 'Organization-wide', name: 'Opportunity scan', youGet: 'a time-savings breakdown, net of checking and upkeep. Shared work counts once.' },
+  { time: 'One workflow', name: 'Redesign', youGet: 'current vs improved process, with tools, responsibilities and human checkpoints.' },
+  { time: 'Within 5 business days', name: 'Written plan', youGet: 'a prioritized tool roadmap (what to use, why, the alternatives), plus costs, setup effort and what information can safely go into which tool.', key: true },
+  { time: '30 minutes', name: 'Findings call', youGet: 'a walkthrough together. The plan is yours to keep.' },
+];
+
+function clampNumber(raw, min, max, fallback) {
+  const n = Number(raw);
+  return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback;
+}
+
 // Inquiry only until the plan's own checkout is connected.
 export default function AiHandoffPlanPage() {
   const [params] = useSearchParams();
   const legacyWorkflow = LEGACY_WORKFLOW_LABELS[params.get('workflow')]; // keeps old ?workflow= links working
-  const [calc, setCalc] = useState({ people: 1, hours: 5, rate: 40, weeks: 48 });
+  // Carried over from the free check's "See how the plan works" CTA, so the team calculator
+  // below starts from the visitor's own numbers instead of the generic defaults.
+  const carriedHours = clampNumber(params.get('perPersonHours'), 0.5, 10, 1);
+  const carriedEmployees = clampNumber(params.get('employees'), 1, 500, 25);
 
   usePageMeta(
     'The AI Handoff Plan: Practical AI Audit | BlueChip',
@@ -42,7 +57,7 @@ export default function AiHandoffPlanPage() {
         <p className="ai-guarantee-support">If the plan can't find tools with evidence-backed potential to save at least 5 net hours a week across your organization, your full fee comes back within 10 business days, no forms, no hoops.</p>
       </div>
       <p>If you cancel before your discovery session, and before any work on your plan has begun, we refund your full fee. See the <a href="https://www.bluechip-people-strategies.com/refund">Refund Policy</a> for how refunds work.</p>
-      <p className="ai-cta-row"><a className="ai-button" href="#chat">Start the conversation</a></p>
+      <p className="ai-cta-row"><a className="ai-button" href="#chat?topic=ai-handoff-plan">Start the conversation</a></p>
     </section>
 
     <section className="ai-panel" aria-labelledby="ai-implementation-title">
@@ -68,27 +83,30 @@ export default function AiHandoffPlanPage() {
       <p>Built and run by BlueChip People Strategies: senior HR experience across training, recruitment and organizational decision-making, a background in education and coaching, and 25 years of high-stakes, globally competitive strategy. <a href="https://www.bluechip-people-strategies.com/about">More about BlueChip &rarr;</a></p>
     </section>
 
-    <SavingsEquation />
+    <SavingsEquation defaultPerPersonHours={carriedHours} defaultEmployees={carriedEmployees} />
 
-    <section className="ai-calc-inline" aria-labelledby="ai-calc-inline-title"><p className="ai-eyebrow">Calculator</p><h2 id="ai-calc-inline-title">What could that time be worth?</h2><p>Adjust the numbers to fit your organization. Nothing leaves this page.</p><AiCalculator calc={calc} setCalc={setCalc} /></section>
+    <section className="ai-flow" aria-labelledby="ai-flow-title">
+      <h2 id="ai-flow-title">How it works, and what you get.</h2>
+      <ol className="ai-flow-steps">
+        {FLOW_STEPS.map((s, i) => (
+          <li className={`ai-flow-step ${s.key ? 'ai-flow-step--key' : ''}`} key={s.name}>
+            <span className="ai-flow-num">{i + 1}</span>
+            <p className="ai-flow-time">{s.time}</p>
+            <p className="ai-flow-name">{s.name}</p>
+            <p className="ai-flow-you-get"><span>You get</span> {s.youGet}</p>
+          </li>
+        ))}
+      </ol>
+      <p className="ai-flow-footnote">Before discovery, we agree the work covered and you review the terms. The plan arrives within five business days of discovery and receipt of the information needed for it.</p>
+    </section>
 
-    <section><h2>A focused plan, with clear deliverables.</h2><ul><li>One 60-minute discovery session.</li><li>An organization-wide opportunity scan.</li><li>One priority workflow redesigned.</li><li>A written plan within five business days of discovery and receipt of the information needed for it.</li><li>A 30-minute findings call.</li></ul></section>
-    <h2>What you take away</h2>
-    <div className="ai-inclusions">
-      <section><h3>A review of your actual work</h3><p>Recurring tasks, handoffs, current tools and the people doing the work.</p></section>
-      <section><h3>A prioritised tool roadmap</h3><p>What to use, why it fits, the alternatives, and where a simpler process or an existing tool is enough.</p></section>
-      <section><h3>A time-savings breakdown</h3><p>Baseline, frequency and estimated net savings, including checking, corrections and upkeep. Shared work counts once.</p></section>
-      <section><h3>Costs and practical boundaries</h3><p>Software costs, setup effort, which information can safely go into which tool, and the work that needs human review.</p></section>
-      <section><h3>One redesigned workflow</h3><p>A map of the current process and an improved sequence, with unnecessary steps removed, recommended tools, responsibilities, human checkpoints and implementation steps.</p></section>
-      <section><h3>A findings walkthrough</h3><p>Review the plan and calculations together. It's yours to keep.</p></section>
-    </div>
     <details><summary>Look inside the plan</summary><p>Illustrative structure, not a client result.</p><ol><li>Current workflow and evidence</li><li>Recommended tool and alternatives</li><li>Baseline time, expected review time and net savings</li><li>Costs, permissions and setup effort</li><li>One redesigned workflow, implementation steps and success measures</li></ol><p>No savings figure is assigned until the actual work has been assessed.</p></details>
-    <h2>How the plan works</h2><ol className="ai-steps"><li>Agree the work covered and review the terms.</li><li>Complete a 60-minute discovery session.</li><li>Receive your plan and findings walkthrough.</li><li>Choose and implement your next steps.</li></ol>
-    <details><summary>Does the guarantee mean five hours for every employee?</summary><p>No. It is five net hours per week across the organization in total, from one or several workflows. It does not have to come entirely from the one workflow we redesign.</p></details>
-    <details><summary>Do you set the tools up for us?</summary><p>Not as part of the plan. You get the plan, the recommended tools and what it takes to set them up, with setup steps for the workflow we redesign, and your team puts it in place. We favour tools you already have or can start with right away. If you'd like a hand, we can work alongside your team through a retainer (six-month minimum), and the plan's fee is credited if you start within 60 days of your findings call.</p></details>
-    <details><summary>Do I need to buy ongoing support?</summary><p>No. A retainer is not required to keep your plan or qualify for the refund.</p></details>
+    {/* FAQ answers below are drafted verbatim per Thomas, 2026-09-24, and still need an Infy pass before this page goes live -- see the PR description. */}
+    <details><summary>Does the guarantee mean five hours for every employee?</summary><p>No. The guarantee is five net hours a week across your whole organization, from one opportunity or several. But savings can multiply: when several people do the same kind of work, a change that saves one person an hour a week can save each of them about that much. That's why the plan counts the people doing each task, not just the task.</p></details>
+    <details><summary>Do you set the tools up for us?</summary><p>Not as part of the plan itself. The plan gives you the tools and the setup steps. If you go further with us, yes. In an Implementation Sprint we set up the redesigned workflow with your team. On a Practical AI Retainer we handle the setup, then keep the tools tuned and updated as the software changes. Software licences and any installs your IT team needs to do stay with you.</p></details>
+    <details><summary>Do I need to buy ongoing support?</summary><p>No. A retainer isn't required to keep your plan or to qualify for the refund. Going without one is the right choice if you'd rather move the plan forward yourselves. If you want a hand later, an Implementation Sprint or a retainer is there when you need it.</p></details>
 
-    <section className="ai-panel" aria-label="Start the conversation"><h2>Talk through The AI Handoff Plan</h2><p>Start a conversation with BlueChip to confirm the fit, scope and next steps. An inquiry does not create a booking or take payment.</p><p><a className="ai-button" href="#chat">Start the conversation</a></p></section>
+    <section className="ai-panel" aria-label="Start the conversation"><h2>Talk through The AI Handoff Plan</h2><p>Start a conversation with BlueChip to confirm the fit, scope and next steps. An inquiry does not create a booking or take payment.</p><p><a className="ai-button" href="#chat?topic=ai-handoff-plan">Start the conversation</a></p></section>
     <p><Link to="/ai-opportunity-check">Start with the free AI Opportunity Check</Link></p>
     <p className="ai-legal"><a href="https://www.bluechip-people-strategies.com/terms">Terms</a> &middot; <a href="https://www.bluechip-people-strategies.com/refund">Refund Policy</a> &middot; <a href="https://www.bluechip-people-strategies.com/privacy">Privacy</a></p>
   </main>;
