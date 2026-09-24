@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   questions, isComplete, toggleMulti, defaultHours, computeRange, roundHoursLabel, roundDollars,
-  money, suggestedAreas, tailoredLines, bandLine, AREA_LABELS,
+  money, suggestedAreas, tailoredLines, bandLine, AREA_LABELS, lowerFirst, joinList,
 } from '../lib/aiOpportunity';
 import SiteHeader from './SiteHeader';
 import AiRangeCalculator from './AiRangeCalculator';
 import HoursRangeTrack from './HoursRangeTrack';
+import AreaIcon from './AreaIcon';
 import Emblem from './Emblem';
 import './AiFunnel.css';
 
@@ -119,7 +120,7 @@ export default function AiOpportunityCheck() {
                     onChange={() => toggleOption(val)} />
                   : <input type="radio" name={question.id} value={val} checked={value === val}
                     onChange={() => selectSingle(val)} />}
-                {question.id === 'areas' && <svg className="ai-tile-icon" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h9" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round" /></svg>}
+                {question.id === 'areas' && <AreaIcon area={val} />}
                 <span>{label}</span>
               </label>;
             })}
@@ -171,7 +172,7 @@ function ResultScreen({ answers, rows, rate, weeks, skipped, onReview, headingRe
       <p>At {money(rate)} an hour over {weeks} working weeks, that's roughly {money(valueLow)} to {money(valueLikely)} a year in potential staff capacity. That's time for other work, not a cash saving.</p>
     </>}
 
-    {areas.length > 0 && <p>Where we'd also look in an organization like yours: {areas.map(a => AREA_LABELS[a]).join(', ')}.</p>}
+    {areas.length > 0 && <p>Where we'd also look in an organization like yours: {joinList(areas.map(a => lowerFirst(AREA_LABELS[a])))}.</p>}
 
     {lines.length > 0 && <ul className="ai-tailored-lines">{lines.map((l, i) => <li key={i}>{l}</li>)}</ul>}
 

@@ -67,7 +67,7 @@
   box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 22px 44px -22px rgba(0,0,0,.7),0 3px 8px rgba(0,0,0,.25); }
 .ai-save .ai-eyebrow { margin:0 0 16px; }
 .ai-eq { display:flex; align-items:flex-start; flex-wrap:wrap; gap:10px 14px; }
-.ai-term strong { display:block; font:600 44px/1 'Playfair Display',Georgia,serif; color:#f5efe6; font-variant-numeric:tabular-nums; }
+.ai-term strong { display:block; font:600 44px/1 'Playfair Display',Georgia,serif; color:#f5efe6; font-variant-numeric:lining-nums tabular-nums; font-feature-settings:"lnum" 1,"tnum" 1; }
 .ai-term span { display:block; margin-top:8px; font-size:12.5px; line-height:1.35; color:#9fb0c6; max-width:12ch; }
 .ai-hrs strong { color:#f0d99a; }
 .ai-total { padding:12px 18px; margin-top:-12px; border-radius:14px; background:linear-gradient(180deg,rgba(212,182,113,.22),rgba(212,182,113,.08)); border:1px solid #d4b671; box-shadow:0 14px 30px -14px rgba(212,182,113,.55); }
@@ -128,8 +128,9 @@
 .ai-options--tiles label { position:relative; min-height:56px; }
 .ai-options--tiles label.is-disabled { opacity:.4; cursor:not-allowed; }
 .ai-options--tiles label:has(input:checked)::after { content:"\2713"; position:absolute; top:10px; right:12px; color:var(--ai-gold); font-weight:700; }
-.ai-tile-icon { width:16px; height:16px; color:var(--ai-soft); flex:none; }
-.ai-options--tiles label:has(input:checked) .ai-tile-icon { color:var(--ai-gold); }
+.ai-tile-icon { width:20px; height:20px; color:var(--ai-gold); flex:none; opacity:.75; }
+.ai-options--tiles label:has(input:checked) .ai-tile-icon,
+.ai-options--tiles label:hover .ai-tile-icon { opacity:1; }
 
 /* ---------- hours-a-week range track (calculator preview + result hero) ---------- */
 .ai-track { margin:18px 0; }

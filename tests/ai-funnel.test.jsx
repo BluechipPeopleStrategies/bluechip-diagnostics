@@ -119,6 +119,17 @@ describe('the free check stepper', () => {
     expect(screen.getByText(/it may need private or approved tools/)).toBeInTheDocument();
   });
 
+  it('the suggested-areas sentence lowercases area names and uses a serial-comma join', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    // professional's suggestions are correspondence, proposals, findingInfo; picking
+    // correspondence and reports leaves proposals + findingInfo suggested.
+    await driveToCalculator(container);
+    fireEvent.click(screen.getByRole('button', { name: 'Show my result' }));
+    expect(screen.getByText(
+      "Where we'd also look in an organization like yours: proposals, quotes and grant applications, and finding information."
+    )).toBeInTheDocument();
+  });
+
   it('"Review my answers" returns to question 1 with prior picks intact', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToCalculator(container);

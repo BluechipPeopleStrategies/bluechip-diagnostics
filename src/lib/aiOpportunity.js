@@ -281,6 +281,23 @@ export function computeRange(rows, orgSize) {
   return { low, likely, rows: detail, hoursCapped, peopleCapped, capped: hoursCapped || peopleCapped };
 }
 
+// Area labels are written for tile/heading use ("Emails and correspondence"), capitalized as
+// their own line. Interpolated into running prose they need to read as a normal phrase.
+export function lowerFirst(s) {
+  return s ? s.charAt(0).toLowerCase() + s.slice(1) : s;
+}
+
+// "A", "A and B", "A, B, and C". The serial (Oxford) comma is kept even at two items on
+// purpose: several area labels already contain an internal ", " ("Proposals, quotes and grant
+// applications", "Invoices, receipts and data entry"), and dropping the comma before the final
+// "and" reads as one run-on list when a label like that is adjacent to it.
+export function joinList(items) {
+  if (!items || items.length === 0) return '';
+  if (items.length === 1) return items[0];
+  if (items.length === 2) return `${items[0]}, and ${items[1]}`;
+  return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`;
+}
+
 export function suggestedAreas(orgType, pickedAreas = []) {
   const suggested = ORG_AREA_SUGGESTIONS[orgType] || ORG_AREA_SUGGESTIONS.other;
   return suggested.filter(a => !pickedAreas.includes(a)).slice(0, 3);

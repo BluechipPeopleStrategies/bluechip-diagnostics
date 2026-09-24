@@ -194,8 +194,17 @@ html, body {
 }
 
 /* ---------- type scale (56/40/28/20/17/15/13), lining + tabular numerals for money/hours ---- */
-.ai-funnel :is(strong, b, .ai-guarantee-headline, .ai-fee, .ai-calc-result strong, .ai-term strong,
-  .ai-total strong, .ai-track-scale, .ai-price-figure) { font-variant-numeric: lining-nums tabular-nums; }
+/* Playfair Display's default figures are old-style (varying baseline/height), which reads as
+   "lumpy" on prices and stat numbers (design feedback 2026-09-24: "C$999, taxes included" and
+   the result H1 "about 1 to 2 hours"). font-variant-numeric alone isn't honored by every
+   renderer for this font, so font-feature-settings is set alongside it as the reliable path to
+   the same OpenType features (lnum/tnum). Covers every Playfair heading (h1/h2/h3), price and
+   stat figure on both AI pages, not just the two reported examples. */
+.ai-funnel :is(h1, h2, h3, strong, b, .ai-guarantee-headline, .ai-fee, .ai-calc-result strong,
+  .ai-term strong, .ai-total strong, .ai-track-scale, .ai-price-figure) {
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings: "lnum" 1, "tnum" 1;
+}
 .ai-funnel h1 { text-wrap: balance; letter-spacing: -0.01em; }
 .ai-funnel h1 { font-size: clamp(34px, 5vw, 56px); }
 .ai-funnel h2 { font-size: clamp(24px, 3.4vw, 28px); }

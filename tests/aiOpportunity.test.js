@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   computeRange, capRowHours, roundHoursLabel, roundDollars, money,
   toggleMulti, peopleCapForOrgSize, rateForArea, suggestedAreas, bandLine,
-  tailoredLines, questions, HOUR_CAP_PER_AREA, HOUR_CAP_TOTAL,
+  tailoredLines, questions, HOUR_CAP_PER_AREA, HOUR_CAP_TOTAL, lowerFirst, joinList,
 } from '../src/lib/aiOpportunity';
 
 describe('range maths', () => {
@@ -107,6 +107,26 @@ describe('suggested areas and the band line', () => {
     expect(bandLine(6, 8)).toMatch(/even the low end/);
     expect(bandLine(3, 6)).toMatch(/your range crosses/);
     expect(bandLine(1, 2)).toMatch(/may not be the right next step/);
+  });
+});
+
+describe('sentence casing and list join for area names', () => {
+  it('lowercases only the first character', () => {
+    expect(lowerFirst('Emails and correspondence')).toBe('emails and correspondence');
+    expect(lowerFirst('Proposals, quotes and grant applications')).toBe('proposals, quotes and grant applications');
+  });
+  it('joins a single item as-is', () => {
+    expect(joinList(['finding information'])).toBe('finding information');
+  });
+  it('joins two items with a comma before "and" (an item may already contain an internal comma)', () => {
+    expect(joinList(['proposals, quotes and grant applications', 'finding information']))
+      .toBe('proposals, quotes and grant applications, and finding information');
+  });
+  it('joins three or more items with a serial comma', () => {
+    expect(joinList(['a', 'b', 'c'])).toBe('a, b, and c');
+  });
+  it('returns an empty string for no items', () => {
+    expect(joinList([])).toBe('');
   });
 });
 

@@ -1,4 +1,4 @@
-import { AREA_LABELS, computeRange, peopleCapForOrgSize, HOUR_CAP_PER_AREA, HOUR_CAP_TOTAL, money } from '../lib/aiOpportunity';
+import { AREA_LABELS, computeRange, peopleCapForOrgSize, HOUR_CAP_PER_AREA, HOUR_CAP_TOTAL, money, lowerFirst } from '../lib/aiOpportunity';
 import HoursRangeTrack from './HoursRangeTrack';
 
 // One card per area picked (up to four), sliders and number inputs side by side, with a live
@@ -30,7 +30,7 @@ export default function AiRangeCalculator({ rows, setRows, orgSize, rate, weeks,
                 <span className="ai-range-inputs">
                   <input type="range" min="0" max={HOUR_CAP_PER_AREA} step="0.5" value={row.hours}
                     onChange={(e) => updateRow(row.area, 'hours', e.target.value, 0, HOUR_CAP_PER_AREA)}
-                    aria-label={`Hours a week, one person, for ${AREA_LABELS[row.area]}`} />
+                    aria-label={`Hours a week, one person, for ${lowerFirst(AREA_LABELS[row.area])}`} />
                   <input type="number" inputMode="decimal" min="0" max={HOUR_CAP_PER_AREA} step="0.5" value={row.hours}
                     onChange={(e) => updateRow(row.area, 'hours', e.target.value, 0, HOUR_CAP_PER_AREA)} />
                 </span>
