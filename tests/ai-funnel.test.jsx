@@ -16,7 +16,8 @@ const READY = {
   toolsToday: ['m365'],
   aiTools: ['none'],
   information: ['public'],
-  readiness: 'assign',
+  protectInfo: ['ownDevices'],
+  readiness: 'yesHaveSomeone',
   orgSize: '11-50',
   owner: 'exec',
   heldBack: ['nothing'],
@@ -48,11 +49,11 @@ async function driveToResult(container, overrides = {}) {
 }
 
 describe('the free check stepper', () => {
-  it('is 11 questions, with no mention of the plan, price or guarantee before the result', () => {
+  it('is 12 questions, with no mention of the plan, price or guarantee before the result', () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     expect(screen.getByText('How much time could AI give back to your team?')).toBeInTheDocument();
     expect(screen.getByText('Find out roughly how many hours a week AI could give your team back. About three minutes, no email.')).toBeInTheDocument();
-    expect(screen.getByText('Question 1 of 11. 0 of 11 answered.')).toBeInTheDocument();
+    expect(screen.getByText('Question 1 of 12. 0 of 12 completed.')).toBeInTheDocument();
     // Scoped to the stepper content, not the shared SiteHeader nav (which always names the
     // plan as a navigation link -- that's wayfinding, not sales copy).
     const stepper = container.querySelector('.ai-stepper');
@@ -74,7 +75,7 @@ describe('the free check stepper', () => {
   it('a pick-all question requires at least one pick before Next is enabled, and supports removing a pick', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
-    await waitFor(() => expect(screen.getByText('Question 2 of 11. 1 of 11 answered.')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Question 2 of 12. 1 of 12 completed.')).toBeInTheDocument());
     const next = screen.getByRole('button', { name: 'Next' });
     expect(next).toBeDisabled();
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
@@ -86,7 +87,7 @@ describe('the free check stepper', () => {
   it('stops picking once Q2 reaches its 4-area cap', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
-    await waitFor(() => expect(screen.getByText(/Question 2 of 11/)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     const four = ['correspondence', 'reports', 'meetingNotes', 'findingInfo'];
     four.forEach(v => fireEvent.click(container.querySelector(`input[name="areas"][value="${v}"]`)));
     fireEvent.click(container.querySelector('input[name="areas"][value="scheduling"]'));
@@ -97,7 +98,7 @@ describe('the free check stepper', () => {
   it('ticking a Q2 area reveals an inline hours slider and people stepper, defaulting to 5 hours and 1 person', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
-    await waitFor(() => expect(screen.getByText(/Question 2 of 11/)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     expect(container.querySelector('#hours-correspondence')).not.toBeInTheDocument();
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
     const slider = container.querySelector('#hours-correspondence');
@@ -111,7 +112,7 @@ describe('the free check stepper', () => {
   it('adjusting the hours slider and the people stepper updates the live preview line', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
-    await waitFor(() => expect(screen.getByText(/Question 2 of 11/)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
     expect(screen.getByText(/hours a week back, so far\./)).toBeInTheDocument();
     fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '20' } });
@@ -125,12 +126,12 @@ describe('the free check stepper', () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     expect(screen.getByRole('button', { name: 'Back' })).toBeDisabled();
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
-    await waitFor(() => expect(screen.getByText(/Question 2 of 11/)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
-    expect(screen.getByText(/Question 1 of 11/)).toBeInTheDocument();
+    expect(screen.getByText(/Question 1 of 12/)).toBeInTheDocument();
   });
 
-  it('walks all 11 questions through the loading screen to a dashboard result', async () => {
+  it('walks all 12 questions through the loading screen to a dashboard result', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(container);
     expect(container.querySelector('.ai-result-headline').textContent).toMatch(/About \d+ to \d+ hours a week/);
@@ -220,8 +221,94 @@ describe('the free check stepper', () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(container);
     fireEvent.click(screen.getByRole('button', { name: 'Review my answers' }));
-    expect(screen.getByText(/Question 1 of 11/)).toBeInTheDocument();
+    expect(screen.getByText(/Question 1 of 12/)).toBeInTheDocument();
     expect(container.querySelector('input[name="orgType"][value="professional"]')).toBeChecked();
+  });
+
+  it('ticking "Other (type your own)" on Q2 reveals a label field, and the result bar uses the typed label as plain text', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container, { areas: ['otherArea'] });
+    // Not driven through the label field by driveToResult (it only clicks tile inputs), so the
+    // bar falls back to "Other work" here; the label field itself is exercised in the next test.
+    expect(screen.getByText('Other work')).toBeInTheDocument();
+  });
+
+  it('typing an Other-area label carries it onto the result bar, escaped as plain text (never rendered as markup)', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    const answers = { ...READY, areas: ['otherArea'] };
+    for (const q of questions) {
+      if (q.id === 'areas') {
+        fireEvent.click(container.querySelector('input[name="areas"][value="otherArea"]'));
+        const labelInput = container.querySelector('#other-area-label');
+        expect(labelInput).toBeInTheDocument();
+        fireEvent.change(labelInput, { target: { value: '<img src=x onerror=alert(1)>grant reporting' } });
+        fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+        await waitFor(() => expect(screen.getByText(/Question 3 of 12/)).toBeInTheDocument());
+      } else {
+        await answerCurrentQuestion(container, q.id, answers[q.id], q.number === questions.length);
+      }
+    }
+    expect(container.querySelector('.ai-area-breakdown').textContent).toContain('img src=x onerror=alert(1)grant reporting');
+    expect(container.querySelector('.ai-area-breakdown img')).not.toBeInTheDocument();
+  });
+
+  it('"Other (type your own)" never appears in the "Where we\'d also look" suggestion sentence', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container, { areas: ['otherArea'] });
+    const suggestion = screen.queryByText(/Where we'd also look/);
+    if (suggestion) expect(suggestion.textContent).not.toMatch(/other \(type your own\)/i);
+  });
+
+  it('the AI-tools question (Q4) groups its options under three headings plus an ungrouped "None yet"', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    await waitFor(() => expect(screen.getByText(/Question 3 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="toolsToday"][value="m365"]'));
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    await waitFor(() => expect(screen.getByText(/Question 4 of 12/)).toBeInTheDocument());
+    expect(screen.getByText('General assistants')).toBeInTheDocument();
+    expect(screen.getByText('Built into Microsoft or Google')).toBeInTheDocument();
+    expect(screen.getByText('Meeting and other')).toBeInTheDocument();
+    ['DeepSeek', 'Kimi', 'Perplexity', 'Grok', 'Meta AI', 'Mistral Le Chat'].forEach(name =>
+      expect(screen.getByText(name)).toBeInTheDocument());
+  });
+
+  it('Q9 "Someone else" reveals an optional text field, escaped as plain text', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    for (const q of questions) {
+      if (q.id === 'owner') break;
+      await answerCurrentQuestion(container, q.id, READY[q.id], false);
+    }
+    expect(screen.getByText(/Who usually leads new tools or process changes/)).toBeInTheDocument();
+    expect(container.querySelector('#owner-other-text')).not.toBeInTheDocument();
+    fireEvent.click(container.querySelector('input[name="owner"][value="someoneElse"]'));
+    const otherInput = container.querySelector('#owner-other-text');
+    expect(otherInput).toBeInTheDocument();
+    fireEvent.change(otherInput, { target: { value: '<b>finance lead</b>' } });
+    expect(screen.getByText('You said: bfinance lead/b')).toBeInTheDocument();
+    expect(container.querySelector('.ai-other-label-field b')).not.toBeInTheDocument();
+  });
+
+  it('Q9 includes "We\'d want outside guidance" alongside the existing options', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    for (const q of questions) {
+      if (q.id === 'owner') break;
+      await answerCurrentQuestion(container, q.id, READY[q.id], false);
+    }
+    expect(container.querySelector('input[name="owner"][value="outsideGuidance"]')).toBeInTheDocument();
+    expect(screen.getByText("We'd want outside guidance")).toBeInTheDocument();
+  });
+
+  it('asks the new "protect sensitive information" question right after the information question', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    for (const q of questions) {
+      if (q.id === 'protectInfo') break;
+      await answerCurrentQuestion(container, q.id, READY[q.id], false);
+    }
+    expect(screen.getByText('What do you currently do to protect sensitive information? Pick all that apply.')).toBeInTheDocument();
   });
 });
 
