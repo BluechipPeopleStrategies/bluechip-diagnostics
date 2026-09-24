@@ -244,11 +244,11 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
       </div>
     </div>
 
-    <div className="ai-eq ai-eq--result" role="img" aria-label={`${roundHoursLabel(likely)} hours a week, low estimate ${areaHoursLabel(low)}, times ${weeks} working weeks equals ${roundHoursLabel(likely * weeks)} hours a year, low estimate ${roundHoursLabel(low * weeks)}. At ${money(rate)} an hour that is ${money(roundDollars(valueLikely))} a year in potential staff time value, low estimate ${money(roundDollars(valueLow))}.`}>
+    <div className="ai-eq ai-eq--result" role="img" aria-label={`${areaHoursLabel(low)} hours a week, up to ${roundHoursLabel(likely)}, times ${weeks} working weeks equals ${roundHoursLabel(low * weeks)} hours a year, up to ${roundHoursLabel(likely * weeks)}. At ${money(rate)} an hour that is ${money(roundDollars(valueLow))} a year in potential staff time value, up to ${money(roundDollars(valueLikely))}.`}>
       <div className="ai-term ai-hrs">
-        <strong><RollingNumber value={likely} format={areaHoursLabel} /></strong>
+        <strong><RollingNumber value={low} format={areaHoursLabel} /></strong>
         <span className="ai-term-unit">hrs/week</span>
-        <span className="ai-term-low">low estimate <RollingNumber value={low} format={areaHoursLabel} /></span>
+        <span className="ai-term-low">up to <RollingNumber value={likely} format={areaHoursLabel} /></span>
       </div>
       <div className="ai-op" aria-hidden="true">&times;</div>
       <div className="ai-term ai-term--editable">
@@ -256,9 +256,9 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
       </div>
       <div className="ai-op" aria-hidden="true">=</div>
       <div className="ai-term ai-hrs">
-        <strong><RollingNumber value={likely * weeks} format={roundHoursLabel} /></strong>
+        <strong><RollingNumber value={low * weeks} format={roundHoursLabel} /></strong>
         <span className="ai-term-unit">hrs/year</span>
-        <span className="ai-term-low">low estimate <RollingNumber value={low * weeks} format={roundHoursLabel} /></span>
+        <span className="ai-term-low">up to <RollingNumber value={likely * weeks} format={roundHoursLabel} /></span>
       </div>
       <div className="ai-op" aria-hidden="true">&times;</div>
       <div className="ai-term ai-term--editable">
@@ -266,9 +266,9 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
       </div>
       <div className="ai-op" aria-hidden="true">=</div>
       <div className="ai-term ai-total">
-        <strong><span className="ai-term-currency">C$</span><RollingNumber value={valueLikely} format={(n) => roundDollars(n).toLocaleString('en-CA')} /></strong>
+        <strong><span className="ai-term-currency">C$</span><RollingNumber value={valueLow} format={(n) => roundDollars(n).toLocaleString('en-CA')} /></strong>
         <span className="ai-term-unit">a year, potential staff time value</span>
-        <span className="ai-term-low">low estimate <RollingNumber value={valueLow} format={(n) => money(roundDollars(n))} /></span>
+        <span className="ai-term-low">up to <RollingNumber value={valueLikely} format={(n) => money(roundDollars(n))} /></span>
       </div>
     </div>
     <p className="ai-note">Time for other work, not a cash saving.</p>
@@ -297,11 +297,11 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
         </div>
       </div>
 
-      <div className="ai-eq ai-eq--result" role="img" aria-label={`${areaHoursLabel(perPersonLikely)} hours a week per person, low estimate ${areaHoursLabel(perPersonLow)}, times ${headcount} people, times ${weeks} working weeks, times ${money(rate)} an hour, equals ${money(roundDollars(scaledValueLikely))} a year in potential staff time value, low estimate ${money(roundDollars(scaledValueLow))}.`}>
+      <div className="ai-eq ai-eq--result" role="img" aria-label={`${areaHoursLabel(perPersonLow)} hours a week per person, up to ${areaHoursLabel(perPersonLikely)}, times ${headcount} people, times ${weeks} working weeks, times ${money(rate)} an hour, equals ${money(roundDollars(scaledValueLow))} a year in potential staff time value, up to ${money(roundDollars(scaledValueLikely))}.`}>
         <div className="ai-term ai-hrs">
-          <strong><RollingNumber value={perPersonLikely} format={areaHoursLabel} /></strong>
+          <strong><RollingNumber value={perPersonLow} format={areaHoursLabel} /></strong>
           <span className="ai-term-unit">hrs/week, per person</span>
-          <span className="ai-term-low">low estimate <RollingNumber value={perPersonLow} format={areaHoursLabel} /></span>
+          <span className="ai-term-low">up to <RollingNumber value={perPersonLikely} format={areaHoursLabel} /></span>
         </div>
         <div className="ai-op" aria-hidden="true">&times;</div>
         <div className="ai-term">
@@ -320,9 +320,9 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
         </div>
         <div className="ai-op" aria-hidden="true">=</div>
         <div className="ai-term ai-total">
-          <strong><span className="ai-term-currency">C$</span><RollingNumber value={scaledValueLikely} format={(n) => roundDollars(n).toLocaleString('en-CA')} /></strong>
+          <strong><span className="ai-term-currency">C$</span><RollingNumber value={scaledValueLow} format={(n) => roundDollars(n).toLocaleString('en-CA')} /></strong>
           <span className="ai-term-unit">a year, potential staff time value</span>
-          <span className="ai-term-low">low estimate <RollingNumber value={scaledValueLow} format={(n) => money(roundDollars(n))} /></span>
+          <span className="ai-term-low">up to <RollingNumber value={scaledValueLikely} format={(n) => money(roundDollars(n))} /></span>
         </div>
       </div>
       <p className="ai-note">An illustration that assumes each person saves about what one person in your answers does. Real results vary by role, and the plan measures what's actually there.</p>

@@ -385,7 +385,7 @@ describe('the free check stepper', () => {
     expect(within(mainEq).getByText('hrs/week')).toBeInTheDocument();
     expect(within(mainEq).getByText('hrs/year')).toBeInTheDocument();
     expect(within(mainEq).getByText('a year, potential staff time value')).toBeInTheDocument();
-    expect(within(mainEq).getAllByText(/low estimate/).length).toBe(3); // hrs/week, hrs/year, the total
+    expect(within(mainEq).getAllByText(/up to/).length).toBe(3); // hrs/week, hrs/year, the total
     const weeksInput = within(mainEq).getByLabelText('Working weeks a year');
     expect(weeksInput).toHaveValue(48);
     fireEvent.change(weeksInput, { target: { value: '50' } });
