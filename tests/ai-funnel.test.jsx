@@ -95,11 +95,15 @@ describe('the free check stepper', () => {
     six.forEach(v => expect(container.querySelector(`input[name="areas"][value="${v}"]`)).toBeChecked());
   });
 
-  it('Q2\'s helper note says "Up to six"', async () => {
+  // Infy edit (2026-09-24): dropped the leading "Up to six." from the helper note -- the Q2
+  // question label itself already says "Pick up to six", so the note no longer repeats it.
+  it('Q2\'s helper note no longer repeats the pick count, since the question label already says it', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
-    expect(screen.getByText('Up to six. Each one you pick gets its own hours and people below.')).toBeInTheDocument();
+    expect(screen.getByText('Where would you most like time back? Pick up to six.')).toBeInTheDocument();
+    expect(screen.getByText('Each one you pick gets its own hours and people below.')).toBeInTheDocument();
+    expect(screen.queryByText(/^Up to six\./)).not.toBeInTheDocument();
   });
 
   it('offers the new "Answering staff questions" Q2 tile', async () => {
@@ -238,7 +242,7 @@ describe('the free check stepper', () => {
   it('shows the honest under-5 line when the likely total is under 5 hrs/week', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(container);
-    expect(screen.getByText('This counts only the people you entered. The same task done by several people adds up quickly, so try the team slider below.')).toBeInTheDocument();
+    expect(screen.getByText('This counts only the people you entered. When several people do the same task, the hours can add up quickly, and the team slider below shows what that looks like.')).toBeInTheDocument();
   });
 
   it('hides the honest under-5 line once the likely total reaches 5 hrs/week', async () => {
