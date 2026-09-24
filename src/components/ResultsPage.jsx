@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { CLARITY_CALL_ENABLED } from '../lib/siteFeatures';
 import { scoreLikert, matchArchetype } from '../lib/scoring';
 import { bandLabelToKey } from '../data/ctaCopy';
@@ -20,6 +21,12 @@ export default function ResultsPage({
   orgSize = null,
   onOrgSize,
 }) {
+  // Bring the visitor to the top of their result (standalone page, and the Squarespace parent via postMessage).
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (window.parent !== window) window.parent.postMessage({ type: 'bc-diagnostic-scroll', offset: 0 }, '*');
+  }, []);
+
   const wantsScore = diagnostic.outputPattern === 'score-and-dimensions' || diagnostic.outputPattern === 'both';
   const wantsArchetype = diagnostic.outputPattern === 'archetype-match' || diagnostic.outputPattern === 'both';
 
