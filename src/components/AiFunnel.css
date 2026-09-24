@@ -322,6 +322,12 @@
 
 /* ---------- headcount "what if" section ---------- */
 .ai-headcount-section h2 { margin-top:0; font-size:22px; }
+/* GoldSlider's floating value bubble sits at top:-30px relative to its own container, which
+   normally clears the shared component's own 26px top margin fine, but here the bubble's top
+   edge landed 4px ABOVE the heading's bottom edge (measured via CDP getBoundingClientRect, not
+   eyeballed) -- an overlap, not a near-miss. Scoped to this section only (not the shared
+   .ai-gold-slider default) so other sliders elsewhere on the page keep their normal spacing. */
+.ai-headcount-section .ai-gold-slider { margin-top:48px; }
 
 /* ---------- "what we'd look at" cards ---------- */
 .ai-lookout-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; }
