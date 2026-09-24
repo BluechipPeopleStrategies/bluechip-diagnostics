@@ -21,8 +21,13 @@
 .ai-funnel .ai-button:hover { background:var(--ai-gold-2); border-color:var(--ai-gold-2); color:#0b1a33; }
 .ai-funnel :focus-visible { outline:3px solid var(--ai-gold); outline-offset:4px; }
 .ai-funnel .ai-secondary { display:block; margin:28px 0 0; border:0; background:none; padding:10px 0; font:inherit; text-decoration:underline; text-decoration-color:var(--ai-gold); cursor:pointer; color:var(--ai-ink); }
-.ai-panel { background:var(--ai-card); border:1px solid var(--ai-line); border-top:4px solid var(--ai-gold); border-radius:6px; padding:24px 30px; margin:32px 0; }
+/* Depth system: three elevation levels. Flat (default section spacing, no card) < raised
+   (.ai-panel: a card with a hairline border) < focal (.ai-panel--focal: the one thing on the
+   screen asking for a decision -- price/guarantee -- gets the gold top rule and a taller shadow).
+   Nothing else pastes on a drop shadow; depth comes from layered tone, not ad hoc box-shadows. */
+.ai-panel { background:var(--ai-card); border:1px solid var(--ai-line); border-radius:6px; padding:24px 30px; margin:32px 0; }
 .ai-panel h2 { margin-top:0; }
+.ai-panel--focal { border-top:4px solid var(--ai-gold); }
 .ai-inclusions { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
 .ai-inclusions section { border-top:1px solid var(--ai-line); padding-top:20px; }
 .ai-funnel details { padding:20px 0; border-bottom:1px solid var(--ai-line); }
@@ -62,7 +67,7 @@
   box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 22px 44px -22px rgba(0,0,0,.7),0 3px 8px rgba(0,0,0,.25); }
 .ai-save .ai-eyebrow { margin:0 0 16px; }
 .ai-eq { display:flex; align-items:flex-start; flex-wrap:wrap; gap:10px 14px; }
-.ai-term strong { display:block; font:600 44px/1 'Playfair Display',Georgia,serif; color:#f5efe6; font-variant-numeric:tabular-nums; }
+.ai-term strong { display:block; font:600 44px/1 'Playfair Display',Georgia,serif; color:#f5efe6; font-variant-numeric:lining-nums tabular-nums; font-feature-settings:"lnum" 1,"tnum" 1; }
 .ai-term span { display:block; margin-top:8px; font-size:12.5px; line-height:1.35; color:#9fb0c6; max-width:12ch; }
 .ai-hrs strong { color:#f0d99a; }
 .ai-total { padding:12px 18px; margin-top:-12px; border-radius:14px; background:linear-gradient(180deg,rgba(212,182,113,.22),rgba(212,182,113,.08)); border:1px solid #d4b671; box-shadow:0 14px 30px -14px rgba(212,182,113,.55); }
@@ -87,3 +92,72 @@
 .ai-fee small { display:block; font:500 11px/1.2 Inter,sans-serif; color:#9fb0c6; margin-top:4px; letter-spacing:0; }
 .ai-calc-hours { margin:10px 0 4px; font-size:15px; color:#c7d0dc; }
 .ai-calc-hours b { color:#f0d99a; font-weight:600; }
+
+/* ---------- guarantee band: the fixed headline + supporting line, reused verbatim above Q1
+   and above the result CTA on the free check, and on the plan page's price panel ---------- */
+.ai-guarantee-band { margin:18px 0; padding:16px 20px; border-radius:10px; border:1px solid var(--ai-gold);
+  background:linear-gradient(180deg,rgba(212,182,113,.14),rgba(212,182,113,.05)); }
+.ai-guarantee-headline { margin:0 0 6px; font-weight:700; font-size:19px; color:var(--ai-ink); }
+.ai-guarantee-support { margin:0; font-size:14.5px; color:var(--ai-body); }
+.ai-guarantee-fineprint { margin-top:-8px; }
+.ai-cta-row { margin-top:20px; }
+
+/* ---------- credibility strip (design review fix #4) ---------- */
+.ai-credibility { margin:24px 0; padding:16px 20px; border-radius:8px; border-left:2px solid var(--ai-gold); background:rgba(212,182,113,.05); }
+.ai-credibility p { margin:0; font-size:14.5px; color:var(--ai-body); max-width:70ch; }
+.ai-credibility a { white-space:nowrap; }
+
+/* ---------- "who does what" three-column table ---------- */
+.ai-table-wrap { overflow-x:auto; margin-top:18px; -webkit-overflow-scrolling:touch; }
+.ai-table { width:100%; min-width:560px; border-collapse:collapse; font-size:14.5px; }
+.ai-table th { text-align:left; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--ai-gold); padding:0 14px 10px 0; border-bottom:1px solid var(--ai-line); }
+.ai-table td { vertical-align:top; padding:14px 14px 14px 0; border-bottom:1px solid var(--ai-line); color:var(--ai-body); line-height:1.5; }
+.ai-table td:first-child, .ai-table th:first-child { padding-left:0; }
+
+/* ---------- one-question-per-screen stepper ---------- */
+.ai-stepper { margin-top:20px; }
+.ai-stepper-progress-track { height:6px; border-radius:99px; background:rgba(199,208,220,.14); overflow:hidden; margin-bottom:10px; }
+.ai-stepper-progress-fill { height:100%; border-radius:99px; background:linear-gradient(90deg,var(--ai-gold-2),var(--ai-gold)); box-shadow:0 0 12px rgba(212,182,113,.5); transition:width .35s ease; }
+.ai-live { color:var(--ai-soft); margin:0 0 18px; }
+.ai-stepper-question { border-top:0; margin:0 0 24px; padding:0; }
+.ai-stepper-question legend { display:flex; align-items:baseline; gap:10px; font-size:22px; }
+.ai-stepper-count { font-size:13px; color:var(--ai-gold); flex:none; }
+.ai-stepper-nav { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-top:8px; }
+
+/* option tiles: shared by single-select (radio) and pick-all (checkbox) questions */
+.ai-options--tiles label { position:relative; min-height:56px; }
+.ai-options--tiles label.is-disabled { opacity:.4; cursor:not-allowed; }
+.ai-options--tiles label:has(input:checked)::after { content:"\2713"; position:absolute; top:10px; right:12px; color:var(--ai-gold); font-weight:700; }
+.ai-tile-icon { width:20px; height:20px; color:var(--ai-gold); flex:none; opacity:.75; }
+.ai-options--tiles label:has(input:checked) .ai-tile-icon,
+.ai-options--tiles label:hover .ai-tile-icon { opacity:1; }
+
+/* ---------- hours-a-week range track (calculator preview + result hero) ---------- */
+.ai-track { margin:18px 0; }
+.ai-track-rail { position:relative; height:14px; border-radius:99px; background:rgba(199,208,220,.14); box-shadow:0 1px 2px rgba(0,0,0,.4) inset; }
+.ai-track-band { position:absolute; top:0; bottom:0; border-radius:99px; min-width:6px;
+  background:linear-gradient(90deg,var(--ai-gold-2),var(--ai-gold)); box-shadow:0 0 16px rgba(212,182,113,.55); }
+.ai-track-threshold { position:absolute; top:-6px; bottom:-6px; width:0; border-left:2px dashed rgba(245,239,230,.55); }
+.ai-track-threshold-label { position:absolute; top:-22px; left:6px; font-size:11px; white-space:nowrap; color:var(--ai-soft); }
+.ai-track-scale { display:flex; justify-content:space-between; margin-top:8px; font-size:12px; color:var(--ai-soft); }
+.ai-track--sm .ai-track-rail { height:10px; }
+.ai-track--sm .ai-track-threshold-label { display:none; }
+
+/* ---------- per-area calculator rows (free check) ---------- */
+.ai-range-rows { display:flex; flex-direction:column; gap:20px; margin:18px 0; }
+.ai-range-row { padding:18px 20px; border-radius:10px; background:rgba(8,20,40,.35); border:1px solid var(--ai-line); }
+.ai-range-row h3 { margin:0 0 10px; font-size:16px; }
+.ai-range-inputs { display:flex; align-items:center; gap:10px; }
+.ai-range-inputs input[type="range"] { flex:1; accent-color:var(--ai-gold); }
+.ai-range-inputs input[type="number"] { width:72px; flex:none; font:600 16px/1.2 Inter,sans-serif; padding:8px; border:1px solid var(--ai-line); border-radius:6px; background:#fffdf9; color:#0b1a33; }
+.ai-calc-grid--rate { margin-top:22px; }
+.ai-cap-message { margin-top:4px; }
+.ai-tailored-lines { margin:18px 0; padding:0; list-style:none; display:flex; flex-direction:column; gap:10px; }
+.ai-tailored-lines li { padding-left:18px; border-left:2px solid var(--ai-line-hi, var(--ai-gold)); color:var(--ai-body); }
+.ai-disclosure { margin-top:24px; }
+
+@media(max-width:600px) {
+  .ai-table { min-width:480px; }
+  .ai-stepper-question legend { font-size:19px; }
+  .ai-range-inputs { flex-wrap:wrap; }
+}

@@ -37,8 +37,10 @@ export function looksLikePhone(value) {
 // Confirmation texted back to the visitor (they opted in via the consent box).
 export function formatVisitorConfirmation({ name, need }) {
   const hi = name ? `Hi ${name}, ` : 'Hi, ';
-  if (need === 'Practical AI Audit') {
-    return hi + "it's BlueChip People Strategies. We received your Practical AI Audit inquiry (C$999 including applicable tax). This is not a booking or payment. We'll text you about next steps, usually within a few hours on business days. Reply STOP to opt out.";
+  // "Practical AI Audit" is the old label, kept so inquiries from a cached widget (or an old
+  // shared link) still get the right confirmation text after the rename to The AI Handoff Plan.
+  if (need === 'The AI Handoff Plan' || need === 'Practical AI Audit') {
+    return hi + "it's BlueChip People Strategies. We received your AI Handoff Plan inquiry (C$999 including applicable tax). This is not a booking or payment. We'll text you about next steps, usually within a few hours on business days. Reply STOP to opt out.";
   }
   // Old label kept so inquiries from a cached widget still get the right text.
   if (need === 'Practical AI and/or Embedded HR Retainers' || need === 'Embedded HR + AI Advisory') {

@@ -45,10 +45,10 @@ export default function IndexPage() {
       <p>Short, sharp, and built to surface the thing you already half-suspect. Pick the one that fits your seat.</p>
       <div className="bc-card-grid">
         <Link to="/ai-opportunity-check" className="bc-card-link-block">
-          <Emblem slug="ai-check" size="md" />
+          <Emblem slug="ai-opportunity-check" size="md" />
           <h3>AI Opportunity Check</h3>
           <p className="bc-card-link-tagline">Find a practical place to start with AI.</p>
-          <p className="bc-card-audience">For organisations exploring tools to reduce recurring work. Free, with no email required.</p>
+          <p className="bc-card-audience">For organizations exploring tools to reduce recurring work. Free, with no email required.</p>
           <span className="bc-card-link-cta">Start →</span>
         </Link>
         {diagnostics.map(({ slug, data, audience, startHere }) => (

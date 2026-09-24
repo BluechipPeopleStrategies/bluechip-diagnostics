@@ -17,9 +17,9 @@ export default function SavingsEquation() {
       </div>
       <div className="ai-save-fee">
         <span className="ai-fee">C$999<small>including applicable tax</small></span>
-        <p><strong>If the audit can't recommend tools with evidence-backed potential to save at least five net hours a week, you get your full fee back.</strong> That's five hours across your whole organisation, not per employee, and it's counted after the time your team spends checking the tools' work.</p>
+        <p><strong>If the plan can't recommend tools with evidence-backed potential to save at least five net hours a week, you get your full fee back.</strong> That's five hours across your whole organization, not per employee, and it's counted after the time your team spends checking the tools' work.</p>
       </div>
-      <p className="ai-note">This is an illustration of what that time is worth, not a guaranteed cash saving, and your own figure will depend on your actual staff costs. You'd implement the recommendations and cover any implementation costs. Try your own numbers in the calculator below.</p>
+      <p className="ai-note">This is an illustration of what that time is worth, not a guaranteed cash saving, and your own figure will depend on your actual staff costs. Your team implements the recommendations and covers any implementation costs. Try your own numbers in the calculator below.</p>
     </section>
   );
 }

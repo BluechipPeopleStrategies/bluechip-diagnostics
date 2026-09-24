@@ -172,11 +172,59 @@ html, body {
 .bc-card-badge { position: absolute; top: 18px; right: 18px; }
 .bc-card-link-cta { color: var(--v-gold) !important; }
 
+/* ---------- brand header (design review fix #2: the AI pages had no logo, nav, or way back) --- */
+.bc-site-header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40;
+  background: rgba(8, 20, 40, .82); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--v-line);
+  /* Bleed out of .ai-funnel's own padding so the bar spans full width, then reapply the same
+     padding inside .bc-site-header-inner. */
+  margin: -48px calc(-1 * clamp(20px, 5vw, 72px)) 32px; }
+.bc-site-header-inner { max-width: 1080px; margin: 0 auto; padding: 12px clamp(20px, 5vw, 72px);
+  display: flex; align-items: center; gap: 20px; }
+.bc-site-header-logo { display: block; line-height: 0; flex: none; }
+.bc-site-header-logo img { height: 26px; width: auto; display: block; }
+.bc-site-header-links { display: flex; gap: 18px; flex-wrap: wrap; margin-right: auto; }
+.bc-site-header-links a { font-size: 14px; font-weight: 500; color: var(--v-body) !important;
+  text-decoration: none; }
+.bc-site-header-links a:hover { color: var(--v-gold) !important; }
+.bc-site-header-cta { padding: 9px 18px !important; font-size: 14px !important; }
+@media (max-width: 600px) {
+  .bc-site-header-inner { flex-wrap: wrap; gap: 10px 16px; }
+  .bc-site-header-links { gap: 12px 16px; order: 3; flex-basis: 100%; }
+}
+
+/* ---------- type scale (56/40/28/20/17/15/13), lining + tabular numerals for money/hours ---- */
+/* Playfair Display's default figures are old-style (varying baseline/height), which reads as
+   "lumpy" on prices and stat numbers (design feedback 2026-09-24: "C$999, taxes included" and
+   the result H1 "about 1 to 2 hours"). font-variant-numeric alone isn't honored by every
+   renderer for this font, so font-feature-settings is set alongside it as the reliable path to
+   the same OpenType features (lnum/tnum). Covers every Playfair heading (h1/h2/h3), price and
+   stat figure on both AI pages, not just the two reported examples. */
+.ai-funnel :is(h1, h2, h3, strong, b, .ai-guarantee-headline, .ai-fee, .ai-calc-result strong,
+  .ai-term strong, .ai-total strong, .ai-track-scale, .ai-price-figure) {
+  font-variant-numeric: lining-nums tabular-nums;
+  font-feature-settings: "lnum" 1, "tnum" 1;
+}
+.ai-funnel h1 { text-wrap: balance; letter-spacing: -0.01em; }
+.ai-funnel h1 { font-size: clamp(34px, 5vw, 56px); }
+.ai-funnel h2 { font-size: clamp(24px, 3.4vw, 28px); }
+.ai-funnel h3 { font-size: 20px; }
+.ai-funnel p, .ai-funnel li { font-size: 17px; line-height: 1.6; max-width: 62ch; }
+.ai-funnel .ai-eyebrow { font-size: 12px; letter-spacing: .16em; }
+.ai-funnel .ai-note, .ai-funnel .ai-live { font-size: 13px; max-width: none; }
+
+/* h1/legend focus targets carry tabindex=-1 purely to move the screen-reader cursor on step
+   change; they are never reachable by Tab, so a visible ring here is noise, not an aid (design
+   review: the H1's own on-load focus was showing a gold box even for mouse users). */
+.ai-funnel h1[tabindex="-1"]:focus,
+.ai-funnel [tabindex="-1"]:focus:not(:focus-visible) { outline: none; }
+
 /* ---------- AI pages ---------- */
 .ai-hero { display: grid; grid-template-columns: 1.3fr .7fr; gap: 20px; align-items: center; }
 .ai-hero .bc-emblem { width: min(320px, 100%); justify-self: end; }
 .ai-funnel .ai-panel, .ai-calc-inline, .ai-options label { box-shadow: var(--v-shadow); }
 .ai-funnel .ai-panel, .ai-calc-inline { background: linear-gradient(180deg, #1a2e4b, #13233b); border-radius: 14px; }
+.ai-funnel .ai-panel--focal { box-shadow: var(--v-shadow-hi); }
 .ai-options label { transition: transform .18s var(--v-ease), border-color .18s ease; }
 .ai-options label:hover { transform: translateY(-2px); }
 .ai-funnel .ai-button { background: linear-gradient(180deg, #e2c887, #c9a557); border: 0; border-radius: 10px;
@@ -198,7 +246,11 @@ html, body {
   .bc-teaser, .bc-dim-list { padding: 20px 18px !important; }
   .bc-dim-header { flex-wrap: wrap; }
   .ai-hero { grid-template-columns: 1fr; }
-  .ai-hero .bc-emblem { order: -1; width: 200px; justify-self: start; }
+  /* Design review fix 3 (2026-09-24): order:-1 pushed the decorative emblem ahead of the H1,
+     price, guarantee and CTA on mobile, so none of them showed above the fold. Let it render
+     in its natural (later) DOM position and shrink it so the top of the price panel still fits
+     in the first screen. */
+  .ai-hero .bc-emblem { width: 120px; justify-self: start; }
   .bc-quiz-header .bc-emblem--sm { width: 48px; }
 }
 
