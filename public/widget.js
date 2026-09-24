@@ -15,11 +15,11 @@
   var NAVY = '#0B1A33', GOLD = '#C9A24B', CREAM = '#F5EFE6', TEXT = '#2c2c2c';
 
   var CHOICES = [
-    'Termination or workplace investigation',
     'The AI Handoff Plan',
     'Practical AI and/or Embedded HR Retainers',
     'Leadership coaching',
     'Governance or CEO evaluation',
+    'Termination or workplace investigation',
     "Something else (I'm not sure yet)"
   ];
 
