@@ -48,7 +48,7 @@ export default function AiHandoffPlanPage() {
       <div>
         <p className="ai-eyebrow">AI workflow review and roadmap</p>
         <h1>The AI Handoff Plan</h1>
-        <p>A practical AI audit of your organization's recurring work, with one workflow redesigned and a roadmap your team can put into practice. You'll know what to hand to AI, what stays with your people, and which tools to start with.</p>
+        <p>A practical AI review of your organization's recurring work, with one workflow redesigned and a roadmap your team can put into practice. You'll know what to hand to AI, what stays with your people, and which tools to start with.</p>
       </div>
       <Emblem slug="ai-handoff-plan" />
     </header>
