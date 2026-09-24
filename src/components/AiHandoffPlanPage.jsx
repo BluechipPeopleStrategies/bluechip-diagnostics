@@ -16,7 +16,12 @@ const FLOW_STEPS = [
   { time: '30 minutes', name: 'Findings call', youGet: 'a walkthrough together. The plan is yours to keep.' },
 ];
 
+// Number(null) and Number('') both evaluate to 0, which is finite -- so a plain isFinite check
+// can't distinguish "no query param" from "param is 0" and would silently clamp an absent
+// perPersonHours/employees param to the slider's minimum instead of falling back to the
+// intended default. Missing/blank raw values fall back explicitly, before Number() ever runs.
 function clampNumber(raw, min, max, fallback) {
+  if (raw === null || raw === undefined || raw === '') return fallback;
   const n = Number(raw);
   return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : fallback;
 }

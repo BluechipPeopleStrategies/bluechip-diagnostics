@@ -340,7 +340,9 @@ export const HOURS_DISPLAY_CAP = 10000;
 // moves in 0.5s), and "1 hours" is simply wrong. Rounds to the nearest half hour.
 export function formatHours(n) {
   const rounded = Math.round(Number(n) * 2) / 2;
-  const label = Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+  const label = Number.isInteger(rounded)
+    ? rounded.toLocaleString('en-CA')
+    : rounded.toLocaleString('en-CA', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   return `${label} ${rounded === 1 ? 'hour' : 'hours'}`;
 }
 

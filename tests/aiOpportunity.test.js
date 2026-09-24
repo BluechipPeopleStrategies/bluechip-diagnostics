@@ -123,6 +123,9 @@ describe('hour pluralization (formatHours)', () => {
     expect(formatHours(1.24)).toBe('1 hour');
     expect(formatHours(1.26)).toBe('1.5 hours');
   });
+  it('adds a thousands separator for large totals (e.g. hours a year across a big team)', () => {
+    expect(formatHours(23040)).toBe('23,040 hours');
+  });
 });
 
 describe('multi-select state', () => {

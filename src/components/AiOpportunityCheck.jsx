@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   questions, isComplete, toggleMulti, computeRange, roundHoursLabel, roundDollars, money,
-  formatHours, suggestedAreas, tailoredLines, AREA_LABELS, lowerFirst, joinList,
+  suggestedAreas, tailoredLines, AREA_LABELS, lowerFirst, joinList,
   peopleCapForOrgSize, orgSizeMidpoint, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
   PEOPLE_MAX_BEFORE_ORG_SIZE,
 } from '../lib/aiOpportunity';
