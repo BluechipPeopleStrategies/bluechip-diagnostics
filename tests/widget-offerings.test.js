@@ -82,7 +82,8 @@ describe('new offering intake', () => {
   });
   it('sends an inquiry acknowledgement, not a booking or savings promise', () => {
     const audit = formatVisitorConfirmation({ name: 'Test', need: 'Practical AI Audit' });
-    expect(audit).toContain('C$999, taxes included');
+    expect(audit).not.toContain('C$999');
+    expect(audit).toContain('bluechip-diagnostics.vercel.app/ai-handoff-plan');
     expect(audit).toContain("it's Chip with BlueChip People Strategies");
     expect(audit).toContain('not a booking or payment');
     expect(audit).toContain('STOP');

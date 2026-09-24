@@ -5,7 +5,8 @@ describe('formatVisitorConfirmation: AI Handoff Plan rename', () => {
   it('gives the plan confirmation for the new label', () => {
     const msg = formatVisitorConfirmation({ name: 'Jane', need: 'The AI Handoff Plan' });
     expect(msg).toContain('AI Handoff Plan inquiry');
-    expect(msg).toContain('C$999');
+    expect(msg).not.toContain('C$999');
+    expect(msg).toContain('/ai-handoff-plan');
   });
   it('still gives the plan confirmation for the old label, so a cached widget or an old shared link keeps routing correctly', () => {
     const msg = formatVisitorConfirmation({ name: 'Jane', need: 'Practical AI Audit' });
