@@ -29,6 +29,6 @@ export default function AiCalculator({ calc, setCalc }) {
     </div>
     <p className="ai-calc-result" aria-live="polite"><span>Potential staff capacity:</span><strong>{money(value)}</strong><span>a year</span></p>
     <p className="ai-calc-hours">That's <b>{num(weekly)} hours a week</b> across your team, or <b>{num(yearly)} hours a year</b>.</p>
-    <p className="ai-note">An illustration based on your numbers, not a savings estimate or a guaranteed cash saving. The audit's guarantee is five net hours a week in total across your organisation, not per person. The Practical AI Audit looks at your actual work to find out what is real.</p>
+    <p className="ai-note">An illustration based on your numbers, not a savings estimate or a guaranteed cash saving. The plan's guarantee is five net hours a week in total across your organization, not per person. The AI Handoff Plan looks at your actual work to find out what is real.</p>
   </>;
 }

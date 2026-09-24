@@ -5,6 +5,7 @@ export const ART = {
   dqi: '/art/dqi.webp',
   'workplace-read': '/art/workplace-read.webp',
   'supervisor-blind-spot': '/art/blind-spot.webp',
-  'ai-check': '/art/ai-check.webp',
-  'ai-audit': '/art/ai-audit.webp',
+  // Design critique fix 5 (new hero art) is waiting on new images; keep the current emblems.
+  'ai-opportunity-check': '/art/ai-check.webp',
+  'ai-handoff-plan': '/art/ai-audit.webp',
 };

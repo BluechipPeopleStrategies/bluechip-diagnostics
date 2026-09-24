@@ -1,5 +1,24 @@
 import { describe, it, expect } from 'vitest';
-import { isHoneypot, sanitizeLead, validateLead, formatLeadSms } from '../api/_lib/lead-helpers.js';
+import { isHoneypot, sanitizeLead, validateLead, formatLeadSms, formatVisitorConfirmation } from '../api/_lib/lead-helpers.js';
+
+describe('formatVisitorConfirmation: AI Handoff Plan rename', () => {
+  it('gives the plan confirmation for the new label', () => {
+    const msg = formatVisitorConfirmation({ name: 'Jane', need: 'The AI Handoff Plan' });
+    expect(msg).toContain('AI Handoff Plan inquiry');
+    expect(msg).toContain('C$999');
+  });
+  it('still gives the plan confirmation for the old label, so a cached widget or an old shared link keeps routing correctly', () => {
+    const msg = formatVisitorConfirmation({ name: 'Jane', need: 'Practical AI Audit' });
+    expect(msg).toContain('AI Handoff Plan inquiry');
+  });
+  it('gives the retainer confirmation for both the old and current retainer labels', () => {
+    expect(formatVisitorConfirmation({ name: 'Jane', need: 'Practical AI and/or Embedded HR Retainers' })).toContain('Practical AI and/or Embedded HR Retainers inquiry');
+    expect(formatVisitorConfirmation({ name: 'Jane', need: 'Embedded HR + AI Advisory' })).toContain('Practical AI and/or Embedded HR Retainers inquiry');
+  });
+  it('falls back to a generic confirmation for any other need', () => {
+    expect(formatVisitorConfirmation({ name: 'Jane', need: 'Leadership coaching' })).toContain("We've got your note");
+  });
+});
 
 describe('isHoneypot', () => {
   it('is true when company is filled', () => {

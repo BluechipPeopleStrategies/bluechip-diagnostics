@@ -28,10 +28,11 @@ describe('new offering intake', () => {
     fireEvent.click(document.querySelector('#bcwLaunch'));
     fireEvent.click(ui.getByRole('button', { name: 'Browse questions and answers' }));
     expect(ui.queryByLabelText('Your name')).toBeNull();
-    fireEvent.click(ui.getByRole('button', { name: 'Practical AI Audit', exact: true }));
+    fireEvent.click(ui.getByRole('button', { name: 'The AI Handoff Plan', exact: true }));
     fireEvent.click(ui.getByRole('button', { name: 'How does the five-hour guarantee work?' }));
     expect(document.body.textContent).toContain('evidence-backed potential');
-    expect(document.body.textContent).toContain('not five hours per employee');
+    expect(document.body.textContent).toContain('not five per person');
+    expect(document.body.textContent).toContain('no forms, no hoops');
     expect(fetchMock).not.toHaveBeenCalled();
     fireEvent.click(ui.getByRole('button', { name: 'Ask BlueChip about this' }));
     fireEvent.change(ui.getByLabelText('Your name'), { target: { value: 'Test' } });
@@ -39,7 +40,7 @@ describe('new offering intake', () => {
     fireEvent.change(ui.getByLabelText('Your phone number'), { target: { value: '7805550100' } });
     fireEvent.click(ui.getByRole('checkbox'));
     fireEvent.click(ui.getByRole('button', { name: 'Send', exact: true }));
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body).need).toBe('Practical AI Audit');
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).need).toBe('The AI Handoff Plan');
   });
   it('supports returning to topics and links resources without collecting details', () => {
     const ui = within(document.body);
@@ -47,17 +48,18 @@ describe('new offering intake', () => {
     fireEvent.click(ui.getByRole('button', { name: 'Browse questions and answers' }));
     fireEvent.click(ui.getByRole('button', { name: 'Free AI Opportunity Check', exact: true }));
     fireEvent.click(ui.getByRole('button', { name: 'Does the free check prove I will save five hours?' }));
-    expect(document.body.textContent).toContain('does not confirm the audit guarantee');
+    expect(document.body.textContent).toContain('not a confirmation of the guarantee');
     expect(ui.getByRole('link', { name: 'Open the free AI Opportunity Check' })).toHaveAttribute('href', 'https://bluechip-diagnostics.vercel.app/ai-opportunity-check');
     fireEvent.click(ui.getByRole('button', { name: 'All topics' }));
     expect(ui.getByRole('button', { name: 'Other BlueChip services', exact: true })).toBeVisible();
     expect(fetchMock).not.toHaveBeenCalled();
   });
   it('explains price and scope before contact, and requires consent before submitting', () => {
-    const ui = choose('Practical AI Audit');
-    expect(document.body.textContent).toContain('C$999 per organization');
-    expect(document.body.textContent).toContain('one priority workflow redesigned');
-    expect(document.body.textContent).toContain('five net hours per week across your organization in total');
+    const ui = choose('The AI Handoff Plan');
+    expect(document.body.textContent).toContain('C$999, taxes included');
+    expect(document.body.textContent).toContain('redesign one priority workflow');
+    expect(document.body.textContent).toContain('save at least 5 net hours a week across your organization');
+    expect(document.body.textContent).toContain('no forms, no hoops');
     expect(ui.queryByLabelText('Your phone number')).toBeNull();
     expect(fetchMock).not.toHaveBeenCalled();
     fireEvent.click(ui.getByRole('button', { name: 'Discuss this with BlueChip' }));
@@ -67,13 +69,13 @@ describe('new offering intake', () => {
     fireEvent.click(ui.getByRole('checkbox'));
     fireEvent.click(send);
     const payload = JSON.parse(fetchMock.mock.calls[0][1].body);
-    expect(payload).toMatchObject({ need: 'Practical AI Audit', consent: true });
+    expect(payload).toMatchObject({ need: 'The AI Handoff Plan', consent: true });
   });
   it('keeps AI-only and combined advisory options and supports changing service', () => {
     const ui = choose('Practical AI and/or Embedded HR Retainers');
     expect(document.body.textContent).toContain('Support can focus on AI alone or combine HR and AI');
     fireEvent.click(ui.getByRole('button', { name: 'Choose a different service' }));
-    expect(ui.getByRole('button', { name: 'Practical AI Audit', exact: true })).toBeVisible();
+    expect(ui.getByRole('button', { name: 'The AI Handoff Plan', exact: true })).toBeVisible();
     expect(fetchMock).not.toHaveBeenCalled();
   });
   it('sends an inquiry acknowledgement, not a booking or savings promise', () => {
