@@ -139,6 +139,40 @@ const PATHS = {
       <text x="7.7" y="11.4" fontSize="6.5" textAnchor="middle" fill="currentColor" stroke="none" fontFamily="Inter, sans-serif">?</text>
     </>
   ),
+  // Formal minutes: a small gavel, for council/board/committee clerking work.
+  formalMinutes: (
+    <>
+      <path d="M11.5 3.5l5 5-2.2 2.2-5-5z" {...STROKE} />
+      <path d="M9.8 5.2l3.2 3.2" {...STROKE} />
+      <path d="M3.5 16.5l6-6" {...STROKE} />
+      <path d="M2.5 17.5h5" {...STROKE} />
+    </>
+  ),
+  // Reviewing documents: a document with a checkmark-in-progress stroke across it, distinct from
+  // "policies"'s checklist and "research"'s magnifier.
+  docReview: (
+    <>
+      <path d="M4.5 2.5h7l3.5 3.5V17.5h-10.5z" {...STROKE} />
+      <path d="M11.5 2.5v3.5H15" {...STROKE} />
+      <path d="M6.3 12l2 2 5-5.2" {...STROKE} />
+    </>
+  ),
+  // Privacy and access requests: a padlock.
+  privacyRequests: (
+    <>
+      <rect x="4.5" y="9" width="11" height="8.5" rx="1.4" {...STROKE} />
+      <path d="M6.5 9V6a3.5 3.5 0 017 0v3" {...STROKE} />
+      <circle cx="10" cy="12.8" r="1.3" {...STROKE} />
+      <path d="M10 14.1v1.6" {...STROKE} />
+    </>
+  ),
+  // Organizing and filing: a folder.
+  filing: (
+    <>
+      <path d="M2.5 5.5h5.5l1.6 2H17.5v9h-15z" {...STROKE} />
+      <path d="M2.5 8.5h15" {...STROKE} />
+    </>
+  ),
   // Other (type your own): typed lines with a cursor
   otherArea: (
     <>

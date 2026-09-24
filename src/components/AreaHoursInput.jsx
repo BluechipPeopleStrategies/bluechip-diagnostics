@@ -1,6 +1,6 @@
 import GoldSlider from './GoldSlider';
 import PeopleStepper from './PeopleStepper';
-import { HOUR_CAP_PER_AREA } from '../lib/aiOpportunity';
+import { HOUR_CAP_PER_AREA, DEFAULT_HOURS_PER_AREA, areaHoursLabel } from '../lib/aiOpportunity';
 
 // The inline row that appears under a ticked Q2 area tile: hours a week for one person (a gold
 // slider with a floating bubble, no separate typed box), and how many people (a stepper plus
@@ -20,11 +20,15 @@ export default function AreaHoursInput({ area, hours, people, peopleMax, onHours
       </div>}
       <label className="ai-hours-field-label" htmlFor={`hours-${area}`}>Hours a week one person spends on this</label>
       <GoldSlider
-        id={`hours-${area}`} min={0} max={HOUR_CAP_PER_AREA} step={1} value={hours}
+        id={`hours-${area}`} min={0} max={HOUR_CAP_PER_AREA} step={0.1} value={hours}
         onChange={onHoursChange} ariaLabel="Hours a week one person spends on this, for this area"
         format={(h) => `${h} hrs/week`} ticks={[0, 5, 10, 15, 20, 25]}
       />
-      <p className="ai-note ai-slider-hint">Not sure? Leave it at 5.</p>
+      {/* Per-person recalibration (2026-09-24): the "typical" figure is this area's OWN evidence-
+          based default (DEFAULT_HOURS_PER_AREA), not the possibly-cap-scaled value the slider was
+          initialized to -- it's meant to read as a stable fact about the task, not a number that
+          moves as the visitor picks or drops other areas. */}
+      <p className="ai-note ai-slider-hint">Not sure? Leave it at the typical {areaHoursLabel(DEFAULT_HOURS_PER_AREA[area] ?? 2)} hrs.</p>
       <PeopleStepper
         label={hours > 0
           ? `People at your organization who spend about ${hours} ${hours === 1 ? 'hr' : 'hrs'} a week on this`
