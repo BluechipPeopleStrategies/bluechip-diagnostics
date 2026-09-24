@@ -8,7 +8,7 @@ import './AiFunnel.css';
 export default function AiOpportunityCheck() {
   const [answers, setAnswers] = useState({});
   const [step, setStep] = useState('questions'); // questions -> calculator -> result
-  const [calc, setCalc] = useState({ hours: 5, rate: 40, weeks: 52 });
+  const [calc, setCalc] = useState({ hours: 5, rate: 40, weeks: 48 });
   const heading = useRef(null);
   const dialogHeading = useRef(null);
   const complete = questions.every(q => answers[q.id]);
