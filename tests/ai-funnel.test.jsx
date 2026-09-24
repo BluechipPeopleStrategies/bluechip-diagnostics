@@ -84,15 +84,38 @@ describe('the free check stepper', () => {
     expect(next).toBeDisabled();
   });
 
-  it('stops picking once Q2 reaches its 4-area cap', async () => {
+  it('stops picking once Q2 reaches its 6-area cap', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
-    const four = ['correspondence', 'reports', 'meetingNotes', 'findingInfo'];
-    four.forEach(v => fireEvent.click(container.querySelector(`input[name="areas"][value="${v}"]`)));
-    fireEvent.click(container.querySelector('input[name="areas"][value="scheduling"]'));
-    expect(container.querySelector('input[name="areas"][value="scheduling"]')).not.toBeChecked();
-    four.forEach(v => expect(container.querySelector(`input[name="areas"][value="${v}"]`)).toBeChecked());
+    const six = ['correspondence', 'reports', 'meetingNotes', 'findingInfo', 'scheduling', 'invoicing'];
+    six.forEach(v => fireEvent.click(container.querySelector(`input[name="areas"][value="${v}"]`)));
+    fireEvent.click(container.querySelector('input[name="areas"][value="hiring"]'));
+    expect(container.querySelector('input[name="areas"][value="hiring"]')).not.toBeChecked();
+    six.forEach(v => expect(container.querySelector(`input[name="areas"][value="${v}"]`)).toBeChecked());
+  });
+
+  it('Q2\'s helper note says "Up to six"', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    expect(screen.getByText('Up to six. Each one you pick gets its own hours and people below.')).toBeInTheDocument();
+  });
+
+  it('offers the new "Answering staff questions" Q2 tile', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    expect(container.querySelector('input[name="areas"][value="staffQuestions"]')).toBeInTheDocument();
+    expect(screen.getByText('Answering staff questions (policies, onboarding, how-to)')).toBeInTheDocument();
+  });
+
+  it('shows the "count everyone" helper line under a picked area\'s people stepper', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    expect(screen.getByText('Count everyone at your organization who does this, not just you.')).toBeInTheDocument();
   });
 
   it('ticking a Q2 area reveals an inline hours slider and people stepper, defaulting to 5 hours and 1 person', async () => {
@@ -171,6 +194,31 @@ describe('the free check stepper', () => {
     expect(screen.getByText(/across 25/)).toBeInTheDocument();
   });
 
+  // READY's defaults (correspondence + reports, 5 hrs/1 person each) net a likely total of
+  // 5*0.22 + 5*0.18 = 2.0 hrs/week, under the 5-hour line.
+  it('shows the honest under-5 line when the likely total is under 5 hrs/week', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container);
+    expect(screen.getByText('This counts only the people you entered. The same task done by several people adds up quickly, so try the team slider below.')).toBeInTheDocument();
+  });
+
+  it('hides the honest under-5 line once the likely total reaches 5 hrs/week', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '20' } });
+    fireEvent.click(screen.getByRole('button', { name: 'More people' })); // 1 -> 2 people
+    fireEvent.click(container.querySelector('input[name="areas"][value="reports"]'));
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    await waitFor(() => expect(screen.getByText(/Question 3 of 12/)).toBeInTheDocument());
+    for (const q of questions.slice(2)) {
+      await answerCurrentQuestion(container, q.id, READY[q.id], q.number === questions.length);
+    }
+    // 20 hrs x 2 people x 0.22 (correspondence, likely) + 5 x 1 x 0.18 (reports, likely) = 9.7
+    expect(screen.queryByText(/This counts only the people you entered/)).not.toBeInTheDocument();
+  });
+
   it('shows the "Information handling" look-at card when sensitive information has weak protection', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(container, { information: ['payroll'], protectInfo: ['nothingFormal'] });
@@ -216,7 +264,7 @@ describe('the free check stepper', () => {
   it('keeps the "not a promise of results" honesty line, folded into the disclosure', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(container);
-    expect(container.querySelector('.ai-disclosure').textContent).toMatch(/isn't a promise of results or a cash saving/);
+    expect(container.querySelector('.ai-disclosure').textContent).toMatch(/not a promise of results or a cash saving/);
   });
 
   it('folds the basis, studies and caps explanation into the collapsed disclosure', async () => {
@@ -224,6 +272,24 @@ describe('the free check stepper', () => {
     await driveToResult(container);
     expect(screen.getByText('How this estimate works')).toBeInTheDocument();
     expect(container.querySelector('.ai-disclosure').textContent).toMatch(/at most 25 hours a week per person for any one area/);
+  });
+
+  // Rewritten 2026-09-24: org size (Q7) no longer affects the estimate, so the disclosure no
+  // longer names a team size or org-size band anywhere in its text.
+  it('the disclosure never mentions org size or a team-size band', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container, { orgSize: '201-500' });
+    const text = container.querySelector('.ai-disclosure').textContent;
+    expect(text).not.toMatch(/team of/i);
+    expect(text).not.toMatch(/201-500|201 to 500/);
+  });
+
+  it('uses the exact verbatim explainer text (for Infy review)', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container);
+    expect(container.querySelector('.ai-disclosure p').textContent).toBe(
+      "For each area you picked, we take the hours one person spends on it each week, multiply by the number of people who do that work, then multiply by the share of that time AI can realistically save. That share comes from published studies of similar work, minus an allowance for checking the tools' work. Where no study matches closely, or you typed your own area, we use our most conservative rate. Then we add the areas together. To keep it realistic, we count at most 25 hours a week per person for any one area, and 30 hours a week per person across all areas. The dollar figure uses the hourly cost and working weeks shown above. It's an estimate, not a promise of results or a cash saving."
+    );
   });
 
   it('"Review my answers" returns to question 1 with prior picks intact', async () => {
