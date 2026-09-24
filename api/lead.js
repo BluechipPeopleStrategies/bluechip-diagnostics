@@ -1,4 +1,31 @@
-import { isHoneypot, sanitizeLead, validateLead, formatLeadSms, looksLikePhone, formatVisitorConfirmation } from './_lib/lead-helpers.js';
+import { isHoneypot, sanitizeLead, validateLead, formatLeadSms, looksLikePhone, formatVisitorConfirmation, samePhone, buildChatLeadEmail } from './_lib/lead-helpers.js';
+
+export async function sendLeadEmail({ subject, html, replyTo }) {
+  const apiKey = (process.env.RESEND_API_KEY || '').trim();
+  const from = (process.env.BLUECHIP_FROM_EMAIL || '').trim();
+  const to = (process.env.BLUECHIP_NOTIFY_EMAIL || process.env.BLUECHIP_FROM_EMAIL || '').trim();
+  if (!apiKey || !from || !to) {
+    console.warn('lead: email not configured');
+    return false;
+  }
+  const body = { from, to, subject, html };
+  if (replyTo) body.reply_to = replyTo;
+  try {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) {
+      console.error('lead: Resend send failed', r.status, await r.text());
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error('lead: Resend send error', err);
+    return false;
+  }
+}
 
 const ALLOWED_ORIGINS = [
   'https://bluechip-people-strategies.com',
@@ -98,12 +125,17 @@ export default async function handler(req, res) {
 
   const body = req.body || {};
 
+  const clean = sanitizeLead(body);
+  const replyTo = /@/.test(clean.email) ? clean.email : undefined;
+
   if (isHoneypot(body)) {
+    // Probably a bot, but never drop it silently: email it, flagged, and skip the text alert.
     console.warn('lead: honeypot triggered');
+    const mail = buildChatLeadEmail(clean, { smsSent: false, suspectedSpam: true });
+    await sendLeadEmail({ ...mail, replyTo });
     return res.status(200).json({ ok: true });
   }
 
-  const clean = sanitizeLead(body);
   const valid = validateLead(clean);
   if (!valid.ok) {
     return res.status(400).json({ error: valid.error });
@@ -117,11 +149,22 @@ export default async function handler(req, res) {
   const notionWritten = await writeNotionLead(clean, submittedAt);
 
   // Auto-confirmation back to the visitor (only when they opted in and gave a phone number).
+  // Skipped when the visitor's number is BlueChip's own texting number: it can't text itself.
   let confirmationSent = false;
+  let confirmationNote = 'not requested';
   if (clean.consent && looksLikePhone(clean.contact)) {
-    const conf = await sendOpenPhoneSms({ to: clean.contact, content: formatVisitorConfirmation(clean) });
-    confirmationSent = conf.sent;
+    if (samePhone(clean.contact, process.env.OPENPHONE_FROM)) {
+      confirmationNote = "skipped: the visitor's number is BlueChip's own texting number";
+    } else {
+      const conf = await sendOpenPhoneSms({ to: clean.contact, content: formatVisitorConfirmation(clean) });
+      confirmationSent = conf.sent;
+      confirmationNote = conf.sent ? 'sent' : 'failed';
+    }
   }
 
-  return res.status(200).json({ ok: true, smsSent, notionWritten, confirmationSent });
+  // Email copy of every lead, so a failed text never means a missed lead.
+  const mail = buildChatLeadEmail(clean, { smsSent, confirmationNote });
+  const emailSent = await sendLeadEmail({ ...mail, replyTo });
+
+  return res.status(200).json({ ok: true, smsSent, notionWritten, confirmationSent, emailSent });
 }

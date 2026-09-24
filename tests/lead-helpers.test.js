@@ -22,10 +22,11 @@ describe('formatVisitorConfirmation: AI Handoff Plan rename', () => {
 
 describe('isHoneypot', () => {
   it('is true when company is filled', () => {
-    expect(isHoneypot({ company: 'Acme' })).toBe(true);
+    expect(isHoneypot({ bc_hp_trap: 'Acme' })).toBe(true);
+    expect(isHoneypot({ company: 'Autofilled Co' })).toBe(false);
   });
   it('is false when company is empty or missing', () => {
-    expect(isHoneypot({ company: '' })).toBe(false);
+    expect(isHoneypot({ bc_hp_trap: '' })).toBe(false);
     expect(isHoneypot({})).toBe(false);
   });
 });
