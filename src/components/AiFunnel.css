@@ -392,10 +392,17 @@
 .ai-copy-steps { display:flex; align-items:center; gap:12px; margin-top:18px; flex-wrap:wrap; }
 .ai-copy-steps .ai-secondary { margin:0; }
 
-/* ---------- quiet next step (soft CTA, not gold) ---------- */
-.ai-next-step { margin:28px 0; padding-top:22px; border-top:1px solid var(--ai-line); }
-.ai-next-step p:first-child { margin-bottom:4px; }
-.ai-next-step .ai-secondary { margin:0 0 6px; }
+/* ---------- "want us to find the hours for you" plan section (result screen) ---------- */
+.ai-next-plan-divider { border:0; border-top:1px solid rgba(199,208,220,.16); margin:36px 0 32px; }
+.ai-next-plan-section h2 { margin:0 0 10px; }
+/* Reuses the plan page's own .ai-flow-steps grid/connector-line/circle CSS (see "step flow"
+   above) so this strip matches it instead of inventing a second visual language -- just without
+   that version's .ai-flow-time / .ai-flow-you-get sub-lines, since this is the compact restating
+   of the same 5 steps. The only override needed is dropping .ai-flow-name's own trailing margin,
+   which existed to make room for the "you get" line this version doesn't have. */
+.ai-flow-steps--compact .ai-flow-name { margin:0; }
+.ai-next-plan-actions { display:flex; align-items:center; gap:20px; flex-wrap:wrap; margin-top:22px; }
+.ai-next-plan-actions .ai-secondary { margin:0; }
 
 .ai-disclosure { margin-top:24px; }
 
