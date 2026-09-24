@@ -39,6 +39,15 @@ export const AREA_RATE_MAP = {
   scheduling: 'floor',
   invoicing: 'floor',
   hiring: 'floor',
+  // New area tiles (2026-09-24): mapped onto the existing rate buckets, no new numbers.
+  writingEditing: 'correspondence',
+  research: 'search',
+  spreadsheets: 'reports',
+  socialContent: 'correspondence',
+  trainingMaterials: 'reports',
+  policies: 'reports',
+  // Typed-in "Other" area: always the most conservative rate, so it can only understate.
+  otherArea: 'floor',
   notSureArea: 'floor',
 };
 
@@ -53,9 +62,35 @@ export const AREAS = [
   ['enquiries', 'Customer or public enquiries'],
   ['caseNotes', 'Client or case notes'],
   ['proposals', 'Proposals, quotes and grant applications'],
+  ['writingEditing', 'Writing and editing (grammar, tone, proofreading)'],
+  ['research', 'Research and summarizing documents'],
+  ['spreadsheets', 'Spreadsheets and data cleanup'],
+  ['socialContent', 'Social posts, newsletters and marketing copy'],
+  ['trainingMaterials', 'Training materials and how-to guides'],
+  ['policies', 'Policies, procedures and templates'],
+  ['otherArea', 'Other (type your own)'],
+  // Exclusive pick (see `questions` below, which marks the LAST entry exclusive) -- keep this
+  // last so a new area added above doesn't silently become the exclusive one.
   ['notSureArea', 'Not sure yet'],
 ];
 export const AREA_LABELS = Object.fromEntries(AREAS);
+
+const AREA_TEXT_MAX = 60;
+// Sanitizes a visitor-typed area label (the "Other" tile): trims, caps length, and falls back
+// to a neutral default when empty. React already escapes text content when rendered as {label}
+// (never dangerouslySetInnerHTML), so this is display-shaping plus a defensive strip of angle
+// brackets -- belt and suspenders against a future render change, not the only thing protecting
+// against markup injection.
+export function sanitizeAreaLabel(raw) {
+  const trimmed = String(raw || '').replace(/[<>]/g, '').trim().slice(0, AREA_TEXT_MAX);
+  return trimmed || 'Other work';
+}
+
+// Same idea for the Q9 "Someone else" free-text follow-up: optional, so an empty result stays
+// empty rather than getting a fallback label.
+export function sanitizeShortText(raw, max = AREA_TEXT_MAX) {
+  return String(raw || '').replace(/[<>]/g, '').trim().slice(0, max);
+}
 
 // Q1 org type -> areas we'd suggest looking at, mapped onto the Q2 value set. Advice, not data;
 // shown as "where we'd also look", never presented as a finding. [NEEDS: source]
@@ -125,12 +160,24 @@ export const questions = [
     options: [
       ['none', 'None yet', true],
       ['chatgpt', 'ChatGPT'],
+      ['claude', 'Claude'],
+      ['perplexity', 'Perplexity'],
+      ['deepseek', 'DeepSeek'],
+      ['kimi', 'Kimi'],
+      ['grok', 'Grok'],
+      ['metaAi', 'Meta AI'],
+      ['mistral', 'Mistral Le Chat'],
       ['copilot', 'Microsoft Copilot'],
       ['gemini', 'Google Gemini'],
-      ['claude', 'Claude'],
       ['notetakers', 'Meeting note-takers (for example Otter, Fireflies or Teams recap)'],
       ['builtin', 'AI built into our other software'],
       ['other', 'Other or not sure'],
+    ],
+    // Small group headers so a 13-option grid still scans, not a data field of its own.
+    groups: [
+      { label: 'General assistants', values: ['chatgpt', 'claude', 'perplexity', 'deepseek', 'kimi', 'grok', 'metaAi', 'mistral'] },
+      { label: 'Built into Microsoft or Google', values: ['copilot', 'gemini'] },
+      { label: 'Meeting and other', values: ['notetakers', 'builtin', 'other'] },
     ],
   },
   {
@@ -148,16 +195,33 @@ export const questions = [
     ],
   },
   {
-    id: 'readiness', number: 6, type: 'single',
-    label: 'Could someone on your team put a plan in place?',
+    id: 'protectInfo', number: 6, type: 'multi',
+    label: 'What do you currently do to protect sensitive information? Pick all that apply.',
     options: [
-      ['assign', 'Yes, we can assign someone'],
-      ['maybe', 'Maybe, once we know more'],
-      ['approvals', "We'd need approvals first"],
+      ['ownDevices', 'Files stay on our own computers or servers'],
+      ['googleWorkspace', 'Google Workspace (Drive, Gmail)'],
+      ['microsoft365', 'Microsoft 365 (SharePoint, OneDrive, Teams)'],
+      ['itManaged', 'Our IT provider manages it'],
+      ['writtenPolicy', 'We have a written policy on AI use'],
+      ['staffAsked', 'Staff are asked not to paste sensitive information into AI tools'],
+      ['approvedList', 'We have a list of approved AI tools'],
+      ['accessControls', 'Access controls or permissions on sensitive files'],
+      ['nothingFormal', 'Nothing formal yet', true],
+      ['noIdeaProtect', 'I have no idea', true],
     ],
   },
   {
-    id: 'orgSize', number: 7, type: 'single',
+    id: 'readiness', number: 7, type: 'single',
+    label: 'Is there someone on your team who is comfortable setting up new tech or AI tools?',
+    options: [
+      ['yesHaveSomeone', 'Yes, we have someone'],
+      ['somewhatGuidance', "Somewhat, they'd want some guidance"],
+      ['notYetReady', 'Not yet'],
+      ['notSureReady', 'Not sure'],
+    ],
+  },
+  {
+    id: 'orgSize', number: 8, type: 'single',
     label: 'How many people work in your organization?',
     options: [
       ['1-10', '1 to 10'],
@@ -168,19 +232,20 @@ export const questions = [
     ],
   },
   {
-    id: 'owner', number: 8, type: 'single',
-    label: "Who would own this work on your side?",
+    id: 'owner', number: 9, type: 'single',
+    label: 'Who usually leads new tools or process changes in your organization?',
     options: [
       ['exec', 'Owner or executive'],
       ['opsManager', 'Office or operations manager'],
       ['it', 'IT staff or IT provider'],
       ['hr', 'HR'],
       ['someoneElse', 'Someone else'],
-      ['nobody', 'Nobody yet'],
+      ['outsideGuidance', "We'd want outside guidance"],
+      ['variesOrNoOne', 'It varies, or no one yet'],
     ],
   },
   {
-    id: 'heldBack', number: 9, type: 'multi',
+    id: 'heldBack', number: 10, type: 'multi',
     label: 'What has held you back so far? Pick all that apply.',
     options: [
       ['notSureStart', 'Not sure where to start'],
@@ -193,7 +258,7 @@ export const questions = [
     ],
   },
   {
-    id: 'feel', number: 10, type: 'single',
+    id: 'feel', number: 11, type: 'single',
     label: 'How does your team feel about AI right now?',
     options: [
       ['keen', 'Mostly keen'],
@@ -203,7 +268,7 @@ export const questions = [
     ],
   },
   {
-    id: 'timing', number: 11, type: 'single',
+    id: 'timing', number: 12, type: 'single',
     label: 'When would you want to start?',
     options: [
       ['thisMonth', 'This month'],
@@ -213,6 +278,21 @@ export const questions = [
     ],
   },
 ];
+
+// Buckets a question's options for grouped rendering (currently just `aiTools`). Any option not
+// covered by a group's `values` stays in an ungrouped bucket rendered first (e.g. "None yet").
+export function groupedOptions(question) {
+  if (!question.groups) return [{ label: null, options: question.options }];
+  const grouped = new Set(question.groups.flatMap(g => g.values));
+  const ungrouped = question.options.filter(([v]) => !grouped.has(v));
+  const buckets = [];
+  if (ungrouped.length) buckets.push({ label: null, options: ungrouped });
+  for (const g of question.groups) {
+    const opts = question.options.filter(([v]) => g.values.includes(v));
+    if (opts.length) buckets.push({ label: g.label, options: opts });
+  }
+  return buckets;
+}
 
 export function isComplete(q, answers) {
   const v = answers[q.id];
@@ -359,11 +439,22 @@ export function tailoredLines(answers) {
   const information = answers.information || [];
   const sensitiveKeys = ['payroll', 'customer', 'health', 'student', 'legal', 'notSureInfo'];
   const sensitive = information.some(v => sensitiveKeys.includes(v));
+  const aiTools = answers.aiTools || [];
   if (sensitive) {
+    // Most specific, actionable line first: a named tool with an actual data-location question
+    // outranks a general "no policy yet" nudge, which outranks the generic fallback.
+    const overseasTool = aiTools.some(v => ['deepseek', 'kimi'].includes(v));
+    if (overseasTool) {
+      return ['Some AI tools store what you type on servers outside Canada. It is worth checking where each tool keeps your data before you use it with sensitive information.'];
+    }
+    const protectInfo = answers.protectInfo || [];
+    const noProtection = protectInfo.some(v => ['nothingFormal', 'noIdeaProtect'].includes(v));
+    if (noProtection) {
+      return ['A short written AI-use policy is often the simplest first step to protect sensitive information.'];
+    }
     return ['If some of your work is sensitive, it may need private or approved tools, and we check that before the plan recommends anything.'];
   }
 
-  const aiTools = answers.aiTools || [];
   let q4Line = null;
   if (aiTools.some(v => ['copilot', 'gemini', 'builtin'].includes(v))) {
     q4Line = 'You may already have licences or features that cover some of this. The plan starts with what you have before suggesting anything new.';
@@ -379,7 +470,8 @@ export function tailoredLines(answers) {
   const priority = [
     heldBack.includes('triedDidntStick') && "The plan starts with one workflow, redesigned from start to finish, so there's one clear place to begin.",
     (heldBack.includes('staffHesitant') || feel === 'worried') && 'The redesigned workflow keeps human checkpoints in place, so your people stay in charge of what goes out.',
-    owner === 'nobody' && "The redesigned workflow names who's responsible for each step, so the work has an owner before it starts.",
+    owner === 'variesOrNoOne' && "Workflows tend to hold up better when each step has a named owner before the work starts.",
+    owner === 'outsideGuidance' && 'Some teams bring in outside help for their first workflow. Others start with one small workflow in-house and build from there.',
     heldBack.includes('notSureStart') && 'The plan ranks what it finds, so you know which opportunity to start with.',
     heldBack.includes('noTime') && 'The plan lists the setup effort for each recommendation, so you can see what it asks of your team before you commit to anything.',
     heldBack.includes('budget') && 'The plan lists the expected software cost of each recommendation, and it starts with tools you already pay for where they fit.',

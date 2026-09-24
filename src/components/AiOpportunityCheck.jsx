@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   questions, isComplete, toggleMulti, computeRange, roundHoursLabel, roundDollars, money,
-  suggestedAreas, tailoredLines, AREA_LABELS, lowerFirst, joinList,
+  suggestedAreas, tailoredLines, AREA_LABELS, lowerFirst, joinList, groupedOptions,
+  sanitizeAreaLabel, sanitizeShortText,
   peopleCapForOrgSize, orgSizeMidpoint, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
   PEOPLE_MAX_BEFORE_ORG_SIZE, areaHoursLabel } from '../lib/aiOpportunity';
 import { prefersReducedMotion } from '../lib/useRollingNumber';
@@ -40,10 +41,11 @@ export default function AiOpportunityCheck() {
   const [answers, setAnswers] = useState({});
   const [qIndex, setQIndex] = useState(0);
   const [step, setStep] = useState('questions'); // questions -> loading -> result
-  const [areaInputs, setAreaInputs] = useState({}); // { [area]: { hours, people } }
+  const [areaInputs, setAreaInputs] = useState({}); // { [area]: { hours, people, label? } }
   const [rate, setRate] = useState(40);
   const [weeks, setWeeks] = useState(48);
   const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
+  const [ownerOtherText, setOwnerOtherText] = useState(''); // Q9 "Someone else" free text, optional
   const headingRef = useRef(null);
 
   const question = questions[qIndex];
@@ -99,9 +101,35 @@ export default function AiOpportunityCheck() {
   const picks = Array.isArray(value) ? value : [];
   const atCap = question?.maxPicks && picks.length >= question.maxPicks;
   const isAreas = question?.id === 'areas';
+  const isOwner = question?.id === 'owner';
+  const isGrouped = !!question?.groups;
   const peopleMaxDuringQ2 = answers.orgSize ? peopleCapForOrgSize(answers.orgSize) : PEOPLE_MAX_BEFORE_ORG_SIZE;
   const pickedRows = isAreas ? picks.map(a => ({ area: a, hours: areaInputs[a]?.hours ?? 5, people: areaInputs[a]?.people ?? 1 })) : [];
   const livePreview = isAreas && pickedRows.some(r => r.hours > 0) ? computeRange(pickedRows, answers.orgSize) : null;
+
+  function renderTile([val, label]) {
+    const disabledByCap = question.type === 'multi' && atCap && !picks.includes(val);
+    const checked = question.type === 'multi' ? picks.includes(val) : value === val;
+    return <div className={`ai-tile-wrap ${disabledByCap ? 'is-disabled' : ''}`} key={val}>
+      <label>
+        {question.type === 'multi'
+          ? <input type="checkbox" name={question.id} value={val} checked={checked} disabled={disabledByCap}
+            onChange={() => toggleOption(val)} />
+          : <input type="radio" name={question.id} value={val} checked={checked}
+            onChange={() => selectSingle(val)} />}
+        {isAreas && <AreaIcon area={val} />}
+        <span>{label}</span>
+      </label>
+      {isAreas && checked && <AreaHoursInput
+        area={val} hours={areaInputs[val]?.hours ?? 5} people={areaInputs[val]?.people ?? 1}
+        peopleMax={peopleMaxDuringQ2}
+        onHoursChange={(h) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], hours: h } }))}
+        onPeopleChange={(p) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], people: p } }))}
+        otherLabel={areaInputs[val]?.label}
+        onOtherLabelChange={(l) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], label: l } }))}
+      />}
+    </div>;
+  }
 
   return <main className="bc-page ai-funnel">
     <SiteHeader />
@@ -116,36 +144,27 @@ export default function AiOpportunityCheck() {
 
       <div className="ai-stepper">
         <div className="ai-stepper-progress-track" aria-hidden="true"><div className="ai-stepper-progress-fill" style={{ width: `${pct}%` }} /></div>
-        <p className="ai-live" aria-live="polite">Question {qIndex + 1} of {questions.length}. {answeredCount} of {questions.length} answered.</p>
+        <p className="ai-live" aria-live="polite">Question {qIndex + 1} of {questions.length}. {answeredCount} of {questions.length} completed.</p>
 
         <fieldset className="ai-stepper-question">
           <legend>{qIndex > 0 && <span className="ai-stepper-count">{qIndex + 1} / {questions.length}</span>} <span ref={qIndex > 0 ? headingRef : null} tabIndex={qIndex > 0 ? -1 : undefined}>{question.label}</span></legend>
 
-          <div className={`ai-options ai-options--tiles ${isAreas ? 'ai-options--areas' : ''}`} onKeyDown={question.type === 'multi' ? handleGridArrowKeys : undefined}>
-            {question.options.map(([val, label]) => {
-              const disabledByCap = question.type === 'multi' && atCap && !picks.includes(val);
-              const checked = question.type === 'multi' ? picks.includes(val) : value === val;
-              return <div className={`ai-tile-wrap ${disabledByCap ? 'is-disabled' : ''}`} key={val}>
-                <label>
-                  {question.type === 'multi'
-                    ? <input type="checkbox" name={question.id} value={val} checked={checked} disabled={disabledByCap}
-                      onChange={() => toggleOption(val)} />
-                    : <input type="radio" name={question.id} value={val} checked={checked}
-                      onChange={() => selectSingle(val)} />}
-                  {isAreas && <AreaIcon area={val} />}
-                  <span>{label}</span>
-                </label>
-                {isAreas && checked && <AreaHoursInput
-                  area={val} hours={areaInputs[val]?.hours ?? 5} people={areaInputs[val]?.people ?? 1}
-                  peopleMax={peopleMaxDuringQ2}
-                  onHoursChange={(h) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], hours: h } }))}
-                  onPeopleChange={(p) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], people: p } }))}
-                />}
-              </div>;
-            })}
+          <div className={`ai-options ai-options--tiles ${isAreas ? 'ai-options--areas' : ''} ${isGrouped ? 'ai-options--grouped' : ''}`} onKeyDown={question.type === 'multi' ? handleGridArrowKeys : undefined}>
+            {isGrouped
+              ? groupedOptions(question).flatMap((bucket, bi) => [
+                bucket.label && <p className="ai-tile-group-label" key={`group-${bi}`}>{bucket.label}</p>,
+                ...bucket.options.map(renderTile),
+              ]).filter(Boolean)
+              : question.options.map(renderTile)}
           </div>
           {isAreas && <p className="ai-note">Up to four. Each one you pick gets its own hours and people below.</p>}
           {livePreview && <p className="ai-live-preview">About {roundHoursLabel(livePreview.low)} to {roundHoursLabel(livePreview.likely)} hours a week back, so far.</p>}
+          {isOwner && value === 'someoneElse' && <div className="ai-other-label-field">
+            <label className="ai-hours-field-label" htmlFor="owner-other-text">Who is it? (a role is fine, e.g. finance lead)</label>
+            <input id="owner-other-text" type="text" className="ai-compact-text-input" maxLength={60}
+              value={ownerOtherText} onChange={(e) => setOwnerOtherText(e.target.value)} />
+            {sanitizeShortText(ownerOtherText) && <p className="ai-note">You said: {sanitizeShortText(ownerOtherText)}</p>}
+          </div>}
         </fieldset>
 
         <div className="ai-stepper-nav">
@@ -223,7 +242,9 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
     </p>
 
     {rowDetail.length > 0 && <div className="ai-area-breakdown">
-      {rowDetail.map(r => <AreaBarRow key={r.area} label={AREA_LABELS[r.area]} low={r.low} likely={r.likely} max={Math.max(likely, 1) * 1.15} />)}
+      {rowDetail.map(r => <AreaBarRow key={r.area}
+        label={r.area === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[r.area]}
+        low={r.low} likely={r.likely} max={Math.max(likely, 1) * 1.15} />)}
     </div>}
 
     <section className="ai-panel ai-headcount-section" aria-labelledby="ai-headcount-title">
@@ -258,7 +279,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
 
     <details className="ai-disclosure">
       <summary>How this estimate works</summary>
-      <p>It's built from your numbers for a team of {answers.orgSize ? answers.orgSize.replace('+', ' or more') : 'your'} people. For each area you picked, we multiply the hours one person spends by the number of people, then by a low and a likely net rate taken from published studies of similar work. The net rate is the time saving those studies measured, minus an allowance for checking the tools' work. Where no study matches an area closely, we use our most conservative rate. To keep the estimate realistic, we count at most 25 hours a week per person for any one area, and at most 30 hours a week per person in total across every area. The dollar figure uses the hourly cost and working weeks shown above. This is an estimate from your answers and published studies. It isn't a promise of results or a cash saving, and your own results could land outside it.</p>
+      <p>It's built from your numbers for a team of {answers.orgSize ? answers.orgSize.replace('+', ' or more') : 'your'} people. For each area you picked, we multiply the hours one person spends by the number of people, then by a low and a likely net rate taken from published studies of similar work. The net rate is the time saving those studies measured, minus an allowance for checking the tools' work. Where no study matches an area closely, or where you typed in your own area, we use our most conservative rate. To keep the estimate realistic, we count at most 25 hours a week per person for any one area, and at most 30 hours a week per person in total across every area. The dollar figure uses the hourly cost and working weeks shown above. This is an estimate from your answers and published studies. It isn't a promise of results or a cash saving, and your own results could land outside it.</p>
     </details>
 
     <button type="button" className="ai-secondary" onClick={onReview}>Review my answers</button>

@@ -81,6 +81,64 @@ const PATHS = {
       <path d="M6.7 15.3l6.2-6.2 1.6 1.6-6.2 6.2H6.7z" {...STROKE} />
     </>
   ),
+  // Writing and editing: pencil
+  writingEditing: (
+    <>
+      <path d="M12.5 3.5l4 4-9 9-4.6 1 1-4.6z" {...STROKE} />
+      <path d="M11 5l4 4" {...STROKE} />
+    </>
+  ),
+  // Research and summarizing documents: document with a magnifier
+  research: (
+    <>
+      <path d="M5 2.5h7l3 3v6.4h-10z" {...STROKE} />
+      <path d="M11.5 2.5v3.5H15" {...STROKE} />
+      <circle cx="8.2" cy="13" r="2.7" {...STROKE} />
+      <path d="M10.2 15l2.1 2.1" {...STROKE} />
+    </>
+  ),
+  // Spreadsheets and data cleanup: grid
+  spreadsheets: (
+    <>
+      <rect x="2.5" y="3" width="15" height="14" rx="1.2" {...STROKE} />
+      <path d="M2.5 8h15M2.5 12.5h15M7.5 3v14M12.8 3v14" {...STROKE} />
+    </>
+  ),
+  // Social posts, newsletters and marketing copy: megaphone
+  socialContent: (
+    <>
+      <path d="M2.5 8.5v3l3 .6v-4.2z" {...STROKE} />
+      <path d="M5.5 7.5l9-3.8v12.6l-9-3.8z" {...STROKE} />
+      <path d="M5.8 12.1l1 3.8" {...STROKE} />
+      <path d="M14.5 7.2a3 3 0 010 5.6" {...STROKE} />
+    </>
+  ),
+  // Training materials and how-to guides: graduation cap
+  trainingMaterials: (
+    <>
+      <path d="M10 3l8 3.6-8 3.6-8-3.6z" {...STROKE} />
+      <path d="M5.5 8.2v3.8c0 1.2 2 2.2 4.5 2.2s4.5-1 4.5-2.2V8.2" {...STROKE} />
+      <path d="M18 6.6v4.4" {...STROKE} />
+    </>
+  ),
+  // Policies, procedures and templates: document with a checklist
+  policies: (
+    <>
+      <path d="M4.5 2.5h7l3.5 3.5V17.5h-10.5z" {...STROKE} />
+      <path d="M11.5 2.5v3.5H15" {...STROKE} />
+      <path d="M6.3 10.2l1.2 1.2 2.4-2.6" {...STROKE} />
+      <path d="M6.3 14l1.2 1.2 2.4-2.6" {...STROKE} />
+    </>
+  ),
+  // Other (type your own): typed lines with a cursor
+  otherArea: (
+    <>
+      <path d="M3 6.5h13" {...STROKE} />
+      <path d="M3 10.3h9" {...STROKE} />
+      <path d="M3 14.1h6" {...STROKE} />
+      <path d="M16.3 12v5" {...STROKE} strokeWidth={1.6} />
+    </>
+  ),
   // Not sure yet: dotted circle
   notSureArea: (
     <circle cx="10" cy="10" r="7" strokeDasharray="2.2 2.4" {...STROKE} />

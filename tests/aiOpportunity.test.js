@@ -4,6 +4,7 @@ import {
   toggleMulti, peopleCapForOrgSize, orgSizeMidpoint, rateForArea, suggestedAreas,
   tailoredLines, questions, HOUR_CAP_PER_AREA, HOUR_CAP_TOTAL, PEOPLE_MAX_BEFORE_ORG_SIZE,
   lowerFirst, joinList, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
+  AREAS, AREA_RATE_MAP, RATE_TABLE, groupedOptions, sanitizeAreaLabel, sanitizeShortText,
 } from '../src/lib/aiOpportunity';
 
 describe('range maths', () => {
@@ -148,13 +149,83 @@ describe('multi-select state', () => {
   });
 });
 
-describe('the check is 11 questions (Q5 workload merged into Q2)', () => {
-  it('has 11 questions, numbered 1 to 11', () => {
-    expect(questions.length).toBe(11);
-    expect(questions.map(q => q.number)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]);
+describe('the check is 12 questions (protectInfo added after "information")', () => {
+  it('has 12 questions, numbered 1 to 12', () => {
+    expect(questions.length).toBe(12);
+    expect(questions.map(q => q.number)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
   });
   it('no longer has a standalone workload question', () => {
     expect(questions.find(q => q.id === 'workload')).toBeUndefined();
+  });
+  it('places the new protectInfo question right after information', () => {
+    const infoIndex = questions.findIndex(q => q.id === 'information');
+    expect(questions[infoIndex + 1].id).toBe('protectInfo');
+  });
+});
+
+describe('new Q2 area tiles (2026-09-24)', () => {
+  const newAreas = ['writingEditing', 'research', 'spreadsheets', 'socialContent', 'trainingMaterials', 'policies'];
+  it('maps each new area to an existing rate bucket, no new numbers', () => {
+    expect(AREA_RATE_MAP.writingEditing).toBe('correspondence');
+    expect(AREA_RATE_MAP.research).toBe('search');
+    expect(AREA_RATE_MAP.spreadsheets).toBe('reports');
+    expect(AREA_RATE_MAP.socialContent).toBe('correspondence');
+    expect(AREA_RATE_MAP.trainingMaterials).toBe('reports');
+    expect(AREA_RATE_MAP.policies).toBe('reports');
+    newAreas.forEach(a => expect(rateForArea(a)).toEqual(RATE_TABLE[AREA_RATE_MAP[a]]));
+  });
+  it('keeps "Not sure yet" as the sole exclusive pick, last in the list', () => {
+    const q = questions.find(q => q.id === 'areas');
+    expect(AREAS[AREAS.length - 1][0]).toBe('notSureArea');
+    expect(q.options[q.options.length - 1]).toEqual(['notSureArea', 'Not sure yet', true]);
+    expect(q.options.filter(o => o[2])).toHaveLength(1);
+  });
+  it('the four-pick cap still holds with the larger option set', () => {
+    const q = questions.find(q => q.id === 'areas');
+    const four = ['correspondence', 'writingEditing', 'research', 'otherArea'];
+    expect(toggleMulti(four, 'policies', q.options, q.maxPicks)).toEqual(four);
+  });
+  it('"Other (type your own)" uses the floor rate, so it can only understate', () => {
+    expect(rateForArea('otherArea')).toEqual(rateForArea('notSureArea'));
+    expect(AREA_RATE_MAP.otherArea).toBe('floor');
+  });
+});
+
+describe('sanitizing visitor-typed text (Other area, Q9 someone-else)', () => {
+  it('trims, caps at 60 characters, and strips angle brackets', () => {
+    expect(sanitizeAreaLabel('  grant reporting  ')).toBe('grant reporting');
+    expect(sanitizeAreaLabel('<script>alert(1)</script>')).toBe('scriptalert(1)/script');
+    expect(sanitizeAreaLabel('a'.repeat(90)).length).toBe(60);
+  });
+  it('falls back to "Other work" when empty', () => {
+    expect(sanitizeAreaLabel('')).toBe('Other work');
+    expect(sanitizeAreaLabel('   ')).toBe('Other work');
+    expect(sanitizeAreaLabel(undefined)).toBe('Other work');
+  });
+  it('sanitizeShortText has no fallback -- an empty optional field stays empty', () => {
+    expect(sanitizeShortText('  finance lead  ')).toBe('finance lead');
+    expect(sanitizeShortText('')).toBe('');
+    expect(sanitizeShortText('<b>x</b>')).toBe('bx/b');
+  });
+});
+
+describe('grouped options (aiTools)', () => {
+  it('buckets the aiTools question into its three named groups plus an ungrouped "None yet"', () => {
+    const q = questions.find(q => q.id === 'aiTools');
+    const buckets = groupedOptions(q);
+    expect(buckets[0].label).toBeNull();
+    expect(buckets[0].options.map(o => o[0])).toEqual(['none']);
+    const labels = buckets.slice(1).map(b => b.label);
+    expect(labels).toEqual(['General assistants', 'Built into Microsoft or Google', 'Meeting and other']);
+  });
+  it('includes every new AI tool in the general-assistants group', () => {
+    const q = questions.find(q => q.id === 'aiTools');
+    const general = groupedOptions(q).find(b => b.label === 'General assistants').options.map(o => o[0]);
+    ['deepseek', 'kimi', 'perplexity', 'grok', 'metaAi', 'mistral'].forEach(v => expect(general).toContain(v));
+  });
+  it('a question with no groups renders as a single ungrouped bucket', () => {
+    const q = questions.find(q => q.id === 'orgType');
+    expect(groupedOptions(q)).toEqual([{ label: null, options: q.options }]);
   });
 });
 
@@ -204,5 +275,30 @@ describe('tailored lines: at most one, sensitive wins outright', () => {
   });
   it('returns no lines for a neutral answer set', () => {
     expect(tailoredLines({})).toEqual([]);
+  });
+  it('when sensitive info is picked and the team uses DeepSeek or Kimi, names the overseas-storage line instead of the generic sensitive line', () => {
+    const lines = tailoredLines({ information: ['health'], aiTools: ['deepseek'] });
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toBe('Some AI tools store what you type on servers outside Canada. It is worth checking where each tool keeps your data before you use it with sensitive information.');
+    const kimi = tailoredLines({ information: ['legal'], aiTools: ['kimi'] });
+    expect(kimi[0]).toMatch(/servers outside Canada/);
+  });
+  it('when sensitive info is picked with no formal protection, uses the policy-first line (and it loses to the overseas-tool line if both apply)', () => {
+    const lines = tailoredLines({ information: ['student'], protectInfo: ['nothingFormal'] });
+    expect(lines).toEqual(['A short written AI-use policy is often the simplest first step to protect sensitive information.']);
+    const both = tailoredLines({ information: ['student'], protectInfo: ['noIdeaProtect'], aiTools: ['deepseek'] });
+    expect(both[0]).toMatch(/servers outside Canada/);
+  });
+  it('the plain sensitive line still applies when neither the AI-tool nor the protection condition is met', () => {
+    const lines = tailoredLines({ information: ['customer'], aiTools: ['chatgpt'], protectInfo: ['writtenPolicy'] });
+    expect(lines[0]).toMatch(/private or approved tools/);
+  });
+  it('names a neutral outside-guidance line when Q9 owner is "We\'d want outside guidance"', () => {
+    const lines = tailoredLines({ owner: 'outsideGuidance' });
+    expect(lines).toEqual(['Some teams bring in outside help for their first workflow. Others start with one small workflow in-house and build from there.']);
+  });
+  it('keeps the "no named owner" line for the renamed "It varies, or no one yet" value', () => {
+    const lines = tailoredLines({ owner: 'variesOrNoOne' });
+    expect(lines[0]).toMatch(/named owner before the work starts/);
   });
 });

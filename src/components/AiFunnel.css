@@ -16,7 +16,7 @@
 .ai-options label { display:flex; align-items:center; gap:12px; background:var(--ai-card); color:var(--ai-ink); border:1px solid var(--ai-line); padding:15px; border-radius:6px; cursor:pointer; min-height:56px; }
 .ai-options label:hover { border-color:var(--ai-gold); }
 .ai-options label:has(input:checked) { background:var(--ai-card-2); border-color:var(--ai-gold); box-shadow:inset 0 0 0 1px var(--ai-gold); }
-.ai-options input { accent-color:var(--ai-gold); width:18px; height:18px; flex-shrink:0; }
+.ai-options input[type="checkbox"], .ai-options input[type="radio"] { accent-color:var(--ai-gold); width:18px; height:18px; flex-shrink:0; }
 .ai-funnel .ai-button { display:inline-block; font:600 16px/1.5 Inter,sans-serif; color:#0b1a33; background:var(--ai-gold); border:2px solid var(--ai-gold); border-radius:5px; padding:15px 24px; text-decoration:none; cursor:pointer; }
 .ai-funnel .ai-button:hover { background:var(--ai-gold-2); border-color:var(--ai-gold-2); color:#0b1a33; }
 .ai-funnel :focus-visible { outline:3px solid var(--ai-gold); outline-offset:4px; }
@@ -141,11 +141,24 @@
 .ai-tile-icon { width:20px; height:20px; color:var(--ai-gold); flex:none; opacity:.75; }
 .ai-tile-wrap label:has(input:checked) .ai-tile-icon,
 .ai-tile-wrap label:hover .ai-tile-icon { opacity:1; }
-.ai-options--areas { grid-template-columns:1fr; }
+/* Areas (Q2) and the grouped AI-tools question (Q4) both stay a tidy 2-column grid at desktop
+   width even with 17 area tiles / 13 tool tiles; the general mobile rule below collapses both
+   to one column. A ticked area tile spans both columns once its hours/people editor opens, so
+   that panel isn't squeezed into a half-width slot. */
+.ai-options--areas .ai-tile-wrap:has(.ai-area-input) { grid-column:1 / -1; }
+.ai-tile-group-label { grid-column:1 / -1; margin:14px 0 -2px; font-size:12.5px; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color:var(--ai-soft); }
+.ai-options--grouped .ai-tile-group-label:first-child { margin-top:0; }
 
 /* ---------- inline area hours+people input (Q2) ---------- */
 .ai-area-input { margin:10px 0 4px; padding:18px 20px 20px; border-radius:10px; background:rgba(8,20,40,.35); border:1px solid var(--ai-line); }
 .ai-slider-hint { margin:8px 0 0; }
+
+/* ---------- short free-text follow-ups (Q2 "Other", Q9 "Someone else") ---------- */
+.ai-other-label-field { margin:0 0 16px; }
+.ai-compact-text-input { display:block; width:100%; max-width:360px; box-sizing:border-box; margin-top:8px; padding:10px 14px;
+  border-radius:8px; border:1px solid var(--ai-line); background:rgba(8,20,40,.5); color:var(--ai-ink); font:500 14.5px Inter,sans-serif; }
+.ai-compact-text-input:focus { outline:none; border-color:var(--ai-gold); }
+.ai-compact-text-input::placeholder { color:var(--ai-soft); opacity:.7; }
 
 /* ---------- shared gold slider + floating bubble (GoldSlider.jsx) ---------- */
 .ai-gold-slider { position:relative; margin:26px 0 6px; }
