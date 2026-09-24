@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import Emblem from './Emblem';
 import SavingsEquation from './SavingsEquation';
 import SiteHeader from './SiteHeader';
 import { LEGACY_WORKFLOW_LABELS } from '../lib/aiOpportunity';
@@ -50,7 +49,11 @@ export default function AiHandoffPlanPage() {
         <h1>The AI Handoff Plan</h1>
         <p>A practical AI review of your organization's recurring work, with one workflow redesigned and a roadmap your team can put into practice. You'll know what to hand to AI, what stays with your people, and which tools to start with.</p>
       </div>
-      <Emblem slug="ai-handoff-plan" />
+      <img className="ai-hero-photo" alt=""
+        src="/img/ai/01-plan-hero-1600.webp"
+        srcSet="/img/ai/01-plan-hero-800.webp 800w, /img/ai/01-plan-hero-1600.webp 1600w"
+        sizes="(max-width: 700px) 100vw, 40vw"
+        width="1600" height="1073" fetchpriority="high" />
     </header>
 
     {legacyWorkflow && <p className="ai-context">Your starting point: <strong>{legacyWorkflow}</strong>. We examine how the work happens before recommending a tool.</p>}
@@ -91,7 +94,14 @@ export default function AiHandoffPlanPage() {
     <SavingsEquation defaultPerPersonHours={carriedHours} defaultEmployees={carriedEmployees} />
 
     <section className="ai-flow" aria-labelledby="ai-flow-title">
-      <h2 id="ai-flow-title">How it works, and what you get.</h2>
+      <div className="ai-flow-head">
+        <h2 id="ai-flow-title">How it works, and what you get.</h2>
+        <img className="ai-flow-photo" alt=""
+          src="/img/ai/05-human-checkpoint-1600.webp"
+          srcSet="/img/ai/05-human-checkpoint-800.webp 800w, /img/ai/05-human-checkpoint-1600.webp 1600w"
+          sizes="(max-width: 700px) 100vw, 380px"
+          width="1600" height="1073" loading="lazy" />
+      </div>
       <ol className="ai-flow-steps">
         {FLOW_STEPS.map((s, i) => (
           <li className={`ai-flow-step ${s.key ? 'ai-flow-step--key' : ''}`} key={s.name}>
