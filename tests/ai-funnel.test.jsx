@@ -36,6 +36,15 @@ describe('AI opportunity routing', () => {
     fireEvent.click(screen.getByRole('button',{name:'Review my answers'}));
     expect(container.querySelector('input[name="workflow"][value="reporting"]')).toBeChecked();
   });
+  it('scales the illustration by the number of people', () => {
+    const {container} = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    questions.forEach(q => fireEvent.click(container.querySelector(`input[name="${q.id}"][value="${ready[q.id]}"]`)));
+    fireEvent.submit(container.querySelector('form'));
+    fireEvent.change(screen.getByLabelText(/would say the same, or more/), {target:{value:'10'}});
+    expect(screen.getByText('C$96,000')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button',{name:'Show my result'}));
+    expect(screen.getByText(/50 hours a week across your team could be worth about C\$96,000 a year in staff capacity/)).toBeInTheDocument();
+  });
   it('shows the time-value calculator before the result and carries the figure into the audit CTA', () => {
     const {container} = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     questions.forEach(q => fireEvent.click(container.querySelector(`input[name="${q.id}"][value="${ready[q.id]}"]`)));
@@ -46,11 +55,13 @@ describe('AI opportunity routing', () => {
     expect(screen.getByText('C$12,000')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button',{name:'Show my result'}));
     expect(screen.getByText('Your next practical step')).toBeInTheDocument();
-    expect(screen.getByText(/5 hours a week could be worth about C\$12,000 a year/)).toBeInTheDocument();
+    expect(screen.getByText(/5 hours a week could be worth about C\$12,000 a year in staff capacity/)).toBeInTheDocument();
   });
   it('estimates capacity safely', () => {
     expect(estimateCapacity({hours:5, rate:40, weeks:40})).toBe(8000);
     expect(estimateCapacity({hours:'x', rate:40, weeks:40})).toBe(0);
+    expect(estimateCapacity({people:10, hours:5, rate:40, weeks:48})).toBe(96000);
+    expect(estimateCapacity({people:0, hours:5, rate:40, weeks:48})).toBe(0);
     expect(defaultHours('under5')).toBe(2);
     expect(defaultHours('5plus')).toBe(5);
   });

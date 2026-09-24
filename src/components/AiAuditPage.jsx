@@ -10,7 +10,7 @@ import './AiFunnel.css';
 export default function AiAuditPage() {
   const [params] = useSearchParams();
   const workflow = workflows[params.get('workflow')];
-  const [calc, setCalc] = useState({ hours: 5, rate: 40, weeks: 48 });
+  const [calc, setCalc] = useState({ people: 1, hours: 5, rate: 40, weeks: 48 });
   return <main className="bc-page ai-funnel">
     <Link to="/ai-opportunity-check">Free AI Opportunity Check</Link>
     <header className="ai-hero"><div><p className="ai-eyebrow">Practical AI Audit</p>

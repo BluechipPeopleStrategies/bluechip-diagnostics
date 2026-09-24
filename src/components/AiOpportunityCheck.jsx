@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getOpportunity, questions, estimateCapacity, defaultHours } from '../lib/aiOpportunity';
+import { getOpportunity, questions, estimateCapacity, defaultHours, teamHours } from '../lib/aiOpportunity';
 import AiCalculator, { money } from './AiCalculator';
 import Emblem from './Emblem';
 import './AiFunnel.css';
@@ -8,7 +8,7 @@ import './AiFunnel.css';
 export default function AiOpportunityCheck() {
   const [answers, setAnswers] = useState({});
   const [step, setStep] = useState('questions'); // questions -> calculator -> result
-  const [calc, setCalc] = useState({ hours: 5, rate: 40, weeks: 48 });
+  const [calc, setCalc] = useState({ people: 1, hours: 5, rate: 40, weeks: 48 });
   const heading = useRef(null);
   const dialogHeading = useRef(null);
   const complete = questions.every(q => answers[q.id]);
@@ -65,7 +65,8 @@ export default function AiOpportunityCheck() {
     {step === 'result' && <>
       <section className="ai-panel"><p className="ai-eyebrow">{result.label}</p><h2>{result.opportunity}</h2><p>{result.next}</p><h3>One useful preparation step</h3><p>{result.preparation}</p><p>{result.toolAdvice}</p></section>
       <p className="ai-note">This is a starting point based on your answers, not a savings estimate or confirmation that the five-hour audit threshold is met.</p>
-      <section className="ai-panel ai-funnel-cta"><p className="ai-eyebrow">Your numbers</p><h2>{calc.hours} hours a week could be worth about {money(value)} a year.</h2>
+      <section className="ai-panel ai-funnel-cta"><p className="ai-eyebrow">Your numbers</p><h2>If those numbers hold, {teamHours(calc).toLocaleString('en-CA')} hours a week{(calc.people ?? 1) > 1 ? ' across your team' : ''} could be worth about {money(value)} a year in staff capacity.</h2>
+        <p className="ai-note">The audit's guarantee is five net hours a week in total across your organisation, not per person.</p>
         <p>The Practical AI Audit examines your organisation's actual workflows, recommends suitable tools and documents the potential time savings, net of checking and upkeep. It's C$999 including tax, and your fee is refunded in full if we can't identify evidence-backed potential for at least five net hours a week. You choose and implement the recommendations.</p>
         <Link className="ai-button" to={`/ai-audit?workflow=${encodeURIComponent(answers.workflow)}`}>See what your AI audit includes</Link>
       </section>
