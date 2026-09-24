@@ -222,6 +222,12 @@ html, body {
 /* ---------- AI pages ---------- */
 .ai-hero { display: grid; grid-template-columns: 1.3fr .7fr; gap: 20px; align-items: center; }
 .ai-hero .bc-emblem { width: min(320px, 100%); justify-self: end; }
+/* Photoreal hero image (2026-09-24), in the emblem's old grid slot: same column, same natural
+   DOM order, so it inherits the "Design review fix 3" mobile behaviour below without new code --
+   it never gets ahead of the H1/price/CTA. No shadow (Thomas's spec); radius matches .ai-panel's
+   actual rendered 14px (the .ai-funnel .ai-panel override further down this file, not the 6px
+   base in AiFunnel.css), not a heavy card treatment. */
+.ai-hero-photo { display: block; width: 100%; height: auto; justify-self: end; border-radius: 14px; border: 1px solid var(--ai-line); }
 .ai-funnel .ai-panel, .ai-calc-inline, .ai-options label { box-shadow: var(--v-shadow); }
 .ai-funnel .ai-panel, .ai-calc-inline { background: linear-gradient(180deg, #1a2e4b, #13233b); border-radius: 14px; }
 .ai-funnel .ai-panel--focal { box-shadow: var(--v-shadow-hi); }
@@ -251,6 +257,7 @@ html, body {
      in its natural (later) DOM position and shrink it so the top of the price panel still fits
      in the first screen. */
   .ai-hero .bc-emblem { width: 120px; justify-self: start; }
+  .ai-hero-photo { width: 100%; max-width: 280px; justify-self: start; margin-top: 4px; }
   .bc-quiz-header .bc-emblem--sm { width: 48px; }
 }
 

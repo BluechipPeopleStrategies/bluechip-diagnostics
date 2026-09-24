@@ -9,6 +9,10 @@
 .ai-funnel h3 { margin:0 0 12px; font-size:20px; }
 .ai-funnel .ai-eyebrow { font-size:13px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; margin:28px 0 8px; color:var(--ai-gold); }
 .ai-funnel .ai-note { font-size:14px; color:var(--ai-soft); }
+/* Photoreal supporting images (2026-09-24): radius matches .ai-panel's actual rendered 14px
+   (set in visual.css's .ai-funnel .ai-panel override, not the 6px base above), no shadow. */
+.ai-intro-photo { display:block; width:200px; max-width:45vw; height:auto; margin:18px 0; border-radius:14px; border:1px solid var(--ai-line); }
+.ai-flow-photo { display:block; width:100%; max-width:640px; height:auto; margin:18px 0 26px; border-radius:14px; border:1px solid var(--ai-line); }
 .ai-funnel fieldset { border:0; border-top:1px solid var(--ai-line); margin:32px 0; padding:24px 0 0; min-width:0; }
 .ai-funnel legend { font-weight:600; font-size:19px; padding:0 12px 0 0; }
 .ai-funnel legend span { font-size:13px; display:block; color:var(--ai-gold); }
