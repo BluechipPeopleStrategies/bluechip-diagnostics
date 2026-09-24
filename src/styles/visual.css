@@ -257,7 +257,9 @@ html, body {
      in its natural (later) DOM position and shrink it so the top of the price panel still fits
      in the first screen. */
   .ai-hero .bc-emblem { width: 120px; justify-self: start; }
-  .ai-hero-photo { width: 100%; max-width: 280px; justify-self: start; margin-top: 4px; }
+  /* Full content width with a capped, cropped height (2026-09-24 revision) -- the earlier
+     280px-and-left-aligned version left a ragged gap on the right at 390. */
+  .ai-hero-photo { width: 100%; max-width: none; height: 220px; object-fit: cover; justify-self: stretch; margin-top: 4px; }
   .bc-quiz-header .bc-emblem--sm { width: 48px; }
 }
 

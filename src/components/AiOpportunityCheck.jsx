@@ -135,17 +135,17 @@ export default function AiOpportunityCheck() {
     <SiteHeader />
 
     {step === 'questions' && <>
-      {qIndex === 0 && <>
-        <p className="ai-eyebrow">Free AI Opportunity Check</p>
-        <h1 ref={headingRef} tabIndex={-1}>How much time could AI give back to your team?</h1>
+      {qIndex === 0 && <div className="ai-intro-head">
+        <p className="ai-eyebrow ai-intro-eyebrow">Free AI Opportunity Check</p>
+        <h1 className="ai-intro-h1" ref={headingRef} tabIndex={-1}>How much time could AI give back to your team?</h1>
+        <p className="ai-intro-sub">Find out roughly how many hours a week AI could give your team back. About three minutes, no email.</p>
         <img className="ai-intro-photo" alt=""
           src="/img/ai/02-free-check-1600.webp"
           srcSet="/img/ai/02-free-check-800.webp 800w, /img/ai/02-free-check-1600.webp 1600w"
-          sizes="(max-width: 700px) 45vw, 200px"
+          sizes="(max-width: 480px) 45vw, 220px"
           width="1600" height="1600" loading="lazy" />
-        <p>Find out roughly how many hours a week AI could give your team back. About three minutes, no email.</p>
-        <p className="ai-note">Answers stay on this page and clear when you reload. Please don't enter confidential information.</p>
-      </>}
+        <p className="ai-note ai-intro-note">Answers stay on this page and clear when you reload. Please don't enter confidential information.</p>
+      </div>}
 
       <div className="ai-stepper">
         <div className="ai-stepper-progress-track" aria-hidden="true"><div className="ai-stepper-progress-fill" style={{ width: `${pct}%` }} /></div>
