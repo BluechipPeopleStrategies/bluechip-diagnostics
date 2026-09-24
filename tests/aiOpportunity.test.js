@@ -5,6 +5,7 @@ import {
   tailoredLines, questions, HOUR_CAP_PER_AREA, HOUR_CAP_TOTAL, PEOPLE_MAX_BEFORE_ORG_SIZE,
   lowerFirst, joinList, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
   AREAS, AREA_RATE_MAP, RATE_TABLE, groupedOptions, sanitizeAreaLabel, sanitizeShortText,
+  areaLookoutLines, OTHER_AREA_LOOKOUT, crossCuttingCards, nextSteps,
 } from '../src/lib/aiOpportunity';
 
 describe('range maths', () => {
@@ -300,5 +301,80 @@ describe('tailored lines: at most one, sensitive wins outright', () => {
   it('keeps the "no named owner" line for the renamed "It varies, or no one yet" value', () => {
     const lines = tailoredLines({ owner: 'variesOrNoOne' });
     expect(lines[0]).toMatch(/named owner before the work starts/);
+  });
+});
+
+describe('"what we\'d look at" area lookout lines', () => {
+  it('gives every AREAS value (except the exclusive "not sure yet") its own 2-3 line set', () => {
+    for (const [value] of AREAS) {
+      if (value === 'notSureArea') continue;
+      const lines = areaLookoutLines(value);
+      expect(lines.length).toBeGreaterThanOrEqual(2);
+      expect(lines.length).toBeLessThanOrEqual(3);
+    }
+  });
+  it('falls back to the generic Other set for an unlisted area (e.g. a typed-in "Other")', () => {
+    expect(areaLookoutLines('otherArea')).toEqual(OTHER_AREA_LOOKOUT);
+    expect(areaLookoutLines('somethingNotInTheMap')).toEqual(OTHER_AREA_LOOKOUT);
+  });
+  it('never names a specific tool or vendor', () => {
+    const vendors = /chatgpt|copilot|gemini|claude|deepseek|kimi|perplexity|grok|meta ai|mistral/i;
+    for (const [value] of AREAS) {
+      areaLookoutLines(value).forEach(line => expect(line).not.toMatch(vendors));
+    }
+  });
+});
+
+describe('cross-cutting "what we\'d look at" cards (up to 2, priority ordered)', () => {
+  it('shows Information handling when sensitive info has weak protection', () => {
+    const cards = crossCuttingCards({ information: ['health'], protectInfo: ['nothingFormal'] });
+    expect(cards[0].title).toBe('Information handling');
+  });
+  it('does not show Information handling when protection is not weak', () => {
+    const cards = crossCuttingCards({ information: ['health'], protectInfo: ['writtenPolicy'] });
+    expect(cards.find(c => c.title === 'Information handling')).toBeUndefined();
+  });
+  it('shows "Tools you already have" when the team uses Copilot or Gemini', () => {
+    const cards = crossCuttingCards({ aiTools: ['copilot'] });
+    expect(cards.some(c => c.title === 'Tools you already have')).toBe(true);
+  });
+  it('shows "Who\'ll run it" for low tech comfort or wanting outside guidance', () => {
+    expect(crossCuttingCards({ readiness: 'notYetReady' }).some(c => c.title === "Who'll run it")).toBe(true);
+    expect(crossCuttingCards({ owner: 'outsideGuidance' }).some(c => c.title === "Who'll run it")).toBe(true);
+  });
+  it('never returns more than 2 cards, even when every condition matches', () => {
+    const cards = crossCuttingCards({
+      information: ['health'], protectInfo: ['nothingFormal'],
+      aiTools: ['copilot'], readiness: 'notYetReady', owner: 'outsideGuidance',
+    });
+    expect(cards.length).toBeLessThanOrEqual(2);
+    expect(cards[0].title).toBe('Information handling'); // the safety-relevant card wins the priority order
+  });
+  it('returns an empty array when nothing matches', () => {
+    expect(crossCuttingCards({})).toEqual([]);
+  });
+});
+
+describe('"free next steps" (always exactly 3, tailored and deduplicated)', () => {
+  it('always returns exactly 3 steps, even for a neutral answer set', () => {
+    expect(nextSteps({}, null)).toHaveLength(3);
+  });
+  it('leads with a time-the-top-area step when a top area label is given', () => {
+    const steps = nextSteps({}, 'emails and correspondence');
+    expect(steps[0]).toMatch(/Track the time spent on emails and correspondence for one week/);
+  });
+  it('includes the write-a-policy step when sensitive info has weak protection', () => {
+    const steps = nextSteps({ information: ['health'], protectInfo: ['noIdeaProtect'] }, 'a top area');
+    expect(steps.some(s => s.includes('one-page rule'))).toBe(true);
+  });
+  it('never duplicates a step even if multiple conditions would produce the same one', () => {
+    const steps = nextSteps({ information: ['health'], protectInfo: ['nothingFormal'] }, null);
+    const unique = new Set(steps);
+    expect(unique.size).toBe(steps.length);
+  });
+  it('never names a specific tool or vendor', () => {
+    const vendors = /chatgpt|copilot|gemini|claude|deepseek|kimi|perplexity|grok|meta ai|mistral/i;
+    nextSteps({ heldBack: ['notSureStart', 'staffHesitant', 'budget'], owner: 'variesOrNoOne' }, 'a top area')
+      .forEach(s => expect(s).not.toMatch(vendors));
   });
 });

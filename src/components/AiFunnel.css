@@ -20,6 +20,12 @@
 .ai-funnel .ai-button { display:inline-block; font:600 16px/1.5 Inter,sans-serif; color:#0b1a33; background:var(--ai-gold); border:2px solid var(--ai-gold); border-radius:5px; padding:15px 24px; text-decoration:none; cursor:pointer; }
 .ai-funnel .ai-button:hover { background:var(--ai-gold-2); border-color:var(--ai-gold-2); color:#0b1a33; }
 .ai-funnel :focus-visible { outline:3px solid var(--ai-gold); outline-offset:4px; }
+/* These headings are focused programmatically on every step change (for screen-reader
+   announcement), not by the visitor tabbing in -- Chrome's :focus-visible heuristic still
+   matched that programmatic focus here, so the blanket rule above put a gold ring around
+   "Your estimate" on every result load. Belt-and-suspenders: also scope :focus:not(:focus-visible)
+   on the specific elements, since the ring is never wanted for a focus the visitor didn't drive. */
+.ai-eyebrow:focus:not(:focus-visible), .ai-result-headline:focus:not(:focus-visible) { outline:none; }
 .ai-funnel .ai-secondary { display:inline-block; margin:28px 0 0; border:0; background:none; padding:10px 0; font:600 15px/1.5 Inter,sans-serif; text-decoration:underline; text-decoration-color:var(--ai-gold); cursor:pointer; color:var(--ai-ink); }
 /* Depth system: three elevation levels. Flat (default section spacing, no card) < raised
    (.ai-panel: a card with a hairline border) < focal (.ai-panel--focal: the one thing on the
@@ -58,6 +64,57 @@
 .ai-total strong { font-size:54px; background:linear-gradient(180deg,#fff3d6,#e2c887); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
 .ai-total span { color:#f5efe6; max-width:none; }
 .ai-op { font:400 30px/1 'Playfair Display',Georgia,serif; color:rgba(199,208,220,.45); padding-top:6px; }
+.ai-term-low { display:block; margin-top:2px; color:#7f91a8; font-size:11.5px; }
+/* Compact variant for the free-check result (the plan page's own .ai-save equation stays full
+   size). align-items:flex-start (matching the plan-page equation, not :center) with a tuned
+   padding-top on the operator so it lines up with the TOP line of each term (the big value) --
+   centering the whole flex item instead centers against the full 3-line stack (value/unit/low),
+   which visually floats the operator too low relative to the number it belongs next to. */
+.ai-eq--result { margin:20px 0 12px; align-items:flex-start; row-gap:20px; }
+.ai-eq--result .ai-term strong { font-size:40px; }
+.ai-eq--result .ai-term-unit { font-size:13px; margin-top:6px; }
+.ai-eq--result .ai-term-low { margin-top:3px; }
+.ai-eq--result .ai-total { padding:14px 20px; margin-top:0; }
+.ai-eq--result .ai-total strong { font-size:44px; }
+.ai-eq--result .ai-op { padding-top:11px; font-size:26px; }
+/* "C$" in Inter, smaller and baseline-aligned, ahead of the Playfair Display digits -- a mixed
+   treatment for the money terms only (the hour terms have no currency prefix). display:inline
+   is needed explicitly: .ai-term span { display:block } (higher specificity than a bare
+   .ai-term-currency) would otherwise stack it above the number instead of beside it -- the same
+   issue the .ai-inline-field fix above addresses, for a different element. */
+.ai-term .ai-term-currency { display:inline; font-family:Inter,sans-serif; font-size:0.6em; font-weight:600; margin-right:2px; margin-top:0; vertical-align:baseline; }
+/* The RollingNumber wrapper is also a <span>, so it's also caught by .ai-term span's
+   display:block -- invisible when it's the only child of <strong> (a lone block child of an
+   inline element just renders the same as inline would), but here it's a SIBLING of
+   .ai-term-currency, and a block sibling forces its own line regardless of the other span's
+   own display value. Keep it inline so "C$" and the number share one line. Same rule ALSO sets
+   an explicit font-size:12.5px on every .ai-term span (it's the unit-label rule) -- that matched
+   this span too and silently won on font-size regardless of display, which is why every
+   RollingNumber-driven value (not just the ones with a currency sibling) rendered at the unit
+   label's size instead of the big value size computed on its <strong> parent. font-size:inherit
+   here is what actually fixes the size, not the display fix above on its own. */
+.ai-term strong .ai-rolling-number { display:inline; margin-top:0; font-size:inherit; }
+.ai-eq--result .ai-term--editable .ai-inline-field { padding:9px 12px; }
+.ai-eq--result .ai-term--editable .ai-inline-field input { font-size:18px; width:52px; }
+/* .ai-term span { display:block } (higher specificity than a bare .ai-inline-field) was forcing
+   the editable field's own inline-flex layout to block, stacking "C$" above the number instead
+   of beside it. Two-class overrides here outrank that descendant rule. */
+.ai-term .ai-inline-field { display:inline-flex; }
+.ai-term .ai-inline-field span { display:inline; margin-top:0; }
+@media (max-width:700px) {
+  /* A plain vertical stack: each term (still its own internal value/unit/low-estimate block)
+     and each operator gets its own full-width row. The plan page's OWN mobile override further
+     down this file sets a bare `.ai-term { display:flex; align-items:baseline; gap:12px }` for
+     ITS equation -- that selector isn't scoped to --result, so it reaches this equation too and
+     was turning each term's 3 stacked lines into a horizontal, interleaved row. Reasserting
+     display:block here (2-class specificity) is what actually fixes it, not the column/gap
+     rules on their own. */
+  .ai-eq--result { display:flex; flex-direction:column; align-items:stretch; gap:14px; }
+  .ai-eq--result .ai-term, .ai-eq--result .ai-op { width:100%; box-sizing:border-box; }
+  .ai-eq--result .ai-term { display:block; }
+  .ai-eq--result .ai-op { text-align:left; font-size:20px; padding:0; }
+  .ai-eq--result .ai-term strong { font-size:34px; }
+}
 .ai-save-fee { display:flex; gap:16px; align-items:center; margin-top:22px; padding-top:18px; border-top:1px solid rgba(199,208,220,.14); }
 .ai-fee { flex:none; font:600 26px 'Playfair Display',Georgia,serif; color:#f5efe6; padding:8px 14px; border-radius:10px; border:1px solid rgba(199,208,220,.14); background:rgba(8,20,40,.5); }
 .ai-save-fee p { margin:0; font-size:14.5px; }
@@ -164,7 +221,7 @@
 .ai-gold-slider { position:relative; margin:26px 0 6px; }
 .ai-gold-slider input[type="range"] {
   -webkit-appearance:none; appearance:none; display:block; width:100%; height:6px; border-radius:99px; margin:0;
-  background:linear-gradient(to right, var(--ai-gold) 0%, var(--ai-gold) var(--pct), rgba(199,208,220,.18) var(--pct), rgba(199,208,220,.18) 100%);
+  background:linear-gradient(to right, var(--ai-gold-2) 0%, var(--ai-gold) var(--pct), rgba(199,208,220,.18) var(--pct), rgba(199,208,220,.18) 100%);
   outline:none; cursor:pointer;
 }
 .ai-gold-slider input[type="range"]::-webkit-slider-thumb {
@@ -176,8 +233,17 @@
   border:2px solid #fffdf9; box-shadow:0 2px 8px rgba(0,0,0,.4); cursor:pointer;
 }
 .ai-gold-slider input[type="range"]::-moz-range-track { height:6px; border-radius:99px; background:rgba(199,208,220,.18); }
-.ai-gold-slider input[type="range"]::-moz-range-progress { height:6px; border-radius:99px; background:var(--ai-gold); }
+.ai-gold-slider input[type="range"]::-moz-range-progress { height:6px; border-radius:99px; background:linear-gradient(to right, var(--ai-gold-2), var(--ai-gold)); }
 .ai-gold-slider input[type="range"]:focus-visible { outline:3px solid var(--ai-gold); outline-offset:6px; }
+/* Ticks (optional): small marks + labels under the track, positioned by the same min/max math
+   GoldSlider uses for the thumb/bubble. */
+.ai-slider-ticks { position:relative; height:22px; margin-top:6px; }
+.ai-slider-tick { position:absolute; top:0; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:4px; }
+.ai-slider-tick-mark { width:1px; height:5px; background:rgba(199,208,220,.35); }
+.ai-slider-tick-label { font-size:11px; color:var(--ai-soft); font-variant-numeric:lining-nums tabular-nums; font-feature-settings:"lnum" 1,"tnum" 1; }
+/* Dragging: the bubble scales up slightly and snaps back on release. */
+.ai-slider-bubble { transition:transform .12s ease; }
+.ai-gold-slider.is-dragging .ai-slider-bubble { transform:translateX(-50%) scale(1.12); }
 .ai-slider-bubble { position:absolute; top:-30px; transform:translateX(-50%); background:var(--ai-gold); color:#0b1a33;
   font-weight:700; font-size:13.5px; padding:4px 11px; border-radius:999px; white-space:nowrap; pointer-events:none;
   font-variant-numeric:lining-nums tabular-nums; font-feature-settings:"lnum" 1,"tnum" 1; }
@@ -196,9 +262,11 @@
 
 /* ---------- chips (ChipsRow.jsx) ---------- */
 .ai-chips-row, .ai-people-chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
-.ai-chips-row button, .ai-people-chips button { min-height:36px; padding:6px 13px; border-radius:999px; border:1px solid var(--ai-line); background:transparent; color:var(--ai-body); font-size:13px; cursor:pointer; }
-.ai-chips-row button.is-active, .ai-people-chips button.is-active { border-color:var(--ai-gold); background:rgba(212,182,113,.15); color:var(--ai-gold); }
+.ai-chips-row button, .ai-people-chips button { min-height:36px; padding:6px 13px; border-radius:999px; border:1px solid var(--ai-line); background:transparent; color:var(--ai-body); font-size:13px; cursor:pointer;
+  transition:background-color .18s ease, border-color .18s ease, color .18s ease, transform .18s ease; }
+.ai-chips-row button.is-active, .ai-people-chips button.is-active { border-color:var(--ai-gold); background:rgba(212,182,113,.15); color:var(--ai-gold); animation:aiChipPop .28s ease; }
 .ai-chips-row button:hover, .ai-people-chips button:hover { border-color:var(--ai-gold); }
+@keyframes aiChipPop { 0% { transform:scale(1); } 45% { transform:scale(1.08); } 100% { transform:scale(1); } }
 
 /* ---------- loading / reveal screen ---------- */
 .ai-loading { padding:60px 0 40px; text-align:center; }
@@ -221,7 +289,9 @@
 .ai-tiles-caption { margin:0 0 24px; display:flex; align-items:center; flex-wrap:wrap; gap:4px; }
 .ai-inline-field { display:inline-flex; align-items:center; gap:2px; padding:2px 8px; border-radius:7px; border:1px solid var(--ai-line); background:rgba(8,20,40,.5); }
 .ai-inline-field input { width:44px; background:transparent; border:0; color:var(--ai-ink); font:600 13.5px Inter,sans-serif; text-align:center; padding:4px 0;
-  font-variant-numeric:lining-nums tabular-nums; font-feature-settings:"lnum" 1,"tnum" 1; }
+  font-variant-numeric:lining-nums tabular-nums; font-feature-settings:"lnum" 1,"tnum" 1;
+  -moz-appearance:textfield; appearance:textfield; }
+.ai-inline-field input::-webkit-outer-spin-button, .ai-inline-field input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
 .ai-compact-unit { font-size:12px; color:var(--ai-soft); }
 @media (max-width:700px) { .ai-stat-tiles, .ai-stat-tiles--pair { grid-template-columns:1fr; } }
 
@@ -230,7 +300,9 @@
 .ai-compact-field { display:flex; flex-direction:column; gap:6px; font-size:12px; color:var(--ai-soft); }
 .ai-compact-field-input { display:flex; align-items:center; gap:4px; width:104px; height:40px; padding:0 10px; border-radius:8px; border:1px solid var(--ai-line); background:rgba(8,20,40,.5); box-sizing:border-box; }
 .ai-compact-field-input input { width:100%; background:transparent; border:0; color:var(--ai-ink); font:600 15px Inter,sans-serif; text-align:right;
-  font-variant-numeric:lining-nums tabular-nums; font-feature-settings:"lnum" 1,"tnum" 1; }
+  font-variant-numeric:lining-nums tabular-nums; font-feature-settings:"lnum" 1,"tnum" 1;
+  -moz-appearance:textfield; appearance:textfield; }
+.ai-compact-field-input input::-webkit-outer-spin-button, .ai-compact-field-input input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
 .ai-compact-field-input:focus-within { border-color:var(--ai-gold); }
 
 /* ---------- "Potential staff capacity" compact box: one line, Inter, tabular numerals ---------- */
@@ -251,8 +323,22 @@
 /* ---------- headcount "what if" section ---------- */
 .ai-headcount-section h2 { margin-top:0; font-size:22px; }
 
-/* ---------- single tailored-line chip ---------- */
-.ai-tailored-chip { display:inline-block; margin:6px 0 22px; padding:10px 16px; border-radius:999px; border:1px solid var(--ai-line-hi, var(--ai-gold)); background:rgba(212,182,113,.06); font-size:13.5px; color:var(--ai-ink); }
+/* ---------- "what we'd look at" cards ---------- */
+.ai-lookout-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:16px; }
+.ai-lookout-card { background:var(--ai-card-2); border:1px solid var(--ai-line); border-radius:10px; padding:18px 20px; }
+.ai-lookout-card h3 { margin:0 0 12px; font-size:16px; }
+.ai-lookout-card ul { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px; }
+.ai-lookout-card li { display:flex; align-items:flex-start; gap:9px; font-size:14px; color:var(--ai-body); line-height:1.4; }
+.ai-lookout-check { flex:none; width:17px; height:17px; margin-top:1px; color:var(--ai-gold); }
+@media (max-width:600px) { .ai-lookout-grid { grid-template-columns:1fr; } }
+
+/* ---------- "free next steps" list + copy button ---------- */
+.ai-next-steps-list { list-style:none; margin:16px 0 0; padding:0; display:flex; flex-direction:column; gap:16px; }
+.ai-next-steps-list li { display:flex; align-items:flex-start; gap:14px; }
+.ai-next-steps-list li > span:last-child { padding-top:6px; font-size:15px; color:var(--ai-ink); line-height:1.45; }
+.ai-next-steps-list .ai-flow-num { flex:none; width:32px; height:32px; font-size:14px; margin-bottom:0; }
+.ai-copy-steps { display:flex; align-items:center; gap:12px; margin-top:18px; flex-wrap:wrap; }
+.ai-copy-steps .ai-secondary { margin:0; }
 
 /* ---------- quiet next step (soft CTA, not gold) ---------- */
 .ai-next-step { margin:28px 0; padding-top:22px; border-top:1px solid var(--ai-line); }

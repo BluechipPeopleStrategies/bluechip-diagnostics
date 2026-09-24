@@ -1,6 +1,6 @@
-import { fireEvent, render, screen, cleanup, within, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, cleanup, within, waitFor, act } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import AiOpportunityCheck from '../src/components/AiOpportunityCheck';
 import AiHandoffPlanPage from '../src/components/AiHandoffPlanPage';
 import { questions } from '../src/lib/aiOpportunity';
@@ -136,9 +136,10 @@ describe('the free check stepper', () => {
     await driveToResult(container);
     expect(container.querySelector('.ai-result-headline').textContent).toMatch(/About \d+ to \d+ hours a week/);
     expect(screen.getByText('across the areas you picked')).toBeInTheDocument();
-    expect(screen.getByText('Hours a week')).toBeInTheDocument();
-    expect(screen.getByText('Hours a year')).toBeInTheDocument();
-    expect(screen.getByText('Staff time value')).toBeInTheDocument();
+    const mainTiles = container.querySelector('.ai-stat-tiles');
+    expect(within(mainTiles).getByText('Hours a week')).toBeInTheDocument();
+    expect(within(mainTiles).getByText('Hours a year')).toBeInTheDocument();
+    expect(within(mainTiles).getByText('Potential staff time value')).toBeInTheDocument();
   });
 
   it('the loading screen shows a status region before the result', async () => {
@@ -158,8 +159,9 @@ describe('the free check stepper', () => {
   it('shows a per-area breakdown row for each picked area', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(container);
-    expect(screen.getByText('Emails and correspondence')).toBeInTheDocument();
-    expect(screen.getByText('Recurring reports')).toBeInTheDocument();
+    const breakdown = container.querySelector('.ai-area-breakdown');
+    expect(within(breakdown).getByText('Emails and correspondence')).toBeInTheDocument();
+    expect(within(breakdown).getByText('Recurring reports')).toBeInTheDocument();
   });
 
   it('shows the "what if more of your team works like this" headcount section, defaulted to the org-size midpoint', async () => {
@@ -169,11 +171,16 @@ describe('the free check stepper', () => {
     expect(screen.getByText(/across 25/)).toBeInTheDocument();
   });
 
-  it('shows at most one tailored line, with the sensitive add-on winning when it applies', async () => {
+  it('shows the "Information handling" look-at card when sensitive information has weak protection', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
-    await driveToResult(container, { information: ['payroll'], heldBack: ['budget'] });
-    expect(screen.getByText(/it may need private or approved tools/)).toBeInTheDocument();
-    expect(screen.queryByText(/expected software cost/)).not.toBeInTheDocument();
+    await driveToResult(container, { information: ['payroll'], protectInfo: ['nothingFormal'] });
+    expect(screen.getByText('Information handling')).toBeInTheDocument();
+  });
+
+  it('does not show the "Information handling" card when nothing is sensitive', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container, { information: ['public'], heldBack: ['budget'] });
+    expect(screen.queryByText('Information handling')).not.toBeInTheDocument();
   });
 
   it('drops the band-line and the big guarantee box, and never says "5-hour guarantee line"', async () => {
@@ -184,13 +191,15 @@ describe('the free check stepper', () => {
     expect(screen.queryByText('You get the plan, and your team puts it in place.')).not.toBeInTheDocument();
   });
 
-  it('the suggested-areas sentence lowercases area names and uses a serial-comma join', async () => {
+  it('the suggested-areas sentence lowercases area names, uses a serial-comma join, and folds into the lookout section as "Also worth a look"', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     // professional's suggestions are correspondence, proposals, findingInfo; picking
     // correspondence and reports leaves proposals + findingInfo suggested.
     await driveToResult(container);
-    expect(screen.getByText(
-      "Where we'd also look in an organization like yours: proposals, quotes and grant applications, and finding information."
+    expect(screen.queryByText(/Where we'd also look/)).not.toBeInTheDocument();
+    const lookout = container.querySelector('.ai-lookout-section');
+    expect(within(lookout).getByText(
+      "Also worth a look: proposals, quotes and grant applications, and finding information."
     )).toBeInTheDocument();
   });
 
@@ -230,7 +239,10 @@ describe('the free check stepper', () => {
     await driveToResult(container, { areas: ['otherArea'] });
     // Not driven through the label field by driveToResult (it only clicks tile inputs), so the
     // bar falls back to "Other work" here; the label field itself is exercised in the next test.
-    expect(screen.getByText('Other work')).toBeInTheDocument();
+    // Scoped to the bar breakdown: the same fallback title also appears on its "what we'd look
+    // at" card, so an unscoped query would find two matches.
+    const breakdown = container.querySelector('.ai-area-breakdown');
+    expect(within(breakdown).getByText('Other work')).toBeInTheDocument();
   });
 
   it('typing an Other-area label carries it onto the result bar, escaped as plain text (never rendered as markup)', async () => {
@@ -309,6 +321,144 @@ describe('the free check stepper', () => {
       await answerCurrentQuestion(container, q.id, READY[q.id], false);
     }
     expect(screen.getByText('What do you currently do to protect sensitive information? Pick all that apply.')).toBeInTheDocument();
+  });
+
+  it('the area-hours slider shows tick marks at 0/5/10/15/20/25 and its max stays 25, not 20', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    const slider = container.querySelector('#hours-correspondence');
+    expect(slider).toHaveAttribute('max', '25');
+    const wrapper = slider.closest('.ai-gold-slider');
+    const labels = Array.from(wrapper.querySelectorAll('.ai-slider-tick-label')).map(el => el.textContent);
+    expect(labels).toEqual(['0', '5', '10', '15', '20', '25']);
+  });
+
+  it('PageUp/PageDown step the hours slider by 5, clamped to the 0-25 range', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    const slider = container.querySelector('#hours-correspondence');
+    expect(slider).toHaveValue('5');
+    fireEvent.keyDown(slider, { key: 'PageUp' });
+    expect(slider).toHaveValue('10');
+    fireEvent.keyDown(slider, { key: 'PageUp' });
+    fireEvent.keyDown(slider, { key: 'PageUp' });
+    fireEvent.keyDown(slider, { key: 'PageUp' }); // 10 -> 15 -> 20 -> 25, clamped at the real cap
+    expect(slider).toHaveValue('25');
+    fireEvent.keyDown(slider, { key: 'PageDown' });
+    expect(slider).toHaveValue('20');
+  });
+
+  it('press-and-hold on the people stepper repeats the step after an initial delay', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+
+    vi.useFakeTimers();
+    const moreBtn = screen.getByRole('button', { name: 'More people' });
+    fireEvent.pointerDown(moreBtn);
+    act(() => { vi.advanceTimersByTime(400 + 110 * 3); }); // past the initial delay, a few repeat ticks
+    fireEvent.pointerUp(moreBtn);
+    vi.useRealTimers();
+
+    const count = Number(container.querySelector('.ai-people-count').textContent);
+    expect(count).toBeGreaterThan(1); // started at 1; a held press repeats, not just one step
+  });
+
+  it('a plain click on the stepper still steps exactly once (no double-step from the hold machinery)', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    fireEvent.click(screen.getByRole('button', { name: 'More people' }));
+    expect(container.querySelector('.ai-people-count').textContent).toBe('2');
+  });
+
+  it('shows the main equation strip under the stat tiles, with editable weeks/rate and a low-value line under each term', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container);
+    const mainEq = container.querySelectorAll('.ai-eq--result')[0];
+    expect(within(mainEq).getByText('hrs/week')).toBeInTheDocument();
+    expect(within(mainEq).getByText('hrs/year')).toBeInTheDocument();
+    expect(within(mainEq).getByText('a year, potential staff time value')).toBeInTheDocument();
+    expect(within(mainEq).getAllByText(/low estimate/).length).toBe(3); // hrs/week, hrs/year, the total
+    const weeksInput = within(mainEq).getByLabelText('Working weeks a year');
+    expect(weeksInput).toHaveValue(48);
+    fireEvent.change(weeksInput, { target: { value: '50' } });
+    expect(weeksInput).toHaveValue(50);
+    const rateInput = within(mainEq).getByLabelText('Employee cost per hour');
+    expect(rateInput).toHaveValue(40);
+  });
+
+  it('shows a second equation strip in the headcount section, live from the headcount slider', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container);
+    const headcountSection = container.querySelector('.ai-headcount-section');
+    const eq = headcountSection.querySelector('.ai-eq--result');
+    expect(eq).toBeTruthy();
+    expect(within(eq).getByText('hrs/week, per person')).toBeInTheDocument();
+    expect(within(eq).getByText('people')).toBeInTheDocument();
+    expect(within(eq).getByText('25')).toBeInTheDocument(); // default headcount for the 11-50 org-size band
+  });
+
+  it('shows a "Where to look" card for every picked area, plus up to 2 cross-cutting cards', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container, { information: ['health'], protectInfo: ['nothingFormal'] });
+    const section = container.querySelector('.ai-lookout-section');
+    expect(within(section).getByText('Where to look, based on your answers')).toBeInTheDocument();
+    expect(within(section).getByText('Emails and correspondence')).toBeInTheDocument();
+    expect(within(section).getByText('Recurring reports')).toBeInTheDocument();
+    expect(within(section).getByText('Information handling')).toBeInTheDocument();
+    expect(section.querySelectorAll('.ai-lookout-check').length).toBeGreaterThan(0);
+  });
+
+  it('shows exactly 3 numbered "free next steps" with a working copy button', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container);
+    const section = container.querySelector('.ai-next-steps-section');
+    expect(within(section).getByText('Next steps you can take this week')).toBeInTheDocument();
+    expect(section.querySelectorAll('.ai-next-steps-list li').length).toBe(3);
+
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } });
+    fireEvent.click(within(section).getByRole('button', { name: 'Copy these steps' }));
+    await waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
+    expect(writeText.mock.calls[0][0]).toMatch(/^1\. .+\n2\. .+\n3\. .+$/);
+    await waitFor(() => expect(within(section).getByText('Copied.')).toBeInTheDocument());
+    vi.unstubAllGlobals();
+  });
+
+  it('falls back gracefully when the clipboard is blocked', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container);
+    const section = container.querySelector('.ai-next-steps-section');
+    const writeText = vi.fn().mockRejectedValue(new Error('blocked'));
+    vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } });
+    fireEvent.click(within(section).getByRole('button', { name: 'Copy these steps' }));
+    await waitFor(() => expect(within(section).getByText(/Couldn.t copy automatically/)).toBeInTheDocument());
+    vi.unstubAllGlobals();
+  });
+
+  it('never names a specific AI tool or vendor anywhere on the free result', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container, { aiTools: ['copilot'], readiness: 'notYetReady', information: ['health'], protectInfo: ['nothingFormal'] });
+    const vendors = /chatgpt|microsoft copilot|google gemini|claude|deepseek|kimi|perplexity|grok|meta ai|mistral/i;
+    const resultBody = container.querySelector('main');
+    expect(resultBody.textContent).not.toMatch(vendors);
+  });
+
+  it('moves focus to the result h1, not the eyebrow, and the eyebrow carries no tabIndex/ref', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container);
+    const h1 = container.querySelector('.ai-result-headline');
+    await waitFor(() => expect(h1).toHaveFocus()); // the focus() call is scheduled via setTimeout(0)
+    const eyebrow = container.querySelector('.ai-eyebrow');
+    expect(eyebrow.textContent).toBe('Your estimate');
+    expect(eyebrow).not.toHaveAttribute('tabindex');
   });
 });
 
