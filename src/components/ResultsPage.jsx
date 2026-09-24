@@ -9,6 +9,7 @@ import NextMoves from './NextMoves';
 import EmailOptIn from './EmailOptIn';
 import ClarityCallCTA from './ClarityCallCTA';
 import ShareButton from './ShareButton';
+import ResultTeaser from './ResultTeaser';
 
 export default function ResultsPage({
   diagnostic,
@@ -74,9 +75,7 @@ export default function ResultsPage({
 
   return (
     <main className="bc-page">
-      <ResultHeadline scoreResult={scoreResult} archetypeResult={archetypeResult} />
-
-      <hr />
+      <ResultHeadline scoreResult={scoreResult} archetypeResult={archetypeResult} diagnostic={diagnostic} />
 
       {/* Free teaser: give the insight away (the read), gate the implementation (QW3). */}
       {archetypeResult?.archetype ? (
@@ -85,6 +84,14 @@ export default function ResultsPage({
         scoreResult?.totalBand?.narrative && (
           <ResultNarrative paragraphs={[scoreResult.totalBand.narrative]} />
         )
+      )}
+
+      {!emailSubmitted && (
+        <ResultTeaser
+          dimensions={scoreResult ? diagnostic.dimensions : null}
+          perDimension={scoreResult?.perDimension}
+          cheatCount={archetypeResult?.archetype?.cheatCode?.length || 0}
+        />
       )}
 
       <EmailOptIn

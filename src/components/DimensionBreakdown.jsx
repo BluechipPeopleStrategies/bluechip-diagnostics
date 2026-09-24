@@ -14,21 +14,18 @@ export default function DimensionBreakdown({ dimensions, perDimension, dimension
 
   return (
     <ul className="bc-dim-list">
-      {dimensions.map((dim) => {
+      {dimensions.map((dim, i) => {
         const score = perDimension[dim.id] ?? 0;
         const band = dimensionBands?.[dim.id];
         const isWeakest = dim.id === weakestId;
         return (
-          <li key={dim.id} className="bc-dim-row">
+          <li key={dim.id} className={`bc-dim-row ${isWeakest ? 'is-weakest' : ''}`} style={{ '--i': i }}>
             <div className="bc-dim-header">
-              <span>{dim.label}</span>
-              <span className={`bc-dim-tier ${isWeakest ? 'is-weakest' : ''}`}>{tierLabel(band)}</span>
+              <span className="bc-dim-name">{dim.label}{isWeakest && <em className="bc-dim-flag">Start here</em>}</span>
+              <span className={`bc-dim-tier ${isWeakest ? 'is-weakest' : ''}`}>{tierLabel(band)} <b>{score}</b></span>
             </div>
             <div className="bc-dim-track" aria-hidden="true">
-              <div
-                className={`bc-dim-fill ${isWeakest ? 'is-weakest' : ''}`}
-                style={{ width: `${score}%` }}
-              />
+              <div className={`bc-dim-fill ${isWeakest ? 'is-weakest' : ''}`} style={{ '--w': `${score}%` }} />
             </div>
           </li>
         );

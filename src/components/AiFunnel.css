@@ -1,6 +1,6 @@
 /* Navy theme, 2026-09-23: navy ground, cream headings, slate-blue body, gold accents (matches the site). */
 .ai-funnel { --ai-ground:#0b1a33; --ai-card:#15253c; --ai-card-2:#1c3150; --ai-line:#3a485d; --ai-ink:#f5efe6; --ai-body:#c7d0dc; --ai-soft:#9fb0c6; --ai-gold:#d4b671; --ai-gold-2:#c3a468;
-  background:var(--ai-ground); max-width:1080px; padding:48px clamp(20px,5vw,72px) 80px; color:var(--ai-body); }
+  background:transparent; max-width:1080px; padding:48px clamp(20px,5vw,72px) 80px; color:var(--ai-body); }
 .ai-funnel h1, .ai-funnel h2, .ai-funnel h3, .ai-funnel strong, .ai-funnel legend { color:var(--ai-ink); }
 .ai-funnel p, .ai-funnel li { color:var(--ai-body); }
 .ai-funnel a { color:var(--ai-ink); text-decoration-color:var(--ai-gold); text-underline-offset:3px; }
