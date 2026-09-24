@@ -386,7 +386,7 @@
     sayBotSequence(["What's the best number for BlueChip to text you about this? We usually reply within a few hours on business days. This sends an inquiry. It doesn't book anything or charge you. Please keep employee and client details out of this chat."], function () {
       var input = el('input', { 'class': 'bcw-input', type: 'tel', 'aria-label': 'Your phone number', placeholder: 'Phone number', style: 'width:100%' });
       var emailInput = el('input', { 'class': 'bcw-input', type: 'email', 'aria-label': 'Your email, optional', placeholder: 'Email (optional)', style: 'width:100%;margin-top:8px' });
-      var hp = el('input', { 'class': 'bcw-hp', type: 'text', name: 'company', tabindex: '-1', 'aria-hidden': 'true', autocomplete: 'off' });
+      var hp = el('input', { 'class': 'bcw-hp', type: 'text', name: 'bc_hp_trap', tabindex: '-1', 'aria-hidden': 'true', autocomplete: 'off' });   // not "company": browsers autofill that and flagged real visitors as bots
       var consentWrap = el('label', { 'class': 'bcw-consent' });
       var cb = el('input', { type: 'checkbox' });
       var cbText = document.createElement('span');
@@ -434,7 +434,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: data.name, need: data.need, contact: data.contact, email: data.email,
-          consent: true, source: pageLabel(), company: companyHp || ''
+          consent: true, source: pageLabel(), bc_hp_trap: companyHp || ''
         })
       }).catch(function () { /* failures logged server-side; user still sees confirmation */ });
     } catch { /* no-op */ }
