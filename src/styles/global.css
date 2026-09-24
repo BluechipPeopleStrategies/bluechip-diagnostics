@@ -570,3 +570,19 @@ body{font-size:16px;}
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #a87928;outline-offset:3px;}
 @media(max-width:600px){.bc-page{padding:24px 16px;}.bc-card,.bc-card-link-block{padding:20px;}.bc-option{padding:14px 16px;}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important;}}
+
+/* Navy theme, 2026-09-23: matches the site-wide navy ground on bluechip-people-strategies.com.
+   Variables are re-pointed for a dark ground (--bc-navy becomes the ink colour); fills that
+   used navy as a surface are corrected below. Scoring and assessment content unchanged. */
+:root{--bc-navy:#f5efe6;--bc-gold:#d4b671;--bc-beige:#0b1a33;--bc-white:#15253c;--bc-border:#3a485d;--bc-divider:#344359;--bc-text:#c7d0dc;--bc-text-soft:#c7d0dc;--bc-muted:#9fb0c6;--bc-placeholder:#7f8c9f;--bc-gold-halo:rgba(212,182,113,.25);--bc-error:#f0a8a8;--bc-success:#9fd7a8;color-scheme:dark;}
+html,body{background:#0b1a33;}
+.bc-page a{text-decoration-color:rgba(212,182,113,.6);}
+.bc-cta{background:#d4b671;border-color:#d4b671;color:#0b1a33 !important;}
+.bc-cta:hover{background:#c3a468;border-color:#c3a468;color:#0b1a33 !important;}
+.bc-cta-secondary{background:transparent;border-color:#7f8c9f;color:#f5efe6 !important;}
+.bc-cta-secondary:hover{background:#d4b671;border-color:#d4b671;color:#0b1a33 !important;}
+.bc-option.is-selected{background:#1c3150;color:#f5efe6;border-color:#d4b671;}
+.bc-option-shortcut{color:#f5efe6;}
+.bc-option.is-selected .bc-option-shortcut{color:#0b1a33;}
+.bc-card-badge{color:#0b1a33;}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline-color:#d4b671;}

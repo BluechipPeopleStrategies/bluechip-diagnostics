@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getOpportunity, questions, estimateCapacity, defaultHours } from '../lib/aiOpportunity';
+import AiCalculator, { money } from './AiCalculator';
 import './AiFunnel.css';
-
-const money = (n) => 'C$' + Math.round(n).toLocaleString('en-CA');
 
 export default function AiOpportunityCheck() {
   const [answers, setAnswers] = useState({});
@@ -26,10 +25,6 @@ export default function AiOpportunityCheck() {
     setCalc(c => ({ ...c, hours: defaultHours(answers.workload) }));
     setStep('calculator');
   }
-  function setField(key, raw, min, max) {
-    const n = Number(raw);
-    setCalc(c => ({ ...c, [key]: Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : c[key] }));
-  }
 
   return <main className="bc-page ai-funnel">
     <Link to="/">BlueChip diagnostics</Link>
@@ -38,6 +33,7 @@ export default function AiOpportunityCheck() {
 
     {step !== 'result' && <>
       <p>Six questions about the work your organisation already does. Get a useful starting point before deciding whether you need an audit.</p>
+      <p className="ai-note">Just before your result, a quick calculator shows what the time you could free up might be worth.</p>
       <p className="ai-note">No email required. Answers stay on this page and clear when you reload. Please do not enter confidential information.</p>
       <form onSubmit={submit}>
         {questions.map((q, index) => <fieldset key={q.id}>
@@ -57,19 +53,7 @@ export default function AiOpportunityCheck() {
         <p className="ai-eyebrow">Before your result</p>
         <h2 id="ai-calc-title" ref={dialogHeading} tabIndex={-1}>What could that time be worth?</h2>
         <p>Adjust the numbers to fit your organisation. Nothing leaves this page.</p>
-        <div className="ai-calc-grid">
-          <label>Hours a week that could be freed up
-            <input type="number" inputMode="decimal" min="1" max="60" value={calc.hours} onChange={(e) => setField('hours', e.target.value, 1, 60)} />
-          </label>
-          <label>Employee cost per hour (C$)
-            <input type="number" inputMode="decimal" min="15" max="250" value={calc.rate} onChange={(e) => setField('rate', e.target.value, 15, 250)} />
-          </label>
-          <label>Working weeks a year
-            <input type="number" inputMode="numeric" min="20" max="52" value={calc.weeks} onChange={(e) => setField('weeks', e.target.value, 20, 52)} />
-          </label>
-        </div>
-        <p className="ai-calc-result" aria-live="polite"><span>Potential staff capacity</span><strong>{money(value)}</strong><span>a year</span></p>
-        <p className="ai-note">An illustration based on your numbers, not a savings estimate or a guaranteed cash saving. The Practical AI Audit looks at your actual work to find out what is real.</p>
+        <AiCalculator calc={calc} setCalc={setCalc} />
         <div className="ai-modal-actions">
           <button className="ai-button" type="button" onClick={() => setStep('result')}>Show my result</button>
           <button className="ai-secondary" type="button" onClick={() => setStep('result')}>Skip</button>
