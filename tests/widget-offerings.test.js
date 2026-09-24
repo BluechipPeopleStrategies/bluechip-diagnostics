@@ -54,20 +54,20 @@ describe('chip visibility (design fix 2026-09-24)', () => {
 });
 
 describe('the Free AI Opportunity Check topic is removed', () => {
-  it('is not offered in the main choice list or the topic browser', () => {
+  it('is not offered in the main choice list', () => {
     const ui = within(document.body);
     openChat();
     sendName('Test');
     flushBot();
     expect(ui.queryByRole('button', { name: 'Free AI Opportunity Check', exact: true })).not.toBeInTheDocument();
-    fireEvent.click(ui.getByRole('button', { name: 'Browse questions and answers' }));
-    flushBot();
-    expect(ui.queryByRole('button', { name: 'Free AI Opportunity Check', exact: true })).not.toBeInTheDocument();
   });
+  // Browse is hidden (SHOW_BROWSE = false, 2026-09-24, revisit ~2026-10-08), so the topic
+  // browser itself isn't reachable right now; see "no longer offers the free check or browse".
 });
 
 describe('new offering intake', () => {
-  it('lets visitors browse accurate answers anonymously and preserves the topic for handoff', () => {
+  // Browse is hidden (SHOW_BROWSE = false, 2026-09-24). Re-enable these two when it comes back.
+  it.skip('lets visitors browse accurate answers anonymously and preserves the topic for handoff', () => {
     const ui = within(document.body);
     openChat();
     flushBot();
@@ -91,7 +91,8 @@ describe('new offering intake', () => {
     fireEvent.click(ui.getByRole('button', { name: 'Send', exact: true }));
     expect(JSON.parse(fetchMock.mock.calls[0][1].body).need).toBe('The AI Handoff Plan');
   });
-  it('supports returning to topics without collecting details', () => {
+  // Browse is hidden (SHOW_BROWSE = false, 2026-09-24, revisit ~2026-10-08). Re-enable when it's back.
+  it.skip('supports returning to topics and links resources without collecting details', () => {
     const ui = within(document.body);
     openChat();
     flushBot();
@@ -110,6 +111,7 @@ describe('new offering intake', () => {
     expect(document.body.textContent).toContain('C$999, taxes included');
     expect(document.body.textContent).toContain("Here's the deal");
     expect(document.body.textContent).toContain('at least 5 net hours a week of time savings across your organization');
+    expect(document.body.textContent).toContain('your full fee comes back within 10 business days');
     expect(document.body.textContent).toContain('No forms, no hoops');
     expect(document.body.textContent).toContain('The plan is yours to put in place');
     expect(ui.queryByLabelText('Your phone number')).toBeNull();
@@ -120,6 +122,7 @@ describe('new offering intake', () => {
     fireEvent.click(ui.getByRole('button', { name: 'Discuss this with BlueChip' }));
     flushBot();
     fireEvent.change(ui.getByLabelText('Your phone number'), { target: { value: '7805550100' } });
+    fireEvent.change(ui.getByLabelText('Your email'), { target: { value: 'test@example.com' } });
     const send = ui.getByRole('button', { name: 'Send', exact: true });
     expect(send).toBeDisabled();
     fireEvent.click(ui.getByRole('checkbox'));
@@ -152,6 +155,16 @@ describe('new offering intake', () => {
     flushBot();
     expect(document.body.textContent).toContain("This sends an inquiry. It doesn't book anything or charge you.");
     expect(document.body.textContent).not.toMatch(/does not book or charge you for an audit/);
+  });
+  it('no longer offers the free check or browse on the topic list', () => {
+    const ui = within(document.body);
+    openChat();
+    flushBot();
+    expect(ui.queryByRole('button', { name: 'Browse questions and answers' })).toBeNull();
+    sendName('Test');
+    flushBot();
+    expect(ui.queryByRole('button', { name: 'Free AI Opportunity Check', exact: true })).toBeNull();
+    expect(ui.getByRole('button', { name: 'The AI Handoff Plan', exact: true })).toBeVisible();
   });
 });
 

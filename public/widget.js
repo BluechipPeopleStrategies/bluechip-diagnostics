@@ -9,6 +9,9 @@
 
   var LEAD_ENDPOINT = 'https://bluechip-diagnostics.vercel.app/api/lead';
 
+  // Browse questions and answers is hidden for now (Thomas, 2026-09-24). Reconsider around 2026-10-08.
+  var SHOW_BROWSE = false;
+
   var NAVY = '#0B1A33', GOLD = '#C9A24B', CREAM = '#F5EFE6', BONE = '#F5EFE6', TEXT = '#2c2c2c';
 
   var CHOICES = [
@@ -78,9 +81,13 @@
     '.bcw-foot{border-top:1px solid ' + CREAM + ';padding:9px 12px;max-height:32dvh;overflow-y:auto}' +
     '.bcw-panel{max-height:calc(100dvh - 110px);display:flex;flex-direction:column}.bcw-body{min-height:0;flex:1 1 auto}.bcw-header{flex-shrink:0}.bcw-foot{flex-shrink:0;box-sizing:border-box}.bcw-choice{box-sizing:border-box}.bcw-choice:focus-visible{outline:3px solid ' + GOLD + ';outline-offset:2px}' +
     '.bcw-row{display:flex;gap:8px}' +
-    '.bcw-input{flex:1;font-family:inherit;font-size:15px;color:' + NAVY + ';background:' + BONE + ';padding:10px 12px;border:1.5px solid rgba(11,26,51,.35);border-radius:10px;outline:none}' +
-    '.bcw-input::placeholder{color:#6b7280}' +
-    '.bcw-input:focus{border-color:' + GOLD + ';box-shadow:0 0 0 3px rgba(201,169,97,.3)}' +
+    // Light color-scheme + explicit white bg/navy text (with -webkit-text-fill-color, which
+    // wins over UA/dark-mode form-control styling in iOS Safari where plain `color` does not),
+    // and 16px font so iOS Safari does not auto-zoom on focus.
+    '.bcw-panel{color-scheme:light}' +
+    '.bcw-input{flex:1;font-family:inherit;font-size:16px;color:' + NAVY + ' !important;-webkit-text-fill-color:' + NAVY + ';background:#fff !important;padding:11px 12px;border:1.5px solid rgba(11,26,51,.35) !important;border-radius:10px;outline:none;box-sizing:border-box}' +
+    '.bcw-input::placeholder{color:#6b7686 !important;-webkit-text-fill-color:#6b7686;opacity:1}' +
+    '.bcw-input:focus{border-color:' + GOLD + ';box-shadow:0 0 0 3px rgba(201,169,97,.25)}' +
     '.bcw-send{background:' + NAVY + ';color:#fff;border:1.5px solid ' + NAVY + ';border-radius:999px;padding:10px 20px;font-family:inherit;font-weight:600;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .2s ease,color .2s ease,transform .1s ease}' +
     '.bcw-send:hover:not(:disabled){background:' + GOLD + ';border-color:' + GOLD + ';color:' + NAVY + ';transform:translateY(-1px)}' +
     '.bcw-send:disabled{background:#e4e0d8;border-color:#d8d3c8;color:#8a8578;opacity:1;cursor:not-allowed}' +
@@ -257,7 +264,7 @@
       var send = el('button', { 'class': 'bcw-send', type: 'button' }, 'Send');
       row.appendChild(input); row.appendChild(send);
       footEl.appendChild(row);
-      choiceButton('Browse questions and answers', renderTopics);
+      if (SHOW_BROWSE) choiceButton('Browse questions and answers', renderTopics);
       input.focus();
       function go() {
         var v = input.value.trim();
@@ -336,7 +343,7 @@
           else renderContact();
         });
       });
-      choiceButton('Browse questions and answers', renderTopics);
+      if (SHOW_BROWSE) choiceButton('Browse questions and answers', renderTopics);
       focusChoices();
     });
   }
@@ -356,7 +363,7 @@
     if (topic.slug === 'ai-handoff-plan') return PLAN_BUBBLES.slice();
     return [
       'Practical AI and/or Embedded HR Retainers bring practical AI adoption and senior people advice into the work of your organization. Support can focus on AI alone or combine HR and AI. The scope and fee are agreed for your engagement.',
-      'You can also start with the standalone AI Handoff Plan. Its C$999 fee, including applicable tax, is credited against your first invoice if it leads to a retainer.'
+      'You can also start with The AI Handoff Plan. Its C$999 fee, taxes included, is credited against your first invoice if you start a Practical AI and/or Embedded HR Retainer (six-month minimum) within 60 days of your findings call.'
     ];
   }
 
@@ -374,7 +381,7 @@
       back.appendChild(backSpan);
       back.addEventListener('click', renderChoices);
       footEl.appendChild(next); footEl.appendChild(back);
-      choiceButton('Browse questions and answers', renderTopics);
+      if (SHOW_BROWSE) choiceButton('Browse questions and answers', renderTopics);
       focusChoices();
     });
   }
@@ -383,9 +390,9 @@
   function renderContact() {
     typingGeneration++;
     footEl.innerHTML = '';
-    sayBotSequence(["What's the best number for BlueChip to text you about this? We usually reply within a few hours on business days. This sends an inquiry. It doesn't book anything or charge you. Please keep employee and client details out of this chat."], function () {
+    sayBotSequence(["What's the best number and email for BlueChip to reach you about this? We usually reply within a few hours on business days. This sends an inquiry. It doesn't book anything or charge you. Please keep employee and client details out of this chat."], function () {
       var input = el('input', { 'class': 'bcw-input', type: 'tel', 'aria-label': 'Your phone number', placeholder: 'Phone number', style: 'width:100%' });
-      var emailInput = el('input', { 'class': 'bcw-input', type: 'email', 'aria-label': 'Your email, optional', placeholder: 'Email (optional)', style: 'width:100%;margin-top:8px' });
+      var emailInput = el('input', { 'class': 'bcw-input', type: 'email', 'aria-label': 'Your email', placeholder: 'Email', autocomplete: 'email', style: 'width:100%;margin-top:8px' });
       var hp = el('input', { 'class': 'bcw-hp', type: 'text', name: 'bc_hp_trap', tabindex: '-1', 'aria-hidden': 'true', autocomplete: 'off' });   // not "company": browsers autofill that and flagged real visitors as bots
       var consentWrap = el('label', { 'class': 'bcw-consent' });
       var cb = el('input', { type: 'checkbox' });
@@ -404,8 +411,9 @@
       footEl.appendChild(send);
       input.focus();
 
-      function refresh() { send.disabled = !(input.value.trim() && cb.checked); }   // phone + consent required; email optional
+      function refresh() { send.disabled = !(input.value.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim()) && cb.checked); }   // phone, email and consent all required
       input.addEventListener('input', refresh);
+      emailInput.addEventListener('input', refresh);
       cb.addEventListener('change', refresh);
 
       function go() {
