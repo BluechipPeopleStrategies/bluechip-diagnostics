@@ -1,16 +1,17 @@
 import { describe, it, expect } from 'vitest';
 import {
   computeRange, capRowHours, roundHoursLabel, roundDollars, money, formatHours,
-  toggleMulti, peopleCapForOrgSize, orgSizeMidpoint, rateForArea, suggestedAreas,
-  tailoredLines, questions, HOUR_CAP_PER_AREA, HOUR_CAP_TOTAL, PEOPLE_MAX_BEFORE_ORG_SIZE,
+  toggleMulti, orgSizeMidpoint, rateForArea, suggestedAreas,
+  tailoredLines, questions, HOUR_CAP_PER_AREA, HOUR_CAP_TOTAL, PEOPLE_MAX,
   lowerFirst, joinList, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
   AREAS, AREA_RATE_MAP, RATE_TABLE, groupedOptions, sanitizeAreaLabel, sanitizeShortText,
-  areaLookoutLines, OTHER_AREA_LOOKOUT, crossCuttingCards, nextSteps,
+  areaLookoutLines, OTHER_AREA_LOOKOUT, crossCuttingCards, nextSteps, ORG_AREA_SUGGESTIONS,
+  areaHoursRangeLabel, isSingularHourLabel,
 } from '../src/lib/aiOpportunity';
 
 describe('range maths', () => {
   it('multiplies hours x people x the low/likely net rate for the row area', () => {
-    const { low, likely, rows } = computeRange([{ area: 'correspondence', hours: 5, people: 2 }], '11-50');
+    const { low, likely, rows } = computeRange([{ area: 'correspondence', hours: 5, people: 2 }]);
     expect(rows[0].people).toBe(2);
     expect(low).toBeCloseTo(5 * 2 * 0.12, 6);
     expect(likely).toBeCloseTo(5 * 2 * 0.22, 6);
@@ -19,7 +20,7 @@ describe('range maths', () => {
     const { low, likely } = computeRange([
       { area: 'correspondence', hours: 5, people: 1 },
       { area: 'reports', hours: 3, people: 2 },
-    ], '11-50');
+    ]);
     expect(low).toBeCloseTo(5 * 1 * 0.12 + 3 * 2 * 0.08, 6);
     expect(likely).toBeCloseTo(5 * 1 * 0.22 + 3 * 2 * 0.18, 6);
   });
@@ -32,9 +33,12 @@ describe('range maths', () => {
     expect(rate).not.toHaveProperty('high');
     expect(Object.keys(rate).sort()).toEqual(['label', 'likely', 'low', 'sources'].sort());
   });
-  it('falls back to a 500-person cap when org size is not answered yet (still on Q2)', () => {
-    const { rows } = computeRange([{ area: 'correspondence', hours: 5, people: 999 }], undefined);
-    expect(rows[0].people).toBe(PEOPLE_MAX_BEFORE_ORG_SIZE);
+  // Org size (Q7) plays no part in the maths (Thomas, 2026-09-24 correction): computeRange takes
+  // only rows, and the flat 500-person cap applies the same whether or not Q7 has been answered.
+  it('caps people at a flat 500, with no org-size argument at all', () => {
+    const { rows } = computeRange([{ area: 'correspondence', hours: 5, people: 999 }]);
+    expect(rows[0].people).toBe(PEOPLE_MAX);
+    expect(PEOPLE_MAX).toBe(500);
   });
 });
 
@@ -57,12 +61,12 @@ describe('caps', () => {
     expect(rows[0].hours).toBeCloseTo(rows[1].hours, 6);
     expect(capped).toBe(true);
   });
-  it('caps people at the team size from question 7 once it is known', () => {
-    expect(peopleCapForOrgSize('1-10')).toBe(10);
-    expect(peopleCapForOrgSize('500+')).toBe(1000);
-    const { rows, peopleCapped } = computeRange([{ area: 'correspondence', hours: 5, people: 999 }], '1-10');
-    expect(rows[0].people).toBe(10);
-    expect(peopleCapped).toBe(true);
+  it('the flat 500-person cap does not change with a large org size (org size does not scale it)', () => {
+    const small = computeRange([{ area: 'correspondence', hours: 5, people: 999 }]);
+    const large = computeRange([{ area: 'correspondence', hours: 5, people: 999 }]);
+    expect(small.rows[0].people).toBe(500);
+    expect(large.rows[0].people).toBe(500);
+    expect(small.peopleCapped).toBe(true);
   });
 });
 
@@ -138,9 +142,9 @@ describe('multi-select state', () => {
   it('removes an existing pick', () => {
     expect(toggleMulti(['correspondence', 'reports'], 'correspondence', q.options, q.maxPicks)).toEqual(['reports']);
   });
-  it('stops adding once the pick cap is reached', () => {
-    const four = ['correspondence', 'reports', 'meetingNotes', 'findingInfo'];
-    expect(toggleMulti(four, 'scheduling', q.options, q.maxPicks)).toEqual(four);
+  it('stops adding once the pick cap (6) is reached', () => {
+    const six = ['correspondence', 'reports', 'meetingNotes', 'findingInfo', 'scheduling', 'invoicing'];
+    expect(toggleMulti(six, 'hiring', q.options, q.maxPicks)).toEqual(six);
   });
   it('picking the exclusive option clears every other pick', () => {
     expect(toggleMulti(['correspondence', 'reports'], 'notSureArea', q.options, q.maxPicks)).toEqual(['notSureArea']);
@@ -181,14 +185,43 @@ describe('new Q2 area tiles (2026-09-24)', () => {
     expect(q.options[q.options.length - 1]).toEqual(['notSureArea', 'Not sure yet', true]);
     expect(q.options.filter(o => o[2])).toHaveLength(1);
   });
-  it('the four-pick cap still holds with the larger option set', () => {
+  it('the six-pick cap holds with the larger option set', () => {
     const q = questions.find(q => q.id === 'areas');
-    const four = ['correspondence', 'writingEditing', 'research', 'otherArea'];
-    expect(toggleMulti(four, 'policies', q.options, q.maxPicks)).toEqual(four);
+    const six = ['correspondence', 'writingEditing', 'research', 'otherArea', 'spreadsheets', 'policies'];
+    expect(toggleMulti(six, 'socialContent', q.options, q.maxPicks)).toEqual(six);
   });
   it('"Other (type your own)" uses the floor rate, so it can only understate', () => {
     expect(rateForArea('otherArea')).toEqual(rateForArea('notSureArea'));
     expect(AREA_RATE_MAP.otherArea).toBe('floor');
+  });
+});
+
+describe('"Answering staff questions" area (2026-09-24 org-wide-estimate pass)', () => {
+  it('maps to the "Finding information" rate bucket, no new numbers', () => {
+    expect(AREA_RATE_MAP.staffQuestions).toBe('search');
+    expect(rateForArea('staffQuestions')).toEqual(RATE_TABLE.search);
+  });
+  it('is a Q2 tile with a label naming policies, onboarding and how-to', () => {
+    expect(AREAS.some(([v]) => v === 'staffQuestions')).toBe(true);
+    const label = AREAS.find(([v]) => v === 'staffQuestions')[1];
+    expect(label).toBe('Answering staff questions (policies, onboarding, how-to)');
+  });
+  it('is offered as a suggested area for municipal, postsecondary, nonprofit and healthcare orgs', () => {
+    ['municipal', 'postsecondary', 'nonprofit', 'healthcare'].forEach(orgType => {
+      expect(ORG_AREA_SUGGESTIONS[orgType]).toContain('staffQuestions');
+      // Appended as the 4th candidate: only surfaces once one of the top 3 is already picked.
+      expect(suggestedAreas(orgType, [])).not.toContain('staffQuestions');
+      const firstThreePicked = ORG_AREA_SUGGESTIONS[orgType].slice(0, 3);
+      expect(suggestedAreas(orgType, firstThreePicked)).toContain('staffQuestions');
+    });
+  });
+});
+
+describe('Q2 pick limit raised to six (2026-09-24 org-wide-estimate pass)', () => {
+  it('maxPicks is 6, and the label says "Pick up to six"', () => {
+    const q = questions.find(q => q.id === 'areas');
+    expect(q.maxPicks).toBe(6);
+    expect(q.label).toBe('Where would you most like time back? Pick up to six.');
   });
 });
 
@@ -376,5 +409,75 @@ describe('"free next steps" (always exactly 3, tailored and deduplicated)', () =
     const vendors = /chatgpt|copilot|gemini|claude|deepseek|kimi|perplexity|grok|meta ai|mistral/i;
     nextSteps({ heldBack: ['notSureStart', 'staffHesitant', 'budget'], owner: 'variesOrNoOne' }, 'a top area')
       .forEach(s => expect(s).not.toMatch(vendors));
+  });
+});
+
+describe('areaHoursRangeLabel (collapses to one number when equal, never "X to X")', () => {
+  it('shows a range when the two values round differently', () => {
+    expect(areaHoursRangeLabel(0.6, 1.1)).toBe('0.6 to 1.1');
+    expect(areaHoursRangeLabel(1.0, 2.0)).toBe('1.0 to 2.0');
+  });
+  it('collapses to one number when both values round to the same label', () => {
+    expect(areaHoursRangeLabel(0.4, 0.9)).toBe('0.4 to 0.9'); // genuinely different, stays a range
+    expect(areaHoursRangeLabel(0.41, 0.44)).toBe('0.4'); // both round to 0.4 -- collapses
+    expect(areaHoursRangeLabel(0, 0)).toBe('0');
+  });
+  it('never produces "under 1 to under 1" -- the bug this helper replaces', () => {
+    // Proposals alone at the default 5 hrs x 1 person (reports rate 0.08/0.18): low=0.4, likely=0.9.
+    const label = areaHoursRangeLabel(5 * 1 * 0.08, 5 * 1 * 0.18);
+    expect(label).not.toMatch(/under 1 to under 1/);
+    expect(label).toBe('0.4 to 0.9');
+  });
+});
+
+describe('isSingularHourLabel (Infy edit, 2026-09-24: "1 hr back a week", not "1 hrs")', () => {
+  it('is true only for the collapsed single-value case when that value is exactly 1', () => {
+    expect(isSingularHourLabel('1.0')).toBe(true);
+  });
+  it('is false for any other collapsed value', () => {
+    expect(isSingularHourLabel('0.4')).toBe(false);
+    expect(isSingularHourLabel('2.0')).toBe(false);
+    expect(isSingularHourLabel('0')).toBe(false);
+  });
+  it('is false for a genuine range, even one that starts or ends at 1', () => {
+    expect(isSingularHourLabel('1.0 to 2.0')).toBe(false);
+    expect(isSingularHourLabel('0.6 to 1.1')).toBe(false);
+  });
+});
+
+describe('live-preview sum: correspondence + proposals at the default 5 hrs x 1 person', () => {
+  it('reproduces the exact scenario Thomas reported and confirms the sum is correct (not a dropped-area bug)', () => {
+    // correspondence (0.12/0.22) + proposals, mapped to "reports" (0.08/0.18): low 0.6+0.4=1.0,
+    // likely 1.1+0.9=2.0. Verified this matches the live app via CDP before writing this test --
+    // the "under 1 to under 1" report traced to picking a single low-rate area (or lower hours),
+    // not a state bug that drops a picked area from the sum.
+    const rows = [
+      { area: 'correspondence', hours: 5, people: 1 },
+      { area: 'proposals', hours: 5, people: 1 },
+    ];
+    const { low, likely, rows: detail } = computeRange(rows, undefined);
+    expect(low).toBeCloseTo(1.0, 6);
+    expect(likely).toBeCloseTo(2.0, 6);
+    expect(detail).toHaveLength(2); // both picked areas present, none dropped
+    expect(areaHoursRangeLabel(low, likely)).toBe('1.0 to 2.0');
+  });
+});
+
+describe('Q3 (toolsToday) option list, 2026-09-24 revision', () => {
+  const q3 = questions.find(q => q.id === 'toolsToday');
+  it('has the full list in the specified order, ending with Other then Not sure', () => {
+    expect(q3.options.map(o => o[0])).toEqual([
+      'm365', 'google', 'accounting', 'hrPayroll', 'industry', 'projectMgmt',
+      'chatVideo', 'designDocs', 'toolsOther', 'notSureTools',
+    ]);
+  });
+  it('keeps "Not sure" as the sole exclusive pick', () => {
+    expect(q3.options.filter(o => o[2])).toEqual([['notSureTools', 'Not sure', true]]);
+  });
+  it('does not feed tailoredLines, crossCuttingCards or nextSteps -- new values are safe by construction', () => {
+    const answers = { toolsToday: ['hrPayroll', 'projectMgmt', 'chatVideo', 'designDocs', 'toolsOther'] };
+    expect(tailoredLines(answers)).toEqual([]);
+    expect(crossCuttingCards(answers)).toEqual([]);
+    expect(nextSteps(answers, null)).toHaveLength(3); // falls back to the generic 3, unaffected
   });
 });

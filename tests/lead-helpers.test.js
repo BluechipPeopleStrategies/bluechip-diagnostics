@@ -83,14 +83,18 @@ describe('formatLeadSms', () => {
   });
 });
 
-import { isNorthAmericanPhone } from '../api/_lib/lead-helpers.js';
-describe('isNorthAmericanPhone', () => {
-  it('accepts Canadian and US numbers', () => {
-    expect(isNorthAmericanPhone('780-555-0100')).toBe(true);
-    expect(isNorthAmericanPhone('+1 (212) 555-0100')).toBe(true);
+import { isCanadianPhone } from '../api/_lib/lead-helpers.js';
+describe('isCanadianPhone', () => {
+  it('accepts Canadian numbers in common formats', () => {
+    expect(isCanadianPhone('780-555-0100')).toBe(true);
+    expect(isCanadianPhone('+1 (416) 555-0100')).toBe(true);
+    expect(isCanadianPhone('15875550100')).toBe(true);
+    expect(isCanadianPhone('(902) 555-0100')).toBe(true);
   });
-  it('rejects numbers outside North America', () => {
-    expect(isNorthAmericanPhone('+44 20 7946 0958')).toBe(false);
-    expect(isNorthAmericanPhone('12345')).toBe(false);
+  it('rejects US and international numbers', () => {
+    expect(isCanadianPhone('+1 (212) 555-0100')).toBe(false);
+    expect(isCanadianPhone('213-555-0100')).toBe(false);
+    expect(isCanadianPhone('+44 20 7946 0958')).toBe(false);
+    expect(isCanadianPhone('12345')).toBe(false);
   });
 });

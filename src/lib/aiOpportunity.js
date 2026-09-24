@@ -46,6 +46,9 @@ export const AREA_RATE_MAP = {
   socialContent: 'correspondence',
   trainingMaterials: 'reports',
   policies: 'reports',
+  // Answering staff questions (2026-09-24 org-wide-estimate pass): finding/relaying an answer is
+  // the same underlying work as "Finding information", so it shares that bucket.
+  staffQuestions: 'search',
   // Typed-in "Other" area: always the most conservative rate, so it can only understate.
   otherArea: 'floor',
   notSureArea: 'floor',
@@ -68,6 +71,7 @@ export const AREAS = [
   ['socialContent', 'Social posts, newsletters and marketing copy'],
   ['trainingMaterials', 'Training materials and how-to guides'],
   ['policies', 'Policies, procedures and templates'],
+  ['staffQuestions', 'Answering staff questions (policies, onboarding, how-to)'],
   ['otherArea', 'Other (type your own)'],
   // Exclusive pick (see `questions` below, which marks the LAST entry exclusive) -- keep this
   // last so a new area added above doesn't silently become the exclusive one.
@@ -97,28 +101,24 @@ export function sanitizeShortText(raw, max = AREA_TEXT_MAX) {
 export const ORG_AREA_SUGGESTIONS = {
   professional: ['correspondence', 'proposals', 'findingInfo'],
   trades: ['scheduling', 'proposals', 'invoicing'],
-  healthcare: ['caseNotes', 'scheduling', 'enquiries'],
+  // staffQuestions appended (2026-09-24): a 4th candidate that only surfaces once one of the
+  // first three is already picked (suggestedAreas filters out picks, then takes the first 3).
+  healthcare: ['caseNotes', 'scheduling', 'enquiries', 'staffQuestions'],
   retail: ['enquiries', 'scheduling', 'invoicing'],
-  postsecondary: ['meetingNotes', 'enquiries', 'findingInfo'],
-  municipal: ['meetingNotes', 'correspondence', 'findingInfo'],
-  nonprofit: ['meetingNotes', 'reports', 'caseNotes'],
+  postsecondary: ['meetingNotes', 'enquiries', 'findingInfo', 'staffQuestions'],
+  municipal: ['meetingNotes', 'correspondence', 'findingInfo', 'staffQuestions'],
+  nonprofit: ['meetingNotes', 'reports', 'caseNotes', 'staffQuestions'],
   other: ['correspondence', 'meetingNotes', 'reports'],
 };
 
-// Q7 org size band -> the cap this file uses on "people" in an area's row (the band's top;
-// 1,000 for "More than 500" is the existing input maximum).
-export const ORG_SIZE_PEOPLE_CAP = {
-  '1-10': 10,
-  '11-50': 50,
-  '51-200': 200,
-  '201-500': 500,
-  '500+': 1000,
-};
-
-// Org size (Q7) is asked after the area sliders (Q2), so the people stepper has no team-size
-// cap to apply yet while the visitor is answering Q2. This is its fallback ceiling until Q7 is
-// answered, per Thomas's "max from team size or 500."
-export const PEOPLE_MAX_BEFORE_ORG_SIZE = 500;
+// Flat ceiling on "people" entered for any one area, at every stage of the check -- before Q7
+// (org size) is answered and after. Org size does NOT scale this: Thomas, 2026-09-24, correcting
+// an earlier draft of this feature, "Org size must NOT affect the estimate. The math is purely:
+// hours one person spends on an area x the people who do that work x the net rate, summed across
+// areas." This cap exists only so a mistyped or joke entry can't produce an absurd total -- it is
+// not a per-org-size band. (Previously ORG_SIZE_PEOPLE_CAP / peopleCapForOrgSize scaled this by
+// Q7's answer; removed with this correction.)
+export const PEOPLE_MAX = 500;
 
 export const HOUR_CAP_PER_AREA = 25; // hours a week, one person, per area (the slider's hard max)
 export const HOUR_CAP_TOTAL = 30;    // hours a week, one person, summed across every picked area
@@ -139,18 +139,29 @@ export const questions = [
     ],
   },
   {
-    id: 'areas', number: 2, type: 'multi', maxPicks: 4,
-    label: 'Where would you most like time back? Pick up to four.',
+    id: 'areas', number: 2, type: 'multi', maxPicks: 6,
+    label: 'Where would you most like time back? Pick up to six.',
     options: [...AREAS.map(([v, l], i) => [v, l, i === AREAS.length - 1])],
   },
   {
+    // toolsToday feeds nothing downstream (not read by tailoredLines, crossCuttingCards,
+    // nextSteps, any lead payload -- this funnel submits no lead at all, "no email" per its own
+    // intro -- or the plan-page carry-over): confirmed by a full repo grep before adding options
+    // here, so new values (including toolsOther's free text) are safe by construction. If a
+    // future change starts reading toolsToday into result copy, map any typed-in value through
+    // sanitizeShortText and never surface it as a named tool, matching the areas "Other" pattern.
     id: 'toolsToday', number: 3, type: 'multi',
     label: 'Which tools does your team use every day? Pick all that apply.',
     options: [
       ['m365', 'Microsoft 365'],
       ['google', 'Google Workspace'],
-      ['industry', 'Industry software (for example practice management, ERP or CRM)'],
       ['accounting', 'Accounting software'],
+      ['hrPayroll', 'HR or payroll software'],
+      ['industry', 'Industry software (for example practice management, ERP or CRM)'],
+      ['projectMgmt', 'Project or task management (for example Asana, Monday or Trello)'],
+      ['chatVideo', 'Chat and video calls (for example Slack or Zoom)'],
+      ['designDocs', 'Design and document tools (for example Canva or Adobe)'],
+      ['toolsOther', 'Other (type your own)'],
       ['notSureTools', 'Not sure', true],
     ],
   },
@@ -310,10 +321,6 @@ export function toggleMulti(current = [], value, options, maxPicks) {
   return [...next, value];
 }
 
-export function peopleCapForOrgSize(orgSize) {
-  return ORG_SIZE_PEOPLE_CAP[orgSize] || ORG_SIZE_PEOPLE_CAP['1-10'];
-}
-
 // A clean representative headcount for an org-size band (used to default the "what if more of
 // your team works like this" slider, and to carry a team size across to the plan page).
 export const ORG_SIZE_MIDPOINT = {
@@ -349,15 +356,13 @@ export function capRowHours(rows) {
 }
 
 // net range = hours spent x people x [low, likely] net rate for the row's area, summed across
-// rows. orgSize (Q7) may not be known yet (the visitor is still on Q2), so the people cap falls
-// back to PEOPLE_MAX_BEFORE_ORG_SIZE until it is.
-export function computeRange(rows, orgSize) {
-  const peopleCap = orgSize ? peopleCapForOrgSize(orgSize) : PEOPLE_MAX_BEFORE_ORG_SIZE;
+// rows. Org size plays no part in this -- see PEOPLE_MAX above -- so this takes only the rows.
+export function computeRange(rows) {
   const { rows: capped, capped: hoursCapped } = capRowHours(rows);
   let low = 0, likely = 0, peopleCapped = false;
   const detail = capped.map(r => {
     const rawPeople = Number(r.people) || 0;
-    const people = Math.min(peopleCap, Math.max(0, rawPeople));
+    const people = Math.min(PEOPLE_MAX, Math.max(0, rawPeople));
     if (people !== rawPeople) peopleCapped = true;
     const rate = rateForArea(r.area);
     const rowLow = r.hours * people * rate.low;
@@ -411,6 +416,21 @@ export function roundHoursLabel(n) {
 export function areaHoursLabel(n) {
   if (!(n > 0)) return '0';
   return n < 10 ? (Math.round(n * 10) / 10).toFixed(1) : String(Math.round(n));
+}
+// "X to Y", or just "X" when the two labels are identical after rounding (e.g. the Q2 live
+// preview showing "under 1 to under 1" for two small, genuinely-different values before this
+// helper existed -- collapsing to one number is honest about the precision, "X to X" isn't).
+export function areaHoursRangeLabel(low, likely) {
+  const lowLabel = areaHoursLabel(low);
+  const likelyLabel = areaHoursLabel(likely);
+  return lowLabel === likelyLabel ? likelyLabel : `${lowLabel} to ${likelyLabel}`;
+}
+// True when a rendered range label (from areaHoursRangeLabel) is the collapsed single-value case
+// AND that value is exactly 1 -- the one case where "hrs" should read as "hr". A genuine "X to Y"
+// range always has two different display strings, so only the collapsed case can ever be exactly
+// 1; the " to " check short-circuits Number() on a range string (which would otherwise be NaN).
+export function isSingularHourLabel(label) {
+  return !label.includes(' to ') && Number(label) === 1;
 }
 export function roundDollars(n) {
   return n > 100000 ? Math.round(n / 1000) * 1000 : Math.round(n / 100) * 100;
@@ -503,6 +523,7 @@ export const AREA_LOOKOUT = {
   socialContent: ['how long a typical post or newsletter takes to draft', 'how much of it follows a repeatable format', "who reviews before it's posted or sent"],
   trainingMaterials: ['how often materials need updating', 'how much content repeats across different guides', "who checks materials for accuracy before they're used"],
   policies: ['how often policies and templates need reviewing', 'how much wording repeats across documents', 'who signs off on changes'],
+  staffQuestions: ['which questions new and current staff ask again and again', 'where the answers live today', 'who gets interrupted to answer them'],
 };
 export const OTHER_AREA_LOOKOUT = ['how often it happens', 'how many steps are copy and paste', 'who checks the result'];
 export function areaLookoutLines(area) {

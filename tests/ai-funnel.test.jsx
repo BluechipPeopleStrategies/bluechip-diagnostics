@@ -84,15 +84,42 @@ describe('the free check stepper', () => {
     expect(next).toBeDisabled();
   });
 
-  it('stops picking once Q2 reaches its 4-area cap', async () => {
+  it('stops picking once Q2 reaches its 6-area cap', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
-    const four = ['correspondence', 'reports', 'meetingNotes', 'findingInfo'];
-    four.forEach(v => fireEvent.click(container.querySelector(`input[name="areas"][value="${v}"]`)));
-    fireEvent.click(container.querySelector('input[name="areas"][value="scheduling"]'));
-    expect(container.querySelector('input[name="areas"][value="scheduling"]')).not.toBeChecked();
-    four.forEach(v => expect(container.querySelector(`input[name="areas"][value="${v}"]`)).toBeChecked());
+    const six = ['correspondence', 'reports', 'meetingNotes', 'findingInfo', 'scheduling', 'invoicing'];
+    six.forEach(v => fireEvent.click(container.querySelector(`input[name="areas"][value="${v}"]`)));
+    fireEvent.click(container.querySelector('input[name="areas"][value="hiring"]'));
+    expect(container.querySelector('input[name="areas"][value="hiring"]')).not.toBeChecked();
+    six.forEach(v => expect(container.querySelector(`input[name="areas"][value="${v}"]`)).toBeChecked());
+  });
+
+  // Infy edit (2026-09-24): dropped the leading "Up to six." from the helper note -- the Q2
+  // question label itself already says "Pick up to six", so the note no longer repeats it.
+  it('Q2\'s helper note no longer repeats the pick count, since the question label already says it', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    expect(screen.getByText('Where would you most like time back? Pick up to six.')).toBeInTheDocument();
+    expect(screen.getByText('Each one you pick gets its own hours and people below.')).toBeInTheDocument();
+    expect(screen.queryByText(/^Up to six\./)).not.toBeInTheDocument();
+  });
+
+  it('offers the new "Answering staff questions" Q2 tile', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    expect(container.querySelector('input[name="areas"][value="staffQuestions"]')).toBeInTheDocument();
+    expect(screen.getByText('Answering staff questions (policies, onboarding, how-to)')).toBeInTheDocument();
+  });
+
+  it('shows the "count everyone" helper line under a picked area\'s people stepper', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    expect(screen.getByText('Count everyone at your organization who does this, not just you.')).toBeInTheDocument();
   });
 
   it('ticking a Q2 area reveals an inline hours slider and people stepper, defaulting to 5 hours and 1 person', async () => {
@@ -120,6 +147,45 @@ describe('the free check stepper', () => {
     expect(container.querySelector('#hours-correspondence')).toHaveValue('20');
     fireEvent.click(screen.getByRole('button', { name: 'More people' }));
     expect(screen.getByText('2')).toBeInTheDocument();
+  });
+
+  it('the hours label is reworded and renders as plain text, not a bordered tile-styled box', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    expect(screen.getByText('Hours a week one person spends on this')).toBeInTheDocument();
+    expect(screen.queryByText('Hours a week, one person')).not.toBeInTheDocument();
+    const label = container.querySelector('label[for="hours-correspondence"]');
+    expect(label.className).toBe('ai-hours-field-label'); // not a .ai-tile-wrap/.ai-options label
+  });
+
+  it('the people-count label is dynamic, uses the live hours value, is singular at exactly 1, and falls back at 0', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    expect(screen.getByText('People at your organization who spend about 5 hrs a week on this')).toBeInTheDocument();
+    fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '12' } });
+    expect(screen.getByText('People at your organization who spend about 12 hrs a week on this')).toBeInTheDocument();
+    fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '1' } });
+    expect(screen.getByText('People at your organization who spend about 1 hr a week on this')).toBeInTheDocument();
+    fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '0' } });
+    expect(screen.getByText('People at your organization who spend time on this')).toBeInTheDocument();
+  });
+
+  it('shows a per-area breakdown line with the rate percentages under the live-preview total, plus the honesty note', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    fireEvent.click(container.querySelector('input[name="areas"][value="proposals"]'));
+    // Reproduces Thomas's exact reported scenario: both areas at the default 5 hrs x 1 person.
+    expect(screen.getByText('About 1.0 to 2.0 hours a week back, so far.')).toBeInTheDocument();
+    const detail = container.querySelector('.ai-live-preview-detail');
+    expect(within(detail).getByText(/Emails and correspondence: 5 hrs × 1 person × 12% to 22% = 0.6 to 1.1 hrs back a week/)).toBeInTheDocument();
+    expect(within(detail).getByText(/Proposals, quotes and grant applications: 5 hrs × 1 person × 8% to 18% = 0.4 to 0.9 hrs back a week/)).toBeInTheDocument();
+    expect(within(detail).getByText('The percentages are the share of that time AI can realistically save after someone checks its work.')).toBeInTheDocument();
   });
 
   it('the Back button returns to the previous question and is disabled on question 1', async () => {
@@ -169,6 +235,31 @@ describe('the free check stepper', () => {
     await driveToResult(container); // orgSize 11-50 -> midpoint 25
     expect(screen.getByText('What if more of your team works like this?')).toBeInTheDocument();
     expect(screen.getByText(/across 25/)).toBeInTheDocument();
+  });
+
+  // READY's defaults (correspondence + reports, 5 hrs/1 person each) net a likely total of
+  // 5*0.22 + 5*0.18 = 2.0 hrs/week, under the 5-hour line.
+  it('shows the honest under-5 line when the likely total is under 5 hrs/week', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container);
+    expect(screen.getByText('This counts only the people you entered. When several people do the same task, the hours can add up quickly, and the team slider below shows what that looks like.')).toBeInTheDocument();
+  });
+
+  it('hides the honest under-5 line once the likely total reaches 5 hrs/week', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '20' } });
+    fireEvent.click(screen.getByRole('button', { name: 'More people' })); // 1 -> 2 people
+    fireEvent.click(container.querySelector('input[name="areas"][value="reports"]'));
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    await waitFor(() => expect(screen.getByText(/Question 3 of 12/)).toBeInTheDocument());
+    for (const q of questions.slice(2)) {
+      await answerCurrentQuestion(container, q.id, READY[q.id], q.number === questions.length);
+    }
+    // 20 hrs x 2 people x 0.22 (correspondence, likely) + 5 x 1 x 0.18 (reports, likely) = 9.7
+    expect(screen.queryByText(/This counts only the people you entered/)).not.toBeInTheDocument();
   });
 
   it('shows the "Information handling" look-at card when sensitive information has weak protection', async () => {
@@ -261,7 +352,7 @@ describe('the free check stepper', () => {
   it('keeps the "not a promise of results" honesty line, folded into the disclosure', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(container);
-    expect(container.querySelector('.ai-disclosure').textContent).toMatch(/isn't a promise of results or a cash saving/);
+    expect(container.querySelector('.ai-disclosure').textContent).toMatch(/not a promise of results or a cash saving/);
   });
 
   it('folds the basis, studies and caps explanation into the collapsed disclosure', async () => {
@@ -269,6 +360,24 @@ describe('the free check stepper', () => {
     await driveToResult(container);
     expect(screen.getByText('How this estimate works')).toBeInTheDocument();
     expect(container.querySelector('.ai-disclosure').textContent).toMatch(/at most 25 hours a week per person for any one area/);
+  });
+
+  // Rewritten 2026-09-24: org size (Q7) no longer affects the estimate, so the disclosure no
+  // longer names a team size or org-size band anywhere in its text.
+  it('the disclosure never mentions org size or a team-size band', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container, { orgSize: '201-500' });
+    const text = container.querySelector('.ai-disclosure').textContent;
+    expect(text).not.toMatch(/team of/i);
+    expect(text).not.toMatch(/201-500|201 to 500/);
+  });
+
+  it('uses the exact verbatim explainer text (for Infy review)', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container);
+    expect(container.querySelector('.ai-disclosure p').textContent).toBe(
+      "For each area you picked, we take the hours one person spends on it each week, multiply by the number of people who do that work, then multiply by the share of that time AI can realistically save. That share comes from published studies of similar work, minus an allowance for checking the tools' work. Where no study matches closely, or you typed your own area, we use our most conservative rate. Then we add the areas together. To keep it realistic, we count at most 25 hours a week per person for any one area, and 30 hours a week per person across all areas. The dollar figure uses the hourly cost and working weeks shown above. It's an estimate, not a promise of results or a cash saving."
+    );
   });
 
   it('"Review my answers" returns to question 1 with prior picks intact', async () => {
@@ -314,6 +423,32 @@ describe('the free check stepper', () => {
     await driveToResult(container, { areas: ['otherArea'] });
     const suggestion = screen.queryByText(/Where we'd also look/);
     if (suggestion) expect(suggestion.textContent).not.toMatch(/other \(type your own\)/i);
+  });
+
+  it('Q3 has the full 10-option tools list, and "Other" reveals an optional, sanitized text field', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    await waitFor(() => expect(screen.getByText(/Question 3 of 12/)).toBeInTheDocument());
+    ['Microsoft 365', 'Google Workspace', 'Accounting software', 'HR or payroll software',
+      'Industry software (for example practice management, ERP or CRM)',
+      'Project or task management (for example Asana, Monday or Trello)',
+      'Chat and video calls (for example Slack or Zoom)',
+      'Design and document tools (for example Canva or Adobe)',
+      'Other (type your own)', 'Not sure',
+    ].forEach(name => expect(screen.getByText(name)).toBeInTheDocument());
+
+    expect(container.querySelector('#tools-other-text')).not.toBeInTheDocument();
+    fireEvent.click(container.querySelector('input[name="toolsToday"][value="toolsOther"]'));
+    const otherInput = container.querySelector('#tools-other-text');
+    expect(otherInput).toBeInTheDocument();
+    fireEvent.change(otherInput, { target: { value: '<b>Notion</b>' } });
+    expect(screen.getByText('You said: bNotion/b')).toBeInTheDocument();
+    expect(container.querySelector('.ai-other-label-field b')).not.toBeInTheDocument();
+    // Optional: Next is still enabled with just toolsOther picked, no text required.
+    expect(screen.getByRole('button', { name: 'Next' })).not.toBeDisabled();
   });
 
   it('the AI-tools question (Q4) groups its options under three headings plus an ungrouped "None yet"', async () => {

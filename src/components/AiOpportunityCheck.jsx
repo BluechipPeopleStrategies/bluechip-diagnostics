@@ -4,8 +4,8 @@ import {
   questions, isComplete, toggleMulti, computeRange, roundHoursLabel, roundDollars, money,
   suggestedAreas, AREA_LABELS, lowerFirst, joinList, groupedOptions,
   sanitizeAreaLabel, sanitizeShortText, areaLookoutLines, crossCuttingCards, nextSteps,
-  peopleCapForOrgSize, orgSizeMidpoint, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
-  PEOPLE_MAX_BEFORE_ORG_SIZE, areaHoursLabel } from '../lib/aiOpportunity';
+  orgSizeMidpoint, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
+  PEOPLE_MAX, areaHoursLabel, areaHoursRangeLabel, isSingularHourLabel } from '../lib/aiOpportunity';
 import { prefersReducedMotion } from '../lib/useRollingNumber';
 import { loadChatWidget } from '../lib/chatWidget';
 import SiteHeader from './SiteHeader';
@@ -59,6 +59,7 @@ export default function AiOpportunityCheck() {
   const [weeks, setWeeks] = useState(48);
   const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
   const [ownerOtherText, setOwnerOtherText] = useState(''); // Q9 "Someone else" free text, optional
+  const [toolsOtherText, setToolsOtherText] = useState(''); // Q3 "Other" free text, optional
   const headingRef = useRef(null);
 
   const question = questions[qIndex];
@@ -118,10 +119,10 @@ export default function AiOpportunityCheck() {
   const atCap = question?.maxPicks && picks.length >= question.maxPicks;
   const isAreas = question?.id === 'areas';
   const isOwner = question?.id === 'owner';
+  const isToolsToday = question?.id === 'toolsToday';
   const isGrouped = !!question?.groups;
-  const peopleMaxDuringQ2 = answers.orgSize ? peopleCapForOrgSize(answers.orgSize) : PEOPLE_MAX_BEFORE_ORG_SIZE;
   const pickedRows = isAreas ? picks.map(a => ({ area: a, hours: areaInputs[a]?.hours ?? 5, people: areaInputs[a]?.people ?? 1 })) : [];
-  const livePreview = isAreas && pickedRows.some(r => r.hours > 0) ? computeRange(pickedRows, answers.orgSize) : null;
+  const livePreview = isAreas && pickedRows.some(r => r.hours > 0) ? computeRange(pickedRows) : null;
 
   function renderTile([val, label]) {
     const disabledByCap = question.type === 'multi' && atCap && !picks.includes(val);
@@ -138,7 +139,7 @@ export default function AiOpportunityCheck() {
       </label>
       {isAreas && checked && <AreaHoursInput
         area={val} hours={areaInputs[val]?.hours ?? 5} people={areaInputs[val]?.people ?? 1}
-        peopleMax={peopleMaxDuringQ2}
+        peopleMax={PEOPLE_MAX}
         onHoursChange={(h) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], hours: h } }))}
         onPeopleChange={(p) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], people: p } }))}
         otherLabel={areaInputs[val]?.label}
@@ -178,13 +179,33 @@ export default function AiOpportunityCheck() {
               ]).filter(Boolean)
               : question.options.map(renderTile)}
           </div>
-          {isAreas && <p className="ai-note">Up to four. Each one you pick gets its own hours and people below.</p>}
-          {livePreview && <p className="ai-live-preview">About {roundHoursLabel(livePreview.low)} to {roundHoursLabel(livePreview.likely)} hours a week back, so far.</p>}
+          {isAreas && <p className="ai-note">Each one you pick gets its own hours and people below.</p>}
+          {livePreview && <>
+            <p className="ai-live-preview">About {areaHoursRangeLabel(livePreview.low, livePreview.likely)} hours a week back, so far.</p>
+            <div className="ai-live-preview-detail">
+              {livePreview.rows.map(r => {
+                const rowLabel = r.area === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[r.area];
+                const lowPct = Math.round(r.rate.low * 100);
+                const likelyPct = Math.round(r.rate.likely * 100);
+                const rangeLabel = areaHoursRangeLabel(r.low, r.likely);
+                return <p className="ai-note" key={r.area}>
+                  {rowLabel}: {r.hours} hrs &times; {r.people} {r.people === 1 ? 'person' : 'people'} &times; {lowPct}% to {likelyPct}% = {rangeLabel} {isSingularHourLabel(rangeLabel) ? 'hr' : 'hrs'} back a week
+                </p>;
+              })}
+              <p className="ai-note">The percentages are the share of that time AI can realistically save after someone checks its work.</p>
+            </div>
+          </>}
           {isOwner && value === 'someoneElse' && <div className="ai-other-label-field">
             <label className="ai-hours-field-label" htmlFor="owner-other-text">Who is it? (a role is fine, e.g. finance lead)</label>
             <input id="owner-other-text" type="text" className="ai-compact-text-input" maxLength={60}
               value={ownerOtherText} onChange={(e) => setOwnerOtherText(e.target.value)} />
             {sanitizeShortText(ownerOtherText) && <p className="ai-note">You said: {sanitizeShortText(ownerOtherText)}</p>}
+          </div>}
+          {isToolsToday && picks.includes('toolsOther') && <div className="ai-other-label-field">
+            <label className="ai-hours-field-label" htmlFor="tools-other-text">What tool? (optional)</label>
+            <input id="tools-other-text" type="text" className="ai-compact-text-input" maxLength={60}
+              value={toolsOtherText} onChange={(e) => setToolsOtherText(e.target.value)} />
+            {sanitizeShortText(toolsOtherText) && <p className="ai-note">You said: {sanitizeShortText(toolsOtherText)}</p>}
           </div>}
         </fieldset>
 
@@ -214,7 +235,7 @@ function LoadingScreen({ messageIndex, headingRef }) {
 
 function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onReview, headingRef }) {
   const rows = (answers.areas || []).map(a => ({ area: a, hours: areaInputs[a]?.hours ?? 5, people: areaInputs[a]?.people ?? 1 }));
-  const { low, likely, rows: rowDetail } = computeRange(rows, answers.orgSize);
+  const { low, likely, rows: rowDetail } = computeRange(rows);
   const areas = suggestedAreas(answers.orgType, answers.areas || []);
   const valueLow = low * rate * weeks;
   const valueLikely = likely * rate * weeks;
@@ -228,7 +249,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
   const topAreaLabel = topArea ? (topArea === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : lowerFirst(AREA_LABELS[topArea])) : null;
   const steps = nextSteps(answers, topAreaLabel);
 
-  const peopleMax = answers.orgSize ? peopleCapForOrgSize(answers.orgSize) : PEOPLE_MAX_BEFORE_ORG_SIZE;
+  const peopleMax = PEOPLE_MAX;
   const totalPeopleEntered = Math.max(1, rowDetail.reduce((s, r) => s + r.people, 0));
   const defaultHeadcount = Math.min(peopleMax, orgSizeMidpoint(answers.orgSize));
   const [headcount, setHeadcount] = useState(defaultHeadcount);
@@ -264,6 +285,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
         <strong><RollingNumber value={valueLow} format={(n) => money(roundDollars(n))} /> to <RollingNumber value={valueLikely} format={(n) => money(roundDollars(n))} /> <span className="ai-stat-suffix">a year</span></strong>
       </div>
     </div>
+    {likely < 5 && <p className="ai-note ai-under-five">This counts only the people you entered. When several people do the same task, the hours can add up quickly, and the team slider below shows what that looks like.</p>}
 
     <div className="ai-eq ai-eq--result" role="img" aria-label={`${areaHoursLabel(low)} hours a week, up to ${roundHoursLabel(likely)}, times ${weeks} working weeks equals ${roundHoursLabel(low * weeks)} hours a year, up to ${roundHoursLabel(likely * weeks)}. At ${money(rate)} an hour that is ${money(roundDollars(valueLow))} a year in potential staff time value, up to ${money(roundDollars(valueLikely))}.`}>
       <div className="ai-term ai-hrs">
@@ -391,7 +413,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
 
     <details className="ai-disclosure">
       <summary>How this estimate works</summary>
-      <p>It's built from your numbers for a team of {answers.orgSize ? answers.orgSize.replace('+', ' or more') : 'your'} people. For each area you picked, we multiply the hours one person spends by the number of people, then by a low and a likely net rate taken from published studies of similar work. The net rate is the time saving those studies measured, minus an allowance for checking the tools' work. Where no study matches an area closely, or where you typed in your own area, we use our most conservative rate. To keep the estimate realistic, we count at most 25 hours a week per person for any one area, and at most 30 hours a week per person in total across every area. The dollar figure uses the hourly cost and working weeks shown above. This is an estimate from your answers and published studies. It isn't a promise of results or a cash saving, and your own results could land outside it.</p>
+      <p>For each area you picked, we take the hours one person spends on it each week, multiply by the number of people who do that work, then multiply by the share of that time AI can realistically save. That share comes from published studies of similar work, minus an allowance for checking the tools' work. Where no study matches closely, or you typed your own area, we use our most conservative rate. Then we add the areas together. To keep it realistic, we count at most 25 hours a week per person for any one area, and 30 hours a week per person across all areas. The dollar figure uses the hourly cost and working weeks shown above. It's an estimate, not a promise of results or a cash saving.</p>
     </details>
 
     <button type="button" className="ai-secondary" onClick={onReview}>Review my answers</button>

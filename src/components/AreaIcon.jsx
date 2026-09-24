@@ -130,6 +130,15 @@ const PATHS = {
       <path d="M6.3 14l1.2 1.2 2.4-2.6" {...STROKE} />
     </>
   ),
+  // Answering staff questions: two overlapping speech bubbles (the same question asked again),
+  // the front one carrying a question mark -- distinct from "enquiries"'s single outward bubble.
+  staffQuestions: (
+    <>
+      <path d="M6 2.5h11v7.6h-3.2l-2.6 2.4v-2.4H6z" {...STROKE} opacity="0.5" />
+      <path d="M2.5 6h11v7.6H10l-2.8 2.6v-2.6H2.5z" {...STROKE} />
+      <text x="7.7" y="11.4" fontSize="6.5" textAnchor="middle" fill="currentColor" stroke="none" fontFamily="Inter, sans-serif">?</text>
+    </>
+  ),
   // Other (type your own): typed lines with a cursor
   otherArea: (
     <>
