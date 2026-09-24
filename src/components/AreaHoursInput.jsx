@@ -21,12 +21,12 @@ export default function AreaHoursInput({ area, hours, people, peopleMax, onHours
       <label className="ai-hours-field-label" htmlFor={`hours-${area}`}>Hours a week, one person</label>
       <GoldSlider
         id={`hours-${area}`} min={0} max={HOUR_CAP_PER_AREA} step={1} value={hours}
-        onChange={onHoursChange} ariaLabel={`Hours a week, one person, for this area`}
-        format={(h) => `${h} hrs/week`}
+        onChange={onHoursChange} ariaLabel="Hours a week, one person, for this area"
+        format={(h) => `${h} hrs/week`} ticks={[0, 5, 10, 15, 20, 25]}
       />
       <p className="ai-note ai-slider-hint">Not sure? Leave it at 5.</p>
       <PeopleStepper
-        label="People who spend about that much time or more"
+        label="People who spend at least that many hours a week"
         value={people} max={peopleMax} onChange={onPeopleChange}
       />
     </div>

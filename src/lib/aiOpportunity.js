@@ -482,6 +482,110 @@ export function tailoredLines(answers) {
   return priority.slice(0, 1);
 }
 
+// "What we'd look at, based on your answers" (result screen): 2-3 short, informational lines per
+// picked area, never naming a specific tool. Every AREAS value gets its own set; anything not
+// listed (shouldn't happen, but a typed-in area would otherwise have no set) falls back to
+// OTHER_AREA_LOOKOUT, the same generic set the "Other" tile itself uses.
+export const AREA_LOOKOUT = {
+  correspondence: ['which replies repeat week to week', 'how long drafting takes versus checking', 'who reviews before anything goes out'],
+  reports: ['which numbers get pulled the same way each time', 'how much of the report is copied from other sources', 'who checks the final version before it goes out'],
+  meetingNotes: ['time spent writing up after meetings', 'whether action items get tracked', 'which meetings need a formal record'],
+  findingInfo: ['how often the same question gets researched from scratch', 'where the answer usually already lives', 'how long a typical search takes'],
+  scheduling: ['how much back and forth it takes to land on a time', 'how often a change means re-coordinating everyone', 'whether reminders happen automatically or by hand'],
+  invoicing: ['how many fields get typed in by hand', 'how often the same data gets entered more than once', 'who double-checks the totals'],
+  hiring: ['how long a job posting or offer letter takes to draft', 'how much paperwork repeats for every new hire', 'which onboarding steps are the same every time'],
+  enquiries: ['which questions come up again and again', 'how long a typical reply takes to draft', 'which enquiries need judgment versus a standard answer'],
+  caseNotes: ['how long notes take to write up after each contact', 'how consistent the format is from one note to the next', "who reviews notes before they're filed"],
+  proposals: ['how many sections repeat from one proposal to the next', 'how long it takes to pull the numbers together', 'who signs off before it goes out'],
+  writingEditing: ['how many drafts go through rounds of edits', "whether there's a house style to follow", 'how much editing is wording versus substance'],
+  research: ['how long a typical summary takes to put together', 'how many sources usually get checked', 'how often the same document gets summarized for different audiences'],
+  spreadsheets: ['how much of the work is copying, sorting or matching data by hand', 'how often the same cleanup steps repeat', "who checks the results before they're used"],
+  socialContent: ['how long a typical post or newsletter takes to draft', 'how much of it follows a repeatable format', "who reviews before it's posted or sent"],
+  trainingMaterials: ['how often materials need updating', 'how much content repeats across different guides', "who checks materials for accuracy before they're used"],
+  policies: ['how often policies and templates need reviewing', 'how much wording repeats across documents', 'who signs off on changes'],
+};
+export const OTHER_AREA_LOOKOUT = ['how often it happens', 'how many steps are copy and paste', 'who checks the result'];
+export function areaLookoutLines(area) {
+  return AREA_LOOKOUT[area] || OTHER_AREA_LOOKOUT;
+}
+
+// Up to 2 cross-cutting "what we'd look at" cards, driven by answers other than the picked areas.
+// Ordered by relevance (a safety-relevant signal outranks a general one); the caller takes the
+// first 2. Never names a specific tool or vendor.
+export function crossCuttingCards(answers) {
+  const information = answers.information || [];
+  const sensitiveKeys = ['payroll', 'customer', 'health', 'student', 'legal', 'notSureInfo'];
+  const sensitive = information.some(v => sensitiveKeys.includes(v));
+  const protectInfo = answers.protectInfo || [];
+  const weakProtection = protectInfo.some(v => ['nothingFormal', 'noIdeaProtect'].includes(v));
+  const aiTools = answers.aiTools || [];
+  const hasExistingTools = aiTools.some(v => ['copilot', 'gemini'].includes(v));
+  const lowComfort = ['notYetReady', 'somewhatGuidance'].includes(answers.readiness) || answers.owner === 'outsideGuidance';
+
+  const candidates = [
+    sensitive && weakProtection && {
+      title: 'Information handling',
+      lines: ['which information can go into which tool', 'whether staff have written guidance'],
+    },
+    hasExistingTools && {
+      title: 'What you already pay for',
+      lines: ['licences or features that may already cover some of this', 'which of those already fits this kind of work'],
+    },
+    lowComfort && {
+      title: "Who'll run it",
+      lines: ['pick one owner and start with one workflow', "what guidance or support they'd need to get started"],
+    },
+  ].filter(Boolean);
+  return candidates.slice(0, 2);
+}
+
+// "Free next steps you can take this week" (result screen): exactly 3 tailored, doable-today
+// steps, ordered by relevance to the answers, deduplicated by id, padded from a fixed default
+// set if fewer than 3 conditions matched. Informational only, never names a specific tool.
+export function nextSteps(answers, topAreaLabel) {
+  const information = answers.information || [];
+  const sensitiveKeys = ['payroll', 'customer', 'health', 'student', 'legal', 'notSureInfo'];
+  const sensitive = information.some(v => sensitiveKeys.includes(v));
+  const protectInfo = answers.protectInfo || [];
+  const weakProtection = protectInfo.some(v => ['nothingFormal', 'noIdeaProtect'].includes(v));
+  const heldBack = answers.heldBack || [];
+  const feel = answers.feel;
+  const owner = answers.owner;
+  const readiness = answers.readiness;
+
+  const candidates = [
+    topAreaLabel && { id: 'timeTopArea', text: `Time ${topAreaLabel} for one week: a simple tally of task, minutes, and who did it.` },
+    sensitive && weakProtection && { id: 'writePolicy', text: 'Write a one-page rule on what information should never go into an AI tool.' },
+    heldBack.includes('notSureStart') && { id: 'rankTasks', text: 'List your three most repetitive tasks and rank them by how many hours a week they take.' },
+    (heldBack.includes('staffHesitant') || feel === 'worried') && { id: 'askTeam', text: 'Ask two or three team members what would make them comfortable trying a new tool, before choosing one.' },
+    heldBack.includes('budget') && { id: 'checkExisting', text: 'Check whether your current software already includes an AI feature you are not using yet.' },
+    (owner === 'variesOrNoOne' || readiness === 'notYetReady' || readiness === 'somewhatGuidance') && { id: 'pickOwner', text: 'Pick one person to own trying one workflow for two weeks, even informally.' },
+    { id: 'listTools', text: 'List the AI tools people on your team already use, including personal accounts.' },
+  ].filter(Boolean);
+
+  const seen = new Set();
+  const picked = [];
+  for (const c of candidates) {
+    if (seen.has(c.id)) continue;
+    seen.add(c.id);
+    picked.push(c.text);
+    if (picked.length === 3) break;
+  }
+  // Fixed fallback, so the list is always exactly 3 even if very few conditions matched.
+  const fallback = [
+    { id: 'writePolicy', text: 'Write a one-page rule on what information should never go into an AI tool.' },
+    { id: 'listTools', text: 'List the AI tools people on your team already use, including personal accounts.' },
+    { id: 'rankTasks', text: 'List your three most repetitive tasks and rank them by how many hours a week they take.' },
+  ];
+  for (const f of fallback) {
+    if (picked.length === 3) break;
+    if (seen.has(f.id)) continue;
+    seen.add(f.id);
+    picked.push(f.text);
+  }
+  return picked;
+}
+
 // Legacy ?workflow= values from the pre-launch 6-question check, kept working per the launch
 // rules ("keep query params such as ?workflow= working") so old shared links do not break.
 export const LEGACY_WORKFLOW_LABELS = {

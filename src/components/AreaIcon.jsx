@@ -154,3 +154,15 @@ export default function AreaIcon({ area, className = 'ai-tile-icon' }) {
     </svg>
   );
 }
+
+// A small check-in-a-circle, used as the bullet for each "look for" line in the result's
+// "What we'd look at" cards. Same stroke style as the area icons, standalone since it isn't
+// keyed by area value.
+export function CheckCircleIcon({ className = 'ai-lookout-check' }) {
+  return (
+    <svg className={className} viewBox="0 0 20 20" aria-hidden="true">
+      <circle cx="10" cy="10" r="7.5" {...STROKE} />
+      <path d="M6.7 10.2l2 2 4.3-4.6" {...STROKE} />
+    </svg>
+  );
+}
