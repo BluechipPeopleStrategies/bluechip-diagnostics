@@ -72,12 +72,14 @@
     '.bcw-foot{border-top:1px solid ' + CREAM + ';padding:9px 12px;max-height:32dvh;overflow-y:auto}' +
     '.bcw-panel{max-height:calc(100dvh - 110px);display:flex;flex-direction:column}.bcw-body{min-height:0;flex:1 1 auto}.bcw-header{flex-shrink:0}.bcw-foot{flex-shrink:0;box-sizing:border-box}.bcw-choice{box-sizing:border-box}.bcw-choice:focus-visible{outline:3px solid ' + GOLD + ';outline-offset:2px}' +
     '.bcw-row{display:flex;gap:8px}' +
-    '.bcw-input{flex:1;font-family:inherit;font-size:15px;color:' + TEXT + ';padding:10px 12px;border:1px solid ' + CREAM + ';border-radius:10px;outline:none}' +
+    '.bcw-panel{color-scheme:light}' +
+    '.bcw-input{flex:1;font-family:inherit;font-size:16px;color:' + NAVY + ' !important;-webkit-text-fill-color:' + NAVY + ';background:#fff !important;padding:11px 12px;border:1.5px solid rgba(11,26,51,.35) !important;border-radius:10px;outline:none;box-sizing:border-box}' +
+    '.bcw-input::placeholder{color:#6b7686 !important;-webkit-text-fill-color:#6b7686;opacity:1}' +
     '.bcw-input:focus{border-color:' + GOLD + ';box-shadow:0 0 0 3px rgba(201,169,97,.25)}' +
     '.bcw-send{background:' + NAVY + ';color:#fff;border:1.5px solid ' + NAVY + ';border-radius:999px;padding:10px 20px;font-family:inherit;font-weight:600;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .2s ease,color .2s ease,transform .1s ease}' +
     '.bcw-send:hover:not(:disabled){background:' + GOLD + ';border-color:' + GOLD + ';color:' + NAVY + ';transform:translateY(-1px)}' +
     '.bcw-send:disabled{opacity:.45;cursor:not-allowed}' +
-    '.bcw-choice{display:block;width:100%;text-align:left;margin:0 0 5px;padding:8px 10px;min-height:36px;font-family:inherit;font-size:13px;line-height:1.35;letter-spacing:normal;color:' + NAVY + ';background:#fff;border:1.5px solid ' + CREAM + ';border-radius:10px;cursor:pointer;transition:border-color .15s ease,background .15s ease}' +
+    '.bcw-choice{display:block;width:100%;text-align:left;margin:0 0 5px;padding:8px 10px;min-height:36px;font-family:inherit;font-size:13px;line-height:1.35;letter-spacing:normal;color:' + NAVY + ';font-weight:600;background:#f5efe6;border:1.5px solid rgba(11,26,51,.35);border-radius:10px;cursor:pointer;transition:border-color .15s ease,background .15s ease}' +
     '.bcw-choice:hover{border-color:' + GOLD + ';background:#fcfbf8}' +
     '.bcw-consent{display:flex;gap:9px;align-items:flex-start;margin:10px 2px 4px;font-size:13px;line-height:1.4;color:' + TEXT + '}' +
     '.bcw-consent input{margin-top:2px;width:16px;height:16px;accent-color:' + NAVY + ';flex:0 0 auto}' +
