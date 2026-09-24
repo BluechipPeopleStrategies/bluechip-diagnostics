@@ -1,19 +1,19 @@
 // Hours and value first, price second (Thomas, 2026-09-23: "highlight the amount saved and the hours").
-// Same illustration as the guarantee copy: C$40 an hour, 5 net hours a week, 40 working weeks.
+// Same illustration as the guarantee copy: C$40 an hour, 5 net hours a week, 52 weeks (Thomas, 2026-09-23: "Make it 52 weeks").
 export default function SavingsEquation() {
   return (
     <section className="ai-save" aria-labelledby="ai-save-title">
       <p className="ai-eyebrow" id="ai-save-title">What five hours a week is worth</p>
-      <div className="ai-eq" role="img" aria-label="5 net hours a week times 40 working weeks equals 200 hours a year; at C$40 an hour that is about C$8,000 a year in potential staff capacity.">
+      <div className="ai-eq" role="img" aria-label="5 net hours a week times 52 weeks equals 260 hours a year; at C$40 an hour that is about C$10,400 a year in potential staff capacity.">
         <div className="ai-term ai-hrs"><strong>5</strong><span>net hours a week</span></div>
         <div className="ai-op" aria-hidden="true">&times;</div>
-        <div className="ai-term"><strong>40</strong><span>working weeks</span></div>
+        <div className="ai-term"><strong>52</strong><span>weeks a year</span></div>
         <div className="ai-op" aria-hidden="true">=</div>
-        <div className="ai-term ai-hrs"><strong>200</strong><span>hours a year</span></div>
+        <div className="ai-term ai-hrs"><strong>260</strong><span>hours a year</span></div>
         <div className="ai-op" aria-hidden="true">&times;</div>
         <div className="ai-term"><strong>C$40</strong><span>employee cost an hour</span></div>
         <div className="ai-op" aria-hidden="true">&asymp;</div>
-        <div className="ai-term ai-total"><strong>C$8,000</strong><span>a year in potential staff capacity</span></div>
+        <div className="ai-term ai-total"><strong>C$10,400</strong><span>a year in potential staff capacity</span></div>
       </div>
       <div className="ai-save-fee">
         <span className="ai-fee">C$999</span>
