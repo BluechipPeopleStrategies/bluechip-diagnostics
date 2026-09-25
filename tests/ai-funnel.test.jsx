@@ -677,6 +677,41 @@ describe('the AI Handoff Plan page', () => {
     expect(screen.getByText('C$999, taxes included')).toBeInTheDocument();
   });
 
+  it('describes a walkthrough of key workflows, not a redesigned workflow (scope change 2026-09-25)', () => {
+    const { container } = render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
+    expect(screen.getByText('Walkthrough')).toBeInTheDocument();
+    expect(screen.getAllByText(/key workflows talked through, with where AI fits and where it doesn't/).length).toBeGreaterThan(0);
+    expect(container.textContent).not.toMatch(/redesign/i);
+    expect(document.querySelector('meta[name="description"]').getAttribute('content')).not.toMatch(/redesign/i);
+  });
+
+  it('draws where the plan fits as four labelled nodes, with free and optional stated in words', () => {
+    render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
+    const journey = screen.getByRole('list', { name: 'Where the plan fits' });
+    const nodes = within(journey).getAllByRole('listitem');
+    expect(nodes).toHaveLength(4);
+    expect(within(nodes[0]).getByText('Free')).toBeInTheDocument();
+    expect(within(nodes[1]).getByText('The AI Handoff Plan')).toBeInTheDocument();
+    expect(within(nodes[3]).getByText('Optional')).toBeInTheDocument();
+  });
+
+  it('draws the guarantee as net hours against a labelled 3-hour line, with both outcomes in words', () => {
+    render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
+    const fig = screen.getByRole('figure', { name: 'How the 3 hours are counted' });
+    expect(within(fig).getByText('Minus checking and upkeep')).toBeInTheDocument();
+    expect(within(fig).getByText('3 net hours a week')).toBeInTheDocument();
+    expect(within(fig).getByText(/the guarantee is met/)).toBeInTheDocument();
+    expect(within(fig).getByText(/your full fee back/)).toBeInTheDocument();
+    expect(within(fig).getByText('Illustration, not a client result.')).toBeInTheDocument();
+  });
+
+  it('renders the CSS glass (no WebGL surface) where plasma is not available, like jsdom', () => {
+    const { container } = render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
+    expect(container.querySelector('.glass-ground')).toBeInTheDocument();
+    expect(container.querySelector('.is-plasma')).not.toBeInTheDocument();
+    expect(container.querySelectorAll('.glass-panel').length).toBeGreaterThan(5);
+  });
+
   it('sets the document title and meta description from the launch strings', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
     expect(document.title).toBe('The AI Handoff Plan: Practical AI Audit | BlueChip');
