@@ -2,13 +2,19 @@ import { useState } from 'react';
 import GoldSlider from './GoldSlider';
 import ChipsRow from './ChipsRow';
 import RollingNumber from './RollingNumber';
-import { teamHours, estimateCapacity, formatHours, money, roundDollars } from '../lib/aiOpportunity';
+import { teamHours, estimateCapacity, formatHours, money, roundDollars, GUARANTEE_NET_HOURS, ILLUSTRATION_RATE, ILLUSTRATION_WEEKS } from '../lib/aiOpportunity';
+
+// The guarantee illustration, derived from the one guarantee constant so the figures can't drift:
+// 3 net hours x 48 weeks = 144 hours a year, x C$40 = C$5,760.
+const G_HOURS = GUARANTEE_NET_HOURS;
+const G_YEAR_HOURS = G_HOURS * ILLUSTRATION_WEEKS;
+const G_YEAR_VALUE = money(G_YEAR_HOURS * ILLUSTRATION_RATE);
 
 const HEADCOUNT_CHIPS = [10, 25, 50, 100, 250].map(n => ({ label: String(n), value: n }));
 
 // Hours and value first, price second (Thomas, 2026-09-23: "highlight the amount saved and the hours").
-// The 5-hour equation is the guarantee illustration and never changes with headcount (the
-// guarantee is 5 hours across the WHOLE organization, not per person -- multiplying it by
+// The 3-hour equation is the guarantee illustration and never changes with headcount (the
+// guarantee is 3 hours across the WHOLE organization, not per person -- multiplying it by
 // headcount would misstate it). "Across your team" below is a separate, clearly distinct
 // illustration: the one interactive team calculator on this page (2026-09-24: replaces both the
 // old standalone "What could that time be worth?" calculator and the first draft of this row,
@@ -25,28 +31,28 @@ export default function SavingsEquation({ defaultPerPersonHours = 1, defaultEmpl
 
   return (
     <section className="ai-save" aria-labelledby="ai-save-title">
-      <p className="ai-eyebrow" id="ai-save-title">What five hours a week adds up to</p>
-      <div className="ai-eq" role="img" aria-label="5 net hours a week times 48 working weeks equals 240 hours a year; at C$40 an hour that is C$9,600 a year in potential staff capacity.">
-        <div className="ai-term ai-hrs"><strong>5</strong><span>net hours a week</span></div>
+      <p className="ai-eyebrow" id="ai-save-title">What three hours a week adds up to</p>
+      <div className="ai-eq" role="img" aria-label={`${G_HOURS} net hours a week times ${ILLUSTRATION_WEEKS} working weeks equals ${G_YEAR_HOURS} hours a year; at ${money(ILLUSTRATION_RATE)} an hour that is ${G_YEAR_VALUE} a year in potential staff capacity.`}>
+        <div className="ai-term ai-hrs"><strong>{G_HOURS}</strong><span>net hours a week</span></div>
         <div className="ai-op" aria-hidden="true">&times;</div>
-        <div className="ai-term"><strong>48</strong><span>working weeks</span></div>
+        <div className="ai-term"><strong>{ILLUSTRATION_WEEKS}</strong><span>working weeks</span></div>
         <div className="ai-op" aria-hidden="true">=</div>
-        <div className="ai-term ai-hrs"><strong>240</strong><span>hours a year</span></div>
+        <div className="ai-term ai-hrs"><strong>{G_YEAR_HOURS}</strong><span>hours a year</span></div>
         <div className="ai-op" aria-hidden="true">&times;</div>
-        <div className="ai-term"><strong>C$40</strong><span>an hour in staff cost</span></div>
+        <div className="ai-term"><strong>{money(ILLUSTRATION_RATE)}</strong><span>an hour in staff cost</span></div>
         <div className="ai-op" aria-hidden="true">=</div>
-        <div className="ai-term ai-total"><strong>C$9,600</strong><span>a year in potential staff capacity</span></div>
+        <div className="ai-term ai-total"><strong>{G_YEAR_VALUE}</strong><span>a year in potential staff capacity</span></div>
       </div>
       <div className="ai-save-fee">
         <span className="ai-fee">C$999<small>including applicable tax</small></span>
-        <p><strong>If the plan can't recommend tools with evidence-backed potential to save at least five net hours a week, you get your full fee back.</strong> That's five hours across your whole organization, not per employee, and it's counted after the time your team spends checking the tools' work.</p>
+        <p><strong>If the plan can't recommend tools with evidence-backed potential to save at least three net hours a week, you get your full fee back.</strong> That's three hours across your whole organization, not per employee, and it's counted after the time your team spends checking the tools' work.</p>
       </div>
 
       <hr className="ai-save-divider" />
 
       <p className="ai-eyebrow">Across your team</p>
       <h3>What could that time be worth for your organization?</h3>
-      <p className="ai-note">An illustration of your team's time, not a guarantee or a cash saving. The plan's guarantee is 5 net hours a week found across your whole organization.</p>
+      <p className="ai-note">An illustration of your team's time, not a guarantee or a cash saving. The plan's guarantee is 3 net hours a week found across your whole organization.</p>
 
       <div className="ai-team-calc-grid">
         <div>

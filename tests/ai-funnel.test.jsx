@@ -238,14 +238,14 @@ describe('the free check stepper', () => {
   });
 
   // READY's defaults (correspondence + reports, 5 hrs/1 person each) net a likely total of
-  // 5*0.22 + 5*0.18 = 2.0 hrs/week, under the 5-hour line.
-  it('shows the honest under-5 line when the likely total is under 5 hrs/week', async () => {
+  // 5*0.22 + 5*0.18 = 2.0 hrs/week, under the 3-hour guarantee line.
+  it('shows the honest under-guarantee line when the likely total is under 3 hrs/week', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(container);
     expect(screen.getByText('This counts only the people you entered. When several people do the same task, the hours can add up quickly, and the team slider below shows what that looks like.')).toBeInTheDocument();
   });
 
-  it('hides the honest under-5 line once the likely total reaches 5 hrs/week', async () => {
+  it('hides the honest under-guarantee line once the likely total reaches 3 hrs/week', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
@@ -301,7 +301,7 @@ describe('the free check stepper', () => {
     expect(cta.className).toContain('ai-secondary');
     expect(cta.className).not.toContain('ai-button');
     expect(cta.getAttribute('href')).toMatch(/^\/ai-handoff-plan\?perPersonHours=[\d.]+&employees=\d+$/);
-    expect(screen.getByText('At least 5 net hours a week found across your organization, or your fee back.')).toBeInTheDocument();
+    expect(screen.getByText('At least 3 net hours a week found across your organization, or your fee back.')).toBeInTheDocument();
   });
 
   it('keeps the "not a promise of results" honesty line, folded into the disclosure', async () => {
@@ -663,6 +663,18 @@ describe('the AI Handoff Plan page', () => {
     expect(screen.getByText('Written plan')).toBeInTheDocument();
     expect(screen.queryByText('A focused plan, with clear deliverables.')).not.toBeInTheDocument();
     expect(screen.queryByText('What you take away')).not.toBeInTheDocument();
+  });
+
+  it('pins the guarantee at 3 net hours a week, with the illustration recalculated (3 x 48 = 144 hrs, x C$40 = C$5,760)', () => {
+    const { container } = render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
+    expect(screen.getByText("We'll find at least 3 net hours a week of AI time savings, or your fee back.")).toBeInTheDocument();
+    expect(screen.getByText('What three hours a week adds up to')).toBeInTheDocument();
+    const eq = container.querySelector('.ai-eq');
+    expect(eq).toHaveAttribute('aria-label', '3 net hours a week times 48 working weeks equals 144 hours a year; at C$40 an hour that is C$5,760 a year in potential staff capacity.');
+    expect(within(eq).getByText('144')).toBeInTheDocument();
+    expect(within(eq).getByText('C$5,760')).toBeInTheDocument();
+    expect(container.textContent).not.toMatch(/9,600|\b240\b|5 net hours|five net hours/);
+    expect(screen.getByText('C$999, taxes included')).toBeInTheDocument();
   });
 
   it('sets the document title and meta description from the launch strings', () => {

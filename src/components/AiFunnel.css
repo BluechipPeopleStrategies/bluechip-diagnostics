@@ -89,7 +89,7 @@
 @keyframes aiRise { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:none } }
 @media(prefers-reduced-motion:reduce) { * { animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; } }
 
-/* Savings equation card (plan page): the fixed 5-hour guarantee illustration, then a hairline,
+/* Savings equation card (plan page): the fixed 3-hour guarantee illustration, then a hairline,
    then the one interactive team calculator on the page ("Across your team"). */
 .ai-save { margin:28px 0 8px; padding:26px 28px 22px; border-radius:16px; border:1px solid rgba(201,162,75,.45);
   background:radial-gradient(600px 260px at 85% 0%, rgba(201,162,75,.16), transparent 70%), linear-gradient(180deg,#1c3150,#13233b); }
