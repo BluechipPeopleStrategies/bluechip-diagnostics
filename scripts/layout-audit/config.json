@@ -1,0 +1,24 @@
+{
+  "routes": [
+    "/",
+    "/ai-opportunity-check",
+    "/ai-handoff-plan",
+    "/dqi",
+    "/governance-eval-readiness",
+    "/org-pulse",
+    "/supervisor-blind-spot",
+    "/workplace-read"
+  ],
+  "viewports": [
+    { "name": "phone", "width": 390, "height": 844, "mobile": true },
+    { "name": "desktop", "width": 1440, "height": 900, "mobile": false }
+  ],
+  "minFontPx": 12,
+  "fonts": ["Inter", "Playfair Display"],
+  "watchedProperties": [
+    "display",
+    "font-size",
+    "margin-top", "margin-right", "margin-bottom", "margin-left",
+    "padding-top", "padding-right", "padding-bottom", "padding-left"
+  ]
+}
