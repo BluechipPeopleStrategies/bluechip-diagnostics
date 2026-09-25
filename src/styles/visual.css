@@ -46,7 +46,7 @@ html, body {
 .bc-quiz-header { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: 16px; align-items: center; }
 .bc-quiz-header .bc-quiz-emblem { grid-row: 1 / 3; }
 .bc-quiz-header:not(:has(.bc-quiz-emblem)) { grid-template-columns: 1fr; }
-.bc-quiz-header-eyebrow { color: var(--v-gold) !important; margin: 0 0 10px !important; }
+.bc-page .bc-quiz-header-eyebrow { color: var(--v-gold) !important; margin: 0 0 10px !important; }
 .bc-progress-track { height: 6px !important; border-radius: 99px; background: rgba(199, 208, 220, .12) !important; overflow: visible; }
 .bc-progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--v-gold-lo), var(--v-gold-hi)) !important;
   box-shadow: 0 0 14px rgba(212, 182, 113, .55); transition: width .45s var(--v-ease); }
@@ -271,7 +271,7 @@ html, body {
 
 /* result footer: share + retake sit closer, divider lines softened */
 .bc-dim-flag { font-family: Inter, sans-serif !important; font-style: normal !important; }
-.bc-page hr { margin: 28px 0 !important; background: var(--v-line) !important; }
+.bc-page hr:not(.ai-save-divider) { margin: 28px 0 !important; background: var(--v-line) !important; }
 .bc-share-button { color: var(--v-gold) !important; }
 
 /* one continuous ground (body was repainting the gradient under short pages) */
