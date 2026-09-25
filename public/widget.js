@@ -81,7 +81,7 @@
     '.bcw-panel.bcw-open{opacity:1;transform:translateY(0);pointer-events:auto}' +
     '.bcw-header{background:' + NAVY + ';color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}' +
     '#bcwPanel .bcw-header h3{font-family:"Playfair Display",Georgia,serif;font-weight:700;font-size:20px;line-height:1.2;letter-spacing:normal;margin:0;color:#fff!important}' +
-    '.bcw-close{background:none;border:0;color:#fff;font-size:22px;line-height:1;cursor:pointer;padding:0 4px}' +
+    '.bcw-close{background:none;border:0;color:#fff;font-family:inherit;font-size:22px;line-height:1;cursor:pointer;padding:0 4px}' +
     '.bcw-body{padding:12px 14px;max-height:340px;overflow-y:auto}' +
     '.bcw-msg{font-size:15px;line-height:1.5;margin:0 0 12px;max-width:88%;padding:10px 14px;border-radius:14px}' +
     '.bcw-msg-bot{background:' + CREAM + ';color:' + TEXT + ';border-bottom-left-radius:4px}' +
@@ -113,6 +113,7 @@
     '.bcw-done{text-align:center;padding:22px 18px;color:' + TEXT + ';font-size:14px;line-height:1.5}' +
     '.bcw-done svg{width:34px;height:34px;fill:' + GOLD + ';margin-bottom:8px}' +
     '@media (prefers-reduced-motion:reduce){.bcw-panel,.bcw-launch,.bcw-send{transition:none}.bcw-typing span{animation:none;opacity:1}}' +
+    '.bcw-greet small{font-size:12px}' +
     '@media (max-width:480px){.bcw-panel{right:8px;left:8px;bottom:84px;width:auto;max-width:none}.bcw-greet{display:none}.bcw-choice{min-height:44px}}';
 
   function injectStyle() {
