@@ -496,15 +496,15 @@ export function tailoredLines(answers) {
   const feel = answers.feel;
   const timing = answers.timing;
   const priority = [
-    heldBack.includes('triedDidntStick') && "The plan starts with one workflow, redesigned from start to finish, so there's one clear place to begin.",
-    (heldBack.includes('staffHesitant') || feel === 'worried') && 'The redesigned workflow keeps human checkpoints in place, so your people stay in charge of what goes out.',
+    heldBack.includes('triedDidntStick') && "The plan talks through your key workflows and ranks what it finds, so there's one clear place to begin.",
+    (heldBack.includes('staffHesitant') || feel === 'worried') && 'The plan keeps human checkpoints in place, so your people stay in charge of what goes out.',
     owner === 'variesOrNoOne' && "Workflows tend to hold up better when each step has a named owner before the work starts.",
     owner === 'outsideGuidance' && 'Some teams bring in outside help for their first workflow. Others start with one small workflow in-house and build from there.',
     heldBack.includes('notSureStart') && 'The plan ranks what it finds, so you know which opportunity to start with.',
     heldBack.includes('noTime') && 'The plan lists the setup effort for each recommendation, so you can see what it asks of your team before you commit to anything.',
     heldBack.includes('budget') && 'The plan lists the expected software cost of each recommendation, and it starts with tools you already pay for where they fit.',
     heldBack.includes('privacySecurity') && 'The plan includes practical guidance on which information should go into which tool.',
-    owner === 'it' && 'Your IT team gets written setup steps for the redesigned workflow and guidance on which information goes where.',
+    owner === 'it' && 'Your IT team gets what each recommended tool takes to set up, and guidance on which information goes where.',
     timing === 'exploring' && "If you're just exploring, this estimate may be all you need for now.",
   ].filter(Boolean);
   return priority.slice(0, 1);
