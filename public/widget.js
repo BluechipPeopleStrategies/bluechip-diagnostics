@@ -70,14 +70,14 @@
 
   // ---- styles ----
   var css = '' +
-    '.bcw-launch{position:fixed;right:20px;bottom:20px;z-index:99998;width:60px;height:60px;border-radius:999px;background:' + NAVY + ';border:1.5px solid ' + NAVY + ';cursor:pointer;box-shadow:0 8px 24px rgba(10,37,64,.18);display:flex;align-items:center;justify-content:center;transition:background .2s ease,transform .1s ease}' +
+    '.bcw-launch{position:fixed;right:20px;bottom:20px;z-index:99998;width:60px;height:60px;border-radius:999px;background:' + NAVY + ';border:1.5px solid ' + NAVY + ';cursor:pointer;box-shadow:0 8px 24px rgba(11,26,51,.18);display:flex;align-items:center;justify-content:center;transition:background .2s ease,transform .1s ease}' +
     '.bcw-launch:hover{background:' + GOLD + ';border-color:' + GOLD + ';transform:translateY(-1px)}' +
     '.bcw-launch svg{width:26px;height:26px;fill:#fff;transition:fill .2s ease}' +
     '.bcw-launch:hover svg{fill:' + NAVY + '}' +
-    '.bcw-greet{position:fixed;right:90px;bottom:30px;z-index:99998;max-width:230px;background:#fff;color:' + TEXT + ';border:1px solid ' + CREAM + ';border-radius:14px;border-bottom-right-radius:4px;box-shadow:0 8px 24px rgba(10,37,64,.14);padding:12px 14px;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.45;cursor:pointer}' +
+    '.bcw-greet{position:fixed;right:90px;bottom:30px;z-index:99998;max-width:230px;background:#fff;color:' + TEXT + ';border:1px solid ' + CREAM + ';border-radius:14px;border-bottom-right-radius:4px;box-shadow:0 8px 24px rgba(11,26,51,.14);padding:12px 14px;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.45;cursor:pointer}' +
     '.bcw-greet b{display:block;font-weight:600;color:' + NAVY + '}' +
-    '.bcw-greet small{color:#6b6b6b}' +
-    '.bcw-panel{position:fixed;right:20px;bottom:92px;z-index:99999;width:360px;max-width:calc(100vw - 32px);background:#fff;border:1px solid ' + CREAM + ';border-radius:16px;box-shadow:0 12px 40px rgba(10,37,64,.18);overflow:hidden;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .18s ease,transform .18s ease}' +
+    '.bcw-greet small{color:#5B6675}' +
+    '.bcw-panel{position:fixed;right:20px;bottom:92px;z-index:99999;width:360px;max-width:calc(100vw - 32px);background:#fff;border:1px solid ' + CREAM + ';border-radius:16px;box-shadow:0 12px 40px rgba(11,26,51,.18);overflow:hidden;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .18s ease,transform .18s ease}' +
     '.bcw-panel.bcw-open{opacity:1;transform:translateY(0);pointer-events:auto}' +
     '.bcw-header{background:' + NAVY + ';color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}' +
     '#bcwPanel .bcw-header h3{font-family:"Playfair Display",Georgia,serif;font-weight:700;font-size:20px;line-height:1.2;letter-spacing:normal;margin:0;color:#fff!important}' +
@@ -96,7 +96,7 @@
     '.bcw-panel{color-scheme:light}' +
     '.bcw-input{flex:1;font-family:inherit;font-size:16px;color:' + NAVY + ' !important;-webkit-text-fill-color:' + NAVY + ';background:#fff !important;padding:11px 12px;border:1.5px solid rgba(11,26,51,.35) !important;border-radius:10px;outline:none;box-sizing:border-box}' +
     '.bcw-input::placeholder{color:#6b7686 !important;-webkit-text-fill-color:#6b7686;opacity:1}' +
-    '.bcw-input:focus{border-color:' + GOLD + ';box-shadow:0 0 0 3px rgba(201,169,97,.25)}' +
+    '.bcw-input:focus{border-color:' + GOLD + ';box-shadow:0 0 0 3px rgba(201,162,75,.25)}' +
     '.bcw-send{background:' + NAVY + ';color:#fff;border:1.5px solid ' + NAVY + ';border-radius:999px;padding:10px 20px;font-family:inherit;font-weight:600;font-size:12px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:background .2s ease,color .2s ease,transform .1s ease}' +
     '.bcw-send:hover:not(:disabled){background:' + GOLD + ';border-color:' + GOLD + ';color:' + NAVY + ';transform:translateY(-1px)}' +
     '.bcw-send:disabled{background:#e4e0d8;border-color:#d8d3c8;color:#8a8578;opacity:1;cursor:not-allowed}' +
@@ -104,11 +104,11 @@
     '.bcw-choice{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;margin:0 0 6px;padding:11px 12px;min-height:44px;font-family:inherit;font-weight:600;font-size:13.5px;line-height:1.35;letter-spacing:normal;color:' + NAVY + ';background:#f5efe6;border:1.5px solid rgba(11,26,51,.35);border-radius:10px;cursor:pointer;transition:border-color .15s ease,background .15s ease,box-shadow .15s ease;box-sizing:border-box}' +
     '.bcw-choice::after{content:"\\2192";flex:none;color:' + GOLD + ';font-weight:700}' +
     '.bcw-choice:hover,.bcw-choice:focus-visible{border-color:' + GOLD + ';background:#faf3e3}' +
-    '.bcw-choice:focus-visible{outline:2px solid ' + GOLD + ';outline-offset:2px;box-shadow:0 0 0 3px rgba(201,169,97,.25)}' +
+    '.bcw-choice:focus-visible{outline:2px solid ' + GOLD + ';outline-offset:2px;box-shadow:0 0 0 3px rgba(201,162,75,.25)}' +
     '.bcw-consent{display:flex;gap:9px;align-items:flex-start;margin:10px 2px 4px;font-size:13px;line-height:1.4;color:' + TEXT + '}' +
     '.bcw-consent input{margin-top:2px;width:16px;height:16px;accent-color:' + NAVY + ';flex:0 0 auto}' +
-    '.bcw-fine{margin:6px 2px 0;font-size:11px;line-height:1.4;color:#6b6b6b}' +
-    '.bcw-note{margin:8px 2px 0;font-size:12px;line-height:1.4;color:#6b6b6b;font-style:italic}' +
+    '.bcw-fine{margin:6px 2px 0;font-size:11px;line-height:1.4;color:#5B6675}' +
+    '.bcw-note{margin:8px 2px 0;font-size:12px;line-height:1.4;color:#5B6675;font-style:italic}' +
     '.bcw-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}' +
     '.bcw-done{text-align:center;padding:22px 18px;color:' + TEXT + ';font-size:14px;line-height:1.5}' +
     '.bcw-done svg{width:34px;height:34px;fill:' + GOLD + ';margin-bottom:8px}' +

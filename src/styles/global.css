@@ -1,17 +1,17 @@
 /* ===== Design tokens ===== */
 :root {
-  --bc-navy: #0A2540;
-  --bc-gold: #C9A961;
-  --bc-beige: #E5E2DD;
+  --bc-navy: #0B1A33;
+  --bc-gold: #C9A24B;
+  --bc-beige: #F5EFE6; /* Bone */
   --bc-white: #FFFFFF;
   --bc-border: #e8e5df;
   --bc-divider: #d8d5cf;
   --bc-text: #2c2c2c;
   --bc-text-soft: #3a3a3a;
-  --bc-muted: #6b6b6b;
+  --bc-muted: #5B6675; /* Slate */
   --bc-placeholder: #a8a8a8;
-  --bc-gold-halo: rgba(201, 169, 97, 0.18);
-  --bc-card-shadow: 0 4px 16px rgba(10, 37, 64, 0.04);
+  --bc-gold-halo: rgba(201, 162, 75, 0.18);
+  --bc-card-shadow: 0 4px 16px rgba(11, 26, 51, 0.04);
   --bc-error: #9b2c2c;
   --bc-success: #2f6b3a;
 }
@@ -89,7 +89,7 @@ body {
 .bc-page a {
   color: var(--bc-navy);
   text-decoration: underline;
-  text-decoration-color: rgba(10, 37, 64, 0.3);
+  text-decoration-color: rgba(11, 26, 51, 0.3);
   text-decoration-thickness: 1.5px;
   text-underline-offset: 3px;
   transition: text-decoration-color 0.15s ease;
@@ -494,7 +494,7 @@ body {
 }
 .bc-card-link-block:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(10, 37, 64, 0.1);
+  box-shadow: 0 12px 32px rgba(11, 26, 51, 0.1);
 }
 .bc-card-link-block h3 {
   font-family: 'Playfair Display', Georgia, serif;
@@ -574,15 +574,15 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{ou
 /* Navy theme, 2026-09-23: matches the site-wide navy ground on bluechip-people-strategies.com.
    Variables are re-pointed for a dark ground (--bc-navy becomes the ink colour); fills that
    used navy as a surface are corrected below. Scoring and assessment content unchanged. */
-:root{--bc-navy:#f5efe6;--bc-gold:#d4b671;--bc-beige:#0b1a33;--bc-white:#15253c;--bc-border:#3a485d;--bc-divider:#344359;--bc-text:#c7d0dc;--bc-text-soft:#c7d0dc;--bc-muted:#9fb0c6;--bc-placeholder:#7f8c9f;--bc-gold-halo:rgba(212,182,113,.25);--bc-error:#f0a8a8;--bc-success:#9fd7a8;color-scheme:dark;}
+:root{--bc-navy:#f5efe6;--bc-gold:#c9a24b;--bc-beige:#0b1a33;--bc-white:#15253c;--bc-border:#3a485d;--bc-divider:#344359;--bc-text:#c7d0dc;--bc-text-soft:#c7d0dc;--bc-muted:#9fb0c6;--bc-placeholder:#7f8c9f;--bc-gold-halo:rgba(201,162,75,.25);--bc-error:#f0a8a8;--bc-success:#9fd7a8;color-scheme:dark;}
 html,body{background:#0b1a33;}
-.bc-page a{text-decoration-color:rgba(212,182,113,.6);}
-.bc-cta{background:#d4b671;border-color:#d4b671;color:#0b1a33 !important;}
-.bc-cta:hover{background:#c3a468;border-color:#c3a468;color:#0b1a33 !important;}
+.bc-page a{text-decoration-color:rgba(201,162,75,.6);}
+.bc-cta{background:#c9a24b;border-color:#c9a24b;color:#0b1a33 !important;}
+.bc-cta:hover{background:#b8913e;border-color:#b8913e;color:#0b1a33 !important;}
 .bc-cta-secondary{background:transparent;border-color:#7f8c9f;color:#f5efe6 !important;}
-.bc-cta-secondary:hover{background:#d4b671;border-color:#d4b671;color:#0b1a33 !important;}
-.bc-option.is-selected{background:#1c3150;color:#f5efe6;border-color:#d4b671;}
+.bc-cta-secondary:hover{background:#c9a24b;border-color:#c9a24b;color:#0b1a33 !important;}
+.bc-option.is-selected{background:#1c3150;color:#f5efe6;border-color:#c9a24b;}
 .bc-option-shortcut{color:#f5efe6;}
 .bc-option.is-selected .bc-option-shortcut{color:#0b1a33;}
 .bc-card-badge{color:#0b1a33;}
-a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline-color:#d4b671;}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline-color:#c9a24b;}
