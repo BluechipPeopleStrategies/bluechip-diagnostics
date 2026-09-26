@@ -2,6 +2,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import handler from '../api/submit.js';
 import { cleanAiCheckInput, buildAiCheckResultsEmail } from '../api/_emails/ai-opportunity-check.js';
+import { parseLeadDataBlock } from '../api/_emails/lead-data.js';
 
 // Every network call is a vi.fn: nothing here reaches Resend or Notion.
 function mockRes() {
@@ -106,10 +107,31 @@ describe('submit handler: AI Opportunity Check results email', () => {
     expect(res.body.ok).toBe(false);
   });
 
-  it('other diagnostics still take their existing path', async () => {
+  it('other diagnostics still take their existing path (result email + nudge), with no Notion write', async () => {
     const res = mockRes();
     await handler({ method: 'POST', body: { diagnosticId: 'dqi', email: 'pat@example.com', resultLabel: 'Band (50/100)' } }, res);
-    expect(global.fetch.mock.calls.some(c => String(c[0]).includes('notion'))).toBe(true);
+    expect(global.fetch.mock.calls.some(c => String(c[0]).includes('notion'))).toBe(false);
+    expect(resendCalls().some(s => s.scheduled_at)).toBe(true);
+  });
+
+  it('the note to Thomas carries a Lead-Data block for the Obsidian capture job', async () => {
+    const res = mockRes();
+    await handler({ method: 'POST', body: { ...BODY, include: 'answers' } }, res);
+    const note = resendCalls().find(s => s.to === 't@bc.ca');
+    const data = parseLeadDataBlock(note.html);
+    expect(data).toMatchObject({
+      kind: 'diagnostic', diagnostic: 'ai-opportunity-check', email: 'pat@example.com',
+      visitor_email_sent: 'yes', nudge_scheduled: 'no', spam_trap: 'no', name: '',
+    });
+    expect(data.result).toMatch(/the estimate and their answers/);
+    expect(data.submitted_at).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+  });
+
+  it('a spam-trap copy is flagged in its Lead-Data block too', async () => {
+    const res = mockRes();
+    await handler({ method: 'POST', body: { ...BODY, bc_hp_trap: 'filled by a bot' } }, res);
+    const data = parseLeadDataBlock(resendCalls()[0].html);
+    expect(data).toMatchObject({ kind: 'diagnostic', spam_trap: 'yes', visitor_email_sent: 'no' });
   });
 });
 

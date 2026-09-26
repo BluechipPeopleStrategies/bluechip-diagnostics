@@ -78,44 +78,6 @@ export async function sendOpenPhoneSms({ to, content }) {
   }
 }
 
-export async function writeNotionLead(clean, submittedAt) {
-  const apiKey = process.env.NOTION_API_KEY;
-  const databaseId = process.env.NOTION_CONTACT_DATABASE_ID;
-  if (!apiKey || !databaseId) {
-    console.warn('lead: Notion contact DB not configured');
-    return false;
-  }
-  try {
-    const r = await fetch('https://api.notion.com/v1/pages', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Notion-Version': '2022-06-28',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        parent: { database_id: databaseId },
-        properties: {
-          Name: { title: [{ text: { content: clean.name } }] },
-          Inquiry: { rich_text: [{ text: { content: `${clean.need}\nContact: ${clean.contact}${clean.email ? `\nEmail: ${clean.email}` : ''}\nTexting consent: ${clean.consent ? 'yes' : 'NO'}` } }] },
-          Source: { rich_text: [{ text: { content: clean.source || 'chat widget' } }] },
-          'Submitted At': { date: { start: submittedAt } },
-          Status: { select: { name: 'New' } },
-          ...(clean.email ? { Email: { email: clean.email } } : {}),
-        },
-      }),
-    });
-    if (!r.ok) {
-      console.error('lead: Notion write failed', r.status, await r.text());
-      return false;
-    }
-    return true;
-  } catch (err) {
-    console.error('lead: Notion write error', err);
-    return false;
-  }
-}
-
 export default async function handler(req, res) {
   setCorsHeaders(req, res);
 
@@ -133,7 +95,7 @@ export default async function handler(req, res) {
   if (isHoneypot(body)) {
     // Probably a bot, but never drop it silently: email it, flagged, and skip the text alert.
     console.warn('lead: honeypot triggered');
-    const mail = buildChatLeadEmail(clean, { smsSent: false, suspectedSpam: true });
+    const mail = buildChatLeadEmail(clean, { smsSent: false, suspectedSpam: true, submittedAt: new Date().toISOString() });
     await sendLeadEmail({ ...mail, replyTo });
     return res.status(200).json({ ok: true });
   }
@@ -148,7 +110,6 @@ export default async function handler(req, res) {
 
   const leadResult = await sendOpenPhoneSms({ to, content: formatLeadSms(clean) });
   const smsSent = leadResult.sent;
-  const notionWritten = await writeNotionLead(clean, submittedAt);
 
   // Auto-confirmation back to the visitor (only when they opted in and gave a phone number).
   // Skipped when the visitor's number is BlueChip's own texting number: it can't text itself.
@@ -166,9 +127,11 @@ export default async function handler(req, res) {
     }
   }
 
-  // Email copy of every lead, so a failed text never means a missed lead.
-  const mail = buildChatLeadEmail(clean, { smsSent, confirmationNote });
+  // Email copy of every lead, so a failed text never means a missed lead. Since 2026-09-26 this
+  // email is also the lead record (Notion is legacy, read-only): a local job files it in the
+  // Obsidian vault from its Lead-Data block.
+  const mail = buildChatLeadEmail(clean, { smsSent, confirmationNote, submittedAt });
   const emailSent = await sendLeadEmail({ ...mail, replyTo });
 
-  return res.status(200).json({ ok: true, smsSent, notionWritten, confirmationSent, emailSent });
+  return res.status(200).json({ ok: true, smsSent, confirmationSent, emailSent });
 }

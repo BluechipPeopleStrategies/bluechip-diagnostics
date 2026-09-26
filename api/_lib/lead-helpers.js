@@ -1,3 +1,4 @@
+import { buildLeadDataBlock } from '../_emails/lead-data.js';
 const CAPS = { name: 120, need: 1500, contact: 200, email: 200, source: 100 };
 
 // The trap field is named bc_hp_trap. It used to be "company", but browsers autofill any
@@ -37,7 +38,7 @@ function esc(s) {
 }
 
 // Email copy of every chat lead, so a failed text never means a missed lead.
-export function buildChatLeadEmail(lead, { smsSent, suspectedSpam, confirmationNote } = {}) {
+export function buildChatLeadEmail(lead, { smsSent, suspectedSpam, confirmationNote, submittedAt } = {}) {
   const flag = suspectedSpam ? '[Check: spam trap] ' : '';
   const rows = [
     ['Name', lead.name], ['Need', lead.need], ['Phone', lead.contact], ['Email', lead.email || '(not given)'],
@@ -50,7 +51,19 @@ export function buildChatLeadEmail(lead, { smsSent, suspectedSpam, confirmationN
     : '';
   return {
     subject: `${flag}New chat lead: ${lead.name || lead.contact} (${lead.need || 'no topic'})`,
-    html: `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;color:#1a1a1a;line-height:1.5;padding:20px"><div style="max-width:600px;margin:0 auto"><p style="font-size:18px"><strong>New chat lead</strong></p>${note}<table cellpadding="6" style="border-collapse:collapse">${rows.map(([k, v]) => `<tr><td style="color:#555;vertical-align:top"><strong>${esc(k)}</strong></td><td>${esc(v)}</td></tr>`).join('')}</table><p style="font-size:13px;color:#666;margin-top:20px">Reply to this email to reach them if they gave an email address.</p></div></body></html>`,
+    html: `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;color:#1a1a1a;line-height:1.5;padding:20px"><div style="max-width:600px;margin:0 auto"><p style="font-size:18px"><strong>New chat lead</strong></p>${note}<table cellpadding="6" style="border-collapse:collapse">${rows.map(([k, v]) => `<tr><td style="color:#555;vertical-align:top"><strong>${esc(k)}</strong></td><td>${esc(v)}</td></tr>`).join('')}</table><p style="font-size:13px;color:#666;margin-top:20px">Reply to this email to reach them if they gave an email address.</p>${buildLeadDataBlock({
+      kind: 'chat',
+      name: lead.name || '',
+      need: lead.need || '',
+      phone: lead.contact || '',
+      email: lead.email || '',
+      texting_consent: !!lead.consent,
+      page: lead.source || 'chat widget',
+      text_alert_sent: !!smsSent,
+      visitor_confirmation: confirmationNote || undefined,
+      spam_trap: !!suspectedSpam,
+      submitted_at: submittedAt || new Date().toISOString(),
+    })}</div></body></html>`,
   };
 }
 

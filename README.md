@@ -50,13 +50,14 @@ Vercel-connected to the `main` branch of this repo. Env var `VITE_FORMSPREE_DIAG
 ## Lead chat widget (`/api/lead`)
 
 The BlueChip site footer widget POSTs `{ name, need, contact, source, company }`
-to `/api/lead`. The handler texts the lead to Thomas via OpenPhone and writes a
-Notion backup row. Required Vercel env vars:
+to `/api/lead`. The handler texts the lead to Thomas via OpenPhone and emails him a
+copy (with a Lead-Data block that the local Obsidian capture job files; Notion is
+legacy and no longer written). Required Vercel env vars:
 
 - `OPENPHONE_API_KEY` — OpenPhone API key (Settings > API).
 - `OPENPHONE_FROM` — OpenPhone number to send from, E.164 (e.g. `+1587...`).
 - `LEAD_NOTIFY_PHONE` — destination cell, E.164 (default `+15877130585`).
-- `NOTION_API_KEY`, `NOTION_CONTACT_DATABASE_ID` — reused from the contact form.
+- `RESEND_API_KEY`, `BLUECHIP_FROM_EMAIL`, `BLUECHIP_NOTIFY_EMAIL` — the email copy.
 
 Widget endpoint constant lives in `bluechip-website/embed/code-inject-footer.html`
 (`LEAD_ENDPOINT`); it must match this deploy's origin.

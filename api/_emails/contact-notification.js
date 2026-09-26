@@ -1,3 +1,5 @@
+import { buildLeadDataBlock } from './lead-data.js';
+
 function escapeHtml(s) {
   return String(s || '')
     .replace(/&/g, '&amp;')
@@ -7,7 +9,9 @@ function escapeHtml(s) {
     .replace(/'/g, '&#39;');
 }
 
-export function buildContactNotificationEmail({ name, email, inquiry, source, acks }) {
+// Since 2026-09-26 this notification is the contact record (Notion is legacy, read-only): a
+// local job files it in the Obsidian vault from the Lead-Data block at the bottom.
+export function buildContactNotificationEmail({ name, email, inquiry, source, acks, submittedAt }) {
   const safeName = escapeHtml(name);
   const safeEmail = escapeHtml(email);
   const safeInquiry = escapeHtml(inquiry).replace(/\n/g, '<br/>');
@@ -27,6 +31,16 @@ export function buildContactNotificationEmail({ name, email, inquiry, source, ac
       Acknowledgements: ${ack1} advisory-only, ${ack2} decisions-are-mine
     </p>
     <p style="font-size:13px;color:#666;">Hit reply to respond directly. Their email is the Reply-To header.</p>
+    ${buildLeadDataBlock({
+      kind: 'contact',
+      name: name || '',
+      email: email || '',
+      source: source || 'website',
+      inquiry: inquiry || '',
+      ack_advisory_only: !!acks?.advisoryOnly,
+      ack_decisions_are_mine: !!acks?.decisionsAreMine,
+      submitted_at: submittedAt || new Date().toISOString(),
+    })}
   </div>
 </body></html>`,
   };

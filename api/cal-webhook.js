@@ -75,29 +75,21 @@ function verifySignature(rawBody, signature, secret) {
   }
 }
 
+// Notion is legacy and read-only (Thomas, 2026-09-26): this webhook no longer creates or
+// updates Notion rows. It still READS the legacy Diagnostic Submissions database, so a lead
+// captured there before the switch keeps its pending nudge/follow-up emails cancelled on
+// booking and still gets the +48h follow-up on cancellation. Leads captured after the switch
+// live in Obsidian (via the lead-notification email), which this webhook cannot see, so for
+// them a booking is a no-op here; Cal.com's own booking emails remain the booking record.
 async function handleBookingCreated(event) {
   const booking = event.payload || {};
   const attendees = booking.attendees || [];
   const email = (attendees[0]?.email || booking.responses?.email?.value || '').toLowerCase().trim();
-  const uid = booking.uid || '';
-  const meetingTime = booking.startTime || '';
-  const bookedAt = event.createdAt || booking.createdAt || new Date().toISOString();
-  const bookingUrl = uid ? `https://app.cal.com/booking/${uid}` : '';
-  const attendeeName = attendees[0]?.name || booking.responses?.name?.value || '';
 
   if (!email) return { error: 'missing_attendee_email' };
 
   const existing = await findMostRecentRowByEmail(email);
-  const bookingProps = {
-    'Lead Status': { select: { name: 'Booked Clarity Call' } },
-    'Meeting Time': meetingTime ? { date: { start: meetingTime } } : { date: null },
-    'Booked At': bookedAt ? { date: { start: bookedAt } } : { date: null },
-    'Cal Booking URL': bookingUrl ? { url: bookingUrl } : { url: null },
-    'Cal Event UID': { rich_text: [{ text: { content: uid } }] },
-  };
-
   if (existing) {
-    await patchNotionPage(existing.id, bookingProps);
     // Cancel any pending automated emails so they don't fire after the person has booked.
     const nudgeId = existing.properties?.['Nudge Email ID']?.rich_text?.[0]?.text?.content;
     const followupId = existing.properties?.['Cancel Followup Email ID']?.rich_text?.[0]?.text?.content;
@@ -105,13 +97,7 @@ async function handleBookingCreated(event) {
     const followupCancelled = followupId ? await cancelResendEmail(followupId) : false;
     return { matched: true, pageId: existing.id, nudgeCancelled, followupCancelled };
   }
-
-  const created = await createNotionPage({
-    Name: { title: [{ text: { content: attendeeName || email } }] },
-    Email: { email },
-    ...bookingProps,
-  });
-  return { matched: false, created: !!created };
+  return { matched: false };
 }
 
 async function handleBookingCancelled(event) {
@@ -121,14 +107,9 @@ async function handleBookingCancelled(event) {
 
   const row = await findRowByCalEventUid(uid);
   if (!row) {
-    console.warn('cal-webhook: BOOKING_CANCELLED with no matching row', uid);
+    console.warn('cal-webhook: BOOKING_CANCELLED with no matching legacy row', uid);
     return { warning: 'no_matching_row', uid };
   }
-
-  await patchNotionPage(row.id, {
-    'Lead Status': { select: { name: 'Cancelled' } },
-    'Meeting Time': { date: null },
-  });
 
   // Schedule a follow-up at +48h so the lead doesn't go silent.
   const email = row.properties?.Email?.email || '';
@@ -148,11 +129,6 @@ async function handleBookingCancelled(event) {
       detail: '',
     });
     followupId = await scheduleResendEmail({ to: email, subject, html, scheduledAt: followupAt });
-    if (followupId) {
-      await patchNotionPage(row.id, {
-        'Cancel Followup Email ID': { rich_text: [{ text: { content: followupId } }] },
-      });
-    }
   }
 
   return { cancelled: true, pageId: row.id, followupScheduled: !!followupId };
@@ -162,22 +138,10 @@ async function handleBookingRescheduled(event) {
   const booking = event.payload || {};
   const oldUid = booking.rescheduleUid || '';
   const newUid = booking.uid || '';
-  const newMeetingTime = booking.startTime || '';
   if (!oldUid && !newUid) return { error: 'missing_uids' };
-
-  const row = (await findRowByCalEventUid(oldUid)) || (await findRowByCalEventUid(newUid));
-  if (!row) {
-    console.warn('cal-webhook: BOOKING_RESCHEDULED with no matching row', { oldUid, newUid });
-    return { warning: 'no_matching_row', oldUid, newUid };
-  }
-
-  await patchNotionPage(row.id, {
-    'Meeting Time': newMeetingTime ? { date: { start: newMeetingTime } } : { date: null },
-    'Cal Event UID': { rich_text: [{ text: { content: newUid } }] },
-    'Cal Booking URL': newUid ? { url: `https://app.cal.com/booking/${newUid}` } : { url: null },
-    'Lead Status': { select: { name: 'Booked Clarity Call' } },
-  });
-  return { rescheduled: true, pageId: row.id };
+  // Rescheduling only ever updated Notion fields (meeting time, Cal UID), which are no longer
+  // written. Nothing else to do.
+  return { rescheduled: true, recorded: false };
 }
 
 async function findMostRecentRowByEmail(email) {
@@ -216,45 +180,6 @@ async function queryFirstRow(body) {
   }
   const data = await res.json();
   return data.results?.[0] || null;
-}
-
-async function patchNotionPage(pageId, properties) {
-  const apiKey = process.env.NOTION_API_KEY;
-  if (!apiKey) return false;
-  const res = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
-    method: 'PATCH',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Notion-Version': '2022-06-28',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ properties }),
-  });
-  if (!res.ok) {
-    console.error('cal-webhook: Notion patch failed', res.status, await res.text());
-    return false;
-  }
-  return true;
-}
-
-async function createNotionPage(properties) {
-  const apiKey = process.env.NOTION_API_KEY;
-  const databaseId = process.env.NOTION_DATABASE_ID;
-  if (!apiKey || !databaseId) return false;
-  const res = await fetch('https://api.notion.com/v1/pages', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Notion-Version': '2022-06-28',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ parent: { database_id: databaseId }, properties }),
-  });
-  if (!res.ok) {
-    console.error('cal-webhook: Notion create failed', res.status, await res.text());
-    return false;
-  }
-  return true;
 }
 
 async function scheduleResendEmail({ to, subject, html, scheduledAt }) {
