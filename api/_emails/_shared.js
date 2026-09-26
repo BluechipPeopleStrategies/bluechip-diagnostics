@@ -1,10 +1,14 @@
-export function layout(bodyHtml) {
+const DEFAULT_FOOTER = `<p style="font-size:12px;color:#9a9a9a;font-style:italic;margin-top:40px;">You're getting this because you completed a BlueChip diagnostic. Reply STOP to opt out.</p>`;
+
+// `footerHtml` replaces the default diagnostic footer for emails that need their own (e.g. the
+// AI Opportunity Check results email, which carries the sender name and mailing address).
+export function layout(bodyHtml, { footerHtml } = {}) {
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/></head>
 <body style="margin:0;padding:24px 16px;font-family:Georgia,'Times New Roman',serif;color:#1a1a1a;line-height:1.6;font-size:16px;background:#ffffff;">
   <div style="max-width:560px;margin:0 auto;">
     ${bodyHtml}
-    <p style="font-size:12px;color:#9a9a9a;font-style:italic;margin-top:40px;">You're getting this because you completed a BlueChip diagnostic. Reply STOP to opt out.</p>
+    ${footerHtml ?? DEFAULT_FOOTER}
   </div>
 </body></html>`;
 }

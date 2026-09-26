@@ -1,11 +1,12 @@
 import { fireEvent, render, screen, cleanup, within, waitFor, act } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Routes, Route, Link } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import AiOpportunityCheck from '../src/components/AiOpportunityCheck';
 import AiHandoffPlanPage from '../src/components/AiHandoffPlanPage';
 import { questions } from '../src/lib/aiOpportunity';
 
-afterEach(cleanup);
+// The check now keeps its state in sessionStorage (item 59), so every test starts from a clean tab.
+afterEach(() => { cleanup(); sessionStorage.clear(); });
 
 // A complete, non-sensitive, mid-size answer set used to drive the stepper to the end quickly.
 // No "workload" entry: Q5 was merged into Q2 (an hours/people row per picked area, defaulting
@@ -52,7 +53,7 @@ describe('the free check stepper', () => {
   it('is 12 questions, with no mention of the plan, price or guarantee before the result', () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     expect(screen.getByText('How much time could AI give back to your team?')).toBeInTheDocument();
-    expect(screen.getByText('Find out roughly how many hours a week AI could give your team back. About three minutes, no email.')).toBeInTheDocument();
+    expect(screen.getByText('Find out roughly how many hours a week AI could give your team back. About three minutes. No email needed.')).toBeInTheDocument();
     expect(screen.getByText('Question 1 of 12. 0 of 12 completed.')).toBeInTheDocument();
     // Scoped to the stepper content, not the shared SiteHeader nav (which always names the
     // plan as a navigation link -- that's wayfinding, not sales copy).
@@ -141,7 +142,7 @@ describe('the free check stepper', () => {
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
-    expect(screen.getByText(/hours a week back, so far\./)).toBeInTheDocument();
+    expect(container.querySelector('.ai-live-preview').textContent).toMatch(/hours a week you could get back for the work that matters most\./);
     fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '20' } });
     // more hours -> a bigger live-preview range than the 5-hour default produced
     expect(container.querySelector('#hours-correspondence')).toHaveValue('20');
@@ -181,11 +182,14 @@ describe('the free check stepper', () => {
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
     fireEvent.click(container.querySelector('input[name="areas"][value="proposals"]'));
     // Reproduces Thomas's exact reported scenario: both areas at the default 5 hrs x 1 person.
-    expect(screen.getByText('About 1.0 to 2.0 hours a week back, so far.')).toBeInTheDocument();
-    const detail = container.querySelector('.ai-live-preview-detail');
-    expect(within(detail).getByText(/Emails and correspondence: 5 hrs × 1 person × 12% to 22% = 0.6 to 1.1 hrs back a week/)).toBeInTheDocument();
-    expect(within(detail).getByText(/Proposals, quotes and grant applications: 5 hrs × 1 person × 8% to 18% = 0.4 to 0.9 hrs back a week/)).toBeInTheDocument();
-    expect(within(detail).getByText('The percentages are the share of that time AI can realistically save after someone checks its work.')).toBeInTheDocument();
+    // Items 47 + 62 + 53 (2026-09-25): one card, benefit framing, sub-hour rows in minutes.
+    const tally = container.querySelector('.ai-fc-tally');
+    expect(tally.querySelector('.ai-live-preview').textContent).toBe('About 1.0 to 2.0 hours a week you could get back for the work that matters most.');
+    const rows = Array.from(tally.querySelectorAll('.ai-fc-tally-row')).map(li => li.textContent.replace(/\s+/g, ' ').trim());
+    expect(rows[0]).toBe('Emails and correspondence5 hrs×1 person×12% to 22% saved= 36 min to 1.1 hrs/week');
+    expect(rows[1]).toBe('Proposals, quotes and grant applications5 hrs×1 person×8% to 18% saved= 24 to 54 min/week');
+    expect(within(tally).getByText('The percentages are the share of that time AI can realistically save after someone checks its work.')).toBeInTheDocument();
+    expect(tally.textContent).not.toMatch(/so far/);
   });
 
   it('the Back button returns to the previous question and is disabled on question 1', async () => {
@@ -233,8 +237,9 @@ describe('the free check stepper', () => {
   it('shows the "what if more of your team works like this" headcount section, defaulted to the org-size midpoint', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(container); // orgSize 11-50 -> midpoint 25
-    expect(screen.getByText('What if more of your team works like this?')).toBeInTheDocument();
-    expect(screen.getByText(/across 25/)).toBeInTheDocument();
+    expect(screen.getByText('What if more of your team saves the same amount of time?')).toBeInTheDocument();
+    expect(screen.queryByText('What if more of your team works like this?')).not.toBeInTheDocument();
+    expect(screen.getByText('Hours a week back, 25 people')).toBeInTheDocument();
   });
 
   // READY's defaults (correspondence + reports, 5 hrs/1 person each) net a likely total of
@@ -455,7 +460,7 @@ describe('the free check stepper', () => {
       if (q.id === 'protectInfo') break;
       await answerCurrentQuestion(container, q.id, READY[q.id], false);
     }
-    expect(screen.getByText('What do you currently do to protect sensitive information? Pick all that apply.')).toBeInTheDocument();
+    expect(screen.getByText('What do you currently do to protect sensitive information? Choose all that apply.')).toBeInTheDocument();
   });
 
   it('the area-hours slider shows tick marks at 0/5/10/15/20/25 and its max stays 25, not 20', async () => {
@@ -535,8 +540,8 @@ describe('the free check stepper', () => {
     const headcountSection = container.querySelector('.ai-headcount-section');
     const eq = headcountSection.querySelector('.ai-eq--result');
     expect(eq).toBeTruthy();
-    expect(within(eq).getByText('hrs/week, per person')).toBeInTheDocument();
-    expect(within(eq).getByText('people')).toBeInTheDocument();
+    expect(within(eq).getByText('hrs/week each person saves')).toBeInTheDocument();
+    expect(within(eq).getByText('people saving the same')).toBeInTheDocument();
     expect(within(eq).getByText('25')).toBeInTheDocument(); // default headcount for the 11-50 org-size band
   });
 
@@ -582,7 +587,13 @@ describe('the free check stepper', () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(container, { aiTools: ['copilot'], readiness: 'notYetReady', information: ['health'], protectInfo: ['nothingFormal'] });
     const vendors = /chatgpt|microsoft copilot|google gemini|claude|deepseek|kimi|perplexity|grok|meta ai|mistral/i;
-    const resultBody = container.querySelector('main');
+    // The "Your answers" summary (item 61, 2026-09-25) echoes the visitor's own picks back to
+    // them, which can include a tool they named. That's their answer, not a recommendation, so
+    // it's excluded here; every piece of result advice is still checked.
+    const resultBody = container.querySelector('main').cloneNode(true);
+    const echo = resultBody.querySelector('.ai-fc-answers');
+    expect(echo.textContent).toMatch(/Microsoft Copilot/);
+    echo.remove();
     expect(resultBody.textContent).not.toMatch(vendors);
   });
 
@@ -594,6 +605,237 @@ describe('the free check stepper', () => {
     const eyebrow = container.querySelector('.ai-eyebrow');
     expect(eyebrow.textContent).toBe('Your estimate');
     expect(eyebrow).not.toHaveAttribute('tabindex');
+  });
+});
+
+describe('the free check keeps a result across navigation (item 59)', () => {
+  function PlanStub() {
+    return <div><p>Plan page stub</p><Link to="/ai-opportunity-check">Back to my results</Link></div>;
+  }
+  function RoutedCheck() {
+    return <MemoryRouter initialEntries={['/ai-opportunity-check']}>
+      <Routes>
+        <Route path="/ai-opportunity-check" element={<AiOpportunityCheck />} />
+        <Route path="/ai-handoff-plan" element={<PlanStub />} />
+      </Routes>
+    </MemoryRouter>;
+  }
+
+  it('clicking "See how the plan works" and coming back shows the same result, not question 1', async () => {
+    const { container } = render(<RoutedCheck />);
+    await driveToResult(container);
+    const headline = container.querySelector('.ai-result-headline').textContent;
+    fireEvent.click(screen.getByRole('link', { name: 'See how the plan works' }));
+    expect(screen.getByText('Plan page stub')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('link', { name: 'Back to my results' }));
+    await waitFor(() => expect(container.querySelector('.ai-result-headline')).toBeInTheDocument());
+    expect(container.querySelector('.ai-result-headline').textContent).toBe(headline);
+    expect(screen.queryByText(/Question 1 of 12/)).not.toBeInTheDocument();
+  });
+
+  it('a reload (fresh mount in the same tab) restores the result, including edited rate and weeks', async () => {
+    const { container, unmount } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container);
+    fireEvent.change(screen.getByLabelText('Working weeks a year'), { target: { value: '44' } });
+    unmount();
+    render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    expect(screen.getByText('Your estimate')).toBeInTheDocument();
+    expect(screen.getByLabelText('Working weeks a year')).toHaveValue(44);
+  });
+
+  it('an unfinished check resumes on the question the visitor was on', async () => {
+    const { container, unmount } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="trades"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    unmount();
+    const again = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Back' }));
+    expect(again.container.querySelector('input[name="orgType"][value="trades"]')).toBeChecked();
+  });
+
+  it('"Start over" clears the saved session and returns to an empty question 1', async () => {
+    const { container, unmount } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container);
+    fireEvent.click(screen.getByRole('button', { name: 'Start over' }));
+    expect(screen.getByText(/Question 1 of 12/)).toBeInTheDocument();
+    expect(container.querySelector('input[name="orgType"][value="professional"]')).not.toBeChecked();
+    unmount();
+    render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    expect(screen.getByText(/Question 1 of 12\. 0 of 12 completed/)).toBeInTheDocument();
+  });
+
+  it('ignores a corrupt saved session instead of crashing', () => {
+    sessionStorage.setItem('bluechip:ai-opportunity-check:session', '{not json');
+    render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    expect(screen.getByText(/Question 1 of 12/)).toBeInTheDocument();
+  });
+
+  it('the intro note says answers stay in this tab, not that they clear on reload', () => {
+    render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    expect(screen.getByText("Your answers stay in this browser tab until you close it, unless you choose to email them to yourself at the end. Please don't enter confidential information.")).toBeInTheDocument();
+  });
+});
+
+describe('the free check polish (2026-09-25)', () => {
+  it('Q1 shows an icon card per organization type, still a native radio group with the same values', () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    const cards = container.querySelectorAll('.ai-fc-org-card');
+    expect(cards.length).toBe(8);
+    cards.forEach(card => {
+      expect(card.querySelector('svg.ai-fc-org-icon')).toBeTruthy();
+      expect(card.querySelector('input[type="radio"][name="orgType"]')).toBeTruthy();
+    });
+    expect(screen.getByText('Professional services')).toBeInTheDocument();
+    expect(screen.getByText('law, accounting, consulting and similar')).toBeInTheDocument();
+  });
+
+  it('a picked card says "Selected" in words, not only in colour', () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="trades"]'));
+    const card = container.querySelector('input[name="orgType"][value="trades"]').closest('.ai-fc-org-card');
+    expect(card.className).toContain('is-selected');
+    expect(card.querySelector('.ai-fc-selected-mark').textContent).toMatch(/Selected/);
+  });
+
+  it('org size, team feeling and timing use their own inputs; other single-choice questions keep tiles', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    for (const q of questions) {
+      if (q.id === 'readiness') expect(container.querySelector('.ai-options--tiles')).toBeTruthy();
+      if (q.id === 'orgSize') expect(container.querySelectorAll('.ai-fc-size-step').length).toBe(5);
+      if (q.id === 'feel') {
+        expect(container.querySelectorAll('.ai-fc-mood-card').length).toBe(5);
+        expect(screen.getByText('Depends on the day')).toBeInTheDocument();
+      }
+      if (q.id === 'timing') {
+        expect(container.querySelectorAll('.ai-fc-timeline-stop').length).toBe(4);
+        break;
+      }
+      await answerCurrentQuestion(container, q.id, READY[q.id], false);
+    }
+  });
+
+  it('"Depends on the day" is a valid answer that reaches the result', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container, { feel: 'variesFeel' });
+    expect(within(container.querySelector('.ai-fc-answers')).getByText('Depends on the day')).toBeInTheDocument();
+  });
+
+  it('the areas list shows category headers and still offers all 19 areas', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    ['Writing and replies', 'Meetings, people and scheduling', 'Documents, data and research', 'Something else']
+      .forEach(label => expect(screen.getByText(label)).toBeInTheDocument());
+    expect(container.querySelectorAll('input[name="areas"]').length).toBe(19);
+  });
+
+  it('shows every answer in a summary, and "Change" jumps to that question', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container);
+    const summary = container.querySelector('.ai-fc-answers');
+    expect(summary.querySelectorAll('.ai-fc-answer').length).toBe(12);
+    expect(within(summary).getByText('Emails and correspondence (5 hrs a week, 1 person)')).toBeInTheDocument();
+    expect(within(summary).getByText('11 to 50')).toBeInTheDocument();
+    fireEvent.click(within(summary).getByRole('button', { name: 'Change your answer: People in your organization' }));
+    expect(screen.getByText(/Question 8 of 12/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Back to my results' }));
+    expect(screen.getByText('Your estimate')).toBeInTheDocument();
+  });
+
+  it('offers print and a continue-the-discussion QR code, with a print-only header', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container);
+    const print = vi.fn();
+    vi.stubGlobal('print', print);
+    fireEvent.click(screen.getByRole('button', { name: 'Print my results' }));
+    expect(print).toHaveBeenCalledTimes(1);
+    vi.unstubAllGlobals();
+    const qr = screen.getByAltText('QR code that opens a chat with BlueChip');
+    expect(qr.getAttribute('src')).toBe('/img/ai/qr-continue-discussion.svg');
+    expect(screen.getByText('Want to continue the discussion?')).toBeInTheDocument();
+    expect(container.querySelector('.ai-fc-print-head')).toBeTruthy();
+  });
+
+  it('the closing next step keeps the plan link quiet (not a gold button), with the method disclosure attached', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container);
+    const close = container.querySelector('.ai-fc-close');
+    expect(within(close).getByText('Want to know which tasks and tools could get you there?')).toBeInTheDocument();
+    expect(within(close).getByRole('link', { name: 'See how the plan works' }).className).not.toContain('ai-button');
+    expect(close.querySelector('.ai-disclosure')).toBeTruthy();
+  });
+});
+
+// No real email is ever sent from these tests: fetch is stubbed in every case.
+describe('Email my results (item 61)', () => {
+  afterEach(() => { vi.unstubAllGlobals(); });
+
+  async function openEmail() {
+    const utils = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(utils.container);
+    fireEvent.click(screen.getByRole('button', { name: 'Email my results' }));
+    return utils;
+  }
+
+  it('asks for an email, then sends the raw answers (never pre-built text) with an empty honeypot, estimate only by default', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, emailSent: true }) });
+    vi.stubGlobal('fetch', fetchMock);
+    const { container } = await openEmail();
+    fireEvent.change(screen.getByLabelText('Your email'), { target: { value: 'pat@example.com' } });
+    fireEvent.submit(container.querySelector('.ai-fc-email'));
+    await waitFor(() => expect(screen.getByText(/Sent to pat@example.com/)).toBeInTheDocument());
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe('/api/submit');
+    const body = JSON.parse(init.body);
+    expect(body.diagnosticId).toBe('ai-opportunity-check');
+    expect(body.email).toBe('pat@example.com');
+    expect(body.include).toBe('estimate');
+    expect(body.bc_hp_trap).toBe('');
+    expect(body.answers.areas).toEqual(['correspondence', 'reports']);
+    expect(body).not.toHaveProperty('html');
+  });
+
+  it('lets the visitor include their answers', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, emailSent: true }) });
+    vi.stubGlobal('fetch', fetchMock);
+    const { container } = await openEmail();
+    fireEvent.click(screen.getByLabelText('The estimate and my answers'));
+    fireEvent.change(screen.getByLabelText('Your email'), { target: { value: 'pat@example.com' } });
+    fireEvent.submit(container.querySelector('.ai-fc-email'));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).include).toBe('answers');
+  });
+
+  it('once an address was used this session, sending again is one click', async () => {
+    sessionStorage.setItem('bluechip:ai-opportunity-check:email', 'pat@example.com');
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, emailSent: true }) });
+    vi.stubGlobal('fetch', fetchMock);
+    await openEmail();
+    expect(screen.queryByLabelText('Your email')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Send to pat@example.com' }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).email).toBe('pat@example.com');
+  });
+
+  it('the honeypot has a neutral name autofill will not target, and is hidden from people', async () => {
+    vi.stubGlobal('fetch', vi.fn());
+    const { container } = await openEmail();
+    const trap = container.querySelector('.ai-fc-trap input');
+    expect(trap.getAttribute('name')).toBe('bc_hp_trap');
+    expect(trap.getAttribute('tabindex')).toBe('-1');
+    expect(trap.getAttribute('autocomplete')).toBe('off');
+    expect(trap.closest('[aria-hidden="true"]')).toBeTruthy();
+    expect(trap.getAttribute('name')).not.toMatch(/company|name|email|phone|address|org/i);
+  });
+
+  it('shows an honest fallback when the send fails', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, json: async () => ({ ok: false }) }));
+    const { container } = await openEmail();
+    fireEvent.change(screen.getByLabelText('Your email'), { target: { value: 'pat@example.com' } });
+    fireEvent.submit(container.querySelector('.ai-fc-email'));
+    await waitFor(() => expect(screen.getByText(/Something went wrong/)).toBeInTheDocument());
   });
 });
 

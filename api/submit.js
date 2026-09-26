@@ -5,6 +5,7 @@ import { buildWorkplaceReadEmail } from './_emails/workplace-read.js';
 import { buildGovernanceEvalReadinessEmail } from './_emails/governance-eval-readiness.js';
 import { buildNudgeEmail } from './_emails/nudge.js';
 import { buildLeadNotificationEmail } from './_emails/lead-notification.js';
+import { AI_CHECK_ID, handleAiCheckResults } from './_lib/ai-check-results.js';
 
 const NUDGE_DELAY_HOURS = 24;
 
@@ -23,6 +24,10 @@ export default async function handler(req, res) {
   }
 
   const { diagnosticId, resultLabel, detail, email, name, orgSize, sector, submittedAt } = req.body || {};
+
+  // The free AI Opportunity Check's "Email my results" has its own path (2026-09-25): no
+  // scoring template, no 24-hour nudge, no Notion row (Notion is legacy, read-only).
+  if (diagnosticId === AI_CHECK_ID) return handleAiCheckResults(req.body || {}, res, { sendEmail: sendResendEmail });
 
   if (!diagnosticId || !email) {
     return res.status(400).json({ error: 'missing_required_fields' });

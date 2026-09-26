@@ -6,7 +6,7 @@ import {
   lowerFirst, joinList, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
   AREAS, AREA_RATE_MAP, RATE_TABLE, groupedOptions, sanitizeAreaLabel, sanitizeShortText,
   areaLookoutLines, OTHER_AREA_LOOKOUT, crossCuttingCards, nextSteps, ORG_AREA_SUGGESTIONS,
-  areaHoursRangeLabel, isSingularHourLabel,
+  areaHoursRangeLabel, isSingularHourLabel, areaWeeklyLabel, minutesLabel,
   GUARANTEE_NET_HOURS, ILLUSTRATION_RATE, ILLUSTRATION_WEEKS,
 } from '../src/lib/aiOpportunity';
 
@@ -490,5 +490,56 @@ describe('the guarantee threshold', () => {
     expect(ILLUSTRATION_WEEKS).toBe(48);
     expect(GUARANTEE_NET_HOURS * ILLUSTRATION_WEEKS).toBe(144);
     expect(money(GUARANTEE_NET_HOURS * ILLUSTRATION_WEEKS * ILLUSTRATION_RATE)).toBe('C$5,760');
+  });
+});
+
+describe('2026-09-25 polish: grouping, copy, minutes (items 45, 48, 49, 53)', () => {
+  it('every grouped question puts each option in exactly one group, and groups only name real options', () => {
+    for (const q of questions.filter(q => q.groups)) {
+      const values = q.options.map(o => o[0]);
+      const grouped = q.groups.flatMap(g => g.values);
+      grouped.forEach(v => expect(values, `${q.id}: ${v}`).toContain(v));
+      expect(new Set(grouped).size, `${q.id} has a value in two groups`).toBe(grouped.length);
+      // aiTools deliberately leaves "None yet" ungrouped (rendered first); every other grouped
+      // question covers all of its options.
+      const ungrouped = values.filter(v => !grouped.includes(v));
+      if (q.id === 'aiTools') expect(ungrouped).toEqual(['none']);
+      else expect(ungrouped, q.id).toEqual([]);
+      // groupedOptions renders every option exactly once
+      const rendered = groupedOptions(q).flatMap(b => b.options.map(o => o[0]));
+      expect(rendered.sort()).toEqual([...values].sort());
+    }
+  });
+
+  it('groups the long lists: areas, tools today, information and protect-info', () => {
+    ['areas', 'toolsToday', 'information', 'protectInfo', 'aiTools'].forEach(id =>
+      expect(questions.find(q => q.id === id).groups, id).toBeTruthy());
+  });
+
+  it('the areas exclusive "Not sure yet" pick is still the last option (so it stays exclusive)', () => {
+    const areas = questions.find(q => q.id === 'areas');
+    expect(areas.options.filter(o => o[2]).map(o => o[0])).toEqual(['notSureArea']);
+  });
+
+  it('says "Choose all that apply" everywhere, never "Pick" or "Click all that apply" (Q1)', () => {
+    const labels = questions.map(q => q.label).join(' ');
+    expect(labels).not.toMatch(/(Pick|Click) all that apply/);
+    expect(labels.match(/Choose all that apply\./g).length).toBe(5);
+  });
+
+  it('adds "Depends on the day" to the team-feeling question without touching the other values', () => {
+    const feel = questions.find(q => q.id === 'feel');
+    expect(feel.options.map(o => o[0])).toEqual(['keen', 'mixed', 'worried', 'variesFeel', 'notSureFeel']);
+    expect(feel.options.find(o => o[0] === 'variesFeel')[1]).toBe('Depends on the day');
+  });
+
+  it('per-area weekly figures read in minutes under an hour, hours above', () => {
+    expect(areaWeeklyLabel(0.4, 0.9)).toBe('24 to 54 min/week');
+    expect(areaWeeklyLabel(0.6, 1.1)).toBe('36 min to 1.1 hrs/week');
+    expect(areaWeeklyLabel(1.2, 2.5)).toBe('1.2 to 2.5 hrs/week');
+    expect(areaWeeklyLabel(0.5, 0.5)).toBe('30 min/week');
+    expect(areaWeeklyLabel(1, 1)).toBe('1.0 hr/week');
+    expect(areaWeeklyLabel(0, 0)).toBe('0 min/week');
+    expect(minutesLabel(0.25)).toBe('15');
   });
 });
