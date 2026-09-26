@@ -1,11 +1,12 @@
 import { fireEvent, render, screen, cleanup, within, waitFor, act } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Routes, Route, Link } from 'react-router-dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import AiOpportunityCheck from '../src/components/AiOpportunityCheck';
 import AiHandoffPlanPage from '../src/components/AiHandoffPlanPage';
 import { questions } from '../src/lib/aiOpportunity';
 
-afterEach(cleanup);
+// The check now keeps its state in sessionStorage (item 59), so every test starts from a clean tab.
+afterEach(() => { cleanup(); sessionStorage.clear(); });
 
 // A complete, non-sensitive, mid-size answer set used to drive the stepper to the end quickly.
 // No "workload" entry: Q5 was merged into Q2 (an hours/people row per picked area, defaulting
@@ -594,6 +595,75 @@ describe('the free check stepper', () => {
     const eyebrow = container.querySelector('.ai-eyebrow');
     expect(eyebrow.textContent).toBe('Your estimate');
     expect(eyebrow).not.toHaveAttribute('tabindex');
+  });
+});
+
+describe('the free check keeps a result across navigation (item 59)', () => {
+  function PlanStub() {
+    return <div><p>Plan page stub</p><Link to="/ai-opportunity-check">Back to my results</Link></div>;
+  }
+  function RoutedCheck() {
+    return <MemoryRouter initialEntries={['/ai-opportunity-check']}>
+      <Routes>
+        <Route path="/ai-opportunity-check" element={<AiOpportunityCheck />} />
+        <Route path="/ai-handoff-plan" element={<PlanStub />} />
+      </Routes>
+    </MemoryRouter>;
+  }
+
+  it('clicking "See how the plan works" and coming back shows the same result, not question 1', async () => {
+    const { container } = render(<RoutedCheck />);
+    await driveToResult(container);
+    const headline = container.querySelector('.ai-result-headline').textContent;
+    fireEvent.click(screen.getByRole('link', { name: 'See how the plan works' }));
+    expect(screen.getByText('Plan page stub')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('link', { name: 'Back to my results' }));
+    await waitFor(() => expect(container.querySelector('.ai-result-headline')).toBeInTheDocument());
+    expect(container.querySelector('.ai-result-headline').textContent).toBe(headline);
+    expect(screen.queryByText(/Question 1 of 12/)).not.toBeInTheDocument();
+  });
+
+  it('a reload (fresh mount in the same tab) restores the result, including edited rate and weeks', async () => {
+    const { container, unmount } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container);
+    fireEvent.change(screen.getByLabelText('Working weeks a year'), { target: { value: '44' } });
+    unmount();
+    render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    expect(screen.getByText('Your estimate')).toBeInTheDocument();
+    expect(screen.getByLabelText('Working weeks a year')).toHaveValue(44);
+  });
+
+  it('an unfinished check resumes on the question the visitor was on', async () => {
+    const { container, unmount } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="trades"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    unmount();
+    const again = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Back' }));
+    expect(again.container.querySelector('input[name="orgType"][value="trades"]')).toBeChecked();
+  });
+
+  it('"Start over" clears the saved session and returns to an empty question 1', async () => {
+    const { container, unmount } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    await driveToResult(container);
+    fireEvent.click(screen.getByRole('button', { name: 'Start over' }));
+    expect(screen.getByText(/Question 1 of 12/)).toBeInTheDocument();
+    expect(container.querySelector('input[name="orgType"][value="professional"]')).not.toBeChecked();
+    unmount();
+    render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    expect(screen.getByText(/Question 1 of 12\. 0 of 12 completed/)).toBeInTheDocument();
+  });
+
+  it('ignores a corrupt saved session instead of crashing', () => {
+    sessionStorage.setItem('bluechip:ai-opportunity-check:session', '{not json');
+    render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    expect(screen.getByText(/Question 1 of 12/)).toBeInTheDocument();
+  });
+
+  it('the intro note says answers stay in this tab, not that they clear on reload', () => {
+    render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    expect(screen.getByText("Your answers stay in this browser tab until you close it. Please don't enter confidential information.")).toBeInTheDocument();
   });
 });
 
