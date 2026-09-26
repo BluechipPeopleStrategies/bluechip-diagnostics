@@ -142,7 +142,7 @@ describe('the free check stepper', () => {
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
-    expect(screen.getByText(/hours a week back, so far\./)).toBeInTheDocument();
+    expect(container.querySelector('.ai-live-preview').textContent).toMatch(/hours a week back for the work that matters most\./);
     fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '20' } });
     // more hours -> a bigger live-preview range than the 5-hour default produced
     expect(container.querySelector('#hours-correspondence')).toHaveValue('20');
@@ -182,11 +182,14 @@ describe('the free check stepper', () => {
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
     fireEvent.click(container.querySelector('input[name="areas"][value="proposals"]'));
     // Reproduces Thomas's exact reported scenario: both areas at the default 5 hrs x 1 person.
-    expect(screen.getByText('About 1.0 to 2.0 hours a week back, so far.')).toBeInTheDocument();
-    const detail = container.querySelector('.ai-live-preview-detail');
-    expect(within(detail).getByText(/Emails and correspondence: 5 hrs × 1 person × 12% to 22% = 0.6 to 1.1 hrs back a week/)).toBeInTheDocument();
-    expect(within(detail).getByText(/Proposals, quotes and grant applications: 5 hrs × 1 person × 8% to 18% = 0.4 to 0.9 hrs back a week/)).toBeInTheDocument();
-    expect(within(detail).getByText('The percentages are the share of that time AI can realistically save after someone checks its work.')).toBeInTheDocument();
+    // Items 47 + 62 + 53 (2026-09-25): one card, benefit framing, sub-hour rows in minutes.
+    const tally = container.querySelector('.ai-fc-tally');
+    expect(tally.querySelector('.ai-live-preview').textContent).toBe('About 1.0 to 2.0 hours a week back for the work that matters most.');
+    const rows = Array.from(tally.querySelectorAll('.ai-fc-tally-row')).map(li => li.textContent.replace(/\s+/g, ' ').trim());
+    expect(rows[0]).toBe('Emails and correspondence5 hrs×1 person×12% to 22% saved= 36 min to 1.1 hrs/week');
+    expect(rows[1]).toBe('Proposals, quotes and grant applications5 hrs×1 person×8% to 18% saved= 24 to 54 min/week');
+    expect(within(tally).getByText('The percentages are the share of that time AI can realistically save after someone checks its work.')).toBeInTheDocument();
+    expect(tally.textContent).not.toMatch(/so far/);
   });
 
   it('the Back button returns to the previous question and is disabled on question 1', async () => {
@@ -234,8 +237,9 @@ describe('the free check stepper', () => {
   it('shows the "what if more of your team works like this" headcount section, defaulted to the org-size midpoint', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(container); // orgSize 11-50 -> midpoint 25
-    expect(screen.getByText('What if more of your team works like this?')).toBeInTheDocument();
-    expect(screen.getByText(/across 25/)).toBeInTheDocument();
+    expect(screen.getByText('What if more of your team saves the same amount of time?')).toBeInTheDocument();
+    expect(screen.queryByText('What if more of your team works like this?')).not.toBeInTheDocument();
+    expect(screen.getByText('Hours a week back, 25 people')).toBeInTheDocument();
   });
 
   // READY's defaults (correspondence + reports, 5 hrs/1 person each) net a likely total of
@@ -456,7 +460,7 @@ describe('the free check stepper', () => {
       if (q.id === 'protectInfo') break;
       await answerCurrentQuestion(container, q.id, READY[q.id], false);
     }
-    expect(screen.getByText('What do you currently do to protect sensitive information? Pick all that apply.')).toBeInTheDocument();
+    expect(screen.getByText('What do you currently do to protect sensitive information? Click all that apply.')).toBeInTheDocument();
   });
 
   it('the area-hours slider shows tick marks at 0/5/10/15/20/25 and its max stays 25, not 20', async () => {
@@ -536,8 +540,8 @@ describe('the free check stepper', () => {
     const headcountSection = container.querySelector('.ai-headcount-section');
     const eq = headcountSection.querySelector('.ai-eq--result');
     expect(eq).toBeTruthy();
-    expect(within(eq).getByText('hrs/week, per person')).toBeInTheDocument();
-    expect(within(eq).getByText('people')).toBeInTheDocument();
+    expect(within(eq).getByText('hrs/week each person saves')).toBeInTheDocument();
+    expect(within(eq).getByText('people saving the same')).toBeInTheDocument();
     expect(within(eq).getByText('25')).toBeInTheDocument(); // default headcount for the 11-50 org-size band
   });
 
