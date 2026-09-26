@@ -21,17 +21,18 @@ export async function handleAiCheckResults(body, res, { sendEmail }) {
   const input = cleanAiCheckInput(body);
   const { subject, html, resultLabel } = buildAiCheckResultsEmail(input);
   const notifyTo = process.env.BLUECHIP_NOTIFY_EMAIL || process.env.BLUECHIP_FROM_EMAIL;
+  const submittedAt = new Date().toISOString();
   const label = `${resultLabel} (asked for ${input.include === 'answers' ? 'the estimate and their answers' : 'the estimate only'})`;
 
   if (isHoneypot(body)) {
     console.warn('submit: ai-check honeypot triggered');
-    const flagged = buildLeadNotificationEmail({ name: '', email, diagnosticId: AI_CHECK_ID, bandLabel: '', total: null, resultLabel: label, emailSent: false, savedToNotion: false });
+    const flagged = buildLeadNotificationEmail({ name: '', email, diagnosticId: AI_CHECK_ID, bandLabel: '', total: null, resultLabel: label, emailSent: false, nudgeScheduled: false, spamTrap: true, submittedAt });
     await sendEmail({ to: notifyTo, subject: `[Check: spam trap] ${flagged.subject}`, html: flagged.html });
     return res.status(200).json({ ok: true, emailSent: true });
   }
 
   const emailSent = await sendEmail({ to: email, subject, html, replyTo: notifyTo });
-  const note = buildLeadNotificationEmail({ name: '', email, diagnosticId: AI_CHECK_ID, bandLabel: '', total: null, resultLabel: label, emailSent, savedToNotion: false });
+  const note = buildLeadNotificationEmail({ name: '', email, diagnosticId: AI_CHECK_ID, bandLabel: '', total: null, resultLabel: label, emailSent, nudgeScheduled: false, submittedAt });
   const leadNotificationSent = await sendEmail({ to: notifyTo, subject: note.subject, html: note.html, replyTo: email });
   const ok = emailSent || leadNotificationSent;
   return res.status(ok ? 200 : 502).json({ ok, emailSent, leadNotificationSent, nudgeScheduled: false });

@@ -57,15 +57,15 @@ export default function EmailOptIn({
       });
       let data = {};
       try { data = await res.json(); } catch { /* non-JSON response */ }
-      // The API returns 200 even when email/Notion silently skip, so record the
-      // real outcome in PostHog to expose the true success rate.
+      // The API can return 200 while the visitor's result email silently skips, so record
+      // the real outcome in PostHog to expose the true success rate.
       if (typeof window !== 'undefined' && window.posthog) {
         window.posthog.capture('lead_submitted', {
           diagnosticId,
           http_ok: res.ok,
           email_sent: data.emailSent ?? null,
           nudge_scheduled: data.nudgeScheduled ?? null,
-          notion_row_created: data.notionRowCreated ?? null,
+          lead_notification_sent: data.leadNotificationSent ?? null,
         });
       }
       setEmailSent(data.emailSent !== false);

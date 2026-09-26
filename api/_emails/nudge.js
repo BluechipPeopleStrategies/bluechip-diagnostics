@@ -1,12 +1,16 @@
 import { layout, buildCalUrl, calLink } from './_shared.js';
 
-const DIAGNOSTIC_TITLES = {
+export const DIAGNOSTIC_TITLES = {
   'org-pulse': 'Org Pulse',
   'dqi': 'DQI',
   'supervisor-blind-spot': 'Supervisor Blind Spot',
   'workplace-read': 'Workplace Read',
   'governance-eval-readiness': 'Governance Health Check',
 };
+
+// Matches every subject buildNudgeEmail can produce; the Cal.com webhook uses it to find a
+// lead's pending nudge in Resend (api/_lib/followups.js).
+export const NUDGE_SUBJECT_RE = /^Following up on your .+ result$/;
 
 export function buildNudgeEmail({ firstName, diagnosticId, bandLabel, total, detail }) {
   const name = firstName || 'there';

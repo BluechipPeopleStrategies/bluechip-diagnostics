@@ -1,3 +1,4 @@
+import { buildLeadDataBlock } from './lead-data.js';
 function escapeHtml(s) {
   return String(s || '')
     .replace(/&/g, '&amp;')
@@ -7,10 +8,11 @@ function escapeHtml(s) {
     .replace(/'/g, '&#39;');
 }
 
-// Internal heads-up to Thomas when a diagnostic lead is captured, so leads do not
-// sit unseen in the Notion DB. Mirrors buildContactNotificationEmail. Reply-To is
-// set to the lead's address by the caller, so a reply goes straight to them.
-export function buildLeadNotificationEmail({ name, email, diagnosticId, bandLabel, total, resultLabel, orgSize, sector, emailSent, savedToNotion = true }) {
+// Internal heads-up to Thomas for every diagnostic lead. Since 2026-09-26 this email IS the
+// lead record (Notion is legacy, read-only): the Lead-Data block at the bottom is what the
+// local Obsidian capture job parses. Reply-To is set to the lead's address by the caller,
+// so a reply goes straight to them.
+export function buildLeadNotificationEmail({ name, email, diagnosticId, bandLabel, total, resultLabel, orgSize, sector, emailSent, nudgeScheduled, spamTrap = false, submittedAt }) {
   const safeName = escapeHtml(name);
   const safeEmail = escapeHtml(email);
   const safeDiagnostic = escapeHtml(diagnosticId);
@@ -33,8 +35,28 @@ export function buildLeadNotificationEmail({ name, email, diagnosticId, bandLabe
     <p><strong>Result:</strong> ${scoreLine}</p>
     ${orgLine ? `<p><strong>Org:</strong> ${orgLine}</p>` : ''}
     <p style="font-size:13px;color:#666;margin-top:24px;">${emailNote}</p>
-    <p style="font-size:13px;color:#666;">Hit reply to reach them directly (their email is the Reply-To).${savedToNotion ? ' The full record is in the Diagnostic Submissions database in Notion.' : ' This one is not saved anywhere else, so this email is the record.'}</p>
+    <p style="font-size:13px;color:#666;">Hit reply to reach them directly (their email is the Reply-To). This one is not saved anywhere else, so this email is the record: a local job files it in the Obsidian Website Leads note.</p>
+    ${buildLeadDataBlock({
+      kind: 'diagnostic',
+      diagnostic: diagnosticId || '',
+      name: name || '',
+      email: email || '',
+      result: scoreLineText({ bandLabel, total, resultLabel }),
+      band: bandLabel || '',
+      score: total != null ? total : '',
+      org_size: orgSize || '',
+      sector: sector || '',
+      visitor_email_sent: !!emailSent,
+      nudge_scheduled: nudgeScheduled === undefined ? undefined : !!nudgeScheduled,
+      spam_trap: !!spamTrap,
+      submitted_at: submittedAt || new Date().toISOString(),
+    })}
   </div>
 </body></html>`,
   };
+}
+
+function scoreLineText({ bandLabel, total, resultLabel }) {
+  if (total != null && bandLabel) return `${bandLabel} (${total}/100)`;
+  return bandLabel || resultLabel || '';
 }

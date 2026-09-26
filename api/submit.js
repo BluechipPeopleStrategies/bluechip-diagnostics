@@ -26,7 +26,7 @@ export default async function handler(req, res) {
   const { diagnosticId, resultLabel, detail, email, name, orgSize, sector, submittedAt } = req.body || {};
 
   // The free AI Opportunity Check's "Email my results" has its own path (2026-09-25): no
-  // scoring template, no 24-hour nudge, no Notion row (Notion is legacy, read-only).
+  // scoring template, no 24-hour nudge.
   if (diagnosticId === AI_CHECK_ID) return handleAiCheckResults(req.body || {}, res, { sendEmail: sendResendEmail });
 
   if (!diagnosticId || !email) {
@@ -59,7 +59,14 @@ export default async function handler(req, res) {
     });
   }
 
-  const notionRowCreated = await writeNotionRow({
+  // The lead notification to Thomas is the lead record (2026-09-26): Notion is legacy and
+  // read-only, and a local job files these emails in the Obsidian vault (Website Leads note)
+  // by parsing their Lead-Data block. If it did not send (e.g. missing/expired Resend env
+  // vars), the lead is lost: do NOT report success. Return a non-2xx so the client shows the
+  // "email Thomas directly" fallback instead of a false "Got it." A failed result email
+  // alone is degraded (the lead is still recorded), so it does not fail the request;
+  // emailSent is reported so the client can soften its copy.
+  const { subject: notifSubject, html: notifHtml } = buildLeadNotificationEmail({
     name: name || '',
     email,
     diagnosticId,
@@ -68,49 +75,23 @@ export default async function handler(req, res) {
     resultLabel: resultLabel || '',
     orgSize: orgSize || '',
     sector: sector || '',
-    submittedAt: submittedAt || new Date().toISOString(),
-    nudgeEmailId,
+    emailSent,
+    nudgeScheduled: !!nudgeEmailId,
+    submittedAt: (typeof submittedAt === 'string' && submittedAt.slice(0, 40)) || new Date().toISOString(),
   });
-
-  // The Notion row is where leads actually land, so it is the source of truth for
-  // whether we captured this person. If it failed (e.g. missing/expired env vars),
-  // the lead is lost: do NOT report success. Return a non-2xx so the client shows
-  // the "email Thomas directly" fallback instead of a false "Got it." A failed
-  // result email alone is degraded (lead is still captured), so it does not fail
-  // the request; emailSent is reported so the client can soften its copy.
-  const captured = notionRowCreated;
-
-  // New-lead alert: ping the team the moment a lead is captured, so leads do not
-  // sit unseen in the Notion DB. Best-effort and only on successful capture: the
-  // lead is already saved, so a failed alert must NOT fail the request. Mirrors the
-  // notification in api/contact.js (same BLUECHIP_NOTIFY_EMAIL recipient).
-  let leadNotificationSent = false;
-  if (captured) {
-    const { subject: notifSubject, html: notifHtml } = buildLeadNotificationEmail({
-      name: name || '',
-      email,
-      diagnosticId,
-      bandLabel,
-      total,
-      resultLabel: resultLabel || '',
-      orgSize: orgSize || '',
-      sector: sector || '',
-      emailSent,
-    });
-    const notifyTo = process.env.BLUECHIP_NOTIFY_EMAIL || process.env.BLUECHIP_FROM_EMAIL;
-    leadNotificationSent = await sendResendEmail({
-      to: notifyTo,
-      subject: notifSubject,
-      html: notifHtml,
-      replyTo: email,
-    });
-  }
+  const notifyTo = process.env.BLUECHIP_NOTIFY_EMAIL || process.env.BLUECHIP_FROM_EMAIL;
+  const leadNotificationSent = await sendResendEmail({
+    to: notifyTo,
+    subject: notifSubject,
+    html: notifHtml,
+    replyTo: email,
+  });
+  const captured = leadNotificationSent;
 
   return res.status(captured ? 200 : 502).json({
     ok: captured,
     emailSent,
     nudgeScheduled: !!nudgeEmailId,
-    notionRowCreated,
     leadNotificationSent,
   });
 }
@@ -175,67 +156,5 @@ async function scheduleResendEmail({ to, subject, html, scheduledAt }) {
   } catch (err) {
     console.error('Resend schedule error', err);
     return null;
-  }
-}
-
-async function writeNotionRow({ name, email, diagnosticId, bandLabel, total, resultLabel, orgSize, sector, submittedAt, nudgeEmailId }) {
-  const apiKey = process.env.NOTION_API_KEY;
-  const databaseId = process.env.NOTION_DATABASE_ID;
-  if (!apiKey || !databaseId) {
-    console.warn('Notion not configured; skipping row write');
-    return false;
-  }
-
-  // Always-present columns the DB is known to have.
-  const baseProps = {
-    Name: { title: [{ text: { content: name || email } }] },
-    Email: { email },
-    Diagnostic: { select: { name: diagnosticId } },
-    'Band Label': bandLabel ? { select: { name: bandLabel } } : { select: null },
-    'Total Score': total != null ? { number: total } : { number: null },
-    'Result Label': { rich_text: [{ text: { content: resultLabel || '' } }] },
-    'Submitted At': { date: { start: submittedAt } },
-    'Lead Status': { select: { name: 'New' } },
-    'Nudge Email ID': nudgeEmailId ? { rich_text: [{ text: { content: nudgeEmailId } }] } : { rich_text: [] },
-  };
-
-  // Optional org-context columns (QW1). If the DB doesn't have these select
-  // properties yet, Notion rejects the whole write, which would lose the lead.
-  // So we try with them, then retry without them on failure.
-  const optionalProps = {};
-  if (orgSize) optionalProps['Org Size'] = { select: { name: orgSize } };
-  if (sector) optionalProps['Sector'] = { select: { name: sector } };
-
-  const postRow = (properties) =>
-    fetch('https://api.notion.com/v1/pages', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Notion-Version': '2022-06-28',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ parent: { database_id: databaseId }, properties }),
-    });
-
-  try {
-    let res = await postRow({ ...baseProps, ...optionalProps });
-    if (!res.ok && Object.keys(optionalProps).length > 0) {
-      const errText = await res.text();
-      console.warn(
-        'Notion write with org-context columns failed; retrying without Org Size/Sector. ' +
-          'Add those select properties to the DB to capture them.',
-        res.status,
-        errText
-      );
-      res = await postRow(baseProps);
-    }
-    if (!res.ok) {
-      console.error('Notion write failed', res.status, await res.text());
-      return false;
-    }
-    return true;
-  } catch (err) {
-    console.error('Notion write error', err);
-    return false;
   }
 }
