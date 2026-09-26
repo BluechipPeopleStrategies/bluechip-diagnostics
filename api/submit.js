@@ -5,6 +5,8 @@ import { buildWorkplaceReadEmail } from './_emails/workplace-read.js';
 import { buildGovernanceEvalReadinessEmail } from './_emails/governance-eval-readiness.js';
 import { buildNudgeEmail } from './_emails/nudge.js';
 import { buildLeadNotificationEmail } from './_emails/lead-notification.js';
+import { buildAiCheckResultsEmail, cleanAiCheckInput } from './_emails/ai-opportunity-check.js';
+import { isHoneypot } from './_lib/lead-helpers.js';
 
 const NUDGE_DELAY_HOURS = 24;
 
@@ -23,6 +25,10 @@ export default async function handler(req, res) {
   }
 
   const { diagnosticId, resultLabel, detail, email, name, orgSize, sector, submittedAt } = req.body || {};
+
+  // The free AI Opportunity Check's "Email my results" has its own path (2026-09-25): no
+  // scoring template, no 24-hour nudge, no Notion row (Notion is legacy, read-only).
+  if (diagnosticId === AI_CHECK_ID) return handleAiCheckResults(req.body || {}, res);
 
   if (!diagnosticId || !email) {
     return res.status(400).json({ error: 'missing_required_fields' });
@@ -108,6 +114,37 @@ export default async function handler(req, res) {
     notionRowCreated,
     leadNotificationSent,
   });
+}
+
+const AI_CHECK_ID = 'ai-opportunity-check';
+const EMAIL_RE = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
+
+// Sends the visitor the results they asked for, rebuilt server-side from their raw answers (see
+// api/_emails/ai-opportunity-check.js), and tells Thomas it happened. The honeypot (`bc_hp_trap`,
+// same field as the chat widget) never drops a request silently: a tripped trap skips the
+// visitor email, so the endpoint can't be used to mail third parties, but Thomas still gets a
+// flagged copy in case a real person's browser filled it.
+async function handleAiCheckResults(body, res) {
+  const email = String(body.email || '').trim().slice(0, 254);
+  if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'invalid_email' });
+
+  const input = cleanAiCheckInput(body);
+  const { subject, html, resultLabel } = buildAiCheckResultsEmail(input);
+  const notifyTo = process.env.BLUECHIP_NOTIFY_EMAIL || process.env.BLUECHIP_FROM_EMAIL;
+  const label = `${resultLabel} (asked for ${input.include === 'answers' ? 'the estimate and their answers' : 'the estimate only'})`;
+
+  if (isHoneypot(body)) {
+    console.warn('submit: ai-check honeypot triggered');
+    const flagged = buildLeadNotificationEmail({ name: '', email, diagnosticId: AI_CHECK_ID, bandLabel: '', total: null, resultLabel: label, emailSent: false, savedToNotion: false });
+    await sendResendEmail({ to: notifyTo, subject: `[Check: spam trap] ${flagged.subject}`, html: flagged.html });
+    return res.status(200).json({ ok: true, emailSent: true });
+  }
+
+  const emailSent = await sendResendEmail({ to: email, subject, html });
+  const note = buildLeadNotificationEmail({ name: '', email, diagnosticId: AI_CHECK_ID, bandLabel: '', total: null, resultLabel: label, emailSent, savedToNotion: false });
+  const leadNotificationSent = await sendResendEmail({ to: notifyTo, subject: note.subject, html: note.html, replyTo: email });
+  const ok = emailSent || leadNotificationSent;
+  return res.status(ok ? 200 : 502).json({ ok, emailSent, leadNotificationSent, nudgeScheduled: false });
 }
 
 function parseResultLabel(resultLabel) {

@@ -10,7 +10,7 @@ function escapeHtml(s) {
 // Internal heads-up to Thomas when a diagnostic lead is captured, so leads do not
 // sit unseen in the Notion DB. Mirrors buildContactNotificationEmail. Reply-To is
 // set to the lead's address by the caller, so a reply goes straight to them.
-export function buildLeadNotificationEmail({ name, email, diagnosticId, bandLabel, total, resultLabel, orgSize, sector, emailSent }) {
+export function buildLeadNotificationEmail({ name, email, diagnosticId, bandLabel, total, resultLabel, orgSize, sector, emailSent, savedToNotion = true }) {
   const safeName = escapeHtml(name);
   const safeEmail = escapeHtml(email);
   const safeDiagnostic = escapeHtml(diagnosticId);
@@ -33,7 +33,7 @@ export function buildLeadNotificationEmail({ name, email, diagnosticId, bandLabe
     <p><strong>Result:</strong> ${scoreLine}</p>
     ${orgLine ? `<p><strong>Org:</strong> ${orgLine}</p>` : ''}
     <p style="font-size:13px;color:#666;margin-top:24px;">${emailNote}</p>
-    <p style="font-size:13px;color:#666;">Hit reply to reach them directly (their email is the Reply-To). The full record is in the Diagnostic Submissions database in Notion.</p>
+    <p style="font-size:13px;color:#666;">Hit reply to reach them directly (their email is the Reply-To).${savedToNotion ? ' The full record is in the Diagnostic Submissions database in Notion.' : ' This one is not saved anywhere else, so this email is the record.'}</p>
   </div>
 </body></html>`,
   };
