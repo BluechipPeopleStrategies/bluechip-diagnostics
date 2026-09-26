@@ -306,7 +306,7 @@ describe('the free check stepper', () => {
     expect(cta.className).toContain('ai-secondary');
     expect(cta.className).not.toContain('ai-button');
     expect(cta.getAttribute('href')).toMatch(/^\/ai-handoff-plan\?perPersonHours=[\d.]+&employees=\d+$/);
-    expect(screen.getByText('At least 3 net hours a week found across your organization, or your fee back.')).toBeInTheDocument();
+    expect(screen.getByText("We'll show you where to save at least 3 net hours a week across your organization, or your fee back.")).toBeInTheDocument();
   });
 
   it('keeps the "not a promise of results" honesty line, folded into the disclosure', async () => {
@@ -909,7 +909,7 @@ describe('the AI Handoff Plan page', () => {
 
   it('pins the guarantee at 3 net hours a week, with the illustration recalculated (3 x 48 = 144 hrs, x C$40 = C$5,760)', () => {
     const { container } = render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
-    expect(screen.getByText("We'll find at least 3 net hours a week of AI time savings, or your fee back.")).toBeInTheDocument();
+    expect(screen.getByText("We'll show you where to save at least 3 net hours a week with AI, or your fee back.")).toBeInTheDocument();
     expect(screen.getByText('What three hours a week adds up to')).toBeInTheDocument();
     const eq = container.querySelector('.ai-eq');
     expect(eq).toHaveAttribute('aria-label', '3 net hours a week times 48 working weeks equals 144 hours a year; at C$40 an hour that is C$5,760 a year in potential staff capacity.');

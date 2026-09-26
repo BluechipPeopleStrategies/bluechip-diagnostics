@@ -110,8 +110,8 @@ describe('new offering intake', () => {
     expect(document.body.textContent).toContain("The AI Handoff Plan looks at your team's recurring work");
     expect(document.body.textContent).toContain('C$999, taxes included');
     expect(document.body.textContent).toContain("Here's the deal");
-    expect(document.body.textContent).toContain('at least 3 net hours a week of time savings across your organization');
-    expect(document.body.textContent).toContain('your full fee comes back within 10 business days');
+    expect(document.body.textContent).toContain('show you where your organization can save at least 3 net hours a week with AI');
+    expect(document.body.textContent).toContain('your full fee comes back automatically within 10 business days');
     expect(document.body.textContent).toContain('No forms, no hoops');
     expect(document.body.textContent).toContain('The plan is yours to put in place');
     expect(ui.queryByLabelText('Your phone number')).toBeNull();

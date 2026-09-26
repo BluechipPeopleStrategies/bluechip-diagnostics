@@ -57,7 +57,7 @@
   // The AI Handoff Plan's answer, as three short bubbles: what it is, the deal, whose it is.
   var PLAN_BUBBLES = [
     "The AI Handoff Plan looks at your team's recurring work and finds where AI can give you time back. It's C$999, taxes included.",
-    "Here's the deal. If we find at least 3 net hours a week of time savings across your organization, you get a plan to go get them. If we can't, your full fee comes back within 10 business days. No forms, no hoops.",
+    "Here's the deal. We'll show you where your organization can save at least 3 net hours a week with AI, and give you a plan to go get them. If we can't, your full fee comes back automatically within 10 business days. No forms, no hoops.",
     'The plan is yours to put in place, on your own or with our help.'
   ];
   var RETAINER_BUBBLES = [
