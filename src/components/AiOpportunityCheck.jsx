@@ -83,6 +83,7 @@ export default function AiOpportunityCheck() {
 
   const question = questions[qIndex];
   const answeredCount = questions.filter(q => isComplete(q, answers)).length;
+  const allAnswered = answeredCount === questions.length;
   const pct = Math.round(((qIndex + 1) / questions.length) * 100);
 
   useEffect(() => { setTimeout(() => headingRef.current?.focus(), 0); }, [step, qIndex]);
@@ -215,6 +216,9 @@ export default function AiOpportunityCheck() {
 
         <div className="ai-stepper-nav">
           <button type="button" className="ai-secondary" onClick={goBack} disabled={qIndex === 0}>Back</button>
+          {/* Once every question has an answer (e.g. after "Change" from the results summary), the
+              visitor can jump straight back instead of re-stepping the rest of the check. */}
+          {allAnswered && <button type="button" className="ai-secondary ai-fc-back-to-results" onClick={() => setStep('result')}>Back to my results</button>}
           {question.type === 'multi' && <button type="button" className="ai-button" onClick={goNext} disabled={!isComplete(question, answers)}>
             {qIndex === questions.length - 1 ? 'See my estimate' : 'Next'}
           </button>}

@@ -739,6 +739,8 @@ describe('the free check polish (2026-09-25)', () => {
     expect(within(summary).getByText('11 to 50')).toBeInTheDocument();
     fireEvent.click(within(summary).getByRole('button', { name: 'Change your answer: People in your organization' }));
     expect(screen.getByText(/Question 8 of 12/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Back to my results' }));
+    expect(screen.getByText('Your estimate')).toBeInTheDocument();
   });
 
   it('offers print and a continue-the-discussion QR code, with a print-only header', async () => {
