@@ -89,7 +89,7 @@
 /* =====================================================================================
    Hero art (item 35): feathered into the ground, layered motion locked to the render.
    ===================================================================================== */
-.ai-plan .ai-hero { grid-template-columns: 1.05fr .95fr; gap: 12px; }
+.ai-plan .ai-hero { grid-template-columns: 1.15fr .85fr; gap: 12px; }
 .ai-plan .plan-hero-art { --plan-par: 0; --plan-tx: 0; --plan-ty: 0; position: relative; justify-self: stretch;
   /* bleed toward the right edge where there's room; feathered edges make the bleed invisible */
   margin: -28px calc(-1 * min(96px, max(0px, (100vw - 1180px) / 2))) -36px -24px; perspective: 1100px; }
@@ -342,7 +342,7 @@
 
 @media (max-width: 720px) {
   .ai-plan .ai-hero { grid-template-columns: 1fr; gap: 0; }
-  .ai-plan .plan-hero-art { margin: -8px -16px -18px; overflow: hidden; }
+  .ai-plan .plan-hero-art { margin: -26px -16px -24px; overflow: hidden; }
   .ai-plan .plan-close { grid-template-columns: 1fr; padding: 26px 20px 24px; gap: 8px; }
   .ai-plan .plan-close-art { display: none; }
   .ai-plan .plan-btn { width: 100%; justify-content: space-between; }
