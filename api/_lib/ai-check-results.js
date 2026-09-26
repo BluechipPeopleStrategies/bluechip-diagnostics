@@ -30,7 +30,7 @@ export async function handleAiCheckResults(body, res, { sendEmail }) {
     return res.status(200).json({ ok: true, emailSent: true });
   }
 
-  const emailSent = await sendEmail({ to: email, subject, html });
+  const emailSent = await sendEmail({ to: email, subject, html, replyTo: notifyTo });
   const note = buildLeadNotificationEmail({ name: '', email, diagnosticId: AI_CHECK_ID, bandLabel: '', total: null, resultLabel: label, emailSent, savedToNotion: false });
   const leadNotificationSent = await sendEmail({ to: notifyTo, subject: note.subject, html: note.html, replyTo: email });
   const ok = emailSent || leadNotificationSent;
