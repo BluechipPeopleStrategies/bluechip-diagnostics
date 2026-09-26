@@ -34,7 +34,7 @@ export function buildRegistrantEmail({ reg, session, startUtc, liveUrl }) {
 <p style="font-size:18px"><strong>Seat saved, ${esc(first)}.</strong></p>
 <p>${esc(session.seriesTitle)}<br>${esc(session.title)}<br>${esc(when)}</p>
 <p>Your calendar invite is attached, with a reminder 15 minutes before. The join link is inside it, and always lives at
-<a href="${esc(liveUrl)}">${esc(liveUrl)}</a> -- no account needed to watch on YouTube.</p>
+<a href="${esc(liveUrl)}">${esc(liveUrl)}</a>, no account needed to watch on YouTube.</p>
 <p>Know someone who'd get value from the same session? Forward this email or share
 ${esc(liveUrl.replace('/lunch/live', '/lunch'))}.</p>
 <p style="font-size:13px;color:#666;margin-top:24px">BlueChip People Strategies, 10060 Jasper Ave NW, Unit 2020, Edmonton, AB T5J 3R8</p>

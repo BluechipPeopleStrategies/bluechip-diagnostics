@@ -202,7 +202,7 @@ export const LEVELS = [
     n: 4,
     name: "It's part of how we work",
     eg: 'Saved prompts, custom GPTs or Copilot, and my team uses it too.',
-    reply: 'The boundaries block and the Q&A will be your best 15 minutes. Bring the edge cases your team runs into.',
+    reply: 'The boundaries block and the Q&A are the parts built for you. Bring the edge cases your team runs into.',
     icon: '<circle cx="8" cy="9" r="3"/><circle cx="16.5" cy="10" r="2.5"/><path d="M3 19c.6-3 2.7-4.5 5-4.5s4.4 1.5 5 4.5M13.5 18.5c.4-2.2 1.7-3.4 3.2-3.4 1.6 0 2.9 1.2 3.3 3.4"/>',
   },
   {

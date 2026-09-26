@@ -34,6 +34,16 @@
   box-sizing: border-box;
 }
 
+/* Shared brand header, lined up with this page's own 1160px grid and 20px gutter (the shared
+   header's default gutter is the AI pages' clamp(20px, 5vw, 72px) inside 1080px, which sat the
+   logo 110px right of this page's content at desktop widths). */
+.lunch-page > .bc-site-header { margin: 0; }
+.lunch-page > .bc-site-header .bc-site-header-inner {
+  max-width: 1200px;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+
 /* layered light behind the glass */
 .ll-stage {
   position: relative;

@@ -20,7 +20,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const STEP_TITLES = {
   1: 'Save your seat',
   2: 'Meet you where you are',
-  3: 'Make it worth your hour',
+  3: 'Make it worth your lunch',
   4: 'Where should we send the link?',
   5: "You're in",
 };
@@ -588,7 +588,7 @@ function Step3OneThing({ form, updateForm, goToStep }) {
 
   return (
     <div className="ll-step">
-      <p className="q">In your own words, what do you want from this hour?</p>
+      <p className="q">In your own words, what do you want from this session?</p>
       <p className="help">Type it, tap an idea, or say it out loud. Thomas reads every answer before the session.</p>
       <div className="ll-ideas">
         {ideas.map((x, i) => (
