@@ -7,6 +7,7 @@ import {
   orgSizeMidpoint, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
   PEOPLE_MAX, areaHoursLabel, areaHoursRangeLabel, isSingularHourLabel } from '../lib/aiOpportunity';
 import { prefersReducedMotion } from '../lib/useRollingNumber';
+import { loadChatWidget } from '../lib/chatWidget';
 import SiteHeader from './SiteHeader';
 import AreaIcon, { CheckCircleIcon } from './AreaIcon';
 import AreaHoursInput from './AreaHoursInput';
@@ -23,6 +24,18 @@ const LOADING_MESSAGES = [
 ];
 const LOADING_MS_FULL = 1800;
 const LOADING_MS_REDUCED = 600;
+
+// Compact process strip on the result's plan section. Not FLOW_STEPS itself (AiHandoffPlanPage's
+// own 5-step flow, each with a separate time/name/"you get" line) -- this is a slimmer restating
+// of the same 5 steps, one label per step, some carrying their time inline. Kept local: it is
+// this section's own copy, not a shared data source.
+const PLAN_PROCESS_STEPS = [
+  'Discovery (60 minutes)',
+  'Opportunity scan',
+  'One workflow redesigned',
+  'Written plan (within 5 business days)',
+  'Findings call (30 minutes)',
+];
 
 // Moves focus to the next/previous sibling input inside an option grid on the arrow keys, so a
 // "pick all" checkbox group behaves like the native roving-focus radios do automatically.
@@ -54,6 +67,9 @@ export default function AiOpportunityCheck() {
   const pct = Math.round(((qIndex + 1) / questions.length) * 100);
 
   useEffect(() => { setTimeout(() => headingRef.current?.focus(), 0); }, [step, qIndex]);
+  // Loaded only once the result is reached (its "Start The AI Handoff Plan" CTA is the one thing
+  // on this page that needs it) -- not on mount, so the quiz itself pulls in nothing plan-related.
+  useEffect(() => { if (step === 'result') loadChatWidget(); }, [step]);
 
   // Cycles the loading copy, then reveals the result. Reduced motion: a short static beat only.
   useEffect(() => {
@@ -376,10 +392,23 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
       <CopyStepsButton steps={steps} />
     </section>
 
-    <section className="ai-next-step">
-      <p>Want to know which tasks and tools could get you there? That's what The AI Handoff Plan works out, measured against your actual work.</p>
-      <p><Link className="ai-secondary" to={`/ai-handoff-plan?perPersonHours=${carryHours}&employees=${carryEmployees}`}>See how the plan works</Link></p>
-      <p className="ai-note">At least 5 net hours a week found across your organization, or your fee back.</p>
+    <hr className="ai-next-plan-divider" />
+    <section className="ai-next-plan-section" aria-labelledby="ai-next-plan-title">
+      <h2 id="ai-next-plan-title">Want us to find the hours for you?</h2>
+      <p>The AI Handoff Plan reviews your actual work and shows exactly which tasks to hand to AI, with which tools. C$999, tax included. At least 5 net hours a week found across your organization, or your money back.</p>
+      <ol className="ai-flow-steps ai-flow-steps--compact">
+        {PLAN_PROCESS_STEPS.map((label, i) => (
+          <li className="ai-flow-step" key={label}>
+            <span className="ai-flow-num">{i + 1}</span>
+            <p className="ai-flow-name">{label}</p>
+          </li>
+        ))}
+      </ol>
+      <p className="ai-note">Your team puts the plan into practice.</p>
+      <div className="ai-next-plan-actions">
+        <a className="ai-button" href="#chat?topic=ai-handoff-plan">Start The AI Handoff Plan</a>
+        <Link className="ai-secondary" to={`/ai-handoff-plan?perPersonHours=${carryHours}&employees=${carryEmployees}`}>Learn more about the plan</Link>
+      </div>
     </section>
 
     <details className="ai-disclosure">

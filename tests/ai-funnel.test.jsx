@@ -294,14 +294,59 @@ describe('the free check stepper', () => {
     )).toBeInTheDocument();
   });
 
-  it('ends in one quiet next step, not a gold CTA or a big guarantee box, and carries numbers to the plan page', async () => {
+  it('ends the result in a distinct, dividered plan section below "Next steps", with a 5-step process strip and exactly two actions', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(container);
-    const cta = screen.getByRole('link', { name: 'See how the plan works' });
-    expect(cta.className).toContain('ai-secondary');
-    expect(cta.className).not.toContain('ai-button');
-    expect(cta.getAttribute('href')).toMatch(/^\/ai-handoff-plan\?perPersonHours=[\d.]+&employees=\d+$/);
-    expect(screen.getByText('At least 5 net hours a week found across your organization, or your fee back.')).toBeInTheDocument();
+
+    const nextSteps = container.querySelector('.ai-next-steps-section');
+    const divider = container.querySelector('.ai-next-plan-divider');
+    const section = container.querySelector('.ai-next-plan-section');
+    expect(nextSteps).toBeInTheDocument();
+    expect(divider).toBeInTheDocument();
+    expect(section).toBeInTheDocument();
+    // Ordered: next-steps, then the divider, then the new section (DOM order == source order).
+    const allEls = [...container.querySelectorAll('main *')];
+    const order = (el) => allEls.indexOf(el);
+    expect(order(nextSteps)).toBeLessThan(order(divider));
+    expect(order(divider)).toBeLessThan(order(section));
+
+    expect(within(section).getByText('Want us to find the hours for you?')).toBeInTheDocument();
+    expect(within(section).getByText(
+      'The AI Handoff Plan reviews your actual work and shows exactly which tasks to hand to AI, with which tools. C$999, tax included. At least 5 net hours a week found across your organization, or your money back.'
+    )).toBeInTheDocument();
+
+    const stepLabels = [...section.querySelectorAll('.ai-flow-steps--compact .ai-flow-name')].map(el => el.textContent);
+    expect(stepLabels).toEqual([
+      'Discovery (60 minutes)', 'Opportunity scan', 'One workflow redesigned',
+      'Written plan (within 5 business days)', 'Findings call (30 minutes)',
+    ]);
+    expect(within(section).getByText('Your team puts the plan into practice.')).toBeInTheDocument();
+
+    const primary = within(section).getByRole('link', { name: 'Start The AI Handoff Plan' });
+    expect(primary.className).toContain('ai-button');
+    expect(primary.getAttribute('href')).toBe('#chat?topic=ai-handoff-plan');
+    const secondary = within(section).getByRole('link', { name: 'Learn more about the plan' });
+    expect(secondary.className).toContain('ai-secondary');
+    expect(secondary.getAttribute('href')).toMatch(/^\/ai-handoff-plan\?perPersonHours=[\d.]+&employees=\d+$/);
+    // Exactly two actions in the section -- no other links/buttons besides these.
+    expect(within(section).getAllByRole('link')).toHaveLength(2);
+    expect(within(section).queryAllByRole('button')).toHaveLength(0);
+
+    // The old quiet block and its wording are gone.
+    expect(screen.queryByRole('link', { name: 'See how the plan works' })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Want to know which tasks and tools could get you there/)).not.toBeInTheDocument();
+    expect(screen.queryByText('At least 5 net hours a week found across your organization, or your fee back.')).not.toBeInTheDocument();
+  });
+
+  it('loads the chat widget script once the result is reached, not before', async () => {
+    // loadChatWidget() is idempotent by checking for this same tag, so an earlier test in this
+    // file reaching the result would otherwise leave it in the (module-level, not React-owned,
+    // so afterEach(cleanup) doesn't touch it) document and short-circuit this test's own check.
+    document.querySelectorAll('script[data-bcw-widget]').forEach(el => el.remove());
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    expect(document.querySelector('script[data-bcw-widget]')).not.toBeInTheDocument();
+    await driveToResult(container);
+    expect(document.querySelector('script[data-bcw-widget]')).toBeInTheDocument();
   });
 
   it('keeps the "not a promise of results" honesty line, folded into the disclosure', async () => {
