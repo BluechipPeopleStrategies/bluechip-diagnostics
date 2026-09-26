@@ -2,63 +2,101 @@
 // Source of truth: BlueChip/projects/ai-audit/free-check-range-spec.md, "FINAL STRINGS (launch)".
 // Net rates come from the Audit Opportunity Finder (automation-calculator.html): the study's
 // saving rate minus a checking allowance. Versioned here, with sources, per Future Self's condition.
+//
+// RE-DERIVED 2026-09-24 (per-person recalibration pass), source of truth:
+// docs/2026-09-24-canadian-business-savings-estimate.md sections 6.1-6.3, 7.3 and 8. Every rate
+// below traces to that document's "Low from" / "Likely from" columns and does not exceed what it
+// supports -- see the doc for the exact study quotes and the checking-allowance arithmetic. This
+// replaces the earlier rates (which cited pages that turned out not to contain the quoted figures
+// for meetings/search -- see section 2 of the doc, "Verification of the rates BlueChip already
+// uses"). Bucket names now match the doc's own area groupings, not individual Q2 tiles, since
+// several tiles share one studied rate (see AREA_RATE_MAP below).
 export const RATE_TABLE = {
   correspondence: {
-    label: 'Routine correspondence', low: 0.12, likely: 0.22,
-    sources: ['Noy & Zhang 2023 (Science)', 'Brynjolfsson et al. 2025 (QJE)'],
+    label: 'Routine correspondence', low: 0.15, likely: 0.35,
+    sources: ["Dell'Acqua et al. 2023 (HBS/BCG)", 'Noy & Zhang 2023 (Science)'],
   },
-  reports: {
-    label: 'Recurring reports', low: 0.08, likely: 0.18,
-    sources: ["Dell'Acqua et al. 2023 (HBS/BCG)", 'UK GDS Copilot 2025'],
+  // reports, proposals, writingEditing, policies, trainingMaterials, socialContent (doc section
+  // 7.3, "documents" row).
+  documents: {
+    label: 'Documents and reports', low: 0.15, likely: 0.30,
+    sources: ["Dell'Acqua et al. 2023 (HBS/BCG)", 'Noy & Zhang 2023 (Science)'],
   },
+  // research, spreadsheets (doc section 7.3, "research, spreadsheets" row).
+  analysis: {
+    label: 'Research and data work', low: 0.05, likely: 0.15,
+    sources: ['UK GDS 2025 / HMRC controlled trial 2026 (floor)', "Dell'Acqua et al. 2023 (HBS/BCG)"],
+  },
+  // enquiries, staffQuestions (doc section 7.3, "enquiries, staffQuestions" row).
+  enquiries: {
+    label: 'Enquiries and staff questions', low: 0.05, likely: 0.10,
+    sources: ['UK GDS 2025 / HMRC controlled trial 2026 (floor)', 'Brynjolfsson, Li & Raymond 2025 (QJE)'],
+  },
+  // meetingNotes, caseNotes (doc section 6.1 / 7.3, "meetingNotes, caseNotes" row).
   meetings: {
-    label: 'Meeting follow-through', low: 0.25, likely: 0.38,
-    sources: ['UK Government "Minute" trial 2025', 'Magic Notes council evaluation 2024'],
+    label: 'Meeting and case notes', low: 0.05, likely: 0.20,
+    sources: ['Lukac et al. 2025 (NEJM AI, randomised trial)', 'Unity Insights 2025 Magic Notes validation (vendor-commissioned)'],
   },
-  search: {
-    label: 'Finding information', low: 0.10, likely: 0.25,
-    sources: ['Australian Government Copilot trial 2024'],
-  },
-  // Conservative floor for areas with no directly matching study. Can only understate.
+  // findingInfo, scheduling, invoicing, hiring, otherArea, notSureArea, filing (doc section 6.2 /
+  // 7.3 / 8.5, "floor" row). Conservative floor for areas with no directly matching study.
   floor: {
-    label: 'Not sure yet', low: 0.05, likely: 0.15,
-    sources: ['UK GDS 2025', 'HMRC controlled evaluation (conservative floor)'],
+    label: 'Not sure yet', low: 0.05, likely: 0.06,
+    sources: ['UK GDS 2025 (26 min/day is about 6% of a 7.25-hour day)', 'HMRC controlled trial 2026 (2-3% of the working week)'],
+  },
+  // Section 8.3: formal minutes (council, board or committee clerks). Kept separate from
+  // meetingNotes/caseNotes -- the doc's own instruction: "Keep this separate from general meeting
+  // notes... Formal minutes rest mostly on transcribing recordings", a different evidence base.
+  formalMinutes: {
+    label: 'Formal minutes', low: 0.05, likely: 0.30,
+    sources: ['Halving transcription time, arXiv 2503.13031 (2025)', 'Lukac et al. 2025 (NEJM AI, randomised trial)'],
+  },
+  // Section 8.2: reviewing documents (contracts, forms, submissions) -- an analysis task, not a
+  // drafting one, so it gets its own row even though the numbers match "analysis" by coincidence.
+  docReview: {
+    label: 'Document review', low: 0.05, likely: 0.15,
+    sources: ['Choi, Monahan & Schwarcz 2024 (Minnesota Law Review, randomised)', "Dell'Acqua et al. 2023 (HBS/BCG)"],
+  },
+  // Section 8.6: privacy and access requests (FOIP, redaction, PIAs).
+  privacy: {
+    label: 'Privacy and access requests', low: 0, likely: 0.12,
+    sources: ['Peng, Huang, Wu & Wei 2024 (arXiv, vendor-run randomised trial)'],
   },
 };
 
-// Q2 area value -> RATE_TABLE row. [NEEDS: source] rows (scheduling/invoicing/hiring) use the floor
-// until a task-specific rate is confirmed; see the spec's "Data rules" table.
+// Q2 area value -> RATE_TABLE row, per the doc's own area groupings (section 7.3 and 8).
 export const AREA_RATE_MAP = {
   correspondence: 'correspondence',
-  enquiries: 'correspondence',
-  reports: 'reports',
-  proposals: 'reports',
+  enquiries: 'enquiries',
+  reports: 'documents',
+  proposals: 'documents',
   meetingNotes: 'meetings',
   caseNotes: 'meetings',
-  findingInfo: 'search',
+  findingInfo: 'floor',
   scheduling: 'floor',
   invoicing: 'floor',
   hiring: 'floor',
-  // New area tiles (2026-09-24): mapped onto the existing rate buckets, no new numbers.
-  writingEditing: 'correspondence',
-  research: 'search',
-  spreadsheets: 'reports',
-  socialContent: 'correspondence',
-  trainingMaterials: 'reports',
-  policies: 'reports',
-  // Answering staff questions (2026-09-24 org-wide-estimate pass): finding/relaying an answer is
-  // the same underlying work as "Finding information", so it shares that bucket.
-  staffQuestions: 'search',
+  writingEditing: 'documents',
+  research: 'analysis',
+  spreadsheets: 'analysis',
+  socialContent: 'documents',
+  trainingMaterials: 'documents',
+  policies: 'documents',
+  staffQuestions: 'enquiries',
   // Typed-in "Other" area: always the most conservative rate, so it can only understate.
   otherArea: 'floor',
   notSureArea: 'floor',
+  // Section 8 additions (2026-09-24).
+  formalMinutes: 'formalMinutes',
+  docReview: 'docReview',
+  privacyRequests: 'privacy',
+  filing: 'floor',
 };
 
 export const AREAS = [
   ['correspondence', 'Emails and correspondence'],
-  ['reports', 'Recurring reports'],
+  ['reports', 'Recurring reports, status updates and dashboards'],
   ['meetingNotes', 'Meeting notes and follow-up'],
-  ['findingInfo', 'Finding information'],
+  ['findingInfo', 'Finding information (including searching email)'],
   ['scheduling', 'Scheduling and bookings'],
   ['invoicing', 'Invoices, receipts and data entry'],
   ['hiring', 'Hiring and onboarding'],
@@ -72,6 +110,11 @@ export const AREAS = [
   ['trainingMaterials', 'Training materials and how-to guides'],
   ['policies', 'Policies, procedures and templates'],
   ['staffQuestions', 'Answering staff questions (policies, onboarding, how-to)'],
+  // Section 8 additions (2026-09-24).
+  ['formalMinutes', 'Formal minutes (council, board or committee)'],
+  ['docReview', 'Reviewing documents (contracts, forms, submissions)'],
+  ['privacyRequests', 'Privacy and access requests (FOIP, redaction)'],
+  ['filing', 'Organizing and filing documents (including finding the latest version)'],
   ['otherArea', 'Other (type your own)'],
   // Exclusive pick (see `questions` below, which marks the LAST entry exclusive) -- keep this
   // last so a new area added above doesn't silently become the exclusive one.
@@ -103,10 +146,12 @@ export const ORG_AREA_SUGGESTIONS = {
   trades: ['scheduling', 'proposals', 'invoicing'],
   // staffQuestions appended (2026-09-24): a 4th candidate that only surfaces once one of the
   // first three is already picked (suggestedAreas filters out picks, then takes the first 3).
+  // formalMinutes and privacyRequests appended (2026-09-24, section 8) for municipal and
+  // postsecondary specifically -- clerks and privacy officers are concentrated in those org types.
   healthcare: ['caseNotes', 'scheduling', 'enquiries', 'staffQuestions'],
   retail: ['enquiries', 'scheduling', 'invoicing'],
-  postsecondary: ['meetingNotes', 'enquiries', 'findingInfo', 'staffQuestions'],
-  municipal: ['meetingNotes', 'correspondence', 'findingInfo', 'staffQuestions'],
+  postsecondary: ['meetingNotes', 'enquiries', 'findingInfo', 'staffQuestions', 'formalMinutes', 'privacyRequests'],
+  municipal: ['meetingNotes', 'correspondence', 'findingInfo', 'staffQuestions', 'formalMinutes', 'privacyRequests'],
   nonprofit: ['meetingNotes', 'reports', 'caseNotes', 'staffQuestions'],
   other: ['correspondence', 'meetingNotes', 'reports'],
 };
@@ -122,6 +167,91 @@ export const PEOPLE_MAX = 500;
 
 export const HOUR_CAP_PER_AREA = 25; // hours a week, one person, per area (the slider's hard max)
 export const HOUR_CAP_TOTAL = 30;    // hours a week, one person, summed across every picked area
+
+// Per-person recalibration (2026-09-24), doc section 7.2: default hours per area, replacing the
+// flat 5-hour default. "Assume a person picks an area because it is one of their biggest time
+// sinks, so the default is the full population average for that task, not a fraction of it."
+// Values not marked "Assumption" below trace to the doc's own sourced figures (Grammarly/Harris
+// Poll writing-time survey T1, McKinsey email/search share T3, the Unity Insights case-note
+// figure T4); values marked "Assumption" have no retrievable time-use source and the doc says so
+// plainly -- kept here rather than dropped, since a defensible default beats an arbitrary one, but
+// never used to claim more precision than it has.
+export const DEFAULT_HOURS_PER_AREA = {
+  correspondence: 8.4,   // T1: writing 4.34 + responding 4.05 h/week
+  enquiries: 4,          // Assumption
+  // T1: "creating materials to be shared with others" (3.3) + 1.5 for status updates and
+  // dashboards folded into this tile (doc section 10). The +1.5 is a labelled BlueChip
+  // assumption, not sourced -- status-update time wasn't separately measured in any retrieved
+  // study. Still subject to the 20-hr defaults cap like every other area.
+  reports: 4.8,
+  proposals: 3.3,        // Same T1 line as reports -- both draw on the same time-use figure
+  meetingNotes: 2,        // Assumption (meeting time itself is sourced; write-up time is not)
+  caseNotes: 10,          // T4 (Unity Insights): 20.4 h/week written admin, halved for notes only
+  findingInfo: 6.9,       // T3: "nearly 20%" of a 36.2 h paid week
+  staffQuestions: 2,      // Assumption
+  scheduling: 1.5,        // Assumption
+  invoicing: 2,           // Assumption
+  hiring: 2,              // Assumption
+  writingEditing: 5.8,    // T1: reviewing others' 2.98 + revising own 2.81 h/week
+  research: 3,            // Assumption (overlaps findingInfo)
+  spreadsheets: 4,        // Assumption (WTI 2023 gives a share of app time, not hours)
+  socialContent: 2,       // Assumption
+  trainingMaterials: 2,   // Assumption
+  policies: 2,            // Assumption
+  otherArea: 2,           // Assumption, same as the generic areas above
+  // Not itemized in the doc (section 7.2 covers the 16 named areas only); treated the same as
+  // "other" since neither has a specific task in mind. BlueChip judgment call, not sourced.
+  notSureArea: 2,
+  // Section 8 additions.
+  formalMinutes: 6,       // Assumption: one formal meeting/week at the midpoint of FM1's "4 to 8 h"
+  docReview: 3,           // Assumption, no time-use source found
+  privacyRequests: 8,     // Assumption, for someone whose job includes access requests
+  filing: 3,              // Assumption, no time-use source found
+};
+
+// The default-hours envelope: the SUM of default (never-yet-edited) hours across picked areas is
+// scaled down to fit this, proportionally, if it would otherwise exceed it. Basis: doc T1's 19.93
+// h/week whole written-work envelope for this population, comfortably inside a 36.2-38.2 h paid
+// week (S6), so defaults never imply a workweek that's mostly this one bucket of work. Applies
+// ONLY to values still at their default -- once a visitor types or slides a real number for an
+// area, that number is real input and is never rescaled by this cap (still subject to the
+// existing HOUR_CAP_PER_AREA / HOUR_CAP_TOTAL hard caps like any other entered value).
+export const DEFAULT_HOURS_CAP = 20;
+
+// Given a list of picked area values (only the ones still at their default hours), returns each
+// one's default hours, scaled down proportionally if their combined total would exceed
+// DEFAULT_HOURS_CAP. Rounded to one decimal to match areaHoursLabel's own display precision.
+export function defaultHoursForPicks(areas) {
+  const raw = areas.map(a => DEFAULT_HOURS_PER_AREA[a] ?? 2);
+  const rawSum = raw.reduce((sum, h) => sum + h, 0);
+  const scale = rawSum > DEFAULT_HOURS_CAP ? DEFAULT_HOURS_CAP / rawSum : 1;
+  const result = {};
+  areas.forEach((a, i) => { result[a] = Math.round(raw[i] * scale * 10) / 10; });
+  return result;
+}
+
+// Section 8.1: dictation (voice-to-text instead of typing). A single opt-in checkbox, never one
+// of the Q2 area picks and never counted against its 6-pick cap. Only ever touches the areas
+// whose rate bucket is "correspondence" or "documents" -- the drafting/creating tasks doc T1
+// measures -- because that's the only writing dictation actually speeds up ("dictation does not
+// speed up" reviewing/revising, so those stay out).
+const DICTATION_WRITING_BUCKETS = ['correspondence', 'documents'];
+export function isWritingArea(area) {
+  return DICTATION_WRITING_BUCKETS.includes(AREA_RATE_MAP[area]);
+}
+// T1: writing messages 4.34 + responding 4.05 + creating materials 3.27 h/week (reviewing/revising
+// excluded, since dictation doesn't speed those up). Used only when dictation is ticked and NO
+// writing area is picked, as its own virtual "area".
+export const DICTATION_HOURS = 11.7;
+export const DICTATION_RATE = {
+  label: 'Voice dictation', low: 0, likely: 0.12,
+  sources: ['Dhakal et al. 2018 (CHI, typing speed)', 'Ruan et al. 2016 (Stanford/arXiv, speech vs typing)', 'Noy & Zhang 2023 (Science, drafting-share assumption)'],
+};
+// When a writing area IS picked, dictation stacks as a rate boost instead of separate hours (so
+// nothing is double-counted against AI drafting's own saving on the same hours): +5 points to the
+// LIKELY rate of each picked writing area, 0 on the low. Doc 8.1: "after AI drafting, drafting is
+// at most 25% of 60% of the original time... 15% x 0.5 x 0.68 = 5.1% of the original hours."
+export const DICTATION_BOOST_LIKELY = 0.05;
 
 export const questions = [
   {
@@ -356,19 +486,32 @@ export function capRowHours(rows) {
 }
 
 // net range = hours spent x people x [low, likely] net rate for the row's area, summed across
-// rows. Org size plays no part in this -- see PEOPLE_MAX above -- so this takes only the rows.
-export function computeRange(rows) {
-  const { rows: capped, capped: hoursCapped } = capRowHours(rows);
+// rows. Org size plays no part in this -- see PEOPLE_MAX above -- so this takes only the rows,
+// plus an optional dictation flag (doc section 8.1). Dictation never adds a Q2 pick: when a
+// writing area is already picked it boosts those rows' likely rate; only when NONE is picked does
+// it become its own virtual row (DICTATION_HOURS, subject to the same hour caps as any other row).
+export function computeRange(rows, { dictation = false } = {}) {
+  const hasWritingArea = rows.some(r => isWritingArea(r.area));
+  const effectiveRows = (dictation && !hasWritingArea && rows.length > 0)
+    ? [...rows, { area: 'dictation', hours: DICTATION_HOURS, people: rows[0].people ?? 1 }]
+    : rows;
+  const { rows: capped, capped: hoursCapped } = capRowHours(effectiveRows);
   let low = 0, likely = 0, peopleCapped = false;
   const detail = capped.map(r => {
     const rawPeople = Number(r.people) || 0;
     const people = Math.min(PEOPLE_MAX, Math.max(0, rawPeople));
     if (people !== rawPeople) peopleCapped = true;
-    const rate = rateForArea(r.area);
+    const isDictationRow = r.area === 'dictation';
+    const rate = isDictationRow ? DICTATION_RATE : rateForArea(r.area);
+    const dictationBoosted = !isDictationRow && dictation && hasWritingArea && isWritingArea(r.area);
+    const effectiveLikely = rate.likely + (dictationBoosted ? DICTATION_BOOST_LIKELY : 0);
     const rowLow = r.hours * people * rate.low;
-    const rowLikely = r.hours * people * rate.likely;
+    const rowLikely = r.hours * people * effectiveLikely;
     low += rowLow; likely += rowLikely;
-    return { area: r.area, hours: r.hours, people, low: rowLow, likely: rowLikely, rate };
+    return {
+      area: r.area, hours: r.hours, people, low: rowLow, likely: rowLikely, rate,
+      dictationApplied: isDictationRow || dictationBoosted,
+    };
   });
   return { low, likely, rows: detail, hoursCapped, peopleCapped, capped: hoursCapped || peopleCapped };
 }
@@ -508,7 +651,7 @@ export function tailoredLines(answers) {
 // OTHER_AREA_LOOKOUT, the same generic set the "Other" tile itself uses.
 export const AREA_LOOKOUT = {
   correspondence: ['which replies repeat week to week', 'how long drafting takes versus checking', 'who reviews before anything goes out'],
-  reports: ['which numbers get pulled the same way each time', 'how much of each report is pasted in from other sources', 'who checks the final version before it goes out'],
+  reports: ['which numbers get pulled the same way each time', 'how much of each report is pasted in from other sources', 'who checks the final version before it goes out', 'how much of each status update is retyped from notes or tickets you already have'],
   meetingNotes: ['how long write-ups take after each meeting', 'how action items get tracked afterward', 'which meetings need a formal record'],
   findingInfo: ['how often the same question gets researched from scratch', 'where the answer usually already lives', 'how long a typical search takes'],
   scheduling: ['how much back and forth it takes to land on a time', 'how often a change means re-coordinating everyone', 'whether reminders happen automatically or by hand'],
@@ -524,10 +667,31 @@ export const AREA_LOOKOUT = {
   trainingMaterials: ['how often materials need updating', 'how much content repeats across different guides', "who checks materials for accuracy before they're used"],
   policies: ['how often policies and templates need reviewing', 'how much wording repeats across documents', 'who signs off on changes'],
   staffQuestions: ['which questions new and current staff ask again and again', 'where the answers live today', 'who gets interrupted to answer them'],
+  formalMinutes: ['how long minutes take to finalize after each meeting', 'how much is transcription versus judgment calls on wording', 'who signs off before minutes are circulated'],
+  docReview: ['how many documents come through for review each week', 'how much of the review is the same checklist every time', 'who has final sign-off'],
+  privacyRequests: ['how long a typical request takes from intake to response', 'how much of it is finding and redacting the right material', 'who reviews before anything is released'],
+  filing: ['how often documents get misplaced or duplicated', 'how much of the work is renaming and sorting versus deciding where something belongs', 'whether the current version is always easy to find'],
 };
 export const OTHER_AREA_LOOKOUT = ['how often it happens', 'how many steps are copy and paste', 'who checks the result'];
 export function areaLookoutLines(area) {
   return AREA_LOOKOUT[area] || OTHER_AREA_LOOKOUT;
+}
+
+// Section 9 (2026-09-24): for visitors who already use a general AI assistant, add one extra
+// informational line to each picked WRITING area's lookout card -- the copy-paste round trip
+// between their own tools and a chat window is a real time cost specific to that workflow.
+// Informational only: no hours or rate attached, never counted in the estimate.
+export const AI_TOOL_COPY_PASTE_LINE = 'how much time goes into copying text into an AI tool and reworking the result';
+const GENERAL_AI_TOOLS = ['chatgpt', 'claude', 'copilot'];
+export function usesGeneralAiTool(aiTools = []) {
+  return aiTools.some(v => GENERAL_AI_TOOLS.includes(v));
+}
+export function areaLookoutLinesFor(area, answers = {}) {
+  const base = areaLookoutLines(area);
+  if (isWritingArea(area) && usesGeneralAiTool(answers.aiTools)) {
+    return [...base, AI_TOOL_COPY_PASTE_LINE];
+  }
+  return base;
 }
 
 // Up to 2 cross-cutting "what we'd look at" cards, driven by answers other than the picked areas.

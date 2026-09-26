@@ -355,6 +355,15 @@
   .ai-result-headline { scroll-margin-top:175px; }
 }
 .ai-result-sub { margin:0 0 6px; color:var(--ai-soft); font-size:15px; }
+/* The team-size multiplier row (per-person recalibration, 2026-09-24): more prominent than a
+   plain .ai-note footnote, since it's the second half of the headline pairing, not a caveat. */
+.ai-across-people { margin:0 0 18px; font-size:17px; font-weight:600; color:var(--ai-ink); }
+.ai-across-people .ai-rolling-number { color:var(--ai-gold); }
+/* Section 8.1: the dictation checkbox sits under the Q2 tile grid, plain (not tile-styled) since
+   it's a single opt-in modifier, not one of the picks. */
+.ai-dictation-check { margin:16px 0; }
+.ai-dictation-check label { display:flex; align-items:center; gap:10px; font-size:14.5px; color:var(--ai-ink); cursor:pointer; }
+.ai-dictation-check input[type="checkbox"] { width:18px; height:18px; flex:none; accent-color:var(--ai-gold); }
 .ai-rolling-number { font-variant-numeric:lining-nums tabular-nums; font-feature-settings:"lnum" 1,"tnum" 1; }
 .ai-stat-tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:22px 0 10px; }
 .ai-stat-tiles--pair { grid-template-columns:repeat(2,1fr); }
