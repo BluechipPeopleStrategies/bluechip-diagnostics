@@ -395,7 +395,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
     <hr className="ai-next-plan-divider" />
     <section className="ai-next-plan-section" aria-labelledby="ai-next-plan-title">
       <h2 id="ai-next-plan-title">Want us to find the hours for you?</h2>
-      <p>The AI Handoff Plan reviews your actual work and shows exactly which tasks to hand to AI, with which tools. C$999, tax included. At least 5 net hours a week found across your organization, or your money back.</p>
+      <p>The AI Handoff Plan reviews your actual work and shows exactly which tasks to hand to AI, with which tools. C$999, tax included. At least 3 net hours a week found across your organization, or your money back.</p>
       <ol className="ai-flow-steps ai-flow-steps--compact">
         {PLAN_PROCESS_STEPS.map((label, i) => (
           <li className="ai-flow-step" key={label}>

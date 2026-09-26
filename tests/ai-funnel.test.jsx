@@ -312,7 +312,7 @@ describe('the free check stepper', () => {
 
     expect(within(section).getByText('Want us to find the hours for you?')).toBeInTheDocument();
     expect(within(section).getByText(
-      'The AI Handoff Plan reviews your actual work and shows exactly which tasks to hand to AI, with which tools. C$999, tax included. At least 5 net hours a week found across your organization, or your money back.'
+      'The AI Handoff Plan reviews your actual work and shows exactly which tasks to hand to AI, with which tools. C$999, tax included. At least 3 net hours a week found across your organization, or your money back.'
     )).toBeInTheDocument();
 
     const stepLabels = [...section.querySelectorAll('.ai-flow-steps--compact .ai-flow-name')].map(el => el.textContent);
