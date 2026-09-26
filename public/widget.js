@@ -70,14 +70,36 @@
 
   // ---- styles ----
   var css = '' +
-    '.bcw-launch{position:fixed;right:20px;bottom:20px;z-index:99998;width:60px;height:60px;border-radius:999px;background:' + NAVY + ';border:1.5px solid ' + NAVY + ';cursor:pointer;box-shadow:0 8px 24px rgba(11,26,51,.18);display:flex;align-items:center;justify-content:center;transition:background .2s ease,transform .1s ease}' +
-    '.bcw-launch:hover{background:' + GOLD + ';border-color:' + GOLD + ';transform:translateY(-1px)}' +
-    '.bcw-launch svg{width:26px;height:26px;fill:#fff;transition:fill .2s ease}' +
-    '.bcw-launch:hover svg{fill:' + NAVY + '}' +
-    '.bcw-greet{position:fixed;right:90px;bottom:30px;z-index:99998;max-width:230px;background:#fff;color:' + TEXT + ';border:1px solid ' + CREAM + ';border-radius:14px;border-bottom-right-radius:4px;box-shadow:0 8px 24px rgba(11,26,51,.14);padding:12px 14px;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.45;cursor:pointer}' +
+    // Launcher + greeting (2026-09-25, punch list item 22): a lacquered navy orb with a gold rim,
+    // a soft specular cap and a slow ripple ring; the greeting is a frosted glass card with a
+    // gold edge light and a pointed corner toward the orb, that springs in and floats. Motion is off under
+    // prefers-reduced-motion (see the media query below).
+    '.bcw-launch{position:fixed;right:20px;bottom:20px;z-index:99998;width:60px;height:60px;padding:0;border-radius:999px;border:0;cursor:pointer;display:flex;align-items:center;justify-content:center;' +
+      'background:radial-gradient(120% 100% at 30% 18%,#2d4b7a 0%,#15294b 46%,' + NAVY + ' 100%);' +
+      'box-shadow:inset 0 1px 0 rgba(255,255,255,.3),inset 0 -4px 8px rgba(0,0,0,.45),0 0 0 1.5px rgba(201,162,75,.85),0 0 0 5px rgba(201,162,75,.14),0 16px 30px -12px rgba(11,26,51,.65),0 6px 12px rgba(11,26,51,.22);' +
+      'transition:transform .3s cubic-bezier(.34,1.4,.5,1),box-shadow .3s ease}' +
+    '.bcw-launch::before{content:"";position:absolute;inset:3px;border-radius:999px;background:radial-gradient(60% 42% at 50% 14%,rgba(255,255,255,.22),rgba(255,255,255,0) 72%);pointer-events:none}' +
+    '.bcw-launch::after{content:"";position:absolute;inset:-5px;border-radius:999px;border:1.5px solid rgba(201,162,75,.6);opacity:0;pointer-events:none;animation:bcwRing 4.5s ease-out 2s infinite}' +
+    '.bcw-launch:hover,.bcw-launch:focus-visible{transform:translateY(-2px) scale(1.04);box-shadow:inset 0 1px 0 rgba(255,255,255,.36),inset 0 -4px 8px rgba(0,0,0,.4),0 0 0 1.5px ' + GOLD + ',0 0 0 6px rgba(201,162,75,.24),0 22px 36px -12px rgba(11,26,51,.7),0 0 26px -4px rgba(201,162,75,.55)}' +
+    '.bcw-launch:focus-visible{outline:3px solid ' + GOLD + ';outline-offset:5px}' +
+    '.bcw-launch:active{transform:translateY(0) scale(.96);transition-duration:.08s}' +
+    '.bcw-launch svg{position:relative;width:26px;height:26px;fill:' + CREAM + ';filter:drop-shadow(0 2px 2px rgba(0,0,0,.35));transition:transform .3s cubic-bezier(.34,1.4,.5,1),fill .2s ease}' +
+    '.bcw-launch:hover svg,.bcw-launch:focus-visible svg{fill:#F0D99A;transform:rotate(-6deg) scale(1.05)}' +
+    '@keyframes bcwRing{0%{opacity:0;transform:scale(.92)}12%{opacity:.8}60%,100%{opacity:0;transform:scale(1.28)}}' +
+    '.bcw-greet{position:fixed;right:92px;bottom:26px;z-index:99998;max-width:236px;box-sizing:border-box;color:' + TEXT + ';' +
+      'background:linear-gradient(180deg,#fff 0%,rgba(252,249,243,.98) 55%,rgba(247,241,231,.97) 100%);-webkit-backdrop-filter:blur(12px) saturate(1.3);backdrop-filter:blur(12px) saturate(1.3);' +
+      'border:1px solid rgba(255,255,255,.75);border-radius:16px;border-bottom-right-radius:5px;' +
+      'box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(11,26,51,.06),0 2px 4px rgba(11,26,51,.08),0 14px 26px -10px rgba(11,26,51,.3),0 32px 54px -26px rgba(11,26,51,.45);' +
+      'padding:13px 16px 13px 20px;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.45;cursor:pointer;' +
+      'transform-origin:100% 100%;animation:bcwGreetIn .7s cubic-bezier(.34,1.4,.5,1) .4s both,bcwFloat 6s ease-in-out 1.4s infinite;transition:box-shadow .25s ease}' +
+    '.bcw-greet::before{content:"";position:absolute;left:9px;top:13px;bottom:13px;width:3px;border-radius:3px;background:linear-gradient(180deg,#F0D99A,' + GOLD + ');box-shadow:0 0 8px rgba(201,162,75,.55)}' +
+    '.bcw-greet:hover,.bcw-greet:focus-visible{box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(201,162,75,.35),0 2px 4px rgba(11,26,51,.08),0 18px 30px -10px rgba(11,26,51,.34),0 38px 60px -26px rgba(11,26,51,.5)}' +
+    '.bcw-greet:focus-visible{outline:3px solid ' + GOLD + ';outline-offset:3px}' +
+    '@keyframes bcwGreetIn{0%{opacity:0;transform:translateY(10px) scale(.9)}100%{opacity:1;transform:none}}' +
+    '@keyframes bcwFloat{0%,100%{translate:0 0}50%{translate:0 -4px}}' +
     '.bcw-greet b{display:block;font-weight:600;color:' + NAVY + '}' +
     '.bcw-greet small{color:#5B6675}' +
-    '.bcw-panel{position:fixed;right:20px;bottom:92px;z-index:99999;width:360px;max-width:calc(100vw - 32px);background:#fff;border:1px solid ' + CREAM + ';border-radius:16px;box-shadow:0 12px 40px rgba(11,26,51,.18);overflow:hidden;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .18s ease,transform .18s ease}' +
+    '.bcw-panel{position:fixed;right:20px;bottom:92px;z-index:99999;width:360px;max-width:calc(100vw - 32px);background:#fff;border:1px solid ' + CREAM + ';border-radius:16px;box-shadow:inset 0 1px 0 #fff,0 2px 6px rgba(11,26,51,.1),0 18px 34px -14px rgba(11,26,51,.35),0 40px 70px -30px rgba(11,26,51,.45);overflow:hidden;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;opacity:0;transform:translateY(12px);pointer-events:none;transition:opacity .18s ease,transform .18s ease}' +
     '.bcw-panel.bcw-open{opacity:1;transform:translateY(0);pointer-events:auto}' +
     '.bcw-header{background:' + NAVY + ';color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between}' +
     '#bcwPanel .bcw-header h3{font-family:"Playfair Display",Georgia,serif;font-weight:700;font-size:20px;line-height:1.2;letter-spacing:normal;margin:0;color:#fff!important}' +
@@ -112,7 +134,7 @@
     '.bcw-hp{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}' +
     '.bcw-done{text-align:center;padding:22px 18px;color:' + TEXT + ';font-size:14px;line-height:1.5}' +
     '.bcw-done svg{width:34px;height:34px;fill:' + GOLD + ';margin-bottom:8px}' +
-    '@media (prefers-reduced-motion:reduce){.bcw-panel,.bcw-launch,.bcw-send{transition:none}.bcw-typing span{animation:none;opacity:1}}' +
+    '@media (prefers-reduced-motion:reduce){.bcw-panel,.bcw-launch,.bcw-launch svg,.bcw-send,.bcw-greet{transition:none}.bcw-typing span{animation:none;opacity:1}.bcw-greet{animation:none}.bcw-launch::after{animation:none;display:none}.bcw-launch:hover,.bcw-launch:focus-visible,.bcw-launch:active,.bcw-launch:hover svg{transform:none}}' +
     '.bcw-greet small{font-size:12px}' +
     '@media (max-width:480px){.bcw-panel{right:8px;left:8px;bottom:84px;width:auto;max-width:none}.bcw-greet{display:none}.bcw-choice{min-height:44px}}';
 
