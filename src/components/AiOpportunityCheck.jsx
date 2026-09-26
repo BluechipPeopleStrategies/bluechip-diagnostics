@@ -5,12 +5,13 @@ import {
   suggestedAreas, AREA_LABELS, lowerFirst, joinList, groupedOptions,
   sanitizeAreaLabel, sanitizeShortText, areaLookoutLines, crossCuttingCards, nextSteps,
   orgSizeMidpoint, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
-  PEOPLE_MAX, areaHoursLabel, areaHoursRangeLabel, isSingularHourLabel, GUARANTEE_NET_HOURS } from '../lib/aiOpportunity';
+  PEOPLE_MAX, areaHoursLabel, areaWeeklyLabel, GUARANTEE_NET_HOURS } from '../lib/aiOpportunity';
 import { prefersReducedMotion } from '../lib/useRollingNumber';
 import { loadCheckSession, saveCheckSession, clearCheckSession } from '../lib/freeCheckSession';
 import SiteHeader from './SiteHeader';
 import AreaIcon, { CheckCircleIcon } from './AreaIcon';
 import AreaHoursInput from './AreaHoursInput';
+import RunningTotal from './RunningTotal';
 import GoldSlider from './GoldSlider';
 import ChipsRow from './ChipsRow';
 import RollingNumber from './RollingNumber';
@@ -187,21 +188,8 @@ export default function AiOpportunityCheck() {
               : question.options.map(renderTile)}
           </div>
           {isAreas && <p className="ai-note">Each one you pick gets its own hours and people below.</p>}
-          {livePreview && <>
-            <p className="ai-live-preview">About {areaHoursRangeLabel(livePreview.low, livePreview.likely)} hours a week back, so far.</p>
-            <div className="ai-live-preview-detail">
-              {livePreview.rows.map(r => {
-                const rowLabel = r.area === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[r.area];
-                const lowPct = Math.round(r.rate.low * 100);
-                const likelyPct = Math.round(r.rate.likely * 100);
-                const rangeLabel = areaHoursRangeLabel(r.low, r.likely);
-                return <p className="ai-note" key={r.area}>
-                  {rowLabel}: {r.hours} hrs &times; {r.people} {r.people === 1 ? 'person' : 'people'} &times; {lowPct}% to {likelyPct}% = {rangeLabel} {isSingularHourLabel(rangeLabel) ? 'hr' : 'hrs'} back a week
-                </p>;
-              })}
-              <p className="ai-note">The percentages are the share of that time AI can realistically save after someone checks its work.</p>
-            </div>
-          </>}
+          {livePreview && <RunningTotal preview={livePreview}
+            labelFor={(a) => (a === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[a])} />}
           {isOwner && value === 'someoneElse' && <div className="ai-other-label-field">
             <label className="ai-hours-field-label" htmlFor="owner-other-text">Who is it? (a role is fine, e.g. finance lead)</label>
             <input id="owner-other-text" type="text" className="ai-compact-text-input" maxLength={60}
@@ -332,15 +320,15 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
     </div>}
 
     <section className="ai-panel ai-headcount-section" aria-labelledby="ai-headcount-title">
-      <h2 id="ai-headcount-title">What if more of your team works like this?</h2>
+      <h2 id="ai-headcount-title">What if more of your team saves the same amount of time?</h2>
       <GoldSlider min={1} max={500} step={1} value={headcount} onChange={setHeadcount}
-        ariaLabel="Number of people" format={(n) => `${n} people`} />
+        ariaLabel="How many people save the same amount of time" format={(n) => `${n} people`} />
       <ChipsRow ariaLabel="Quick-pick headcount"
         chips={[10, 25, 50, 100, 250].map(n => ({ label: String(n), value: n }))}
         current={headcount} onPick={(n) => setHeadcount(Math.min(peopleMax, n))} />
       <div className="ai-stat-tiles ai-stat-tiles--pair">
         <div className="ai-stat-tile">
-          <span className="ai-stat-label">Hours a week across {headcount}</span>
+          <span className="ai-stat-label">Hours a week back, {headcount} {headcount === 1 ? 'person' : 'people'}</span>
           <strong><RollingNumber value={scaledLow} format={(n) => roundHoursLabel(n)} /> to <RollingNumber value={scaledLikely} format={(n) => roundHoursLabel(n)} /></strong>
         </div>
         <div className="ai-stat-tile">
@@ -349,16 +337,16 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
         </div>
       </div>
 
-      <div className="ai-eq ai-eq--result" role="img" aria-label={`${areaHoursLabel(perPersonLow)} hours a week per person, up to ${areaHoursLabel(perPersonLikely)}, times ${headcount} people, times ${weeks} working weeks, times ${money(rate)} an hour, equals ${money(roundDollars(scaledValueLow))} a year in potential staff time value, up to ${money(roundDollars(scaledValueLikely))}.`}>
+      <div className="ai-eq ai-eq--result" role="img" aria-label={`${areaHoursLabel(perPersonLow)} hours a week saved per person, up to ${areaHoursLabel(perPersonLikely)}, times ${headcount} people saving the same, times ${weeks} working weeks, times ${money(rate)} an hour, equals ${money(roundDollars(scaledValueLow))} a year in potential staff time value, up to ${money(roundDollars(scaledValueLikely))}.`}>
         <div className="ai-term ai-hrs">
           <strong><RollingNumber value={perPersonLow} format={areaHoursLabel} /></strong>
-          <span className="ai-term-unit">hrs/week, per person</span>
+          <span className="ai-term-unit">hrs/week each person saves</span>
           <span className="ai-term-low">up to <RollingNumber value={perPersonLikely} format={areaHoursLabel} /></span>
         </div>
         <div className="ai-op" aria-hidden="true">&times;</div>
         <div className="ai-term">
           <strong><RollingNumber value={headcount} format={(n) => String(Math.round(n))} /></strong>
-          <span className="ai-term-unit">people</span>
+          <span className="ai-term-unit">people saving the same</span>
         </div>
         <div className="ai-op" aria-hidden="true">&times;</div>
         <div className="ai-term">
@@ -377,7 +365,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
           <span className="ai-term-low">up to <RollingNumber value={scaledValueLikely} format={(n) => money(roundDollars(n))} /></span>
         </div>
       </div>
-      <p className="ai-note">An illustration that assumes each person saves about what one person in your answers does. Real results vary by role, and the plan measures what's actually there.</p>
+      <p className="ai-note">An illustration: each of these people saves about the same time as one person in your answers. Real results vary by role, and the plan measures what's actually there.</p>
     </section>
 
     {lookoutCards.length > 0 && <section className="ai-panel ai-lookout-section" aria-labelledby="ai-lookout-title">
@@ -425,7 +413,7 @@ function AreaBarRow({ label, low, likely, max }) {
     <div className="ai-area-bar-row">
       <span className="ai-area-bar-label">{label}</span>
       <div className="ai-area-bar-track"><div className="ai-area-bar-fill" style={{ left: `${lowPct}%`, width: `${Math.max(2, likelyPct - lowPct)}%` }} /></div>
-      <span className="ai-area-bar-value">{areaHoursLabel(low)} to {areaHoursLabel(likely)} hrs/week</span>
+      <span className="ai-area-bar-value">{areaWeeklyLabel(low, likely)}</span>
     </div>
   );
 }

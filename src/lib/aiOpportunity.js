@@ -150,6 +150,14 @@ export const questions = [
     id: 'areas', number: 2, type: 'multi', maxPicks: 6,
     label: 'Where would you most like time back? Pick up to six.',
     options: [...AREAS.map(([v, l], i) => [v, l, i === AREAS.length - 1])],
+    // Category headers (item 45, 2026-09-25) so 19 tiles scan as four short lists. Display only:
+    // option values, labels, order within the stored answer and the rate mapping are unchanged.
+    groups: [
+      { label: 'Writing and replies', values: ['correspondence', 'enquiries', 'writingEditing', 'socialContent', 'proposals'] },
+      { label: 'Meetings, people and scheduling', values: ['meetingNotes', 'caseNotes', 'scheduling', 'hiring', 'staffQuestions'] },
+      { label: 'Documents, data and research', values: ['reports', 'spreadsheets', 'invoicing', 'research', 'findingInfo', 'trainingMaterials', 'policies'] },
+      { label: 'Something else', values: ['otherArea', 'notSureArea'] },
+    ],
   },
   {
     // toolsToday feeds nothing downstream (not read by tailoredLines, crossCuttingCards,
@@ -159,7 +167,7 @@ export const questions = [
     // future change starts reading toolsToday into result copy, map any typed-in value through
     // sanitizeShortText and never surface it as a named tool, matching the areas "Other" pattern.
     id: 'toolsToday', number: 3, type: 'multi',
-    label: 'Which tools does your team use every day? Pick all that apply.',
+    label: 'Which tools does your team use every day? Click all that apply.',
     options: [
       ['m365', 'Microsoft 365'],
       ['google', 'Google Workspace'],
@@ -172,10 +180,15 @@ export const questions = [
       ['toolsOther', 'Other (type your own)'],
       ['notSureTools', 'Not sure', true],
     ],
+    groups: [
+      { label: 'Everyday office tools', values: ['m365', 'google', 'chatVideo', 'designDocs'] },
+      { label: 'Business software', values: ['accounting', 'hrPayroll', 'industry', 'projectMgmt'] },
+      { label: 'Something else', values: ['toolsOther', 'notSureTools'] },
+    ],
   },
   {
     id: 'aiTools', number: 4, type: 'multi',
-    label: 'Which AI tools does your team already use? Pick all that apply.',
+    label: 'Which AI tools does your team already use? Click all that apply.',
     options: [
       ['none', 'None yet', true],
       ['chatgpt', 'ChatGPT'],
@@ -201,7 +214,7 @@ export const questions = [
   },
   {
     id: 'information', number: 5, type: 'multi',
-    label: 'What kinds of information does this work involve? Pick all that apply.',
+    label: 'What kinds of information does this work involve? Click all that apply.',
     options: [
       ['public', 'Public or non-sensitive information'],
       ['internal', 'Internal business information'],
@@ -212,10 +225,16 @@ export const questions = [
       ['legal', 'Legal or investigation material'],
       ['notSureInfo', 'Not sure'],
     ],
+    // A header-less last group keeps "Not sure" after the two named groups.
+    groups: [
+      { label: 'Everyday business information', values: ['public', 'internal'] },
+      { label: 'Personal or sensitive information', values: ['payroll', 'customer', 'health', 'student', 'legal'] },
+      { label: null, values: ['notSureInfo'] },
+    ],
   },
   {
     id: 'protectInfo', number: 6, type: 'multi',
-    label: 'What do you currently do to protect sensitive information? Pick all that apply.',
+    label: 'What do you currently do to protect sensitive information? Click all that apply.',
     options: [
       ['ownDevices', 'Files stay on our own computers or servers'],
       ['googleWorkspace', 'Google Workspace (Drive, Gmail)'],
@@ -227,6 +246,11 @@ export const questions = [
       ['accessControls', 'Access controls or permissions on sensitive files'],
       ['nothingFormal', 'Nothing formal yet', true],
       ['noIdeaProtect', 'I have no idea', true],
+    ],
+    groups: [
+      { label: 'Where your files live', values: ['ownDevices', 'googleWorkspace', 'microsoft365', 'itManaged'] },
+      { label: 'Rules and access', values: ['writtenPolicy', 'staffAsked', 'approvedList', 'accessControls'] },
+      { label: 'Not yet, or not sure', values: ['nothingFormal', 'noIdeaProtect'] },
     ],
   },
   {
@@ -265,7 +289,7 @@ export const questions = [
   },
   {
     id: 'heldBack', number: 10, type: 'multi',
-    label: 'What has held you back so far? Pick all that apply.',
+    label: 'What has held you back so far? Click all that apply.',
     options: [
       ['notSureStart', 'Not sure where to start'],
       ['privacySecurity', 'Privacy or security worries'],
@@ -283,6 +307,9 @@ export const questions = [
       ['keen', 'Mostly keen'],
       ['mixed', 'Mixed'],
       ['worried', 'Mostly worried'],
+      // Added 2026-09-25 (item 49). Reads like "mixed" everywhere downstream: nothing branches
+      // on it, so it changes no tailored line, next step or estimate.
+      ['variesFeel', 'Depends on the day'],
       ['notSureFeel', 'Not sure'],
     ],
   },
@@ -298,8 +325,9 @@ export const questions = [
   },
 ];
 
-// Buckets a question's options for grouped rendering (currently just `aiTools`). Any option not
-// covered by a group's `values` stays in an ungrouped bucket rendered first (e.g. "None yet").
+// Buckets a question's options for grouped rendering. Any option not covered by a group's
+// `values` stays in an ungrouped bucket rendered first (e.g. aiTools' "None yet"); a group with a
+// null label renders its options without a header.
 export function groupedOptions(question) {
   if (!question.groups) return [{ label: null, options: question.options }];
   const grouped = new Set(question.groups.flatMap(g => g.values));
@@ -439,6 +467,23 @@ export function areaHoursRangeLabel(low, likely) {
 // 1; the " to " check short-circuits Number() on a range string (which would otherwise be NaN).
 export function isSingularHourLabel(label) {
   return !label.includes(' to ') && Number(label) === 1;
+}
+// Per-area weekly time, unit included (item 53, 2026-09-25): under an hour reads in whole
+// minutes ("24 to 54 min/week") instead of a fraction of an hour; a range that crosses the hour
+// mark keeps each end in its natural unit ("36 min to 1.1 hrs/week"). Presentation only: the
+// totals and the maths still run in hours.
+export function minutesLabel(n) {
+  return String(Math.max(0, Math.round((Number(n) || 0) * 60)));
+}
+export function areaWeeklyLabel(low, likely) {
+  if (!(likely > 0)) return '0 min/week';
+  if (likely < 1) {
+    const lo = minutesLabel(low), hi = minutesLabel(likely);
+    return lo === hi ? `${hi} min/week` : `${lo} to ${hi} min/week`;
+  }
+  if (low < 1) return `${minutesLabel(low)} min to ${areaHoursLabel(likely)} hrs/week`;
+  const range = areaHoursRangeLabel(low, likely);
+  return `${range} ${isSingularHourLabel(range) ? 'hr' : 'hrs'}/week`;
 }
 export function roundDollars(n) {
   return n > 100000 ? Math.round(n / 1000) * 1000 : Math.round(n / 100) * 100;
