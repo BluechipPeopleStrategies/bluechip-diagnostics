@@ -76,10 +76,10 @@ describe('new offering intake', () => {
     expect(ui.queryByLabelText('Your name')).toBeNull();
     fireEvent.click(ui.getByRole('button', { name: 'The AI Handoff Plan', exact: true }));
     flushBot();
-    fireEvent.click(ui.getByRole('button', { name: 'How does the five-hour guarantee work?' }));
+    fireEvent.click(ui.getByRole('button', { name: 'How does the three-hour guarantee work?' }));
     flushBot();
     expect(document.body.textContent).toContain('evidence-backed potential');
-    expect(document.body.textContent).toContain('not five per person');
+    expect(document.body.textContent).toContain('not three per person');
     expect(document.body.textContent).toContain('no forms, no hoops');
     expect(fetchMock).not.toHaveBeenCalled();
     fireEvent.click(ui.getByRole('button', { name: 'Ask BlueChip about this' }));
@@ -110,7 +110,7 @@ describe('new offering intake', () => {
     expect(document.body.textContent).toContain("The AI Handoff Plan looks at your team's recurring work");
     expect(document.body.textContent).toContain('C$999, taxes included');
     expect(document.body.textContent).toContain("Here's the deal");
-    expect(document.body.textContent).toContain('at least 5 net hours a week of time savings across your organization');
+    expect(document.body.textContent).toContain('at least 3 net hours a week of time savings across your organization');
     expect(document.body.textContent).toContain('your full fee comes back within 10 business days');
     expect(document.body.textContent).toContain('No forms, no hoops');
     expect(document.body.textContent).toContain('The plan is yours to put in place');

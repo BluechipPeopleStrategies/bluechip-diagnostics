@@ -7,6 +7,7 @@ import {
   AREAS, AREA_RATE_MAP, RATE_TABLE, groupedOptions, sanitizeAreaLabel, sanitizeShortText,
   areaLookoutLines, OTHER_AREA_LOOKOUT, crossCuttingCards, nextSteps, ORG_AREA_SUGGESTIONS,
   areaHoursRangeLabel, isSingularHourLabel,
+  GUARANTEE_NET_HOURS, ILLUSTRATION_RATE, ILLUSTRATION_WEEKS,
 } from '../src/lib/aiOpportunity';
 
 describe('range maths', () => {
@@ -479,5 +480,15 @@ describe('Q3 (toolsToday) option list, 2026-09-24 revision', () => {
     expect(tailoredLines(answers)).toEqual([]);
     expect(crossCuttingCards(answers)).toEqual([]);
     expect(nextSteps(answers, null)).toHaveLength(3); // falls back to the generic 3, unaffected
+  });
+});
+
+describe('the guarantee threshold', () => {
+  it('is pinned at 3 net hours a week (Thomas, 2026-09-25), with the C$40 x 48-week illustration unchanged', () => {
+    expect(GUARANTEE_NET_HOURS).toBe(3);
+    expect(ILLUSTRATION_RATE).toBe(40);
+    expect(ILLUSTRATION_WEEKS).toBe(48);
+    expect(GUARANTEE_NET_HOURS * ILLUSTRATION_WEEKS).toBe(144);
+    expect(money(GUARANTEE_NET_HOURS * ILLUSTRATION_WEEKS * ILLUSTRATION_RATE)).toBe('C$5,760');
   });
 });

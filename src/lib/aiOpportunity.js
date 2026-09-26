@@ -123,6 +123,14 @@ export const PEOPLE_MAX = 500;
 export const HOUR_CAP_PER_AREA = 25; // hours a week, one person, per area (the slider's hard max)
 export const HOUR_CAP_TOTAL = 30;    // hours a week, one person, summed across every picked area
 
+// The AI Handoff Plan's guarantee: net hours a week found across the whole organization, or the
+// fee comes back (Thomas, 2026-09-25: lowered from 5 to 3). One source of truth for every
+// comparison and illustration that depends on it.
+export const GUARANTEE_NET_HOURS = 3;
+// The plan page's fixed illustration of what the guarantee is worth (illustrative assumptions).
+export const ILLUSTRATION_RATE = 40;   // C$ an hour in staff cost
+export const ILLUSTRATION_WEEKS = 48;  // working weeks a year
+
 export const questions = [
   {
     id: 'orgType', number: 1, type: 'single',

@@ -5,7 +5,7 @@ import {
   suggestedAreas, AREA_LABELS, lowerFirst, joinList, groupedOptions,
   sanitizeAreaLabel, sanitizeShortText, areaLookoutLines, crossCuttingCards, nextSteps,
   orgSizeMidpoint, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
-  PEOPLE_MAX, areaHoursLabel, areaHoursRangeLabel, isSingularHourLabel } from '../lib/aiOpportunity';
+  PEOPLE_MAX, areaHoursLabel, areaHoursRangeLabel, isSingularHourLabel, GUARANTEE_NET_HOURS } from '../lib/aiOpportunity';
 import { prefersReducedMotion } from '../lib/useRollingNumber';
 import SiteHeader from './SiteHeader';
 import AreaIcon, { CheckCircleIcon } from './AreaIcon';
@@ -269,7 +269,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
         <strong><RollingNumber value={valueLow} format={(n) => money(roundDollars(n))} /> to <RollingNumber value={valueLikely} format={(n) => money(roundDollars(n))} /> <span className="ai-stat-suffix">a year</span></strong>
       </div>
     </div>
-    {likely < 5 && <p className="ai-note ai-under-five">This counts only the people you entered. When several people do the same task, the hours can add up quickly, and the team slider below shows what that looks like.</p>}
+    {likely < GUARANTEE_NET_HOURS && <p className="ai-note ai-under-guarantee">This counts only the people you entered. When several people do the same task, the hours can add up quickly, and the team slider below shows what that looks like.</p>}
 
     <div className="ai-eq ai-eq--result" role="img" aria-label={`${areaHoursLabel(low)} hours a week, up to ${roundHoursLabel(likely)}, times ${weeks} working weeks equals ${roundHoursLabel(low * weeks)} hours a year, up to ${roundHoursLabel(likely * weeks)}. At ${money(rate)} an hour that is ${money(roundDollars(valueLow))} a year in potential staff time value, up to ${money(roundDollars(valueLikely))}.`}>
       <div className="ai-term ai-hrs">
@@ -379,7 +379,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
     <section className="ai-next-step">
       <p>Want to know which tasks and tools could get you there? That's what The AI Handoff Plan works out, measured against your actual work.</p>
       <p><Link className="ai-secondary" to={`/ai-handoff-plan?perPersonHours=${carryHours}&employees=${carryEmployees}`}>See how the plan works</Link></p>
-      <p className="ai-note">At least 5 net hours a week found across your organization, or your fee back.</p>
+      <p className="ai-note">At least 3 net hours a week found across your organization, or your fee back.</p>
     </section>
 
     <details className="ai-disclosure">
