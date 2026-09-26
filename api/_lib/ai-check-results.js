@@ -1,4 +1,4 @@
-/* global process, console */
+/* global process */
 // Free AI Opportunity Check "Email my results" (item 61, 2026-09-25), called from api/submit.js.
 // Lives in _lib (not a Vercel route) and takes the sender as a dependency so it reuses
 // submit.js's Resend call rather than a second copy.
