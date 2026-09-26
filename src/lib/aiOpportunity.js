@@ -682,3 +682,56 @@ export function estimateCapacity({ hours, rate, weeks, people = 1 }) {
   if (![r, w].every(Number.isFinite) || r <= 0 || w <= 0 || t <= 0) return 0;
   return t * r * w;
 }
+
+// Result-page "Your answers" summary (item 61, 2026-09-25), also used by the results email so
+// the two can never disagree. Short row labels, then each picked option's own label. Typed-in
+// text goes through the same sanitizers as everywhere else; unknown values are dropped rather
+// than echoed, so a tampered payload can only ever render real option labels.
+export const SUMMARY_LABELS = {
+  orgType: 'Organization type',
+  areas: 'Where you want time back',
+  toolsToday: 'Everyday tools',
+  aiTools: 'AI tools in use',
+  information: 'Information involved',
+  protectInfo: 'How you protect it',
+  readiness: 'Someone comfortable setting up tools',
+  orgSize: 'People in your organization',
+  owner: 'Who leads changes',
+  heldBack: 'What has held you back',
+  feel: 'How your team feels about AI',
+  timing: 'When you would start',
+};
+
+function clampNumber(n, min, max, fallback) {
+  const v = Number(n);
+  return Number.isFinite(v) ? Math.min(max, Math.max(min, v)) : fallback;
+}
+
+export function answerSummary(answers = {}, { areaInputs = {}, ownerOtherText = '', toolsOtherText = '' } = {}) {
+  return questions.map(q => {
+    const raw = answers[q.id];
+    const labelOf = (val) => q.options.find(o => o[0] === val)?.[1];
+    let items = [];
+    if (q.type === 'multi') {
+      items = (Array.isArray(raw) ? raw : []).map(val => {
+        const base = labelOf(val);
+        if (!base) return null;
+        if (q.id === 'areas') {
+          const inp = areaInputs[val] || {};
+          const hours = clampNumber(inp.hours, 0, HOUR_CAP_PER_AREA, 5);
+          const people = Math.round(clampNumber(inp.people, 0, PEOPLE_MAX, 1));
+          const name = val === 'otherArea' ? sanitizeAreaLabel(inp.label) : base;
+          return `${name} (${hours} ${hours === 1 ? 'hr' : 'hrs'} a week, ${people} ${people === 1 ? 'person' : 'people'})`;
+        }
+        const typed = sanitizeShortText(toolsOtherText);
+        if (val === 'toolsOther' && typed) return `Other: ${typed}`;
+        return base;
+      }).filter(Boolean);
+    } else {
+      const base = labelOf(raw);
+      const typed = sanitizeShortText(ownerOtherText);
+      if (base) items = [raw === 'someoneElse' && typed ? `Someone else: ${typed}` : base];
+    }
+    return { id: q.id, label: SUMMARY_LABELS[q.id] || q.label, items };
+  });
+}

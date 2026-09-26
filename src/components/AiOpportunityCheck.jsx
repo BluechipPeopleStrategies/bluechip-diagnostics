@@ -1,22 +1,30 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
   questions, isComplete, toggleMulti, computeRange, roundHoursLabel, roundDollars, money,
   suggestedAreas, AREA_LABELS, lowerFirst, joinList, groupedOptions,
   sanitizeAreaLabel, sanitizeShortText, areaLookoutLines, crossCuttingCards, nextSteps,
   orgSizeMidpoint, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
-  PEOPLE_MAX, areaHoursLabel, areaWeeklyLabel, GUARANTEE_NET_HOURS } from '../lib/aiOpportunity';
+  PEOPLE_MAX, areaHoursLabel, GUARANTEE_NET_HOURS } from '../lib/aiOpportunity';
 import { prefersReducedMotion } from '../lib/useRollingNumber';
 import { loadCheckSession, saveCheckSession, clearCheckSession } from '../lib/freeCheckSession';
 import SiteHeader from './SiteHeader';
-import AreaIcon, { CheckCircleIcon } from './AreaIcon';
+import AreaIcon from './AreaIcon';
 import AreaHoursInput from './AreaHoursInput';
 import RunningTotal from './RunningTotal';
 import GoldSlider from './GoldSlider';
 import ChipsRow from './ChipsRow';
 import RollingNumber from './RollingNumber';
 import Emblem from './Emblem';
+import HourglassHero from './HourglassHero';
+import { OrgTypeCards, SizeScale, MoodCards, TimingLine } from './ChoiceScales';
+import { TimeBars, LookoutSection, NextStepsSection, ClosingNextStep } from './ResultSections';
+import { AnswersSummary, KeepResults } from './KeepResults';
 import './AiFunnel.css';
+import './FreeCheck.css';
+
+// Single-choice questions that get their own tactile input (items 44 + 50); every other
+// question keeps the tile grid.
+const CHOICE_PRESENTATIONS = { orgType: OrgTypeCards, orgSize: SizeScale, feel: MoodCards, timing: TimingLine };
 
 const LOADING_MESSAGES = [
   'Matching your answers to published studies...',
@@ -117,9 +125,11 @@ export default function AiOpportunityCheck() {
   function goBack() {
     if (qIndex > 0) setQIndex(i => i - 1);
   }
-  function reviewAnswers() {
+  // "Review my answers" starts at question 1; a "Change" link in the answers summary jumps
+  // straight to that question.
+  function reviewAnswers(index = 0) {
     setStep('questions');
-    setQIndex(0);
+    setQIndex(Number.isInteger(index) && index >= 0 && index < questions.length ? index : 0);
   }
 
   const value = answers[question?.id];
@@ -156,7 +166,9 @@ export default function AiOpportunityCheck() {
     </div>;
   }
 
-  return <main className="bc-page ai-funnel">
+  const Presentation = question?.type === 'single' ? CHOICE_PRESENTATIONS[question.id] : null;
+
+  return <main className="bc-page ai-funnel ai-funnel--check">
     <SiteHeader />
 
     {step === 'questions' && <>
@@ -164,11 +176,7 @@ export default function AiOpportunityCheck() {
         <p className="ai-eyebrow ai-intro-eyebrow">Free AI Opportunity Check</p>
         <h1 className="ai-intro-h1" ref={headingRef} tabIndex={-1}>How much time could AI give back to your team?</h1>
         <p className="ai-intro-sub">Find out roughly how many hours a week AI could give your team back. About three minutes, no email.</p>
-        <img className="ai-intro-photo" alt=""
-          src="/img/ai/02-free-check-1600.webp"
-          srcSet="/img/ai/02-free-check-800.webp 800w, /img/ai/02-free-check-1600.webp 1600w"
-          sizes="(max-width: 480px) 45vw, 220px"
-          width="1600" height="1600" loading="lazy" />
+        <HourglassHero />
         <p className="ai-note ai-intro-note">Your answers stay in this browser tab until you close it. Please don't enter confidential information.</p>
       </div>}
 
@@ -179,14 +187,15 @@ export default function AiOpportunityCheck() {
         <fieldset className="ai-stepper-question">
           <legend>{qIndex > 0 && <span className="ai-stepper-count">{qIndex + 1} / {questions.length}</span>} <span ref={qIndex > 0 ? headingRef : null} tabIndex={qIndex > 0 ? -1 : undefined}>{question.label}</span></legend>
 
-          <div className={`ai-options ai-options--tiles ${isAreas ? 'ai-options--areas' : ''} ${isGrouped ? 'ai-options--grouped' : ''}`} onKeyDown={question.type === 'multi' ? handleGridArrowKeys : undefined}>
+          {Presentation && <Presentation question={question} value={value} onSelect={selectSingle} />}
+          {!Presentation && <div className={`ai-options ai-options--tiles ${isAreas ? 'ai-options--areas' : ''} ${isGrouped ? 'ai-options--grouped' : ''}`} onKeyDown={question.type === 'multi' ? handleGridArrowKeys : undefined}>
             {isGrouped
               ? groupedOptions(question).flatMap((bucket, bi) => [
                 bucket.label && <p className="ai-tile-group-label" key={`group-${bi}`}>{bucket.label}</p>,
                 ...bucket.options.map(renderTile),
               ]).filter(Boolean)
               : question.options.map(renderTile)}
-          </div>
+          </div>}
           {isAreas && <p className="ai-note">Each one you pick gets its own hours and people below.</p>}
           {livePreview && <RunningTotal preview={livePreview}
             labelFor={(a) => (a === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[a])} />}
@@ -216,6 +225,7 @@ export default function AiOpportunityCheck() {
     {step === 'loading' && <LoadingScreen messageIndex={loadingMsgIndex} headingRef={headingRef} />}
 
     {step === 'result' && <ResultScreen answers={answers} areaInputs={areaInputs} rate={rate} weeks={weeks}
+      ownerOtherText={ownerOtherText} toolsOtherText={toolsOtherText}
       onRate={setRate} onWeeks={setWeeks} onReview={reviewAnswers} headingRef={headingRef}
       headcount={headcount} onHeadcount={setHeadcount} onStartOver={startOver} />}
   </main>;
@@ -229,15 +239,17 @@ function LoadingScreen({ messageIndex, headingRef }) {
   </div>;
 }
 
-function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onReview, headingRef, headcount: headcountChoice, onHeadcount, onStartOver }) {
+function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onReview, headingRef, headcount: headcountChoice, onHeadcount, onStartOver, ownerOtherText, toolsOtherText }) {
   const rows = (answers.areas || []).map(a => ({ area: a, hours: areaInputs[a]?.hours ?? 5, people: areaInputs[a]?.people ?? 1 }));
   const { low, likely, rows: rowDetail } = computeRange(rows);
   const areas = suggestedAreas(answers.orgType, answers.areas || []);
   const valueLow = low * rate * weeks;
   const valueLikely = likely * rate * weeks;
 
+  const labelFor = (a) => (a === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[a]);
   const areaCards = (answers.areas || []).map(a => ({
-    title: a === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[a],
+    area: a,
+    title: labelFor(a),
     lines: areaLookoutLines(a),
   }));
   const lookoutCards = [...areaCards, ...crossCuttingCards(answers)];
@@ -261,6 +273,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
   const carryEmployees = orgSizeMidpoint(answers.orgSize);
 
   return <>
+    <p className="ai-fc-print-only ai-fc-print-head">BlueChip People Strategies · AI Opportunity Check results, {new Date().toLocaleDateString('en-CA', { dateStyle: 'long' })}</p>
     <p className="ai-eyebrow">Your estimate</p>
     <h1 className="ai-result-headline" ref={headingRef} tabIndex={-1}>
       About <RollingNumber value={low} format={(n) => roundHoursLabel(n)} /> to <RollingNumber value={likely} format={(n) => roundHoursLabel(n)} /> hours a week
@@ -293,6 +306,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
       <div className="ai-op" aria-hidden="true">&times;</div>
       <div className="ai-term ai-term--editable">
         <CompactField value={weeks} onChange={onWeeks} min={20} max={52} suffix="weeks" ariaLabel="Working weeks a year" />
+        <span className="ai-term-unit ai-fc-edit-hint">You can change this</span>
       </div>
       <div className="ai-op" aria-hidden="true">=</div>
       <div className="ai-term ai-hrs">
@@ -303,6 +317,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
       <div className="ai-op" aria-hidden="true">&times;</div>
       <div className="ai-term ai-term--editable">
         <CompactField value={rate} onChange={onRate} min={15} max={250} prefix="C$" suffix="/hr" ariaLabel="Employee cost per hour" />
+        <span className="ai-term-unit ai-fc-edit-hint">You can change this</span>
       </div>
       <div className="ai-op" aria-hidden="true">=</div>
       <div className="ai-term ai-total">
@@ -311,13 +326,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
         <span className="ai-term-low">up to <RollingNumber value={valueLikely} format={(n) => money(roundDollars(n))} /></span>
       </div>
     </div>
-    <p className="ai-note">Time for other work, not a cash saving.</p>
-
-    {rowDetail.length > 0 && <div className="ai-area-breakdown">
-      {rowDetail.map(r => <AreaBarRow key={r.area}
-        label={r.area === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[r.area]}
-        low={r.low} likely={r.likely} max={Math.max(likely, 1) * 1.15} />)}
-    </div>}
+    {rowDetail.length > 0 && <TimeBars rows={rowDetail} max={Math.max(likely, 1) * 1.15} labelFor={labelFor} />}
 
     <section className="ai-panel ai-headcount-section" aria-labelledby="ai-headcount-title">
       <h2 id="ai-headcount-title">What if more of your team saves the same amount of time?</h2>
@@ -368,77 +377,29 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
       <p className="ai-note">An illustration: each of these people saves about the same time as one person in your answers. Real results vary by role, and the plan measures what's actually there.</p>
     </section>
 
-    {lookoutCards.length > 0 && <section className="ai-panel ai-lookout-section" aria-labelledby="ai-lookout-title">
-      <h2 id="ai-lookout-title">Where to look, based on your answers</h2>
-      <div className="ai-lookout-grid">
-        {lookoutCards.map((card, ci) => <div className="ai-lookout-card" key={ci}>
-          <h3>{card.title}</h3>
-          <ul>
-            {card.lines.map((line, li) => <li key={li}><CheckCircleIcon /><span>{line}</span></li>)}
-          </ul>
-        </div>)}
-      </div>
-      {areas.length > 0 && <p className="ai-note ai-lookout-also">Also worth a look: {joinList(areas.map(a => lowerFirst(AREA_LABELS[a])))}.</p>}
-    </section>}
+    {lookoutCards.length > 0 && <LookoutSection cards={lookoutCards}
+      alsoLine={areas.length > 0 ? `Also worth a look: ${joinList(areas.map(a => lowerFirst(AREA_LABELS[a])))}.` : null} />}
 
-    <section className="ai-panel ai-next-steps-section" aria-labelledby="ai-next-steps-title">
-      <h2 id="ai-next-steps-title">Next steps you can take this week</h2>
-      <ol className="ai-next-steps-list">
-        {steps.map((s, si) => <li key={si}><span className="ai-flow-num">{si + 1}</span><span>{s}</span></li>)}
-      </ol>
-      <CopyStepsButton steps={steps} />
-    </section>
+    <NextStepsSection steps={steps} />
 
-    <section className="ai-next-step">
-      <p>Want to know which tasks and tools could get you there? That's what The AI Handoff Plan works out, measured against your actual work.</p>
-      <p><Link className="ai-secondary" to={`/ai-handoff-plan?perPersonHours=${carryHours}&employees=${carryEmployees}`}>See how the plan works</Link></p>
-      <p className="ai-note">At least 3 net hours a week found across your organization, or your fee back.</p>
-    </section>
+    <ClosingNextStep planHref={`/ai-handoff-plan?perPersonHours=${carryHours}&employees=${carryEmployees}`}>
+      <details className="ai-disclosure ai-fc-disclosure">
+        <summary>How this estimate works</summary>
+        <p>For each area you picked, we take the hours one person spends on it each week, multiply by the number of people who do that work, then multiply by the share of that time AI can realistically save. That share comes from published studies of similar work, minus an allowance for checking the tools' work. Where no study matches closely, or you typed your own area, we use our most conservative rate. Then we add the areas together. To keep it realistic, we count at most 25 hours a week per person for any one area, and 30 hours a week per person across all areas. The dollar figure uses the hourly cost and working weeks shown above. It's an estimate, not a promise of results or a cash saving.</p>
+      </details>
+    </ClosingNextStep>
 
-    <details className="ai-disclosure">
-      <summary>How this estimate works</summary>
-      <p>For each area you picked, we take the hours one person spends on it each week, multiply by the number of people who do that work, then multiply by the share of that time AI can realistically save. That share comes from published studies of similar work, minus an allowance for checking the tools' work. Where no study matches closely, or you typed your own area, we use our most conservative rate. Then we add the areas together. To keep it realistic, we count at most 25 hours a week per person for any one area, and 30 hours a week per person across all areas. The dollar figure uses the hourly cost and working weeks shown above. It's an estimate, not a promise of results or a cash saving.</p>
-    </details>
+    <AnswersSummary answers={answers} areaInputs={areaInputs} ownerOtherText={ownerOtherText} toolsOtherText={toolsOtherText} onEdit={onReview} />
 
-    <button type="button" className="ai-secondary" onClick={onReview}>Review my answers</button>
-    <button type="button" className="ai-secondary ai-fc-start-over" onClick={onStartOver}>Start over</button>
+    <KeepResults answers={answers} areaInputs={areaInputs} rate={rate} weeks={weeks} headcount={headcount}
+      ownerOtherText={ownerOtherText} toolsOtherText={toolsOtherText} />
+
+    <div className="ai-fc-result-foot">
+      <button type="button" className="ai-secondary" onClick={() => onReview(0)}>Review my answers</button>
+      <button type="button" className="ai-secondary ai-fc-start-over" onClick={onStartOver}>Start over</button>
+    </div>
     <Emblem slug="ai-opportunity-check" />
   </>;
-}
-
-function AreaBarRow({ label, low, likely, max }) {
-  const lowPct = Math.max(0, Math.min(100, (low / max) * 100));
-  const likelyPct = Math.max(0, Math.min(100, (likely / max) * 100));
-  return (
-    <div className="ai-area-bar-row">
-      <span className="ai-area-bar-label">{label}</span>
-      <div className="ai-area-bar-track"><div className="ai-area-bar-fill" style={{ left: `${lowPct}%`, width: `${Math.max(2, likelyPct - lowPct)}%` }} /></div>
-      <span className="ai-area-bar-value">{areaWeeklyLabel(low, likely)}</span>
-    </div>
-  );
-}
-
-// Copies the 3 next-steps as plain numbered text. Clipboard-write only (never reads). Falls back
-// to a plain message if the clipboard API is unavailable or blocked, rather than failing silently.
-function CopyStepsButton({ steps }) {
-  const [status, setStatus] = useState('idle'); // idle | copied | failed
-  async function copy() {
-    const text = steps.map((s, i) => `${i + 1}. ${s}`).join('\n');
-    try {
-      await navigator.clipboard.writeText(text);
-      setStatus('copied');
-    } catch {
-      setStatus('failed');
-    }
-    setTimeout(() => setStatus('idle'), 2500);
-  }
-  return (
-    <div className="ai-copy-steps">
-      <button type="button" className="ai-secondary" onClick={copy}>Copy these steps</button>
-      {status === 'copied' && <span className="ai-note" role="status">Copied.</span>}
-      {status === 'failed' && <span className="ai-note" role="status">Couldn't copy automatically. Select and copy the text above instead.</span>}
-    </div>
-  );
 }
 
 // A small inline-editable number, used in the equation strips and the tight caption line.
