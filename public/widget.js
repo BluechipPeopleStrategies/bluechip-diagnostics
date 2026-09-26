@@ -37,7 +37,7 @@
     ] },
     { slug: 'free-check', title: 'Free AI Opportunity Check', need: 'Free AI Opportunity Check', url: 'https://bluechip-diagnostics.vercel.app/ai-opportunity-check', link: 'Open the free AI Opportunity Check', answers: [
       ['What does the free check give me?', "Twelve quick questions about your recurring work, about three minutes in all. You'll get a starting range of the hours in play, and the areas where we'd start looking, before deciding whether you want The AI Handoff Plan."],
-      ['Do I need to give my email?', 'No email or contact details are required for the free check. Its answers stay on the page and clear when you reload. Please do not enter confidential information.'],
+      ['Do I need to give my email?', 'No email or contact details are required for the free check. Its answers stay in your browser tab until you close it, unless you choose to email your results to yourself at the end. Please do not enter confidential information.'],
       ['Does the free check prove I will save three hours?', "No. It's a starting estimate from your own answers and published studies, not a plan and not a confirmation of the guarantee. The plan checks your actual work to see where you really land."]
     ] },
     { slug: 'retainers', title: 'Practical AI and/or Embedded HR Retainers', need: 'Practical AI and/or Embedded HR Retainers', url: 'https://www.bluechip-people-strategies.com/embedded-hr-retainers', link: 'Explore Practical AI and/or Embedded HR Retainers', answers: [

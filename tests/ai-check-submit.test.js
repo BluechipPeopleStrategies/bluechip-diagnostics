@@ -130,4 +130,20 @@ describe('cleanAiCheckInput', () => {
     const { html } = buildAiCheckResultsEmail(cleanAiCheckInput({ ...BODY, include: 'answers' }));
     expect(html).not.toMatch(/—/);
   });
+
+  it('the footer names the sender, the mailing address and why this is the only email (E1)', () => {
+    const { html } = buildAiCheckResultsEmail(cleanAiCheckInput(BODY));
+    expect(html).toContain('Thomas Slifka, BlueChip People Strategies');
+    expect(html).toContain('10060 Jasper Ave NW #2020, Edmonton, AB T5J 3R8');
+    expect(html).toContain('You&#39;re getting this because you asked for your AI Opportunity Check results. It&#39;s the only email we&#39;ll send unless you write back.');
+    // the generic diagnostic footer does not also appear
+    expect(html).not.toMatch(/completed a BlueChip diagnostic/);
+  });
+});
+
+describe('shared email layout', () => {
+  it('keeps the default diagnostic footer when no footer is passed', async () => {
+    const { layout } = await import('../api/_emails/_shared.js');
+    expect(layout('<p>x</p>')).toMatch(/completed a BlueChip diagnostic/);
+  });
 });

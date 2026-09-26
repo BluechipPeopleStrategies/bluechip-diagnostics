@@ -167,7 +167,7 @@ export const questions = [
     // future change starts reading toolsToday into result copy, map any typed-in value through
     // sanitizeShortText and never surface it as a named tool, matching the areas "Other" pattern.
     id: 'toolsToday', number: 3, type: 'multi',
-    label: 'Which tools does your team use every day? Click all that apply.',
+    label: 'Which tools does your team use every day? Choose all that apply.',
     options: [
       ['m365', 'Microsoft 365'],
       ['google', 'Google Workspace'],
@@ -188,7 +188,7 @@ export const questions = [
   },
   {
     id: 'aiTools', number: 4, type: 'multi',
-    label: 'Which AI tools does your team already use? Click all that apply.',
+    label: 'Which AI tools does your team already use? Choose all that apply.',
     options: [
       ['none', 'None yet', true],
       ['chatgpt', 'ChatGPT'],
@@ -214,7 +214,7 @@ export const questions = [
   },
   {
     id: 'information', number: 5, type: 'multi',
-    label: 'What kinds of information does this work involve? Click all that apply.',
+    label: 'What kinds of information does this work involve? Choose all that apply.',
     options: [
       ['public', 'Public or non-sensitive information'],
       ['internal', 'Internal business information'],
@@ -234,7 +234,7 @@ export const questions = [
   },
   {
     id: 'protectInfo', number: 6, type: 'multi',
-    label: 'What do you currently do to protect sensitive information? Click all that apply.',
+    label: 'What do you currently do to protect sensitive information? Choose all that apply.',
     options: [
       ['ownDevices', 'Files stay on our own computers or servers'],
       ['googleWorkspace', 'Google Workspace (Drive, Gmail)'],
@@ -289,7 +289,7 @@ export const questions = [
   },
   {
     id: 'heldBack', number: 10, type: 'multi',
-    label: 'What has held you back so far? Click all that apply.',
+    label: 'What has held you back so far? Choose all that apply.',
     options: [
       ['notSureStart', 'Not sure where to start'],
       ['privacySecurity', 'Privacy or security worries'],

@@ -59,6 +59,14 @@ export function cleanAiCheckInput(body = {}) {
   };
 }
 
+// Footer (E1, Thomas 2026-09-26): sender, mailing address, and why this one email arrived.
+export const AI_CHECK_FOOTER_LINES = [
+  'Thomas Slifka, BlueChip People Strategies',
+  '10060 Jasper Ave NW #2020, Edmonton, AB T5J 3R8',
+  "You're getting this because you asked for your AI Opportunity Check results. It's the only email we'll send unless you write back.",
+];
+const FOOTER_HTML = `<div style="font-size:12px;color:#6b6b6b;margin-top:40px;border-top:1px solid #e5e5e5;padding-top:14px;">${AI_CHECK_FOOTER_LINES.map(l => `<p style="margin:0 0 6px;">${esc(l)}</p>`).join('')}</div>`;
+
 const P = 'margin:0 0 14px;';
 const SMALL = 'font-size:13px;color:#6b6b6b;';
 
@@ -105,6 +113,6 @@ export function buildAiCheckResultsEmail(input) {
     <p style="${P}">Want to continue the discussion? Just reply to this email. It comes straight to me.</p>
     <p style="${P}${SMALL}">It's an estimate, not a promise of results or a cash saving.</p>
     <p style="${P}">Thomas</p>
-  `);
+  `, { footerHtml: FOOTER_HTML });
   return { subject: 'Your AI Opportunity Check results', html, resultLabel: headline };
 }

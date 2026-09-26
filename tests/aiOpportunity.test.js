@@ -521,10 +521,10 @@ describe('2026-09-25 polish: grouping, copy, minutes (items 45, 48, 49, 53)', ()
     expect(areas.options.filter(o => o[2]).map(o => o[0])).toEqual(['notSureArea']);
   });
 
-  it('says "Click all that apply" everywhere, never "Pick all that apply"', () => {
+  it('says "Choose all that apply" everywhere, never "Pick" or "Click all that apply" (Q1)', () => {
     const labels = questions.map(q => q.label).join(' ');
-    expect(labels).not.toMatch(/Pick all that apply/);
-    expect(labels.match(/Click all that apply\./g).length).toBe(5);
+    expect(labels).not.toMatch(/(Pick|Click) all that apply/);
+    expect(labels.match(/Choose all that apply\./g).length).toBe(5);
   });
 
   it('adds "Depends on the day" to the team-feeling question without touching the other values', () => {

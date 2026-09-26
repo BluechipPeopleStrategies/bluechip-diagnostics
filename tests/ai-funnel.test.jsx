@@ -53,7 +53,7 @@ describe('the free check stepper', () => {
   it('is 12 questions, with no mention of the plan, price or guarantee before the result', () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     expect(screen.getByText('How much time could AI give back to your team?')).toBeInTheDocument();
-    expect(screen.getByText('Find out roughly how many hours a week AI could give your team back. About three minutes, no email.')).toBeInTheDocument();
+    expect(screen.getByText('Find out roughly how many hours a week AI could give your team back. About three minutes. No email needed.')).toBeInTheDocument();
     expect(screen.getByText('Question 1 of 12. 0 of 12 completed.')).toBeInTheDocument();
     // Scoped to the stepper content, not the shared SiteHeader nav (which always names the
     // plan as a navigation link -- that's wayfinding, not sales copy).
@@ -460,7 +460,7 @@ describe('the free check stepper', () => {
       if (q.id === 'protectInfo') break;
       await answerCurrentQuestion(container, q.id, READY[q.id], false);
     }
-    expect(screen.getByText('What do you currently do to protect sensitive information? Click all that apply.')).toBeInTheDocument();
+    expect(screen.getByText('What do you currently do to protect sensitive information? Choose all that apply.')).toBeInTheDocument();
   });
 
   it('the area-hours slider shows tick marks at 0/5/10/15/20/25 and its max stays 25, not 20', async () => {
