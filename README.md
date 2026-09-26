@@ -47,6 +47,17 @@ See `docs/authoring-standards.md` for the voice rules and quality bar that gover
 
 Vercel-connected to the `main` branch of this repo. Env var `VITE_FORMSPREE_DIAGNOSTICS_ENDPOINT` is set in Vercel project settings.
 
+## Follow-up emails and the Cal.com webhook (`/api/cal-webhook`)
+
+A scored diagnostic schedules a 24h nudge in Resend (`scheduled_at`). When the lead books
+a Clarity Call, Cal.com's `BOOKING_CREATED` webhook pages through Resend's List Emails
+endpoint (last 50 hours) and cancels every still-scheduled BlueChip follow-up addressed to
+the booker's email (`api/_lib/followups.js`). A `BOOKING_CANCELLED` whose booking notes carry
+`Diagnostic: <id>` (prefilled by every BlueChip booking link) schedules a +48h follow-up,
+unless one is already pending. No Notion, no stored ids. Needs `RESEND_API_KEY`,
+`BLUECHIP_FROM_EMAIL`, `CAL_BOOKING_URL`, and `CAL_WEBHOOK_SECRET` (set it: without it the
+webhook accepts unsigned requests).
+
 ## Lead chat widget (`/api/lead`)
 
 The BlueChip site footer widget POSTs `{ name, need, contact, source, company }`

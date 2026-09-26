@@ -4,7 +4,7 @@ import { EventEmitter } from 'events';
 import submitHandler from '../api/submit.js';
 import contactHandler from '../api/contact.js';
 import leadHandler from '../api/lead.js';
-import calWebhookHandler from '../api/cal-webhook.js';
+import calWebhookHandler, { parseBookingNotes } from '../api/cal-webhook.js';
 import { buildLeadDataBlock, parseLeadDataBlock } from '../api/_emails/lead-data.js';
 import { buildLeadNotificationEmail } from '../api/_emails/lead-notification.js';
 import { buildContactNotificationEmail } from '../api/_emails/contact-notification.js';
@@ -26,8 +26,6 @@ function mockRes() {
 }
 
 const resendCalls = () => global.fetch.mock.calls.filter(c => String(c[0]).includes('resend')).map(c => JSON.parse(c[1].body));
-const notionWrites = () =>
-  global.fetch.mock.calls.filter(c => String(c[0]).includes('notion') && !String(c[0]).endsWith('/query'));
 
 function okFetch(json = { id: 'x' }) {
   return vi.fn(async () => ({ ok: true, status: 200, text: async () => '', json: async () => json }));
@@ -167,48 +165,161 @@ describe('contact and chat endpoints: no Notion row', () => {
   });
 });
 
-describe('cal-webhook: reads legacy Notion rows, never writes', () => {
-  function calReq(event) {
+describe('cal-webhook: pending follow-ups found and cancelled in Resend, Notion never touched', () => {
+  function calReq(event, headers = {}) {
     const req = new EventEmitter();
     req.method = 'POST';
-    req.headers = {};
+    req.headers = headers;
     setTimeout(() => { req.emit('data', Buffer.from(JSON.stringify(event))); req.emit('end'); }, 0);
     return req;
   }
-  const legacyRow = {
-    id: 'page_1',
-    properties: {
-      Email: { email: 'old@x.ca' }, Name: { title: [{ text: { content: 'Old Lead' } }] },
-      'Nudge Email ID': { rich_text: [{ text: { content: 'nudge_1' } }] },
-    },
-  };
+  const HOUR = 60 * 60 * 1000;
+  // Resend's created_at format, e.g. "2026-04-03 22:13:42.674981+00".
+  const ago = (h) => new Date(Date.now() - h * HOUR).toISOString().replace('T', ' ').replace('Z', '+00');
+  const sent = (over) => ({
+    id: 'e_x', to: ['lead@x.ca'], from: 'BlueChip <hi@bc.ca>', subject: 'Following up on your Org Pulse result',
+    created_at: ago(2), last_event: 'scheduled', scheduled_at: 'soon', ...over,
+  });
 
-  it('BOOKING_CREATED for a legacy lead cancels its pending nudge without patching Notion', async () => {
-    global.fetch = okFetch({ results: [legacyRow] });
+  // Fake Resend: GET /emails serves `pages` in order (cursor = last id of the page),
+  // POST /emails/:id/cancel and POST /emails (schedule) succeed. Every call is recorded.
+  function resendFake(pages) {
+    return vi.fn(async (url, init = {}) => {
+      const u = new URL(String(url));
+      const method = init.method || 'GET';
+      if (u.hostname === 'api.resend.com' && u.pathname === '/emails' && method === 'GET') {
+        const after = u.searchParams.get('after');
+        const idx = after ? pages.findIndex(p => p.length && p[p.length - 1].id === after) + 1 : 0;
+        const data = pages[idx] || [];
+        return { ok: true, status: 200, text: async () => '', json: async () => ({ object: 'list', has_more: idx < pages.length - 1, data }) };
+      }
+      return { ok: true, status: 200, text: async () => '', json: async () => ({ id: 'scheduled_1' }) };
+    });
+  }
+  const cancels = () => global.fetch.mock.calls
+    .map(c => String(c[0]).match(/^https:\/\/api\.resend\.com\/emails\/([^/]+)\/cancel$/))
+    .filter(Boolean).map(m => decodeURIComponent(m[1]));
+  const schedules = () => global.fetch.mock.calls
+    .filter(c => String(c[0]) === 'https://api.resend.com/emails' && c[1]?.method === 'POST')
+    .map(c => JSON.parse(c[1].body));
+  const notionCalls = () => global.fetch.mock.calls.filter(c => String(c[0]).includes('notion'));
+
+  it('BOOKING_CREATED cancels every pending BlueChip follow-up addressed to the booker, and nothing else', async () => {
+    global.fetch = resendFake([[
+      sent({ id: 'nudge_1' }),
+      sent({ id: 'cfu_1', subject: 'About your cancelled Clarity Call', created_at: ago(30) }),
+      sent({ id: 'delivered_1', last_event: 'delivered' }),
+      sent({ id: 'other_person', to: ['someone@else.ca'] }),
+      sent({ id: 'other_sender', from: 'x@evil.ca' }),
+      sent({ id: 'other_subject', subject: 'Your registration' }),
+      sent({ id: 'group', to: ['lead@x.ca', 'b@x.ca'] }),
+    ]]);
     const res = mockRes();
-    await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_CREATED', payload: { uid: 'u1', attendees: [{ email: 'old@x.ca' }] } }), res);
+    await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_CREATED', payload: { uid: 'u1', attendees: [{ email: 'Lead@X.ca ' }] } }), res);
     expect(res.statusCode).toBe(200);
-    expect(res.body).toMatchObject({ matched: true, nudgeCancelled: true });
-    expect(notionWrites()).toHaveLength(0);
-    expect(global.fetch.mock.calls.some(c => String(c[0]).includes('/emails/nudge_1/cancel'))).toBe(true);
+    expect(res.body).toMatchObject({ ok: true, pendingFound: 2, cancelled: 2, searchComplete: true });
+    expect(cancels().sort()).toEqual(['cfu_1', 'nudge_1']);
+    expect(notionCalls()).toHaveLength(0);
   });
 
-  it('BOOKING_CREATED for an unknown attendee creates no Notion row', async () => {
-    global.fetch = okFetch({ results: [] });
+  it('BOOKING_CREATED pages back through the lookback window and stops once a page is older', async () => {
+    const filler = (n, h) => Array.from({ length: n }, (_, i) => sent({ id: `f${h}_${i}`, to: ['z@z.ca'], created_at: ago(h) }));
+    global.fetch = resendFake([
+      filler(3, 1),
+      [sent({ id: 'nudge_2nd_page', created_at: ago(20) }), ...filler(2, 20)],
+      filler(3, 80),
+      [sent({ id: 'never_reached', created_at: ago(90) })],
+    ]);
     const res = mockRes();
-    await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_CREATED', payload: { uid: 'u2', attendees: [{ email: 'new@x.ca' }] } }), res);
-    expect(res.body).toMatchObject({ ok: true, matched: false });
-    expect(notionWrites()).toHaveLength(0);
+    await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_CREATED', payload: { attendees: [{ email: 'lead@x.ca' }] } }), res);
+    expect(cancels()).toEqual(['nudge_2nd_page']);
+    const listCalls = global.fetch.mock.calls.filter(c => String(c[0]).startsWith('https://api.resend.com/emails?'));
+    expect(listCalls).toHaveLength(3);
   });
 
-  it('BOOKING_CANCELLED and BOOKING_RESCHEDULED write nothing to Notion', async () => {
-    global.fetch = okFetch({ results: [legacyRow], id: 'followup_1' });
-    const res1 = mockRes();
-    await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_CANCELLED', payload: { uid: 'u1' } }), res1);
-    expect(res1.body).toMatchObject({ cancelled: true, followupScheduled: true });
-    const res2 = mockRes();
-    await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_RESCHEDULED', payload: { uid: 'u3', rescheduleUid: 'u1' } }), res2);
-    expect(res2.body).toMatchObject({ ok: true, rescheduled: true });
-    expect(notionWrites()).toHaveLength(0);
+  it('forged or missing data does nothing harmful', async () => {
+    global.fetch = resendFake([[sent({ id: 'nudge_1' })]]);
+    // No attendee email: no lookup, no cancel.
+    const r1 = mockRes();
+    await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_CREATED', payload: { uid: 'u1' } }), r1);
+    expect(r1.body).toMatchObject({ error: 'missing_attendee_email' });
+    // Something that is not an address is refused.
+    const r2 = mockRes();
+    await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_CREATED', payload: { attendees: [{ email: '*' }] } }), r2);
+    expect(r2.body).toMatchObject({ error: 'missing_attendee_email' });
+    // Cancelled booking without a known diagnostic in the notes: no follow-up.
+    const r3 = mockRes();
+    await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_CANCELLED', payload: { attendees: [{ email: 'lead@x.ca' }], responses: { notes: { value: 'Diagnostic: not-a-real-one | Total: 42/100' } } } }), r3);
+    expect(r3.body).toMatchObject({ followupScheduled: false, reason: 'no_diagnostic_context' });
+    // Cancelled booking with no email at all.
+    const r4 = mockRes();
+    await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_CANCELLED', payload: { additionalNotes: 'Diagnostic: dqi' } }), r4);
+    expect(r4.body).toMatchObject({ followupScheduled: false, reason: 'missing_attendee_email' });
+    expect(cancels()).toHaveLength(0);
+    expect(schedules()).toHaveLength(0);
+    expect(notionCalls()).toHaveLength(0);
+  });
+
+  it('rejects a webhook with a bad signature when CAL_WEBHOOK_SECRET is set', async () => {
+    process.env.CAL_WEBHOOK_SECRET = 'whsec_test';
+    try {
+      global.fetch = resendFake([[sent({ id: 'nudge_1' })]]);
+      const res = mockRes();
+      await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_CREATED', payload: { attendees: [{ email: 'lead@x.ca' }] } }, { 'x-cal-signature-256': 'deadbeef' }), res);
+      expect(res.statusCode).toBe(401);
+      expect(global.fetch).not.toHaveBeenCalled();
+    } finally {
+      delete process.env.CAL_WEBHOOK_SECRET;
+    }
+  });
+
+  it('BOOKING_CANCELLED schedules the +48h follow-up from the booking notes, HTML-escaped', async () => {
+    global.fetch = resendFake([[]]);
+    const res = mockRes();
+    const before = Date.now();
+    await calWebhookHandler(calReq({
+      triggerEvent: 'BOOKING_CANCELLED',
+      payload: {
+        uid: 'u9',
+        attendees: [{ name: '<img src=x>Pat Lee', email: 'lead@x.ca' }],
+        responses: { notes: { value: 'Diagnostic: org-pulse | Result: Exposed | Total: 42/100' } },
+      },
+    }), res);
+    expect(res.body).toMatchObject({ ok: true, event: 'BOOKING_CANCELLED', followupScheduled: true });
+    const [email] = schedules();
+    expect(email.to).toBe('lead@x.ca');
+    expect(email.subject).toBe('About your cancelled Clarity Call');
+    expect(email.html).not.toContain('<img');
+    const at = Date.parse(email.scheduled_at);
+    expect(at - before).toBeGreaterThanOrEqual(48 * HOUR - 1000);
+    expect(at - before).toBeLessThanOrEqual(48 * HOUR + 60000);
+    expect(notionCalls()).toHaveLength(0);
+  });
+
+  it('BOOKING_CANCELLED reads additionalNotes too, and never stacks a second pending follow-up', async () => {
+    global.fetch = resendFake([[sent({ id: 'cfu_1', subject: 'About your cancelled Clarity Call' })]]);
+    const res = mockRes();
+    await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_CANCELLED', payload: { attendees: [{ email: 'lead@x.ca' }], additionalNotes: 'Diagnostic: dqi | Tier: uneven' } }), res);
+    expect(res.body).toMatchObject({ followupScheduled: false, reason: 'already_pending' });
+    expect(schedules()).toHaveLength(0);
+  });
+
+  it('BOOKING_RESCHEDULED does nothing and touches no Notion', async () => {
+    global.fetch = resendFake([[]]);
+    const res = mockRes();
+    await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_RESCHEDULED', payload: { uid: 'u3', rescheduleUid: 'u1' } }), res);
+    expect(res.body).toMatchObject({ ok: true, rescheduled: true });
+    expect(global.fetch).not.toHaveBeenCalled();
+  });
+});
+
+describe('parseBookingNotes', () => {
+  it('whitelists the diagnostic and clamps the rest', () => {
+    expect(parseBookingNotes('Diagnostic: org-pulse | Tier: exposed | Total: 42/100')).toEqual({ diagnosticId: 'org-pulse', bandLabel: 'exposed', total: 42 });
+    expect(parseBookingNotes('Diagnostic: dqi | Result: Solid <b>x</b> | Total: 999/100')).toEqual({ diagnosticId: 'dqi', bandLabel: 'Solid bxb', total: null });
+    expect(parseBookingNotes('Diagnostic: __proto__')).toBeNull();
+    expect(parseBookingNotes('Diagnostic: toString')).toBeNull();
+    expect(parseBookingNotes('I just want to chat')).toBeNull();
+    expect(parseBookingNotes('')).toBeNull();
   });
 });
