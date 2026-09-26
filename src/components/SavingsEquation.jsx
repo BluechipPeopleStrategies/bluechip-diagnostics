@@ -2,6 +2,7 @@ import { useState } from 'react';
 import GoldSlider from './GoldSlider';
 import ChipsRow from './ChipsRow';
 import RollingNumber from './RollingNumber';
+import GlassPanel from './glass/GlassPanel';
 import { teamHours, estimateCapacity, formatHours, money, roundDollars, GUARANTEE_NET_HOURS, ILLUSTRATION_RATE, ILLUSTRATION_WEEKS } from '../lib/aiOpportunity';
 
 // The guarantee illustration, derived from the one guarantee constant so the figures can't drift:
@@ -30,7 +31,8 @@ export default function SavingsEquation({ defaultPerPersonHours = 1, defaultEmpl
   const value = estimateCapacity({ hours, rate, weeks, people: employees });
 
   return (
-    <section className="ai-save" aria-labelledby="ai-save-title">
+    <GlassPanel as="section" className="ai-save glass-panel" aria-labelledby="ai-save-title"
+      plasma={{ radius: 20, tint: '#0E2140', opacity: 0.6, elevation: 0.5 }}>
       <p className="ai-eyebrow" id="ai-save-title">What three hours a week adds up to</p>
       <div className="ai-eq" role="img" aria-label={`${G_HOURS} net hours a week times ${ILLUSTRATION_WEEKS} working weeks equals ${G_YEAR_HOURS} hours a year; at ${money(ILLUSTRATION_RATE)} an hour that is ${G_YEAR_VALUE} a year in potential staff capacity.`}>
         <div className="ai-term ai-hrs"><strong>{G_HOURS}</strong><span>net hours a week</span></div>
@@ -97,6 +99,6 @@ export default function SavingsEquation({ defaultPerPersonHours = 1, defaultEmpl
         That's <b><RollingNumber value={weekly} format={formatHours} /> a week</b> across your team, or <b><RollingNumber value={yearly} format={formatHours} /> a year</b>.
       </p>
       <p className="ai-note">This is an illustration based on your numbers, not a savings estimate or a guaranteed cash saving. Your team implements the recommendations and covers any implementation costs.</p>
-    </section>
+    </GlassPanel>
   );
 }

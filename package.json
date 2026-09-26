@@ -14,6 +14,7 @@
     "audit:layout:selftest": "node --test scripts/layout-audit/selftest.mjs"
   },
   "dependencies": {
+    "@cruxgarden/plasma-ui": "0.7.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.15.0"
