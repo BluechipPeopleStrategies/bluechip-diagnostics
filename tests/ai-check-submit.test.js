@@ -1,3 +1,4 @@
+/* global process, global */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import handler from '../api/submit.js';
 import { cleanAiCheckInput, buildAiCheckResultsEmail } from '../api/_emails/ai-opportunity-check.js';
