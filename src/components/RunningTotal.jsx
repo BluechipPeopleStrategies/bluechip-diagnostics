@@ -13,7 +13,7 @@ export default function RunningTotal({ preview, labelFor }) {
         <span className="ai-fc-tally-kicker" aria-hidden="true">Running total</span>
         <p className="ai-live-preview ai-fc-tally-total">
           About <strong className="ai-fc-tally-figure"><RollingNumber value={preview.low} format={areaHoursLabel} /> to <RollingNumber value={preview.likely} format={areaHoursLabel} /></strong> hours a week{' '}
-          <span className="ai-fc-tally-for">back for the work that matters most.</span>
+          <span className="ai-fc-tally-for">you could get back for the work that matters most.</span>
         </p>
       </div>
       <ul className="ai-fc-tally-rows">

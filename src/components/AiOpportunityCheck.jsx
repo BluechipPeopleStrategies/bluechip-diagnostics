@@ -178,7 +178,7 @@ export default function AiOpportunityCheck() {
         <h1 className="ai-intro-h1" ref={headingRef} tabIndex={-1}>How much time could AI give back to your team?</h1>
         <p className="ai-intro-sub">Find out roughly how many hours a week AI could give your team back. About three minutes, no email.</p>
         <HourglassHero />
-        <p className="ai-note ai-intro-note">Your answers stay in this browser tab until you close it. Please don't enter confidential information.</p>
+        <p className="ai-note ai-intro-note">Your answers stay in this browser tab until you close it, unless you choose to email them to yourself at the end. Please don't enter confidential information.</p>
       </div>}
 
       <div className="ai-stepper">
