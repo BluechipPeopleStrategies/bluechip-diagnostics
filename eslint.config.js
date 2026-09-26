@@ -18,4 +18,14 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  // Vercel serverless functions and the test runner execute under Node, not a browser -- they
+  // reference process/Buffer/global directly, same as every existing api/*.js and tests/*.js
+  // file already does. This was previously uncovered by any globals set (no-undef errors were
+  // already present on every file in both directories before this override was added).
+  {
+    files: ['api/**/*.js', 'tests/**/*.js'],
+    languageOptions: {
+      globals: { ...globals.node, ...globals.browser },
+    },
+  },
 ])
