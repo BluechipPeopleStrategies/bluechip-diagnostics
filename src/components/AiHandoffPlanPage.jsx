@@ -19,9 +19,9 @@ import './AiHandoffGlass.css';
 const FLOW_STEPS = [
   { time: '60 minutes', name: 'Discovery', Icon: DiscoveryIcon, youGet: 'a review of your actual work, covering tasks, handoffs, tools and people.' },
   { time: 'Organization-wide', name: 'Opportunity scan', Icon: ScanIcon, youGet: 'a time-savings breakdown, net of checking and upkeep. Shared work counts once.' },
-  { time: 'Key workflows', name: 'Walkthrough', Icon: RouteIcon, youGet: "your key workflows talked through, with where AI fits and where it doesn't." },
+  { time: 'Key workflows', name: 'Walkthrough', Icon: RouteIcon, youGet: "your key workflows talked through, with where AI fits and where it doesn't, and a first step for each." },
   { time: 'Within 5 business days', name: 'Written plan', Icon: PlanDocIcon, youGet: 'a prioritized tool roadmap (what to use, why, the alternatives), plus costs, setup effort and what information can safely go into which tool.', key: true },
-  { time: '30 minutes', name: 'Findings call', Icon: CallIcon, youGet: 'a walkthrough together. The plan is yours to keep.' },
+  { time: '30 minutes', name: 'Findings call', Icon: CallIcon, youGet: "a walkthrough together, ending with the one recommendation we'd start with. The plan is yours to keep." },
 ];
 
 // Where the plan sits in the whole journey. Every node says in words whether it is free, the
@@ -123,7 +123,7 @@ export default function AiHandoffPlanPage() {
               <h2 id="ai-price-title">C$999, taxes included</h2>
               <div className="ai-guarantee-band">
                 <p className="ai-guarantee-headline">We'll find at least 3 net hours a week of AI time savings, or your fee back.</p>
-                <p className="ai-guarantee-support">If the plan can't find tools with evidence-backed potential to save at least 3 net hours a week across your organization, your full fee comes back within 10 business days, no forms, no hoops.</p>
+                <p className="ai-guarantee-support">If the plan can't find tools with evidence-backed potential to save at least 3 net hours a week across your organization, your full fee comes back within 10 business days of your findings call, no forms, no hoops.</p>
               </div>
               <p>If you cancel before your discovery session, and before any work on your plan has begun, we refund your full fee. See the <a href="https://www.bluechip-people-strategies.com/refund">Refund Policy</a> for how refunds work.</p>
               <p className="ai-cta-row"><a className="ai-button" href="#chat?topic=ai-handoff-plan">Start the conversation</a></p>
@@ -202,10 +202,10 @@ export default function AiHandoffPlanPage() {
       </section>
 
       <GlassPanel className="glass-panel glass-faq" plasma={{ radius: 18, opacity: 0.5 }}>
-        <details><summary>Look inside the plan</summary><p>Illustrative structure, not a client result.</p><ol><li>Current workflow and evidence</li><li>Recommended tool and alternatives</li><li>Baseline time, expected review time and net savings</li><li>Costs, permissions and setup effort</li><li>Your key workflows talked through, with where AI fits and where it doesn't</li></ol><p>No savings figure is assigned until the actual work has been assessed.</p></details>
+        <details><summary>Look inside the plan</summary><p>Illustrative structure, not a client result.</p><ol><li>Current workflow and evidence</li><li>Recommended tool and alternatives</li><li>Baseline time, expected review time and net savings</li><li>Costs, permissions and setup effort</li><li>Your key workflows talked through, with where AI fits and where it doesn't, and a first step for each</li><li>The one recommendation to start with</li></ol><p>No savings figure is assigned until the actual work has been assessed.</p></details>
         {/* FAQ answers below are drafted verbatim per Thomas, 2026-09-24, and still need an Infy pass before this page goes live -- see the PR description. */}
         <details><summary>Does the guarantee mean three hours for every employee?</summary><p>No. The guarantee is three net hours a week across your whole organization, from one opportunity or several. But savings can multiply: when several people do the same kind of work, a change that saves one person an hour a week can save each of them about that much. That's why the plan counts the people doing each task, not just the task.</p></details>
-        <details><summary>Do you set the tools up for us?</summary><p>Not as part of the plan itself. The plan gives you the tools and the setup steps. If you go further with us, yes. In an Implementation Sprint we set up a workflow from the plan with your team. On a Practical AI Retainer we handle the setup, then keep the tools tuned and updated as the software changes. Software licences and any installs your IT team needs to do stay with you.</p></details>
+        <details><summary>Do you set the tools up for us?</summary><p>Not as part of the plan itself. The plan gives you the tools and the setup steps. If you go further with us, yes. In an Implementation Sprint we set up the first workflow your plan recommends, with your team. On a Practical AI Retainer we handle the setup, then keep the tools tuned and updated as the software changes. Software licences and any installs your IT team needs to do stay with you.</p></details>
         <details><summary>Do I need to buy ongoing support?</summary><p>No. A retainer isn't required to keep your plan or to qualify for the refund. Going without one is the right choice if you'd rather move the plan forward yourselves. If you want a hand later, an Implementation Sprint or a retainer is there when you need it.</p></details>
       </GlassPanel>
 

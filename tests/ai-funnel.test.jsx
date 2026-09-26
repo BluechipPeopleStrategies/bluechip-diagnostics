@@ -602,7 +602,7 @@ describe('the AI Handoff Plan page', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
     expect(screen.getByRole('heading', { name: 'The AI Handoff Plan', level: 1 })).toBeInTheDocument();
     expect(screen.getByText('C$999, taxes included')).toBeInTheDocument();
-    expect(screen.getByText(/your full fee comes back within 10 business days, no forms, no hoops/)).toBeInTheDocument();
+    expect(screen.getByText(/your full fee comes back within 10 business days of your findings call, no forms, no hoops/)).toBeInTheDocument();
     expect(screen.queryByText(/claim window|within 7 days/i)).not.toBeInTheDocument();
   });
 
@@ -683,6 +683,12 @@ describe('the AI Handoff Plan page', () => {
     expect(screen.getAllByText(/key workflows talked through, with where AI fits and where it doesn't/).length).toBeGreaterThan(0);
     expect(container.textContent).not.toMatch(/redesign/i);
     expect(document.querySelector('meta[name="description"]').getAttribute('content')).not.toMatch(/redesign/i);
+  });
+
+  it('keeps a first step per workflow and one recommendation to start with (panel condition, 2026-09-25)', () => {
+    const { container } = render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
+    expect(container.textContent).toMatch(/a first step for each/);
+    expect(container.textContent).toMatch(/one recommendation (we'd start with|to start with)/);
   });
 
   it('draws where the plan fits as four labelled nodes, with free and optional stated in words', () => {

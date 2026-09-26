@@ -176,10 +176,15 @@ html, body {
 .bc-site-header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40;
   background: rgba(8, 20, 40, .82); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--v-line);
-  /* Bleed out of .ai-funnel's own padding so the bar spans full width, then reapply the same
-     padding inside .bc-site-header-inner. */
-  margin: -48px calc(-1 * clamp(20px, 5vw, 72px)) 32px; }
-.bc-site-header-inner { max-width: 1080px; margin: 0 auto; padding: 12px clamp(20px, 5vw, 72px);
+  margin: 0 0 32px; }
+/* Only .ai-funnel pages pad their <main>, so only there does the bar bleed out of that padding to
+   span full width. A page with no padding of its own (/lunch, /lunch/live) keeps margin 0: the old
+   unconditional negative margin pushed the logo flush against the phone's left edge and added
+   sideways scroll there (consistency review, 2026-09-25). */
+.ai-funnel > .bc-site-header { margin: -48px calc(-1 * clamp(20px, 5vw, 72px)) 32px; }
+/* Same gutter as the page, and never under a notch in landscape (viewport-fit=cover). */
+.bc-site-header-inner { max-width: 1080px; margin: 0 auto;
+  padding: 12px max(clamp(20px, 5vw, 72px), env(safe-area-inset-right, 0px)) 12px max(clamp(20px, 5vw, 72px), env(safe-area-inset-left, 0px));
   display: flex; align-items: center; gap: 20px; }
 .bc-site-header-logo { display: block; line-height: 0; flex: none; }
 .bc-site-header-logo img { height: 26px; width: auto; display: block; }
