@@ -65,7 +65,7 @@ export function QrCard() {
     <figure className="ai-fc-qr">
       <span className="ai-fc-qr-tile"><img src="/img/ai/qr-continue-discussion.svg" alt="QR code that opens a chat with BlueChip" width="41" height="41" /></span>
       <figcaption>
-        <strong>Want to continue the discussion or explore further?</strong>
+        <strong>Want to continue the discussion?</strong>
         <span>Scan to start a chat with BlueChip, or visit <a href={CONTINUE_URL}>{CONTINUE_URL_SHORT}</a>.</span>
       </figcaption>
     </figure>
@@ -145,10 +145,10 @@ function EmailResultsForm({ answers, areaInputs, rate, weeks, headcount, ownerOt
           </button>
         </div>
       )}
-      <p className="ai-note ai-fc-email-fine">One email with your results, and no auto-sequence. Your address comes to BlueChip so Thomas can reply if you write back.</p>
+      <p className="ai-note ai-fc-email-fine">You'll get one email with your results and nothing after it, unless you write back. Your email address comes to Thomas so he can reply if you do.</p>
       <div role="status" className="ai-fc-email-status">
-        {status === 'sent' && <p className="ai-fc-email-ok"><span aria-hidden="true">&#10003;</span> Sent to {sentTo}. Check your inbox in a minute or two.</p>}
-        {status === 'sentNoEmail' && <p className="ai-fc-email-warn">We got your request, but the email didn't go through. Write to thomas@bluechip-people-strategies.com and we'll send your results.</p>}
+        {status === 'sent' && <p className="ai-fc-email-ok"><span aria-hidden="true">&#10003;</span> Sent to {sentTo}. It should arrive in a minute or two. If it doesn't, check your spam or junk folder.</p>}
+        {status === 'sentNoEmail' && <p className="ai-fc-email-warn">Sorry, the email didn't go through. Your results are still on this page, so you can print them now, or write to thomas@bluechip-people-strategies.com and Thomas will send them.</p>}
         {status === 'error' && <p className="ai-fc-email-warn">Something went wrong. Try again, or write to thomas@bluechip-people-strategies.com.</p>}
       </div>
     </form>

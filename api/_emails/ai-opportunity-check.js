@@ -11,7 +11,6 @@ import {
 // text to an arbitrary address. Typed-in text (the "Other" labels) is sanitized, capped at 60
 // characters and HTML-escaped.
 const PLAN_URL = 'https://bluechip-diagnostics.vercel.app/ai-handoff-plan';
-const CHAT_URL = 'https://www.bluechip-people-strategies.com/?utm_source=ai-check-email#chat';
 
 function esc(s) {
   return String(s ?? '')
@@ -93,7 +92,7 @@ export function buildAiCheckResultsEmail(input) {
 
   const html = layout(`
     <p style="${P}">Hi there,</p>
-    <p style="${P}">Here are the results from your AI Opportunity Check.</p>
+    <p style="${P}">Thanks for taking the AI Opportunity Check. Here are your results.</p>
     <p style="margin:0 0 4px;font-size:24px;font-weight:bold;">${esc(headline)}</p>
     <p style="${P}${SMALL}">across the areas you picked</p>
     <ul style="padding-left:20px;${P}">${areaList}</ul>
@@ -103,7 +102,7 @@ export function buildAiCheckResultsEmail(input) {
     <ol style="padding-left:20px;${P}">${stepList}</ol>
     ${answersBlock}
     <p style="margin:24px 0 14px;">Want to know which tasks and tools could get you there? That's what The AI Handoff Plan works out, measured against your actual work. <a href="${PLAN_URL}" style="color:#1a1a1a;text-decoration:underline;">See how the plan works</a>.</p>
-    <p style="${P}">Want to continue the discussion? Just reply to this email, or <a href="${CHAT_URL}" style="color:#1a1a1a;text-decoration:underline;">start a chat with BlueChip</a>.</p>
+    <p style="${P}">Want to continue the discussion? Just reply to this email. It comes straight to me.</p>
     <p style="${P}${SMALL}">It's an estimate, not a promise of results or a cash saving.</p>
     <p style="${P}">Thomas</p>
   `);

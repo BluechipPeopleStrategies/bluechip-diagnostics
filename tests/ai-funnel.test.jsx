@@ -142,7 +142,7 @@ describe('the free check stepper', () => {
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
-    expect(container.querySelector('.ai-live-preview').textContent).toMatch(/hours a week back for the work that matters most\./);
+    expect(container.querySelector('.ai-live-preview').textContent).toMatch(/hours a week you could get back for the work that matters most\./);
     fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '20' } });
     // more hours -> a bigger live-preview range than the 5-hour default produced
     expect(container.querySelector('#hours-correspondence')).toHaveValue('20');
@@ -184,7 +184,7 @@ describe('the free check stepper', () => {
     // Reproduces Thomas's exact reported scenario: both areas at the default 5 hrs x 1 person.
     // Items 47 + 62 + 53 (2026-09-25): one card, benefit framing, sub-hour rows in minutes.
     const tally = container.querySelector('.ai-fc-tally');
-    expect(tally.querySelector('.ai-live-preview').textContent).toBe('About 1.0 to 2.0 hours a week back for the work that matters most.');
+    expect(tally.querySelector('.ai-live-preview').textContent).toBe('About 1.0 to 2.0 hours a week you could get back for the work that matters most.');
     const rows = Array.from(tally.querySelectorAll('.ai-fc-tally-row')).map(li => li.textContent.replace(/\s+/g, ' ').trim());
     expect(rows[0]).toBe('Emails and correspondence5 hrs×1 person×12% to 22% saved= 36 min to 1.1 hrs/week');
     expect(rows[1]).toBe('Proposals, quotes and grant applications5 hrs×1 person×8% to 18% saved= 24 to 54 min/week');
@@ -673,7 +673,7 @@ describe('the free check keeps a result across navigation (item 59)', () => {
 
   it('the intro note says answers stay in this tab, not that they clear on reload', () => {
     render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
-    expect(screen.getByText("Your answers stay in this browser tab until you close it. Please don't enter confidential information.")).toBeInTheDocument();
+    expect(screen.getByText("Your answers stay in this browser tab until you close it, unless you choose to email them to yourself at the end. Please don't enter confidential information.")).toBeInTheDocument();
   });
 });
 
@@ -753,7 +753,7 @@ describe('the free check polish (2026-09-25)', () => {
     vi.unstubAllGlobals();
     const qr = screen.getByAltText('QR code that opens a chat with BlueChip');
     expect(qr.getAttribute('src')).toBe('/img/ai/qr-continue-discussion.svg');
-    expect(screen.getByText('Want to continue the discussion or explore further?')).toBeInTheDocument();
+    expect(screen.getByText('Want to continue the discussion?')).toBeInTheDocument();
     expect(container.querySelector('.ai-fc-print-head')).toBeTruthy();
   });
 
