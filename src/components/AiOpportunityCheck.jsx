@@ -7,6 +7,7 @@ import {
   orgSizeMidpoint, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
   PEOPLE_MAX, areaHoursLabel, areaHoursRangeLabel, isSingularHourLabel, GUARANTEE_NET_HOURS } from '../lib/aiOpportunity';
 import { prefersReducedMotion } from '../lib/useRollingNumber';
+import { loadCheckSession, saveCheckSession, clearCheckSession } from '../lib/freeCheckSession';
 import SiteHeader from './SiteHeader';
 import AreaIcon, { CheckCircleIcon } from './AreaIcon';
 import AreaHoursInput from './AreaHoursInput';
@@ -38,16 +39,38 @@ function handleGridArrowKeys(e) {
 }
 
 export default function AiOpportunityCheck() {
-  const [answers, setAnswers] = useState({});
-  const [qIndex, setQIndex] = useState(0);
-  const [step, setStep] = useState('questions'); // questions -> loading -> result
-  const [areaInputs, setAreaInputs] = useState({}); // { [area]: { hours, people, label? } }
-  const [rate, setRate] = useState(40);
-  const [weeks, setWeeks] = useState(48);
+  // Restored once from sessionStorage (item 59): leaving for the plan page and coming back, or a
+  // reload, lands the visitor where they were instead of on an empty question 1.
+  const [restored] = useState(() => loadCheckSession());
+  const [answers, setAnswers] = useState(() => restored?.answers ?? {});
+  const [qIndex, setQIndex] = useState(() => {
+    const i = Number(restored?.qIndex);
+    return Number.isInteger(i) && i >= 0 && i < questions.length ? i : 0;
+  });
+  // A session saved mid-"loading" resumes on the result: the loading beat is theatre, not work.
+  const [step, setStep] = useState(() => {
+    const s = restored?.step;
+    if (s === 'result' || s === 'loading') return questions.every(q => isComplete(q, restored.answers)) ? 'result' : 'questions';
+    return 'questions';
+  }); // questions -> loading -> result
+  const [areaInputs, setAreaInputs] = useState(() => restored?.areaInputs ?? {}); // { [area]: { hours, people, label? } }
+  const [rate, setRate] = useState(() => restored?.rate ?? 40);
+  const [weeks, setWeeks] = useState(() => restored?.weeks ?? 48);
+  const [headcount, setHeadcount] = useState(() => restored?.headcount ?? null); // null = org-size default
   const [loadingMsgIndex, setLoadingMsgIndex] = useState(0);
-  const [ownerOtherText, setOwnerOtherText] = useState(''); // Q9 "Someone else" free text, optional
-  const [toolsOtherText, setToolsOtherText] = useState(''); // Q3 "Other" free text, optional
+  const [ownerOtherText, setOwnerOtherText] = useState(() => restored?.ownerOtherText ?? ''); // Q9 "Someone else" free text, optional
+  const [toolsOtherText, setToolsOtherText] = useState(() => restored?.toolsOtherText ?? ''); // Q3 "Other" free text, optional
   const headingRef = useRef(null);
+
+  useEffect(() => {
+    saveCheckSession({ answers, qIndex, step, areaInputs, rate, weeks, headcount, ownerOtherText, toolsOtherText });
+  }, [answers, qIndex, step, areaInputs, rate, weeks, headcount, ownerOtherText, toolsOtherText]);
+
+  function startOver() {
+    clearCheckSession();
+    setAnswers({}); setAreaInputs({}); setRate(40); setWeeks(48); setHeadcount(null);
+    setOwnerOtherText(''); setToolsOtherText(''); setQIndex(0); setStep('questions');
+  }
 
   const question = questions[qIndex];
   const answeredCount = questions.filter(q => isComplete(q, answers)).length;
@@ -145,7 +168,7 @@ export default function AiOpportunityCheck() {
           srcSet="/img/ai/02-free-check-800.webp 800w, /img/ai/02-free-check-1600.webp 1600w"
           sizes="(max-width: 480px) 45vw, 220px"
           width="1600" height="1600" loading="lazy" />
-        <p className="ai-note ai-intro-note">Answers stay on this page and clear when you reload. Please don't enter confidential information.</p>
+        <p className="ai-note ai-intro-note">Your answers stay in this browser tab until you close it. Please don't enter confidential information.</p>
       </div>}
 
       <div className="ai-stepper">
@@ -205,7 +228,8 @@ export default function AiOpportunityCheck() {
     {step === 'loading' && <LoadingScreen messageIndex={loadingMsgIndex} headingRef={headingRef} />}
 
     {step === 'result' && <ResultScreen answers={answers} areaInputs={areaInputs} rate={rate} weeks={weeks}
-      onRate={setRate} onWeeks={setWeeks} onReview={reviewAnswers} headingRef={headingRef} />}
+      onRate={setRate} onWeeks={setWeeks} onReview={reviewAnswers} headingRef={headingRef}
+      headcount={headcount} onHeadcount={setHeadcount} onStartOver={startOver} />}
   </main>;
 }
 
@@ -217,7 +241,7 @@ function LoadingScreen({ messageIndex, headingRef }) {
   </div>;
 }
 
-function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onReview, headingRef }) {
+function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onReview, headingRef, headcount: headcountChoice, onHeadcount, onStartOver }) {
   const rows = (answers.areas || []).map(a => ({ area: a, hours: areaInputs[a]?.hours ?? 5, people: areaInputs[a]?.people ?? 1 }));
   const { low, likely, rows: rowDetail } = computeRange(rows);
   const areas = suggestedAreas(answers.orgType, answers.areas || []);
@@ -236,7 +260,8 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
   const peopleMax = PEOPLE_MAX;
   const totalPeopleEntered = Math.max(1, rowDetail.reduce((s, r) => s + r.people, 0));
   const defaultHeadcount = Math.min(peopleMax, orgSizeMidpoint(answers.orgSize));
-  const [headcount, setHeadcount] = useState(defaultHeadcount);
+  const headcount = headcountChoice ?? defaultHeadcount;
+  const setHeadcount = onHeadcount;
   const perPersonLow = low / totalPeopleEntered;
   const perPersonLikely = likely / totalPeopleEntered;
   const scaledLow = Math.min(HOURS_DISPLAY_CAP, perPersonLow * headcount);
@@ -388,6 +413,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
     </details>
 
     <button type="button" className="ai-secondary" onClick={onReview}>Review my answers</button>
+    <button type="button" className="ai-secondary ai-fc-start-over" onClick={onStartOver}>Start over</button>
     <Emblem slug="ai-opportunity-check" />
   </>;
 }
