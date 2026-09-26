@@ -1,0 +1,45 @@
+/* Brand header for the AI pages (moved here from visual.css, 2026-09-25).
+   Design review fix #2 gave the AI pages a logo, nav and way back. Punch list 41/42/58 (2026-09-25):
+   the CTA sits in proportion with the nav and is vertically centred in the bar, the current page
+   is marked with aria-current plus a non-colour treatment (weight + an underline bar), and the
+   nav uses the page's real name, "AI Opportunity Check". Selectors use two classes because
+   AiFunnel.css (loaded after this file) sets `.ai-funnel a` and `.ai-funnel .ai-button`. */
+
+.bc-site-header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40;
+  background: linear-gradient(180deg, rgba(10, 24, 46, .9), rgba(8, 20, 40, .8));
+  backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  border-bottom: 1px solid rgba(199, 208, 220, .12);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 12px 28px -22px rgba(0, 0, 0, .9);
+  /* Bleed out of .ai-funnel's own padding so the bar spans full width, then reapply the same
+     padding inside .bc-site-header-inner. */
+  margin: -48px calc(-1 * clamp(20px, 5vw, 72px)) 32px; }
+.bc-site-header .bc-site-header-inner { max-width: 1080px; margin: 0 auto; min-height: 60px; box-sizing: border-box;
+  padding: 10px clamp(20px, 5vw, 72px); display: flex; align-items: center; gap: 28px; }
+.bc-site-header .bc-site-header-logo { display: block; line-height: 0; flex: none; }
+.bc-site-header .bc-site-header-logo img { height: 26px; width: auto; display: block; }
+.bc-site-header .bc-site-header-links { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-right: auto; }
+
+.bc-site-header .bc-site-header-link { position: relative; display: inline-flex; align-items: center; min-height: 36px;
+  padding: 0 10px; border-radius: 8px; font-size: 14px; font-weight: 500; line-height: 1;
+  color: var(--v-body); text-decoration: none; transition: color .18s ease, background-color .18s ease; }
+.bc-site-header .bc-site-header-link::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: 4px; height: 2px;
+  border-radius: 2px; background: var(--v-gold); transform: scaleX(0); transform-origin: left center;
+  transition: transform .28s var(--v-ease); }
+.bc-site-header .bc-site-header-link:hover { color: var(--v-ink); background: rgba(199, 208, 220, .06); }
+.bc-site-header .bc-site-header-link:hover::after { transform: scaleX(.35); }
+/* Current page: heavier weight, bright ink and a full underline bar (shape + weight, not colour alone). */
+.bc-site-header .bc-site-header-link.is-current { color: var(--v-ink); font-weight: 650; }
+.bc-site-header .bc-site-header-link.is-current::after { transform: scaleX(1); }
+
+/* The CTA: flex:none so it never squashes; its metal and compact size live in plan/plan.css
+   (.plan-btn--compact), next to the page's other primary buttons. */
+.bc-site-header .bc-site-header-cta { flex: none; }
+
+@media (max-width: 600px) {
+  .bc-site-header .bc-site-header-inner { flex-wrap: wrap; gap: 6px 16px; padding-top: 10px; padding-bottom: 6px; }
+  .bc-site-header .bc-site-header-links { order: 3; flex-basis: 100%; margin-left: -10px; gap: 2px; }
+  .bc-site-header .bc-site-header-cta { margin-left: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bc-site-header .bc-site-header-link, .bc-site-header .bc-site-header-link::after { transition: none; }
+}
