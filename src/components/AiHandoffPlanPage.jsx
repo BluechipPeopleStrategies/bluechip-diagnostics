@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import SavingsEquation from './SavingsEquation';
 import SiteHeader from './SiteHeader';
 import GlassStage from './glass/GlassStage';
@@ -11,8 +11,24 @@ import {
 import { LEGACY_WORKFLOW_LABELS, GUARANTEE_NET_HOURS } from '../lib/aiOpportunity';
 import { usePageMeta } from '../lib/seo';
 import { loadChatWidget } from '../lib/chatWidget';
+import PlanButton from './plan/PlanButton';
+import PlanHeroArt from './plan/PlanHeroArt';
+import PlanFlow from './plan/PlanFlow';
+import PlanInside from './plan/PlanInside';
+import PlanClose from './plan/PlanClose';
 import './AiFunnel.css';
 import './AiHandoffGlass.css';
+import './plan/plan.css';
+
+// Combined page (2026-09-26, decision D7): #50's glass page and scope copy are the base; #52's
+// hero art, drawn step track, plan mockup, buttons, closing card, header and FAQ links are ported
+// onto it (walkthrough items 35-42, 58).
+
+// Where the named offerings in the copy below are explained (punch list item 38). Both live on
+// the main site's retainers page: its "Then, three ways to put it in place" block describes the
+// Implementation Sprint (anchor #practical-ai-audit), and the page itself is the retainers page.
+const RETAINERS_URL = 'https://www.bluechip-people-strategies.com/embedded-hr-retainers';
+const SPRINT_URL = `${RETAINERS_URL}#practical-ai-audit`;
 
 // Scope (Thomas, 2026-09-25): the plan no longer commits to redesigning one workflow. Step 3 is
 // a walkthrough of the client's key workflows, with where AI fits and where it doesn't.
@@ -93,7 +109,7 @@ export default function AiHandoffPlanPage() {
   useEffect(() => { loadChatWidget(); }, []);
 
   return <GlassStage>
-    <main className="bc-page ai-funnel ai-glass">
+    <main className="bc-page ai-funnel ai-glass ai-plan">
       <SiteHeader showCta />
 
       <header className="ai-hero glass-hero">
@@ -102,13 +118,7 @@ export default function AiHandoffPlanPage() {
           <h1>The AI Handoff Plan</h1>
           <p className="glass-lede">A practical AI review of your organization's recurring work, with your key workflows talked through and a roadmap your team can put into practice. You'll know what to hand to AI, what stays with your people, and which tools to start with.</p>
         </div>
-        <GlassPanel className="glass-panel glass-hero-frame" plasma={{ radius: 22, opacity: 0.35, elevation: 0.55 }}>
-          <img className="ai-hero-photo" alt=""
-            src="/img/ai/01-plan-hero-1600.webp"
-            srcSet="/img/ai/01-plan-hero-800.webp 800w, /img/ai/01-plan-hero-1600.webp 1600w"
-            sizes="(max-width: 700px) 100vw, 40vw"
-            width="1600" height="1073" fetchpriority="high" />
-        </GlassPanel>
+        <PlanHeroArt />
       </header>
 
       {legacyWorkflow && <p className="ai-context">Your starting point: <strong>{legacyWorkflow}</strong>. We examine how the work happens before recommending a tool.</p>}
@@ -126,7 +136,7 @@ export default function AiHandoffPlanPage() {
                 <p className="ai-guarantee-support">If the plan can't find tools with evidence-backed potential to save at least 3 net hours a week across your organization, your full fee comes back within 10 business days of your findings call, no forms, no hoops.</p>
               </div>
               <p>If you cancel before your discovery session, and before any work on your plan has begun, we refund your full fee. See the <a href="https://www.bluechip-people-strategies.com/refund">Refund Policy</a> for how refunds work.</p>
-              <p className="ai-cta-row"><a className="ai-button" href="#chat?topic=ai-handoff-plan">Start the conversation</a></p>
+              <p className="ai-cta-row"><PlanButton href="#chat?topic=ai-handoff-plan">Start the conversation</PlanButton></p>
             </div>
             <NetHoursDiagram />
           </div>
@@ -137,7 +147,7 @@ export default function AiHandoffPlanPage() {
         <p className="ai-eyebrow">Who does what</p>
         <h2 id="ai-implementation-title">The plan is yours. Your team puts it in place.</h2>
         <p>The AI Handoff Plan tells you what to hand to AI, which tools to use and what it takes to set them up. We favour tools you already have or can start using right away. Your team does the implementing, so the guarantee covers finding the hours, and the hours you actually get back depend on how fully the plan is put to work.</p>
-        <p><strong>Want a hand?</strong> You can implement on your own, or ask us to work alongside your team through a Practical AI Retainer, an Embedded HR Retainer, or both (six-month minimum). If you start within 60 days of your findings call, the plan's fee is credited to your first invoice. You can decide on the findings call or any time in the 60 days after, and there's no pressure either way.</p>
+        <p><strong>Want a hand?</strong> You can implement on your own, or ask us to work alongside your team through a <a href={RETAINERS_URL}>Practical AI Retainer</a>, an <a href={RETAINERS_URL}>Embedded HR Retainer</a>, or both (six-month minimum). If you start within 60 days of your findings call, the plan's fee is credited to your first invoice. You can decide on the findings call or any time in the 60 days after, and there's no pressure either way.</p>
 
         <p className="ai-eyebrow glass-journey-title" id="ai-journey-title">Where the plan fits</p>
         <ol className="glass-journey" aria-labelledby="ai-journey-title">
@@ -184,40 +194,19 @@ export default function AiHandoffPlanPage() {
               width="1600" height="1073" loading="lazy" />
           </GlassPanel>
         </div>
-        <ol className="ai-flow-steps">
-          {FLOW_STEPS.map(({ time, name, youGet, key, Icon }, i) => (
-            <li className={`ai-flow-step ${key ? 'ai-flow-step--key' : ''}`} key={name}>
-              <span className="ai-flow-num" aria-hidden="true">{i + 1}</span>
-              <GlassPanel className="glass-panel ai-flow-card"
-                plasma={key ? { radius: 16, tint: '#4A3A14', opacity: 0.5, elevation: 0.55, fuse: false } : { radius: 16, opacity: 0.5, fuse: false }}>
-                <span className="visually-hidden">Step {i + 1}: </span>
-                <Icon className="ai-flow-icon" />
-                <p className="ai-flow-time">{time}</p>
-                <p className="ai-flow-name">{name}</p>
-                <p className="ai-flow-you-get"><span>You get</span> {youGet}</p>
-              </GlassPanel>
-            </li>
-          ))}
-        </ol>
+        <PlanFlow steps={FLOW_STEPS} />
       </section>
 
+      <PlanInside />
+
       <GlassPanel className="glass-panel glass-faq" plasma={{ radius: 18, opacity: 0.5 }}>
-        <details><summary>Look inside the plan</summary><p>Illustrative structure, not a client result.</p><ol><li>Current workflow and evidence</li><li>Recommended tool and alternatives</li><li>Baseline time, expected review time and net savings</li><li>Costs, permissions and setup effort</li><li>Your key workflows talked through, with where AI fits and where it doesn't, and a first step for each</li><li>The one recommendation to start with</li></ol><p>No savings figure is assigned until the actual work has been assessed.</p></details>
         {/* FAQ answers below are drafted verbatim per Thomas, 2026-09-24, and still need an Infy pass before this page goes live -- see the PR description. */}
         <details><summary>Does the guarantee mean three hours for every employee?</summary><p>No. The guarantee is three net hours a week across your whole organization, from one opportunity or several. But savings can multiply: when several people do the same kind of work, a change that saves one person an hour a week can save each of them about that much. That's why the plan counts the people doing each task, not just the task.</p></details>
-        <details><summary>Do you set the tools up for us?</summary><p>Not as part of the plan itself. The plan gives you the tools and the setup steps. If you go further with us, yes. In an Implementation Sprint we set up the first workflow your plan recommends, with your team. On a Practical AI Retainer we handle the setup, then keep the tools tuned and updated as the software changes. Software licences and any installs your IT team needs to do stay with you.</p></details>
-        <details><summary>Do I need to buy ongoing support?</summary><p>No. A retainer isn't required to keep your plan or to qualify for the refund. Going without one is the right choice if you'd rather move the plan forward yourselves. If you want a hand later, an Implementation Sprint or a retainer is there when you need it.</p></details>
+        <details><summary>Do you set the tools up for us?</summary><p>Not as part of the plan itself. The plan gives you the tools and the setup steps. If you go further with us, yes. In an <a href={SPRINT_URL}>Implementation Sprint</a> we set up the first workflow your plan recommends, with your team. On a <a href={RETAINERS_URL}>Practical AI Retainer</a> we handle the setup, then keep the tools tuned and updated as the software changes. Software licences and any installs your IT team needs to do stay with you.</p></details>
+        <details><summary>Do I need to buy ongoing support?</summary><p>No. A retainer isn't required to keep your plan or to decide if we can meet your needs. Going without one is the right choice if you'd rather move the plan forward yourselves. If you want a hand later, an <a href={SPRINT_URL}>Implementation Sprint</a> or a retainer is there when you need it.</p></details>
       </GlassPanel>
 
-      <GlassPanel as="section" className="glass-panel glass-close" aria-label="Start the conversation"
-        plasma={{ radius: 24, tint: '#0E2140', opacity: 0.6, elevation: 0.6 }}>
-        <h2>Talk through The AI Handoff Plan</h2>
-        <p>Start a conversation with BlueChip to confirm the fit, scope and next steps. An inquiry does not create a booking or take payment.</p>
-        <p className="glass-close-actions">
-          <a className="ai-button" href="#chat?topic=ai-handoff-plan">Start the conversation</a>
-          <Link className="glass-close-link" to="/ai-opportunity-check">Start with the free AI Opportunity Check</Link>
-        </p>
-      </GlassPanel>
+      <PlanClose />
       <p className="ai-legal"><a href="https://www.bluechip-people-strategies.com/terms">Terms</a> &middot; <a href="https://www.bluechip-people-strategies.com/refund">Refund Policy</a> &middot; <a href="https://www.bluechip-people-strategies.com/privacy">Privacy</a></p>
     </main>
   </GlassStage>;
