@@ -104,7 +104,7 @@ export default function AiHandoffPlanPage() {
 
   usePageMeta(
     'The AI Handoff Plan: Practical AI Audit | BlueChip',
-    "A practical AI audit of your organization's recurring work, with your key workflows talked through. We'll find at least 3 net hours a week, or your fee back. C$999."
+    "A practical AI audit of your organization's recurring work. We'll show you where to save at least 3 net hours a week with AI, or your fee back. C$999."
   );
   useEffect(() => { loadChatWidget(); }, []);
 
@@ -132,7 +132,7 @@ export default function AiHandoffPlanPage() {
             <div className="glass-price-main">
               <h2 id="ai-price-title">C$999, taxes included</h2>
               <div className="ai-guarantee-band">
-                <p className="ai-guarantee-headline">We'll find at least 3 net hours a week of AI time savings, or your fee back.</p>
+                <p className="ai-guarantee-headline">We'll show you where to save at least 3 net hours a week with AI, or your fee back.</p>
                 <p className="ai-guarantee-support">If the plan can't find tools with evidence-backed potential to save at least 3 net hours a week across your organization, your full fee comes back within 10 business days of your findings call, no forms, no hoops.</p>
               </div>
               <p>If you cancel before your discovery session, and before any work on your plan has begun, we refund your full fee. See the <a href="https://www.bluechip-people-strategies.com/refund">Refund Policy</a> for how refunds work.</p>
