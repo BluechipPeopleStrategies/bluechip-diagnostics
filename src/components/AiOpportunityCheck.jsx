@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import {
   questions, isComplete, toggleMulti, computeRange, roundHoursLabel, roundDollars, money,
   suggestedAreas, AREA_LABELS, lowerFirst, joinList, groupedOptions,
-  sanitizeAreaLabel, sanitizeShortText, areaLookoutLines, crossCuttingCards, nextSteps,
-  orgSizeMidpoint, HOURS_DISPLAY_CAP,
+  sanitizeAreaLabel, sanitizeShortText, areaLookoutLinesFor, crossCuttingCards, nextSteps,
+  orgSizeMidpoint, HOURS_DISPLAY_CAP, defaultHoursForPicks,
   PEOPLE_MAX, areaHoursLabel, GUARANTEE_NET_HOURS } from '../lib/aiOpportunity';
 import { prefersReducedMotion } from '../lib/useRollingNumber';
 import { loadCheckSession, saveCheckSession, clearCheckSession } from '../lib/freeCheckSession';
@@ -112,9 +112,28 @@ export default function AiOpportunityCheck() {
   }
 
   function toggleOption(value) {
-    setAnswers(prev => ({ ...prev, [question.id]: toggleMulti(prev[question.id] || [], value, question.options, question.maxPicks) }));
+    const nextPicks = toggleMulti(answers[question.id] || [], value, question.options, question.maxPicks);
+    setAnswers(prev => ({ ...prev, [question.id]: nextPicks }));
     if (question.id === 'areas') {
-      setAreaInputs(prev => (prev[value] ? prev : { ...prev, [value]: { hours: 5, people: 1 } }));
+      // Per-person recalibration (2026-09-24), doc section 7.2: each newly-picked area defaults
+      // to its own evidence-based typical hours, and the SUM of still-default (never manually
+      // edited) areas' hours is capped at 20/week, scaled down proportionally if it would
+      // otherwise exceed that -- recomputed here every time the picked set changes. An area the
+      // visitor has already dragged/typed a real value for (hoursIsDefault: false) is left alone:
+      // the cap applies only to defaults, never to entered numbers.
+      setAreaInputs(prev => {
+        const stillDefault = nextPicks.filter(a => !prev[a] || prev[a].hoursIsDefault !== false);
+        const scaledDefaults = defaultHoursForPicks(stillDefault);
+        const next = { ...prev };
+        for (const a of nextPicks) {
+          if (!next[a]) {
+            next[a] = { hours: scaledDefaults[a], people: 1, hoursIsDefault: true };
+          } else if (next[a].hoursIsDefault !== false) {
+            next[a] = { ...next[a], hours: scaledDefaults[a] };
+          }
+        }
+        return next;
+      });
     }
   }
 
@@ -155,9 +174,9 @@ export default function AiOpportunityCheck() {
         <span>{label}</span>
       </label>
       {isAreas && checked && <AreaHoursInput
-        area={val} hours={areaInputs[val]?.hours ?? 5} people={areaInputs[val]?.people ?? 1}
+        area={val} hours={areaInputs[val]?.hours ?? 2} people={areaInputs[val]?.people ?? 1}
         peopleMax={PEOPLE_MAX}
-        onHoursChange={(h) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], hours: h } }))}
+        onHoursChange={(h) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], hours: h, hoursIsDefault: false } }))}
         onPeopleChange={(p) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], people: p } }))}
         otherLabel={areaInputs[val]?.label}
         onOtherLabelChange={(l) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], label: l } }))}
@@ -196,6 +215,16 @@ export default function AiOpportunityCheck() {
               : question.options.map(renderTile)}
           </div>}
           {isAreas && <p className="ai-note">Each one you pick gets its own hours and people below.</p>}
+          {/* Section 8.1 (2026-09-24): a single opt-in checkbox, not a Q2 pick and never counted
+              against its 6-pick cap. Ticking it either boosts the picked writing areas' likely
+              rate or, if none is picked, adds dictation as its own area -- see computeRange. */}
+          {isAreas && <div className="ai-dictation-check">
+            <label>
+              <input type="checkbox" checked={!!answers.dictation}
+                onChange={() => setAnswers(prev => ({ ...prev, dictation: !prev.dictation }))} />
+              <span>We'd use voice dictation for drafting</span>
+            </label>
+          </div>}
           {isOwner && value === 'someoneElse' && <div className="ai-other-label-field">
             <label className="ai-hours-field-label" htmlFor="owner-other-text">Who is it? (a role is fine, e.g. finance lead)</label>
             <input id="owner-other-text" type="text" className="ai-compact-text-input" maxLength={60}
@@ -243,17 +272,19 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
   // The closing CTA opens the chat panel directly (Thomas, 2026-09-27), so the widget script
   // needs to be loaded on this page -- it previously only loaded on the plan page itself.
   useEffect(() => { loadChatWidget(); }, []);
-  const rows = (answers.areas || []).map(a => ({ area: a, hours: areaInputs[a]?.hours ?? 5, people: areaInputs[a]?.people ?? 1 }));
-  const { low, likely, rows: rowDetail } = computeRange(rows);
+  const rows = (answers.areas || []).map(a => ({ area: a, hours: areaInputs[a]?.hours ?? 2, people: areaInputs[a]?.people ?? 1 }));
+  const dictationOpts = { dictation: !!answers.dictation };
+  const { low, likely, rows: rowDetail } = computeRange(rows, dictationOpts);
   const areas = suggestedAreas(answers.orgType, answers.areas || []);
   const valueLow = low * rate * weeks;
   const valueLikely = likely * rate * weeks;
 
-  const labelFor = (a) => (a === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[a]);
+  const labelFor = (a) => (a === 'dictation' ? 'Voice dictation'
+    : a === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[a]);
   const areaCards = (answers.areas || []).map(a => ({
     area: a,
     title: labelFor(a),
-    lines: areaLookoutLines(a),
+    lines: areaLookoutLinesFor(a, answers),
   }));
   const lookoutCards = [...areaCards, ...crossCuttingCards(answers)];
   const topArea = rows[0]?.area;
@@ -386,7 +417,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
     <ClosingNextStep>
       <details className="ai-disclosure ai-fc-disclosure">
         <summary>How this estimate works</summary>
-        <p>For each area you picked, we take the hours one person spends on it each week, multiply by the number of people who do that work, then multiply by the share of that time AI can realistically save. That share comes from published studies of similar work, minus an allowance for checking the tools' work. Where no study matches closely, or you typed your own area, we use our most conservative rate. Then we add the areas together. To keep it realistic, we count at most 25 hours a week per person for any one area, and 30 hours a week per person across all areas. The dollar figure uses the hourly cost and working weeks shown above. It's an estimate, not a promise of results or a cash saving.</p>
+        <p>For each area you picked, we take the hours one person spends on it each week, multiply by the number of people who do that work, then multiply by the share of that time AI can realistically save. That share comes from published studies of similar work, minus an allowance for checking the tools' work. Where no study matches closely, or you typed your own area, we use our most conservative rate. Until you set your own hours, we start from a typical figure for that kind of work, taken from published time-use research, and keep the total of those starting figures to at most 20 hours a week; your own numbers are never capped that way. If you said you'd use voice dictation for drafting, we add a small allowance to the areas that involve drafting text. Then we add the areas together. To keep it realistic, we count at most 25 hours a week per person for any one area, and 30 hours a week per person across all areas. The dollar figure uses the hourly cost and working weeks shown above. It's an estimate, not a promise of results or a cash saving.</p>
       </details>
     </ClosingNextStep>
 

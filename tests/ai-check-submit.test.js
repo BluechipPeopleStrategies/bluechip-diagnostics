@@ -50,9 +50,13 @@ describe('submit handler: AI Opportunity Check results email', () => {
     expect(sends.some(s => s.scheduled_at)).toBe(false);
     const visitor = sends.find(s => s.to === 'pat@example.com');
     expect(visitor.subject).toBe('Your AI Opportunity Check results');
-    expect(visitor.html).toMatch(/About 1 to 2 hours a week/);
-    expect(visitor.html).toMatch(/36 min to 1.1 hrs\/week/);
-    expect(visitor.html).toMatch(/24 to 54 min\/week/);
+    // Re-derived rate table (2026-09-27): correspondence 15%/35%, proposals now maps to the
+    // "documents" bucket (15%/30%), both at the 5hrs/1person entered above. correspondence:
+    // 5*0.15=0.75 low, 5*0.35=1.75 likely. proposals: 5*0.15=0.75 low, 5*0.30=1.50 likely.
+    // Sum: 1.5 to 3.25 -> rounds to 2 to 3.
+    expect(visitor.html).toMatch(/About 2 to 3 hours a week/);
+    expect(visitor.html).toMatch(/45 min to 1.8 hrs\/week/);
+    expect(visitor.html).toMatch(/45 min to 1.5 hrs\/week/);
     expect(visitor.html).not.toMatch(/Your answers/);
     const note = sends.find(s => s.to === 't@bc.ca');
     expect(note.reply_to).toBe('pat@example.com');
