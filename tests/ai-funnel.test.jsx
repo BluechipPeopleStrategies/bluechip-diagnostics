@@ -295,13 +295,13 @@ describe('the free check stepper', () => {
     )).toBeInTheDocument();
   });
 
-  it('ends in one quiet next step, not a gold CTA or a big guarantee box, and carries numbers to the plan page', async () => {
+  it('ends in one quiet next step, not a gold CTA or a big guarantee box, and opens chat directly (Thomas, 2026-09-27)', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(container);
     const cta = screen.getByRole('link', { name: 'See how the plan works' });
     expect(cta.className).toContain('ai-secondary');
     expect(cta.className).not.toContain('ai-button');
-    expect(cta.getAttribute('href')).toMatch(/^\/ai-handoff-plan\?perPersonHours=[\d.]+&employees=\d+$/);
+    expect(cta.getAttribute('href')).toBe('#chat?topic=ai-handoff-plan');
     expect(screen.getByText("We'll show you where to save at least 3 net hours a week across your organization, or your fee back.")).toBeInTheDocument();
   });
 
@@ -617,11 +617,15 @@ describe('the free check keeps a result across navigation (item 59)', () => {
     </MemoryRouter>;
   }
 
-  it('clicking "See how the plan works" and coming back shows the same result, not question 1', async () => {
+  // The old trigger for this was the "See how the plan works" CTA, which navigated to the plan
+  // page. That CTA now opens chat in place instead (Thomas, 2026-09-27) and never navigates, so
+  // this uses the header nav link to the plan page instead -- still a genuine navigate-away-and-
+  // back case, just via a different link.
+  it('navigating to the plan page via the header nav and coming back shows the same result, not question 1', async () => {
     const { container } = render(<RoutedCheck />);
     await driveToResult(container);
     const headline = container.querySelector('.ai-result-headline').textContent;
-    fireEvent.click(screen.getByRole('link', { name: 'See how the plan works' }));
+    fireEvent.click(screen.getByRole('link', { name: 'The AI Handoff Plan' }));
     expect(screen.getByText('Plan page stub')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('link', { name: 'Back to my results' }));
     await waitFor(() => expect(container.querySelector('.ai-result-headline')).toBeInTheDocument());
