@@ -10,7 +10,6 @@ import { loadCheckSession, saveCheckSession, clearCheckSession } from '../lib/fr
 import SiteHeader from './SiteHeader';
 import AreaIcon from './AreaIcon';
 import AreaHoursInput from './AreaHoursInput';
-import RunningTotal from './RunningTotal';
 import GoldSlider from './GoldSlider';
 import ChipsRow from './ChipsRow';
 import RollingNumber from './RollingNumber';
@@ -140,8 +139,6 @@ export default function AiOpportunityCheck() {
   const isOwner = question?.id === 'owner';
   const isToolsToday = question?.id === 'toolsToday';
   const isGrouped = !!question?.groups;
-  const pickedRows = isAreas ? picks.map(a => ({ area: a, hours: areaInputs[a]?.hours ?? 5, people: areaInputs[a]?.people ?? 1 })) : [];
-  const livePreview = isAreas && pickedRows.some(r => r.hours > 0) ? computeRange(pickedRows) : null;
 
   function renderTile([val, label]) {
     const disabledByCap = question.type === 'multi' && atCap && !picks.includes(val);
@@ -198,8 +195,6 @@ export default function AiOpportunityCheck() {
               : question.options.map(renderTile)}
           </div>}
           {isAreas && <p className="ai-note">Each one you pick gets its own hours and people below.</p>}
-          {livePreview && <RunningTotal preview={livePreview}
-            labelFor={(a) => (a === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[a])} />}
           {isOwner && value === 'someoneElse' && <div className="ai-other-label-field">
             <label className="ai-hours-field-label" htmlFor="owner-other-text">Who is it? (a role is fine, e.g. finance lead)</label>
             <input id="owner-other-text" type="text" className="ai-compact-text-input" maxLength={60}
