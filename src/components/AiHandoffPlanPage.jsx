@@ -147,7 +147,7 @@ export default function AiHandoffPlanPage() {
         <p className="ai-eyebrow">Who does what</p>
         <h2 id="ai-implementation-title">The plan is yours. Your team puts it in place.</h2>
         <p>The AI Handoff Plan tells you what to hand to AI, which tools to use and what it takes to set them up. We favour tools you already have or can start using right away. Your team does the implementing, so the guarantee covers finding the hours, and the hours you actually get back depend on how fully the plan is put to work.</p>
-        <p><strong>Want a hand?</strong> You can implement on your own, or ask us to work alongside your team through a <a href={RETAINERS_URL}>Practical AI Retainer</a>, an <a href={RETAINERS_URL}>Embedded HR Retainer</a>, or both (six-month minimum). If you start within 60 days of your findings call, the plan's fee is credited to your first invoice. You can decide on the findings call or any time in the 60 days after, and there's no pressure either way.</p>
+        <p><strong>Want a hand?</strong> Your team can put the plan in place with the tool shortlist and setup steps, or ask us to work alongside you through a <a href={RETAINERS_URL}>Practical AI Retainer</a>, an <a href={RETAINERS_URL}>Embedded HR Retainer</a>, or both (six-month minimum). If you start within 60 days of your findings call, the plan's fee is credited to your first invoice. You can decide on the findings call or any time in the 60 days after, and there's no pressure either way.</p>
 
         <p className="ai-eyebrow glass-journey-title" id="ai-journey-title">Where the plan fits</p>
         <ol className="glass-journey" aria-labelledby="ai-journey-title">
