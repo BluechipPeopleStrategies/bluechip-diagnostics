@@ -169,8 +169,8 @@
     greet = el('div', { 'class': 'bcw-greet', role: 'button', tabindex: '0', 'aria-label': 'Chat with Chip' },
       "<b>A people decision or a practical AI question?</b><small>Tell us where you need help. We will point you to the next step.</small>");
 
-    panel = el('div', { 'class': 'bcw-panel', id: 'bcwPanel', role: 'dialog', 'aria-modal': 'false', 'aria-label': "Let's talk", 'aria-hidden': 'true' });
-    var header = el('div', { 'class': 'bcw-header' }, '<h3>Let’s talk</h3>');
+    panel = el('div', { 'class': 'bcw-panel', id: 'bcwPanel', role: 'dialog', 'aria-modal': 'false', 'aria-label': "Let's chat", 'aria-hidden': 'true' });
+    var header = el('div', { 'class': 'bcw-header' }, '<h3>Let’s chat</h3>');
     var closeBtn = el('button', { 'class': 'bcw-close', 'aria-label': 'Close chat' }, '&times;');
     header.appendChild(closeBtn);
     bodyEl = el('div', { 'class': 'bcw-body', 'aria-live': 'polite' });
