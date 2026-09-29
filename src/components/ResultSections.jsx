@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import AreaIcon from './AreaIcon';
 import { FcIcon, LensBullet, MagnifierMark } from './FreeCheckIcons';
 import { areaWeeklyLabel } from '../lib/aiOpportunity';
@@ -156,14 +155,19 @@ function CopyStepsButton({ steps }) {
 // Item 57: the closing next step, built out as one designed block (headline, the plan link as a
 // glass button rather than a gold CTA, the guarantee as a sealed line) with the estimate's
 // method disclosure attached underneath instead of floating on its own.
-export function ClosingNextStep({ planHref, children }) {
+export function ClosingNextStep({ children }) {
   return (
     <section className="ai-next-step ai-fc-close" aria-labelledby="ai-fc-close-title">
       <div className="ai-fc-close-body">
         <p className="ai-eyebrow ai-fc-close-eyebrow">Your next step</p>
         <h2 id="ai-fc-close-title" className="ai-fc-close-title">Want to know which tasks and tools could get you there?</h2>
         <p className="ai-fc-close-copy">That's what The AI Handoff Plan works out, measured against your actual work.</p>
-        <p className="ai-fc-close-cta-row"><Link className="ai-secondary ai-fc-cta" to={planHref}>See how the plan works<FcIcon name="arrow" className="ai-fc-cta-arrow" /></Link></p>
+        {/* Opens the chat panel directly instead of navigating to another page first (Thomas,
+            2026-09-27, adapted from PR #44's mechanism): same #chat?topic= hook the plan page's
+            own CTA uses, intercepted by widget.js so it never navigates away. Stays a plain,
+            quiet link (not PlanButton's gold style) on purpose -- this CTA was deliberately
+            built non-pushy; see the "not a gold CTA" tests below. */}
+        <p className="ai-fc-close-cta-row"><a className="ai-secondary ai-fc-cta" href="#chat?topic=ai-handoff-plan">See how the plan works<FcIcon name="arrow" className="ai-fc-cta-arrow" /></a></p>
         <p className="ai-note ai-fc-seal"><span className="ai-fc-seal-icon" aria-hidden="true"><FcIcon name="shield" /></span><span>We'll show you where to save at least 3 net hours a week across your organization, or your fee back.</span></p>
       </div>
       <div className="ai-fc-close-art" aria-hidden="true">

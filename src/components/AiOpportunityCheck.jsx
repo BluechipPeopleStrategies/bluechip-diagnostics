@@ -3,14 +3,14 @@ import {
   questions, isComplete, toggleMulti, computeRange, roundHoursLabel, roundDollars, money,
   suggestedAreas, AREA_LABELS, lowerFirst, joinList, groupedOptions,
   sanitizeAreaLabel, sanitizeShortText, areaLookoutLines, crossCuttingCards, nextSteps,
-  orgSizeMidpoint, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
+  orgSizeMidpoint, HOURS_DISPLAY_CAP,
   PEOPLE_MAX, areaHoursLabel, GUARANTEE_NET_HOURS } from '../lib/aiOpportunity';
 import { prefersReducedMotion } from '../lib/useRollingNumber';
 import { loadCheckSession, saveCheckSession, clearCheckSession } from '../lib/freeCheckSession';
+import { loadChatWidget } from '../lib/chatWidget';
 import SiteHeader from './SiteHeader';
 import AreaIcon from './AreaIcon';
 import AreaHoursInput from './AreaHoursInput';
-import RunningTotal from './RunningTotal';
 import GoldSlider from './GoldSlider';
 import ChipsRow from './ChipsRow';
 import RollingNumber from './RollingNumber';
@@ -140,8 +140,6 @@ export default function AiOpportunityCheck() {
   const isOwner = question?.id === 'owner';
   const isToolsToday = question?.id === 'toolsToday';
   const isGrouped = !!question?.groups;
-  const pickedRows = isAreas ? picks.map(a => ({ area: a, hours: areaInputs[a]?.hours ?? 5, people: areaInputs[a]?.people ?? 1 })) : [];
-  const livePreview = isAreas && pickedRows.some(r => r.hours > 0) ? computeRange(pickedRows) : null;
 
   function renderTile([val, label]) {
     const disabledByCap = question.type === 'multi' && atCap && !picks.includes(val);
@@ -198,8 +196,6 @@ export default function AiOpportunityCheck() {
               : question.options.map(renderTile)}
           </div>}
           {isAreas && <p className="ai-note">Each one you pick gets its own hours and people below.</p>}
-          {livePreview && <RunningTotal preview={livePreview}
-            labelFor={(a) => (a === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[a])} />}
           {isOwner && value === 'someoneElse' && <div className="ai-other-label-field">
             <label className="ai-hours-field-label" htmlFor="owner-other-text">Who is it? (a role is fine, e.g. finance lead)</label>
             <input id="owner-other-text" type="text" className="ai-compact-text-input" maxLength={60}
@@ -244,6 +240,9 @@ function LoadingScreen({ messageIndex, headingRef }) {
 }
 
 function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onReview, headingRef, headcount: headcountChoice, onHeadcount, onStartOver, ownerOtherText, toolsOtherText }) {
+  // The closing CTA opens the chat panel directly (Thomas, 2026-09-27), so the widget script
+  // needs to be loaded on this page -- it previously only loaded on the plan page itself.
+  useEffect(() => { loadChatWidget(); }, []);
   const rows = (answers.areas || []).map(a => ({ area: a, hours: areaInputs[a]?.hours ?? 5, people: areaInputs[a]?.people ?? 1 }));
   const { low, likely, rows: rowDetail } = computeRange(rows);
   const areas = suggestedAreas(answers.orgType, answers.areas || []);
@@ -273,8 +272,6 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
   const scaledValueLow = scaledLow * rate * weeks;
   const scaledValueLikely = scaledLikely * rate * weeks;
 
-  const carryHours = perPersonHoursForCarry(rows);
-  const carryEmployees = orgSizeMidpoint(answers.orgSize);
 
   return <>
     <p className="ai-fc-print-only ai-fc-print-head">BlueChip People Strategies · AI Opportunity Check results, {new Date().toLocaleDateString('en-CA', { dateStyle: 'long' })}</p>
@@ -386,7 +383,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
 
     <NextStepsSection steps={steps} />
 
-    <ClosingNextStep planHref={`/ai-handoff-plan?perPersonHours=${carryHours}&employees=${carryEmployees}`}>
+    <ClosingNextStep>
       <details className="ai-disclosure ai-fc-disclosure">
         <summary>How this estimate works</summary>
         <p>For each area you picked, we take the hours one person spends on it each week, multiply by the number of people who do that work, then multiply by the share of that time AI can realistically save. That share comes from published studies of similar work, minus an allowance for checking the tools' work. Where no study matches closely, or you typed your own area, we use our most conservative rate. Then we add the areas together. To keep it realistic, we count at most 25 hours a week per person for any one area, and 30 hours a week per person across all areas. The dollar figure uses the hourly cost and working weeks shown above. It's an estimate, not a promise of results or a cash saving.</p>

@@ -137,17 +137,19 @@ describe('the free check stepper', () => {
     expect(container.querySelector('#hours-correspondence')).not.toBeInTheDocument();
   });
 
-  it('adjusting the hours slider and the people stepper updates the live preview line', async () => {
+  it('the hours slider and the people stepper still update, with no running total shown mid-quiz (Thomas, 2026-09-27: reveal only at the end)', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
-    expect(container.querySelector('.ai-live-preview').textContent).toMatch(/hours a week you could get back for the work that matters most\./);
+    expect(container.querySelector('.ai-live-preview')).not.toBeInTheDocument();
+    expect(container.querySelector('.ai-fc-tally')).not.toBeInTheDocument();
     fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '20' } });
-    // more hours -> a bigger live-preview range than the 5-hour default produced
     expect(container.querySelector('#hours-correspondence')).toHaveValue('20');
+    expect(container.querySelector('.ai-live-preview')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'More people' }));
     expect(screen.getByText('2')).toBeInTheDocument();
+    expect(container.querySelector('.ai-live-preview')).not.toBeInTheDocument();
   });
 
   it('the hours label is reworded and renders as plain text, not a bordered tile-styled box', async () => {
@@ -175,21 +177,15 @@ describe('the free check stepper', () => {
     expect(screen.getByText('People at your organization who spend time on this')).toBeInTheDocument();
   });
 
-  it('shows a per-area breakdown line with the rate percentages under the live-preview total, plus the honesty note', async () => {
+  it('no running-total tally renders during the quiz, however many areas are picked (Thomas, 2026-09-27: reveal only at the end)', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
     fireEvent.click(container.querySelector('input[name="areas"][value="proposals"]'));
-    // Reproduces Thomas's exact reported scenario: both areas at the default 5 hrs x 1 person.
-    // Items 47 + 62 + 53 (2026-09-25): one card, benefit framing, sub-hour rows in minutes.
-    const tally = container.querySelector('.ai-fc-tally');
-    expect(tally.querySelector('.ai-live-preview').textContent).toBe('About 1.0 to 2.0 hours a week you could get back for the work that matters most.');
-    const rows = Array.from(tally.querySelectorAll('.ai-fc-tally-row')).map(li => li.textContent.replace(/\s+/g, ' ').trim());
-    expect(rows[0]).toBe('Emails and correspondence5 hrs×1 person×12% to 22% saved= 36 min to 1.1 hrs/week');
-    expect(rows[1]).toBe('Proposals, quotes and grant applications5 hrs×1 person×8% to 18% saved= 24 to 54 min/week');
-    expect(within(tally).getByText('The percentages are the share of that time AI can realistically save after someone checks its work.')).toBeInTheDocument();
-    expect(tally.textContent).not.toMatch(/so far/);
+    expect(container.querySelector('.ai-fc-tally')).not.toBeInTheDocument();
+    expect(container.querySelector('.ai-live-preview')).not.toBeInTheDocument();
+    expect(screen.queryByText(/hours a week you could get back for the work that matters most/)).not.toBeInTheDocument();
   });
 
   it('the Back button returns to the previous question and is disabled on question 1', async () => {
@@ -299,13 +295,13 @@ describe('the free check stepper', () => {
     )).toBeInTheDocument();
   });
 
-  it('ends in one quiet next step, not a gold CTA or a big guarantee box, and carries numbers to the plan page', async () => {
+  it('ends in one quiet next step, not a gold CTA or a big guarantee box, and opens chat directly (Thomas, 2026-09-27)', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(container);
     const cta = screen.getByRole('link', { name: 'See how the plan works' });
     expect(cta.className).toContain('ai-secondary');
     expect(cta.className).not.toContain('ai-button');
-    expect(cta.getAttribute('href')).toMatch(/^\/ai-handoff-plan\?perPersonHours=[\d.]+&employees=\d+$/);
+    expect(cta.getAttribute('href')).toBe('#chat?topic=ai-handoff-plan');
     expect(screen.getByText("We'll show you where to save at least 3 net hours a week across your organization, or your fee back.")).toBeInTheDocument();
   });
 
@@ -621,11 +617,15 @@ describe('the free check keeps a result across navigation (item 59)', () => {
     </MemoryRouter>;
   }
 
-  it('clicking "See how the plan works" and coming back shows the same result, not question 1', async () => {
+  // The old trigger for this was the "See how the plan works" CTA, which navigated to the plan
+  // page. That CTA now opens chat in place instead (Thomas, 2026-09-27) and never navigates, so
+  // this uses the header nav link to the plan page instead -- still a genuine navigate-away-and-
+  // back case, just via a different link.
+  it('navigating to the plan page via the header nav and coming back shows the same result, not question 1', async () => {
     const { container } = render(<RoutedCheck />);
     await driveToResult(container);
     const headline = container.querySelector('.ai-result-headline').textContent;
-    fireEvent.click(screen.getByRole('link', { name: 'See how the plan works' }));
+    fireEvent.click(screen.getByRole('link', { name: 'The AI Handoff Plan' }));
     expect(screen.getByText('Plan page stub')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('link', { name: 'Back to my results' }));
     await waitFor(() => expect(container.querySelector('.ai-result-headline')).toBeInTheDocument());
