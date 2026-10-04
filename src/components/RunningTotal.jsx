@@ -31,7 +31,7 @@ export default function RunningTotal({ preview, labelFor }) {
         {preview.rows.map(r => {
           const lowPct = Math.round(r.rate.low * 100);
           const likelyPct = Math.round(r.rate.likely * 100);
-          // Hours can be fractional once the 30-hour weekly cap scales rows down.
+          // Hours are whole numbers from the slider; round defensively for display.
           const hrs = Number.isInteger(r.hours) ? r.hours : Math.round(r.hours * 10) / 10;
           return (
             <li className="ai-fc-tally-row" key={r.area}>

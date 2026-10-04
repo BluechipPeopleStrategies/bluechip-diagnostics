@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   computeRange, capRowHours, roundHoursLabel, roundDollars, money, formatHours,
   toggleMulti, orgSizeMidpoint, rateForArea, suggestedAreas,
-  tailoredLines, questions, HOUR_CAP_PER_AREA, HOUR_CAP_TOTAL, PEOPLE_MAX,
+  tailoredLines, questions, HOUR_CAP_PER_AREA, PEOPLE_MAX,
   lowerFirst, joinList, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
   AREAS, AREA_RATE_MAP, RATE_TABLE, groupedOptions, sanitizeAreaLabel, sanitizeShortText,
   areaLookoutLines, OTHER_AREA_LOOKOUT, crossCuttingCards, nextSteps, ORG_AREA_SUGGESTIONS,
@@ -55,11 +55,14 @@ describe('caps', () => {
     expect(rows.map(r => r.hours)).toEqual([5, 10]);
     expect(capped).toBe(false);
   });
-  it('scales every row proportionally when the total exceeds 30 hours a week', () => {
-    const { rows, capped } = capRowHours([{ hours: 20 }, { hours: 20 }]);
-    const total = rows.reduce((s, r) => s + r.hours, 0);
-    expect(total).toBeCloseTo(HOUR_CAP_TOTAL, 6);
-    expect(rows[0].hours).toBeCloseTo(rows[1].hours, 6);
+  it('does not cap the total across rows (each row is its own group of people)', () => {
+    const { rows, capped } = capRowHours([{ hours: 20 }, { hours: 20 }, { hours: 20 }]);
+    expect(rows.map(r => r.hours)).toEqual([20, 20, 20]);
+    expect(capped).toBe(false);
+  });
+  it('still caps each row at 25 hours when the total is large', () => {
+    const { rows, capped } = capRowHours([{ hours: 25 }, { hours: 25 }, { hours: 25 }, { hours: 40 }]);
+    expect(rows.map(r => r.hours)).toEqual([25, 25, 25, 25]);
     expect(capped).toBe(true);
   });
   it('the flat 500-person cap does not change with a large org size (org size does not scale it)', () => {
