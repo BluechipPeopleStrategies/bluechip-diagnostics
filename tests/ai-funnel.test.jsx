@@ -32,6 +32,8 @@ async function answerCurrentQuestion(container, qId, values, isLast) {
   vals.forEach(v => fireEvent.click(container.querySelector(`input[name="${qId}"][value="${v}"]`)));
   if (q.type === 'multi') {
     fireEvent.click(screen.getByRole('button', { name: /Next|See my estimate/ }));
+    // Q2 is two steps (pick, then size each pick); the second Next moves on with default sizes.
+    if (qId === 'areas') fireEvent.click(screen.getByRole('button', { name: /Next|See my estimate/ }));
   } else if (isLast) {
     // Auto-advance off the last question goes through the loading screen (reduced motion is
     // mocked in tests/setup.js, so it's a flat ~600ms) before the result lands.
@@ -40,6 +42,12 @@ async function answerCurrentQuestion(container, qId, values, isLast) {
     const next = questions[q.number]; // q.number is 1-based, so this is the following question
     await waitFor(() => expect(screen.getByText(new RegExp(`Question ${next.number} of ${questions.length}`))).toBeInTheDocument());
   }
+}
+
+// Q2 step 1 -> step 2: from the tile grid to the per-area hours and people blocks.
+function goToSizing() {
+  fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+  expect(screen.getByText(/step 2 of 2/)).toBeInTheDocument();
 }
 
 async function driveToResult(container, overrides = {}) {
@@ -54,7 +62,7 @@ describe('the free check stepper', () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     expect(screen.getByText('How much time could AI give back to your team?')).toBeInTheDocument();
     expect(screen.getByText('Find out roughly how many hours a week AI could give your team back. About three minutes. No email needed.')).toBeInTheDocument();
-    expect(screen.getByText('Question 1 of 12. 0 of 12 completed.')).toBeInTheDocument();
+    expect(screen.getByText('Question 1 of 12.')).toBeInTheDocument();
     // Scoped to the stepper content, not the shared SiteHeader nav (which always names the
     // plan as a navigation link -- that's wayfinding, not sales copy).
     const stepper = container.querySelector('.ai-stepper');
@@ -76,7 +84,7 @@ describe('the free check stepper', () => {
   it('a pick-all question requires at least one pick before Next is enabled, and supports removing a pick', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
-    await waitFor(() => expect(screen.getByText('Question 2 of 12. 1 of 12 completed.')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Question 2 of 12, step 1 of 2.')).toBeInTheDocument());
     const next = screen.getByRole('button', { name: 'Next' });
     expect(next).toBeDisabled();
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
@@ -103,7 +111,7 @@ describe('the free check stepper', () => {
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     expect(screen.getByText('Where would you most like time back? Pick up to six.')).toBeInTheDocument();
-    expect(screen.getByText('Each one you pick gets its own hours and people below.')).toBeInTheDocument();
+    expect(screen.getByText("Next, you'll set the hours for each one.")).toBeInTheDocument();
     expect(screen.queryByText(/^Up to six\./)).not.toBeInTheDocument();
   });
 
@@ -120,21 +128,101 @@ describe('the free check stepper', () => {
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    goToSizing();
     expect(screen.getByText('Count everyone at your organization who does this, not just you.')).toBeInTheDocument();
   });
 
-  it('ticking a Q2 area reveals an inline hours slider and people stepper, defaulting to 5 hours and 1 person', async () => {
+  it('Q2 step 1 shows only the tile grid, with no hours slider and a note about the next step', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText('Question 2 of 12, step 1 of 2.')).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    expect(container.querySelector('#hours-correspondence')).not.toBeInTheDocument();
+    expect(container.querySelector('input[type="range"]')).not.toBeInTheDocument();
+    expect(container.querySelector('.ai-people-count')).not.toBeInTheDocument();
+    expect(container.querySelector('.ai-live-preview')).not.toBeInTheDocument();
+    expect(screen.getByText("Next, you'll set the hours for each one.")).toBeInTheDocument();
+  });
+
+  it('Next on Q2 step 1 reveals one sizing row per picked area, defaulting to 5 hours and 1 person, and hides the grid', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
-    expect(container.querySelector('#hours-correspondence')).not.toBeInTheDocument();
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
-    const slider = container.querySelector('#hours-correspondence');
-    expect(slider).toHaveValue('5');
-    expect(container.querySelector('.ai-people-count').textContent).toBe('1');
-    // unticking removes the row
+    fireEvent.click(container.querySelector('input[name="areas"][value="reports"]'));
+    goToSizing();
+    expect(screen.getByText('Question 2 of 12, step 2 of 2.')).toBeInTheDocument();
+    expect(screen.getByText(/How much time does each one take\? Count each hour only once, even if the work overlaps\. If one person does several of these, check that the hours still fit in their week\./)).toBeInTheDocument();
+    expect(container.querySelectorAll('.ai-sizing-row').length).toBe(2);
+    expect(container.querySelector('input[name="areas"]')).not.toBeInTheDocument();
+    expect(container.querySelector('#hours-correspondence')).toHaveValue('5');
+    expect(container.querySelector('#hours-reports')).toHaveValue('5');
+    container.querySelectorAll('.ai-people-count').forEach(el => expect(el.textContent).toBe('1'));
+    expect(container.querySelector('.ai-live-preview')).toBeInTheDocument();
+    expect(screen.queryByText("Next, you'll set the hours for each one.")).not.toBeInTheDocument();
+  });
+
+  it('Back from Q2 step 2 returns to the tile grid with picks preserved, not to Q1', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    fireEvent.click(container.querySelector('input[name="areas"][value="reports"]'));
+    goToSizing();
+    fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '12' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Back' }));
+    expect(screen.getByText('Question 2 of 12, step 1 of 2.')).toBeInTheDocument();
+    expect(container.querySelector('input[name="areas"][value="correspondence"]')).toBeChecked();
+    expect(container.querySelector('input[name="areas"][value="reports"]')).toBeChecked();
     expect(container.querySelector('#hours-correspondence')).not.toBeInTheDocument();
+    // sizes entered earlier survive the round trip
+    goToSizing();
+    expect(container.querySelector('#hours-correspondence')).toHaveValue('12');
+  });
+
+  it('unticking an area on step 1 removes its sizing row on step 2', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    fireEvent.click(container.querySelector('input[name="areas"][value="reports"]'));
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]')); // toggle off
+    goToSizing();
+    expect(container.querySelectorAll('.ai-sizing-row').length).toBe(1);
+    expect(container.querySelector('#hours-correspondence')).not.toBeInTheDocument();
+    expect(container.querySelector('#hours-reports')).toBeInTheDocument();
+  });
+
+  it('a disabled Next says why ("Pick at least one to continue."), and the hint clears once something is picked', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled();
+    const hint = container.querySelector('.ai-nav-hint');
+    expect(hint).toHaveAttribute('role', 'status');
+    expect(hint.textContent).toBe('Pick at least one to continue.');
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    expect(container.querySelector('.ai-nav-hint')).not.toBeInTheDocument();
+  });
+
+  it('at the Q2 cap the hint explains that a pick must be unticked to swap', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
+    ['correspondence', 'reports', 'meetingNotes', 'findingInfo', 'scheduling', 'invoicing']
+      .forEach(v => fireEvent.click(container.querySelector(`input[name="areas"][value="${v}"]`)));
+    expect(container.querySelector('.ai-nav-hint').textContent).toBe('6 of 6 chosen. Untick one to swap.');
+    fireEvent.click(container.querySelector('input[name="areas"][value="invoicing"]')); // untick one
+    expect(container.querySelector('.ai-nav-hint')).not.toBeInTheDocument();
+  });
+
+  it('the visible "N of 12 completed" sentence is gone; the question number lives in a visually hidden live region', () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    expect(container.querySelector('.ai-stepper').textContent).not.toMatch(/completed/);
+    const live = container.querySelector('.ai-live');
+    expect(live).toHaveAttribute('aria-live', 'polite');
+    expect(live.className).toContain('ai-visually-hidden');
+    expect(live.textContent).toBe('Question 1 of 12.');
   });
 
   it('adjusting the hours slider and the people stepper updates the live preview line', async () => {
@@ -142,6 +230,7 @@ describe('the free check stepper', () => {
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    goToSizing();
     expect(container.querySelector('.ai-live-preview').textContent).toMatch(/hours a week you could get back for the work that matters most\./);
     fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '20' } });
     // more hours -> a bigger live-preview range than the 5-hour default produced
@@ -155,6 +244,7 @@ describe('the free check stepper', () => {
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    goToSizing();
     expect(screen.getByText('Hours a week one person spends on this')).toBeInTheDocument();
     expect(screen.queryByText('Hours a week, one person')).not.toBeInTheDocument();
     const label = container.querySelector('label[for="hours-correspondence"]');
@@ -166,6 +256,7 @@ describe('the free check stepper', () => {
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    goToSizing();
     expect(screen.getByText('People at your organization who spend about 5 hrs a week on this')).toBeInTheDocument();
     fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '12' } });
     expect(screen.getByText('People at your organization who spend about 12 hrs a week on this')).toBeInTheDocument();
@@ -181,6 +272,7 @@ describe('the free check stepper', () => {
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
     fireEvent.click(container.querySelector('input[name="areas"][value="proposals"]'));
+    goToSizing();
     // Reproduces Thomas's exact reported scenario: both areas at the default 5 hrs x 1 person.
     // Items 47 + 62 + 53 (2026-09-25): one card, benefit framing, sub-hour rows in minutes.
     const tally = container.querySelector('.ai-fc-tally');
@@ -192,9 +284,9 @@ describe('the free check stepper', () => {
     expect(tally.textContent).not.toMatch(/so far/);
   });
 
-  it('the Back button returns to the previous question and is disabled on question 1', async () => {
+  it('the Back button returns to the previous question and is absent on question 1', async () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
-    expect(screen.getByRole('button', { name: 'Back' })).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Back' })).not.toBeInTheDocument();
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
@@ -255,9 +347,10 @@ describe('the free check stepper', () => {
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
-    fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '20' } });
-    fireEvent.click(screen.getByRole('button', { name: 'More people' })); // 1 -> 2 people
     fireEvent.click(container.querySelector('input[name="areas"][value="reports"]'));
+    goToSizing();
+    fireEvent.change(container.querySelector('#hours-correspondence'), { target: { value: '20' } });
+    fireEvent.click(screen.getAllByRole('button', { name: 'More people' })[0]); // correspondence: 1 -> 2 people
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
     await waitFor(() => expect(screen.getByText(/Question 3 of 12/)).toBeInTheDocument());
     for (const q of questions.slice(2)) {
@@ -336,7 +429,7 @@ describe('the free check stepper', () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(container);
     expect(container.querySelector('.ai-disclosure p').textContent).toBe(
-      "For each area you picked, we take the hours one person spends on it each week, multiply by the number of people who do that work, then multiply by the share of that time AI can realistically save. That share comes from published studies of similar work, minus an allowance for checking the tools' work. Where no study matches closely, or you typed your own area, we use our most conservative rate. Then we add the areas together. To keep it realistic, we count at most 25 hours a week per person for any one area, and 30 hours a week per person across all areas. The dollar figure uses the hourly cost and working weeks shown above. It's an estimate, not a promise of results or a cash saving."
+      "For each area you picked, we take the hours one person spends on it each week, multiply by the number of people who do that work, then multiply by the share of that time AI can realistically save. That share comes from published studies of similar work, minus an allowance for checking the tools' work. Where no study matches closely, or you typed your own area, we use our most conservative rate. Then we add the areas together. We count at most 25 hours a week per person for any one area. We don't check whether two areas cover the same work, so if they overlap, the same hour can be counted twice. The dollar figure uses the hourly cost and working weeks shown above. The range is only as good as the numbers you enter, and your own results could land outside it. It's an estimate, not a promise of results or a cash saving."
     );
   });
 
@@ -365,6 +458,7 @@ describe('the free check stepper', () => {
     for (const q of questions) {
       if (q.id === 'areas') {
         fireEvent.click(container.querySelector('input[name="areas"][value="otherArea"]'));
+        goToSizing();
         const labelInput = container.querySelector('#other-area-label');
         expect(labelInput).toBeInTheDocument();
         fireEvent.change(labelInput, { target: { value: '<img src=x onerror=alert(1)>grant reporting' } });
@@ -391,6 +485,7 @@ describe('the free check stepper', () => {
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // step 1 -> sizing -> Q3
     await waitFor(() => expect(screen.getByText(/Question 3 of 12/)).toBeInTheDocument());
     ['Microsoft 365', 'Google Workspace', 'Accounting software', 'HR or payroll software',
       'Industry software (for example practice management, ERP or CRM)',
@@ -417,6 +512,7 @@ describe('the free check stepper', () => {
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Next' })); // step 1 -> sizing -> Q3
     await waitFor(() => expect(screen.getByText(/Question 3 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="toolsToday"][value="m365"]'));
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
@@ -468,6 +564,7 @@ describe('the free check stepper', () => {
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    goToSizing();
     const slider = container.querySelector('#hours-correspondence');
     expect(slider).toHaveAttribute('max', '25');
     const wrapper = slider.closest('.ai-gold-slider');
@@ -480,6 +577,7 @@ describe('the free check stepper', () => {
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    goToSizing();
     const slider = container.querySelector('#hours-correspondence');
     expect(slider).toHaveValue('5');
     fireEvent.keyDown(slider, { key: 'PageUp' });
@@ -497,6 +595,7 @@ describe('the free check stepper', () => {
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    goToSizing();
 
     vi.useFakeTimers();
     const moreBtn = screen.getByRole('button', { name: 'More people' });
@@ -514,6 +613,7 @@ describe('the free check stepper', () => {
     fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
     await waitFor(() => expect(screen.getByText(/Question 2 of 12/)).toBeInTheDocument());
     fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    goToSizing();
     fireEvent.click(screen.getByRole('button', { name: 'More people' }));
     expect(container.querySelector('.ai-people-count').textContent).toBe('2');
   });
@@ -662,7 +762,7 @@ describe('the free check keeps a result across navigation (item 59)', () => {
     expect(container.querySelector('input[name="orgType"][value="professional"]')).not.toBeChecked();
     unmount();
     render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
-    expect(screen.getByText(/Question 1 of 12\. 0 of 12 completed/)).toBeInTheDocument();
+    expect(screen.getByText(/Question 1 of 12\./)).toBeInTheDocument();
   });
 
   it('ignores a corrupt saved session instead of crashing', () => {

@@ -7,10 +7,11 @@ import {
   PEOPLE_MAX, areaHoursLabel, GUARANTEE_NET_HOURS } from '../lib/aiOpportunity';
 import { prefersReducedMotion } from '../lib/useRollingNumber';
 import { loadCheckSession, saveCheckSession, clearCheckSession } from '../lib/freeCheckSession';
+import { trackCheck } from '../lib/checkAnalytics';
 import SiteHeader from './SiteHeader';
 import AreaIcon from './AreaIcon';
 import AreaHoursInput from './AreaHoursInput';
-import RunningTotal from './RunningTotal';
+import RunningTotal, { HoursBackBar } from './RunningTotal';
 import GoldSlider from './GoldSlider';
 import ChipsRow from './ChipsRow';
 import RollingNumber from './RollingNumber';
@@ -70,6 +71,8 @@ export default function AiOpportunityCheck() {
   const [ownerOtherText, setOwnerOtherText] = useState(() => restored?.ownerOtherText ?? ''); // Q9 "Someone else" free text, optional
   const [toolsOtherText, setToolsOtherText] = useState(() => restored?.toolsOtherText ?? ''); // Q3 "Other" free text, optional
   const headingRef = useRef(null);
+  // Q2 is two steps on one screen each: pick the areas, then size each pick (hours, people).
+  const [sizingFor, setSizingFor] = useState(null); // the question index whose sizing step is open
 
   useEffect(() => {
     saveCheckSession({ answers, qIndex, step, areaInputs, rate, weeks, headcount, ownerOtherText, toolsOtherText });
@@ -82,11 +85,28 @@ export default function AiOpportunityCheck() {
   }
 
   const question = questions[qIndex];
+  const sizing = sizingFor === qIndex;
   const answeredCount = questions.filter(q => isComplete(q, answers)).length;
   const allAnswered = answeredCount === questions.length;
   const pct = Math.round(((qIndex + 1) / questions.length) * 100);
 
-  useEffect(() => { setTimeout(() => headingRef.current?.focus(), 0); }, [step, qIndex]);
+
+  // Funnel events (structure only, never answers). A visitor who restored a saved session is flagged
+  // so a returning visit is not read as a fresh start.
+  useEffect(() => {
+    const resumed = !!restored;
+    if (step === 'questions') {
+      const substep = question?.id === 'areas' ? (sizing ? 'size' : 'pick') : null;
+      if (qIndex === 0 && !resumed) trackCheck('check_started', { total: questions.length });
+      trackCheck('check_question_viewed', {
+        question_id: question?.id, question_number: qIndex + 1, total: questions.length, substep, resumed,
+      });
+    } else if (step === 'result') {
+      trackCheck('check_result_viewed', { areas_count: (answers.areas || []).length, resumed });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, qIndex, sizing]);
+  useEffect(() => { setTimeout(() => headingRef.current?.focus(), 0); }, [step, qIndex, sizing]);
 
   // Cycles the loading copy, then reveals the result. Reduced motion: a short static beat only.
   useEffect(() => {
@@ -120,15 +140,18 @@ export default function AiOpportunityCheck() {
 
   function goNext() {
     if (!isComplete(question, answers)) return;
+    if (question.id === 'areas' && !sizing) { setSizingFor(qIndex); return; }
     if (qIndex < questions.length - 1) setQIndex(i => i + 1);
     else setStep('loading');
   }
   function goBack() {
+    if (sizing) { setSizingFor(null); return; }
     if (qIndex > 0) setQIndex(i => i - 1);
   }
   // "Review my answers" starts at question 1; a "Change" link in the answers summary jumps
   // straight to that question.
   function reviewAnswers(index = 0) {
+    setSizingFor(null); // a "Change" jump lands on the picks, not the sizing step
     setStep('questions');
     setQIndex(Number.isInteger(index) && index >= 0 && index < questions.length ? index : 0);
   }
@@ -156,16 +179,35 @@ export default function AiOpportunityCheck() {
         {isAreas && <AreaIcon area={val} />}
         <span>{label}</span>
       </label>
-      {isAreas && checked && <AreaHoursInput
+      {isAreas && val === 'otherArea' && checked && !sizing && <div className="ai-other-label-field ai-other-label-field--tile">
+        <label className="ai-hours-field-label" htmlFor="other-area-label">What's the work?</label>
+        <input id="other-area-label" type="text" className="ai-compact-text-input" maxLength={60}
+          placeholder="e.g. grant reporting" value={areaInputs.otherArea?.label || ''}
+          onChange={(e) => setAreaInputs(prev => ({ ...prev, otherArea: { ...prev.otherArea, label: e.target.value } }))} />
+      </div>}
+    </div>;
+  }
+
+  // Second half of Q2: one compact block per picked area, in the order picked.
+  function renderSizingRow(val) {
+    const label = val === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[val];
+    return <div className="ai-sizing-row" key={val}>
+      <p className="ai-sizing-title"><AreaIcon area={val} /><span>{label}</span></p>
+      <AreaHoursInput
         area={val} hours={areaInputs[val]?.hours ?? 5} people={areaInputs[val]?.people ?? 1}
         peopleMax={PEOPLE_MAX}
         onHoursChange={(h) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], hours: h } }))}
         onPeopleChange={(p) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], people: p } }))}
         otherLabel={areaInputs[val]?.label}
         onOtherLabelChange={(l) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], label: l } }))}
-      />}
+      />
     </div>;
   }
+
+  // Why Next is unavailable, or why a tile stopped responding, said in words next to the button.
+  const navHint = question?.type !== 'multi' ? null
+    : atCap ? `${picks.length} of ${question.maxPicks} chosen. Untick one to swap.`
+    : !isComplete(question, answers) ? 'Pick at least one to continue.' : null;
 
   const Presentation = question?.type === 'single' ? CHOICE_PRESENTATIONS[question.id] : null;
 
@@ -183,13 +225,18 @@ export default function AiOpportunityCheck() {
 
       <div className="ai-stepper">
         <div className="ai-stepper-progress-track" aria-hidden="true"><div className="ai-stepper-progress-fill" style={{ transform: `scaleX(${pct / 100})` }} /></div>
-        <p className="ai-live" aria-live="polite">Question {qIndex + 1} of {questions.length}. {answeredCount} of {questions.length} completed.</p>
+        <p className="ai-live ai-visually-hidden" aria-live="polite">Question {qIndex + 1} of {questions.length}{isAreas ? (sizing ? ', step 2 of 2' : ', step 1 of 2') : ''}.</p>
 
         <fieldset className="ai-stepper-question">
           <legend>{qIndex > 0 && <span className="ai-stepper-count">{qIndex + 1} / {questions.length}</span>} <span ref={qIndex > 0 ? headingRef : null} tabIndex={qIndex > 0 ? -1 : undefined}>{question.label}</span></legend>
 
+          {isAreas && sizing && <>
+            {livePreview && <HoursBackBar preview={livePreview} />}
+            <p className="ai-note ai-sizing-intro">How much time does each one take? Count each hour only once, even if the work overlaps. If one person does several of these, check that the hours still fit in their week.</p>
+            {picks.map(renderSizingRow)}
+          </>}
           {Presentation && <Presentation question={question} value={value} onSelect={selectSingle} />}
-          {!Presentation && <div className={`ai-options ai-options--tiles ${isAreas ? 'ai-options--areas' : ''} ${isGrouped ? 'ai-options--grouped' : ''}`} onKeyDown={question.type === 'multi' ? handleGridArrowKeys : undefined}>
+          {!(isAreas && sizing) && !Presentation && <div className={`ai-options ai-options--tiles ${isAreas ? 'ai-options--areas' : ''} ${isGrouped ? 'ai-options--grouped' : ''}`} onKeyDown={question.type === 'multi' ? handleGridArrowKeys : undefined}>
             {isGrouped
               ? groupedOptions(question).flatMap((bucket, bi) => [
                 bucket.label && <p className="ai-tile-group-label" key={`group-${bi}`}>{bucket.label}</p>,
@@ -197,8 +244,8 @@ export default function AiOpportunityCheck() {
               ]).filter(Boolean)
               : question.options.map(renderTile)}
           </div>}
-          {isAreas && <p className="ai-note">Each one you pick gets its own hours and people below.</p>}
-          {livePreview && <RunningTotal preview={livePreview}
+          {isAreas && !sizing && <p className="ai-note">Next, you'll set the hours for each one.</p>}
+          {livePreview && sizing && <RunningTotal preview={livePreview}
             labelFor={(a) => (a === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[a])} />}
           {isOwner && value === 'someoneElse' && <div className="ai-other-label-field">
             <label className="ai-hours-field-label" htmlFor="owner-other-text">Who is it? (a role is fine, e.g. finance lead)</label>
@@ -214,14 +261,19 @@ export default function AiOpportunityCheck() {
           </div>}
         </fieldset>
 
+        <div className="ai-stepper-footer">
+        {navHint && <p className="ai-note ai-nav-hint" role="status">{navHint}</p>}
         <div className="ai-stepper-nav">
-          <button type="button" className="ai-secondary" onClick={goBack} disabled={qIndex === 0}>Back</button>
+          {qIndex > 0 || sizing
+            ? <button type="button" className="ai-secondary" onClick={goBack}>Back</button>
+            : <span aria-hidden="true" />}
           {/* Once every question has an answer (e.g. after "Change" from the results summary), the
               visitor can jump straight back instead of re-stepping the rest of the check. */}
           {allAnswered && <button type="button" className="ai-secondary ai-fc-back-to-results" onClick={() => setStep('result')}>Back to my results</button>}
           {question.type === 'multi' && <button type="button" className="ai-button" onClick={goNext} disabled={!isComplete(question, answers)}>
-            {qIndex === questions.length - 1 ? 'See my estimate' : 'Next'}
+            {qIndex === questions.length - 1 && !(isAreas && !sizing) ? 'See my estimate' : 'Next'}
           </button>}
+        </div>
         </div>
       </div>
     </>}
@@ -283,7 +335,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
       About <RollingNumber value={low} format={(n) => roundHoursLabel(n)} /> to <RollingNumber value={likely} format={(n) => roundHoursLabel(n)} /> hours a week
     </h1>
     <p className="ai-result-sub">across the areas you picked</p>
-    <p className="ai-note">This estimate is based on the people you entered. Most of it comes from one person's time in each area.</p>
+    <p className="ai-note">This estimate is based on the people you entered.</p>
 
     <div className="ai-stat-tiles">
       <div className="ai-stat-tile">
@@ -389,7 +441,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
     <ClosingNextStep planHref={`/ai-handoff-plan?perPersonHours=${carryHours}&employees=${carryEmployees}`}>
       <details className="ai-disclosure ai-fc-disclosure">
         <summary>How this estimate works</summary>
-        <p>For each area you picked, we take the hours one person spends on it each week, multiply by the number of people who do that work, then multiply by the share of that time AI can realistically save. That share comes from published studies of similar work, minus an allowance for checking the tools' work. Where no study matches closely, or you typed your own area, we use our most conservative rate. Then we add the areas together. To keep it realistic, we count at most 25 hours a week per person for any one area, and 30 hours a week per person across all areas. The dollar figure uses the hourly cost and working weeks shown above. It's an estimate, not a promise of results or a cash saving.</p>
+        <p>For each area you picked, we take the hours one person spends on it each week, multiply by the number of people who do that work, then multiply by the share of that time AI can realistically save. That share comes from published studies of similar work, minus an allowance for checking the tools' work. Where no study matches closely, or you typed your own area, we use our most conservative rate. Then we add the areas together. We count at most 25 hours a week per person for any one area. We don't check whether two areas cover the same work, so if they overlap, the same hour can be counted twice. The dollar figure uses the hourly cost and working weeks shown above. The range is only as good as the numbers you enter, and your own results could land outside it. It's an estimate, not a promise of results or a cash saving.</p>
       </details>
     </ClosingNextStep>
 

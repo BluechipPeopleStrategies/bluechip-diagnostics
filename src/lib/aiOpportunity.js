@@ -121,7 +121,8 @@ export const ORG_AREA_SUGGESTIONS = {
 export const PEOPLE_MAX = 500;
 
 export const HOUR_CAP_PER_AREA = 25; // hours a week, one person, per area (the slider's hard max)
-export const HOUR_CAP_TOTAL = 30;    // hours a week, one person, summed across every picked area
+// No cap across areas (Thomas, 2026-10-04): each row is its own group of people, so one person's weekly
+// total is not the right ceiling. The 25-hour per-area cap above still applies to every row.
 
 // The AI Handoff Plan's guarantee: net hours a week found across the whole organization, or the
 // fee comes back (Thomas, 2026-09-25: lowered from 5 to 3). One source of truth for every
@@ -374,9 +375,8 @@ export function rateForArea(area) {
   return RATE_TABLE[AREA_RATE_MAP[area]] || RATE_TABLE.floor;
 }
 
-// Clamp each row's hours at HOUR_CAP_PER_AREA, then scale every row proportionally if the total
-// across rows exceeds HOUR_CAP_TOTAL, so the calculator never assumes any one person works more
-// hours than a real week allows. Returns { rows, capped } (capped is true if either cap bound).
+// Clamp each row's hours at HOUR_CAP_PER_AREA. There is no cap on the total across rows. Returns
+// { rows, capped } (capped is true if any row was clamped).
 export function capRowHours(rows) {
   let capped = false;
   const clamped = rows.map(r => {
@@ -385,10 +385,7 @@ export function capRowHours(rows) {
     if (h !== raw) capped = true;
     return { ...r, hours: h };
   });
-  const total = clamped.reduce((sum, r) => sum + r.hours, 0);
-  if (total <= HOUR_CAP_TOTAL || total === 0) return { rows: clamped, capped };
-  const scale = HOUR_CAP_TOTAL / total;
-  return { rows: clamped.map(r => ({ ...r, hours: r.hours * scale })), capped: true };
+  return { rows: clamped, capped };
 }
 
 // net range = hours spent x people x [low, likely] net rate for the row's area, summed across
