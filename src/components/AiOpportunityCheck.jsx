@@ -7,6 +7,7 @@ import {
   PEOPLE_MAX, areaHoursLabel, GUARANTEE_NET_HOURS } from '../lib/aiOpportunity';
 import { prefersReducedMotion } from '../lib/useRollingNumber';
 import { loadCheckSession, saveCheckSession, clearCheckSession } from '../lib/freeCheckSession';
+import { trackCheck } from '../lib/checkAnalytics';
 import SiteHeader from './SiteHeader';
 import AreaIcon from './AreaIcon';
 import AreaHoursInput from './AreaHoursInput';
@@ -89,6 +90,22 @@ export default function AiOpportunityCheck() {
   const pct = Math.round(((qIndex + 1) / questions.length) * 100);
 
   useEffect(() => { setSizing(false); }, [qIndex]);
+
+  // Funnel events (structure only, never answers). A visitor who restored a saved session is flagged
+  // so a returning visit is not read as a fresh start.
+  useEffect(() => {
+    const resumed = !!restored;
+    if (step === 'questions') {
+      const substep = question?.id === 'areas' ? (sizing ? 'size' : 'pick') : null;
+      if (qIndex === 0 && !resumed) trackCheck('check_started', { total: questions.length });
+      trackCheck('check_question_viewed', {
+        question_id: question?.id, question_number: qIndex + 1, total: questions.length, substep, resumed,
+      });
+    } else if (step === 'result') {
+      trackCheck('check_result_viewed', { areas_count: (answers.areas || []).length, resumed });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, qIndex, sizing]);
   useEffect(() => { setTimeout(() => headingRef.current?.focus(), 0); }, [step, qIndex, sizing]);
 
   // Cycles the loading copy, then reveals the result. Reduced motion: a short static beat only.
