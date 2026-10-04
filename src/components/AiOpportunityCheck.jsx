@@ -335,7 +335,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
       About <RollingNumber value={low} format={(n) => roundHoursLabel(n)} /> to <RollingNumber value={likely} format={(n) => roundHoursLabel(n)} /> hours a week
     </h1>
     <p className="ai-result-sub">across the areas you picked</p>
-    <p className="ai-note">This estimate is based on the people you entered. Most of it comes from one person's time in each area.</p>
+    <p className="ai-note">This estimate is based on the people you entered.</p>
 
     <div className="ai-stat-tiles">
       <div className="ai-stat-tile">

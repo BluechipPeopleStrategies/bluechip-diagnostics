@@ -46,4 +46,18 @@ describe('free check result never disqualifies a visitor', () => {
     expect(within(result).getByRole('link', { name: 'See how the plan works' })).toBeInTheDocument();
     expect(result.textContent).not.toMatch(/not qualify|don't qualify|do not qualify|ineligible|disqualif/i);
   });
+
+  it('does not describe a two-person estimate as mostly one person\'s time', () => {
+    saveCheckSession({
+      answers: ANSWERS,
+      qIndex: 11,
+      step: 'result',
+      areaInputs: { findingInfo: { hours: 25, people: 2 } },
+    });
+
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    const basisNote = container.querySelector('.ai-result-sub + .ai-note');
+    expect(basisNote).toHaveTextContent('This estimate is based on the people you entered.');
+    expect(basisNote).not.toHaveTextContent(/one person's time/i);
+  });
 });
