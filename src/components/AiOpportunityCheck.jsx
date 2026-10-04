@@ -232,7 +232,7 @@ export default function AiOpportunityCheck() {
 
           {isAreas && sizing && <>
             {livePreview && <HoursBackBar preview={livePreview} />}
-            <p className="ai-note ai-sizing-intro">How much time does each one take?</p>
+            <p className="ai-note ai-sizing-intro">How much time does each one take? Count each hour only once, even if the work overlaps. If one person does several of these, check that the hours still fit in their week.</p>
             {picks.map(renderSizingRow)}
           </>}
           {Presentation && <Presentation question={question} value={value} onSelect={selectSingle} />}
@@ -441,7 +441,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
     <ClosingNextStep planHref={`/ai-handoff-plan?perPersonHours=${carryHours}&employees=${carryEmployees}`}>
       <details className="ai-disclosure ai-fc-disclosure">
         <summary>How this estimate works</summary>
-        <p>For each area you picked, we take the hours one person spends on it each week, multiply by the number of people who do that work, then multiply by the share of that time AI can realistically save. That share comes from published studies of similar work, minus an allowance for checking the tools' work. Where no study matches closely, or you typed your own area, we use our most conservative rate. Then we add the areas together. To keep it realistic, we count at most 25 hours a week per person for any one area. The dollar figure uses the hourly cost and working weeks shown above. It's an estimate, not a promise of results or a cash saving.</p>
+        <p>For each area you picked, we take the hours one person spends on it each week, multiply by the number of people who do that work, then multiply by the share of that time AI can realistically save. That share comes from published studies of similar work, minus an allowance for checking the tools' work. Where no study matches closely, or you typed your own area, we use our most conservative rate. Then we add the areas together. We count at most 25 hours a week per person for any one area. We don't check whether two areas cover the same work, so if they overlap, the same hour can be counted twice. The dollar figure uses the hourly cost and working weeks shown above. The range is only as good as the numbers you enter, and your own results could land outside it. It's an estimate, not a promise of results or a cash saving.</p>
       </details>
     </ClosingNextStep>
 
