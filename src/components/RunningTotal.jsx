@@ -12,7 +12,7 @@ export function HoursBackBar({ preview }) {
   return (
     <p className="ai-hours-back-bar" role="status">
       About <strong className="ai-fc-tally-figure"><RollingNumber value={preview.low} format={areaHoursLabel} /> to <RollingNumber value={preview.likely} format={areaHoursLabel} /></strong> hours a week{' '}
-      <span className="ai-fc-tally-for">you could get back so far.</span>
+      <span className="ai-fc-tally-for">your team could get back so far.</span>
     </p>
   );
 }
