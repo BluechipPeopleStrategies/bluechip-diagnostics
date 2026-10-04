@@ -524,3 +524,35 @@
   .ai-funnel.ai-funnel--check .ai-fc-qr-tile img { width: 30mm; height: 30mm; }
   .ai-funnel.ai-funnel--check a { text-decoration: none; }
 }
+
+/* ---------- Q8 size scale, second pass (2026-10-04): brighter, bigger, clearer ---------- */
+.ai-funnel.ai-funnel--check .ai-fc-size-scale { padding: 44px 26px 14px; gap: 14px;
+  background: radial-gradient(70% 55% at 50% 100%, rgba(201, 162, 75, .12), transparent 70%), var(--fc-glass); }
+.ai-funnel.ai-funnel--check .ai-fc-size-step { padding: 4px 2px 22px; }
+.ai-funnel.ai-funnel--check .ai-fc-size-fill { position: relative; width: min(100%, 92px); border-radius: 14px 14px 6px 6px;
+  background: linear-gradient(180deg, rgba(170, 198, 236, .5), rgba(58, 94, 146, .66) 55%, rgba(26, 48, 80, .82));
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .3), inset 0 0 0 1px rgba(214, 224, 238, .26), 0 16px 24px -12px rgba(0, 0, 0, .85); }
+.ai-funnel.ai-funnel--check .ai-fc-size-fill::before { content: ""; position: absolute; left: 14%; right: 14%; top: 0; height: 3px; border-radius: 0 0 3px 3px;
+  background: linear-gradient(90deg, transparent, rgba(240, 217, 154, .75), transparent); opacity: .55; transition: opacity .3s ease; }
+.ai-funnel.ai-funnel--check .ai-fc-size-people { height: 18px; color: rgba(226, 234, 245, .9); transform-origin: 50% 100%; transform: translateX(-50%) scale(1.3);
+  bottom: calc(var(--h) + 10px); }
+.ai-funnel.ai-funnel--check .ai-fc-size-step:hover .ai-fc-size-fill { transform: scaleY(1.05); background: linear-gradient(180deg, rgba(228, 190, 100, .55), rgba(58, 94, 146, .7) 65%, rgba(26, 48, 80, .85)); }
+.ai-funnel.ai-funnel--check .ai-fc-size-step:hover .ai-fc-size-fill::before { opacity: 1; }
+.ai-funnel.ai-funnel--check .ai-fc-size-step:hover .ai-fc-size-people { color: #fff; transform: translate(-50%, -5px) scale(1.3); }
+.ai-funnel.ai-funnel--check .ai-fc-size-step.is-selected .ai-fc-size-people { color: #f0d99a; transform: translate(-50%, -9px) scale(1.3); }
+.ai-funnel.ai-funnel--check .ai-fc-size-step.is-selected .ai-fc-size-fill::before { opacity: 0; }
+.ai-funnel.ai-funnel--check .ai-fc-size-label { font-size: 16px; font-weight: 600; color: var(--ai-ink); min-height: 40px; }
+.ai-funnel.ai-funnel--check .ai-fc-size-label::after { content: "people"; display: block; margin-top: 2px; font-size: 12.5px; font-weight: 500; color: var(--ai-soft); }
+.ai-funnel.ai-funnel--check .ai-fc-size-step.is-selected .ai-fc-size-label { color: #f0d99a; }
+@media (max-width: 480px) {
+  .ai-funnel.ai-funnel--check .ai-fc-size-scale { padding: 40px 8px 10px; gap: 6px; }
+  .ai-funnel.ai-funnel--check .ai-fc-size-fill { width: min(100%, 60px); }
+  .ai-funnel.ai-funnel--check .ai-fc-size-label { font-size: 13.5px; }
+  .ai-funnel.ai-funnel--check .ai-fc-size-label::after { font-size: 11.5px; }
+  .ai-funnel.ai-funnel--check .ai-fc-size-people { transform: translateX(-50%) scale(1.05); }
+}
+@media (max-width: 480px) {
+  .ai-funnel.ai-funnel--check .ai-fc-size-scale { padding: 40px 6px 10px; gap: 2px; }
+  .ai-funnel.ai-funnel--check .ai-fc-size-label { font-size: 12px; min-height: 34px; }
+  .ai-funnel.ai-funnel--check .ai-fc-size-label::after { display: none; }
+}

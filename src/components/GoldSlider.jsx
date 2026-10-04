@@ -5,7 +5,7 @@ import { useState } from 'react';
 // jump to min/max) with no extra code; PageUp/PageDown get an explicit handler below because the
 // browser-default page step isn't guaranteed to be 5. `ticks` (optional array of numbers within
 // [min,max]) renders small marks with labels under the track.
-export default function GoldSlider({ id, min, max, step = 1, value, onChange, format, ariaLabel, tooltip, ticks, pageStep = 5 }) {
+export default function GoldSlider({ id, min, max, step = 1, value, onChange, format, ariaLabel, tooltip, ticks, pageStep = 5, bubble = true }) {
   const [dragging, setDragging] = useState(false);
   const pct = max > min ? ((value - min) / (max - min)) * 100 : 0;
   const bubbleLeft = Math.min(94, Math.max(6, pct));
@@ -27,7 +27,7 @@ export default function GoldSlider({ id, min, max, step = 1, value, onChange, fo
 
   return (
     <div className={`ai-gold-slider ${dragging ? 'is-dragging' : ''}`} style={{ '--pct': `${pct}%` }}>
-      <span className="ai-slider-bubble" style={{ left: `${bubbleLeft}%` }} aria-hidden="true">{label}</span>
+      {bubble && <span className="ai-slider-bubble" style={{ left: `${bubbleLeft}%` }} aria-hidden="true">{label}</span>}
       <input
         id={id} type="range" min={min} max={max} step={step} value={value}
         aria-label={ariaLabel} aria-valuetext={label}

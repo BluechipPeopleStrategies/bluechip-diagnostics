@@ -11,7 +11,7 @@ import { trackCheck } from '../lib/checkAnalytics';
 import SiteHeader from './SiteHeader';
 import AreaIcon from './AreaIcon';
 import AreaHoursInput from './AreaHoursInput';
-import RunningTotal from './RunningTotal';
+import RunningTotal, { HoursBackBar } from './RunningTotal';
 import GoldSlider from './GoldSlider';
 import ChipsRow from './ChipsRow';
 import RollingNumber from './RollingNumber';
@@ -179,6 +179,12 @@ export default function AiOpportunityCheck() {
         {isAreas && <AreaIcon area={val} />}
         <span>{label}</span>
       </label>
+      {isAreas && val === 'otherArea' && checked && !sizing && <div className="ai-other-label-field ai-other-label-field--tile">
+        <label className="ai-hours-field-label" htmlFor="other-area-label">What's the work?</label>
+        <input id="other-area-label" type="text" className="ai-compact-text-input" maxLength={60}
+          placeholder="e.g. grant reporting" value={areaInputs.otherArea?.label || ''}
+          onChange={(e) => setAreaInputs(prev => ({ ...prev, otherArea: { ...prev.otherArea, label: e.target.value } }))} />
+      </div>}
     </div>;
   }
 
@@ -225,6 +231,7 @@ export default function AiOpportunityCheck() {
           <legend>{qIndex > 0 && <span className="ai-stepper-count">{qIndex + 1} / {questions.length}</span>} <span ref={qIndex > 0 ? headingRef : null} tabIndex={qIndex > 0 ? -1 : undefined}>{question.label}</span></legend>
 
           {isAreas && sizing && <>
+            {livePreview && <HoursBackBar preview={livePreview} />}
             <p className="ai-note ai-sizing-intro">How much time does each one take?</p>
             {picks.map(renderSizingRow)}
           </>}

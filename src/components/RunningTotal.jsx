@@ -6,6 +6,17 @@ import { areaHoursLabel, areaWeeklyLabel } from '../lib/aiOpportunity';
 // be two boxes of different widths with the maths dumped as raw text lines. Now one card: the
 // headline figure on top, framed around what the time is for, and each area as a row that reads
 // left to right (inputs, the saved share, the result), so the arithmetic is legible at a glance.
+// The hours-back headline on its own, shown at the top of the sizing step so the figure that matters
+// is in view while the inputs below move it. Same wording as the full card's headline.
+export function HoursBackBar({ preview }) {
+  return (
+    <p className="ai-hours-back-bar" role="status">
+      About <strong className="ai-fc-tally-figure"><RollingNumber value={preview.low} format={areaHoursLabel} /> to <RollingNumber value={preview.likely} format={areaHoursLabel} /></strong> hours a week{' '}
+      <span className="ai-fc-tally-for">you could get back so far.</span>
+    </p>
+  );
+}
+
 export default function RunningTotal({ preview, labelFor }) {
   return (
     <section className="ai-fc-tally" aria-label="Running total">
