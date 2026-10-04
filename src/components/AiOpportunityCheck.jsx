@@ -72,7 +72,7 @@ export default function AiOpportunityCheck() {
   const [toolsOtherText, setToolsOtherText] = useState(() => restored?.toolsOtherText ?? ''); // Q3 "Other" free text, optional
   const headingRef = useRef(null);
   // Q2 is two steps on one screen each: pick the areas, then size each pick (hours, people).
-  const [sizing, setSizing] = useState(false);
+  const [sizingFor, setSizingFor] = useState(null); // the question index whose sizing step is open
 
   useEffect(() => {
     saveCheckSession({ answers, qIndex, step, areaInputs, rate, weeks, headcount, ownerOtherText, toolsOtherText });
@@ -85,11 +85,11 @@ export default function AiOpportunityCheck() {
   }
 
   const question = questions[qIndex];
+  const sizing = sizingFor === qIndex;
   const answeredCount = questions.filter(q => isComplete(q, answers)).length;
   const allAnswered = answeredCount === questions.length;
   const pct = Math.round(((qIndex + 1) / questions.length) * 100);
 
-  useEffect(() => { setSizing(false); }, [qIndex]);
 
   // Funnel events (structure only, never answers). A visitor who restored a saved session is flagged
   // so a returning visit is not read as a fresh start.
@@ -140,17 +140,18 @@ export default function AiOpportunityCheck() {
 
   function goNext() {
     if (!isComplete(question, answers)) return;
-    if (question.id === 'areas' && !sizing) { setSizing(true); return; }
+    if (question.id === 'areas' && !sizing) { setSizingFor(qIndex); return; }
     if (qIndex < questions.length - 1) setQIndex(i => i + 1);
     else setStep('loading');
   }
   function goBack() {
-    if (sizing) { setSizing(false); return; }
+    if (sizing) { setSizingFor(null); return; }
     if (qIndex > 0) setQIndex(i => i - 1);
   }
   // "Review my answers" starts at question 1; a "Change" link in the answers summary jumps
   // straight to that question.
   function reviewAnswers(index = 0) {
+    setSizingFor(null); // a "Change" jump lands on the picks, not the sizing step
     setStep('questions');
     setQIndex(Number.isInteger(index) && index >= 0 && index < questions.length ? index : 0);
   }

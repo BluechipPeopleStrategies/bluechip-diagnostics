@@ -46,4 +46,17 @@ describe('free check funnel events', () => {
     delete window.posthog;
     expect(() => render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>)).not.toThrow();
   });
+
+  it('Back from question 3 returns to the sizing step of Q2, not the tile grid', async () => {
+    const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
+    fireEvent.click(container.querySelector('input[name="orgType"][value="professional"]'));
+    await waitFor(() => expect(container.querySelector('input[name="areas"]')).toBeInTheDocument());
+    fireEvent.click(container.querySelector('input[name="areas"][value="correspondence"]'));
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }));
+    await waitFor(() => expect(container.querySelector('input[name="toolsToday"]')).toBeInTheDocument());
+    fireEvent.click(screen.getByRole('button', { name: 'Back' }));
+    expect(container.querySelector('.ai-sizing-row')).toBeInTheDocument();
+    expect(container.querySelector('input[name="areas"]')).not.toBeInTheDocument();
+  });
 });
