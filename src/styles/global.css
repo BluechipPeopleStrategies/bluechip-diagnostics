@@ -218,8 +218,10 @@ body {
 }
 .bc-progress-fill {
   height: 100%;
+  width: 100%;
   background: var(--bc-navy);
-  transition: width 0.3s ease;
+  transform-origin: left center;
+  transition: transform 0.3s ease;
 }
 
 /* ===== Question + options ===== */
@@ -372,7 +374,6 @@ body {
 .bc-dim-fill {
   height: 100%;
   background: var(--bc-navy);
-  transition: width 0.6s ease;
 }
 .bc-dim-fill.is-weakest { background: var(--bc-gold); }
 
@@ -393,8 +394,6 @@ body {
   color: var(--bc-gold);
   font-size: 19px;
   margin: 0 0 24px;
-  padding-left: 18px;
-  border-left: 3px solid var(--bc-gold);
 }
 .bc-cheat-list { list-style: none; padding: 0; margin: 0; counter-reset: cheat-counter; }
 .bc-cheat-list li {

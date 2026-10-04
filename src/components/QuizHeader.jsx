@@ -9,7 +9,7 @@ export default function QuizHeader({ currentIndex, total, title, slug }) {
         Question {currentIndex + 1} of {total}: {title}
       </p>
       <div className="bc-progress-track" aria-hidden="true">
-        <div className="bc-progress-fill" style={{ width: `${pct}%` }} />
+        <div className="bc-progress-fill" style={{ transform: `scaleX(${pct / 100})` }} />
       </div>
     </div>
   );

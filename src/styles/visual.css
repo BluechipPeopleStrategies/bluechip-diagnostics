@@ -49,7 +49,7 @@ html, body {
 .bc-page .bc-quiz-header-eyebrow { color: var(--v-gold) !important; margin: 0 0 10px !important; }
 .bc-progress-track { height: 6px !important; border-radius: 99px; background: rgba(199, 208, 220, .12) !important; overflow: visible; }
 .bc-progress-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--v-gold-lo), var(--v-gold-hi)) !important;
-  box-shadow: 0 0 14px rgba(201,162,75, .55); transition: width .45s var(--v-ease); }
+  box-shadow: 0 0 14px rgba(201,162,75, .55); transition: transform .45s var(--v-ease); }
 .bc-question { animation: vRise .45s var(--v-ease) both; }
 .bc-option {
   background: linear-gradient(180deg, var(--v-card-hi), var(--v-card)) !important;
@@ -79,7 +79,7 @@ html, body {
 .bc-result-kicker { font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-size: 20px; color: var(--v-soft) !important; margin: 0 0 4px !important; }
 .bc-result-title { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(38px, 5.4vw, 60px) !important; line-height: 1.04 !important;
   font-weight: 600; margin: 0 0 18px !important; color: var(--v-ink);
-  background: linear-gradient(180deg, #fff8ec 0%, #e7dcc8 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  }
 .bc-result-chip { display: inline-block; padding: 6px 14px; border-radius: 99px; border: 1px solid var(--v-line-hi); color: var(--v-gold) !important; font-size: 14px !important; margin: 0 0 14px !important; }
 .bc-result-score-row { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
 .bc-result-tier { margin: 0 !important; font-family: 'Playfair Display', Georgia, serif; font-size: 26px !important; color: var(--v-ink) !important; }

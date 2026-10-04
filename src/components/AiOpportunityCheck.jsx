@@ -182,7 +182,7 @@ export default function AiOpportunityCheck() {
       </div>}
 
       <div className="ai-stepper">
-        <div className="ai-stepper-progress-track" aria-hidden="true"><div className="ai-stepper-progress-fill" style={{ width: `${pct}%` }} /></div>
+        <div className="ai-stepper-progress-track" aria-hidden="true"><div className="ai-stepper-progress-fill" style={{ transform: `scaleX(${pct / 100})` }} /></div>
         <p className="ai-live" aria-live="polite">Question {qIndex + 1} of {questions.length}. {answeredCount} of {questions.length} completed.</p>
 
         <fieldset className="ai-stepper-question">
