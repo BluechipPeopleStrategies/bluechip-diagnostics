@@ -70,6 +70,8 @@ export default function AiOpportunityCheck() {
   const [ownerOtherText, setOwnerOtherText] = useState(() => restored?.ownerOtherText ?? ''); // Q9 "Someone else" free text, optional
   const [toolsOtherText, setToolsOtherText] = useState(() => restored?.toolsOtherText ?? ''); // Q3 "Other" free text, optional
   const headingRef = useRef(null);
+  // Q2 is two steps on one screen each: pick the areas, then size each pick (hours, people).
+  const [sizing, setSizing] = useState(false);
 
   useEffect(() => {
     saveCheckSession({ answers, qIndex, step, areaInputs, rate, weeks, headcount, ownerOtherText, toolsOtherText });
@@ -86,7 +88,8 @@ export default function AiOpportunityCheck() {
   const allAnswered = answeredCount === questions.length;
   const pct = Math.round(((qIndex + 1) / questions.length) * 100);
 
-  useEffect(() => { setTimeout(() => headingRef.current?.focus(), 0); }, [step, qIndex]);
+  useEffect(() => { setSizing(false); }, [qIndex]);
+  useEffect(() => { setTimeout(() => headingRef.current?.focus(), 0); }, [step, qIndex, sizing]);
 
   // Cycles the loading copy, then reveals the result. Reduced motion: a short static beat only.
   useEffect(() => {
@@ -120,10 +123,12 @@ export default function AiOpportunityCheck() {
 
   function goNext() {
     if (!isComplete(question, answers)) return;
+    if (question.id === 'areas' && !sizing) { setSizing(true); return; }
     if (qIndex < questions.length - 1) setQIndex(i => i + 1);
     else setStep('loading');
   }
   function goBack() {
+    if (sizing) { setSizing(false); return; }
     if (qIndex > 0) setQIndex(i => i - 1);
   }
   // "Review my answers" starts at question 1; a "Change" link in the answers summary jumps
@@ -156,16 +161,29 @@ export default function AiOpportunityCheck() {
         {isAreas && <AreaIcon area={val} />}
         <span>{label}</span>
       </label>
-      {isAreas && checked && <AreaHoursInput
+    </div>;
+  }
+
+  // Second half of Q2: one compact block per picked area, in the order picked.
+  function renderSizingRow(val) {
+    const label = val === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[val];
+    return <div className="ai-sizing-row" key={val}>
+      <p className="ai-sizing-title"><AreaIcon area={val} /><span>{label}</span></p>
+      <AreaHoursInput
         area={val} hours={areaInputs[val]?.hours ?? 5} people={areaInputs[val]?.people ?? 1}
         peopleMax={PEOPLE_MAX}
         onHoursChange={(h) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], hours: h } }))}
         onPeopleChange={(p) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], people: p } }))}
         otherLabel={areaInputs[val]?.label}
         onOtherLabelChange={(l) => setAreaInputs(prev => ({ ...prev, [val]: { ...prev[val], label: l } }))}
-      />}
+      />
     </div>;
   }
+
+  // Why Next is unavailable, or why a tile stopped responding, said in words next to the button.
+  const navHint = question?.type !== 'multi' ? null
+    : atCap ? `${picks.length} of ${question.maxPicks} chosen. Untick one to swap.`
+    : !isComplete(question, answers) ? 'Pick at least one to continue.' : null;
 
   const Presentation = question?.type === 'single' ? CHOICE_PRESENTATIONS[question.id] : null;
 
@@ -183,13 +201,17 @@ export default function AiOpportunityCheck() {
 
       <div className="ai-stepper">
         <div className="ai-stepper-progress-track" aria-hidden="true"><div className="ai-stepper-progress-fill" style={{ transform: `scaleX(${pct / 100})` }} /></div>
-        <p className="ai-live" aria-live="polite">Question {qIndex + 1} of {questions.length}. {answeredCount} of {questions.length} completed.</p>
+        <p className="ai-live ai-visually-hidden" aria-live="polite">Question {qIndex + 1} of {questions.length}{isAreas ? (sizing ? ', step 2 of 2' : ', step 1 of 2') : ''}.</p>
 
         <fieldset className="ai-stepper-question">
           <legend>{qIndex > 0 && <span className="ai-stepper-count">{qIndex + 1} / {questions.length}</span>} <span ref={qIndex > 0 ? headingRef : null} tabIndex={qIndex > 0 ? -1 : undefined}>{question.label}</span></legend>
 
+          {isAreas && sizing && <>
+            <p className="ai-note ai-sizing-intro">How much time does each one take?</p>
+            {picks.map(renderSizingRow)}
+          </>}
           {Presentation && <Presentation question={question} value={value} onSelect={selectSingle} />}
-          {!Presentation && <div className={`ai-options ai-options--tiles ${isAreas ? 'ai-options--areas' : ''} ${isGrouped ? 'ai-options--grouped' : ''}`} onKeyDown={question.type === 'multi' ? handleGridArrowKeys : undefined}>
+          {!(isAreas && sizing) && !Presentation && <div className={`ai-options ai-options--tiles ${isAreas ? 'ai-options--areas' : ''} ${isGrouped ? 'ai-options--grouped' : ''}`} onKeyDown={question.type === 'multi' ? handleGridArrowKeys : undefined}>
             {isGrouped
               ? groupedOptions(question).flatMap((bucket, bi) => [
                 bucket.label && <p className="ai-tile-group-label" key={`group-${bi}`}>{bucket.label}</p>,
@@ -197,8 +219,8 @@ export default function AiOpportunityCheck() {
               ]).filter(Boolean)
               : question.options.map(renderTile)}
           </div>}
-          {isAreas && <p className="ai-note">Each one you pick gets its own hours and people below.</p>}
-          {livePreview && <RunningTotal preview={livePreview}
+          {isAreas && !sizing && <p className="ai-note">Next, you'll set the hours for each one.</p>}
+          {livePreview && sizing && <RunningTotal preview={livePreview}
             labelFor={(a) => (a === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[a])} />}
           {isOwner && value === 'someoneElse' && <div className="ai-other-label-field">
             <label className="ai-hours-field-label" htmlFor="owner-other-text">Who is it? (a role is fine, e.g. finance lead)</label>
@@ -214,14 +236,19 @@ export default function AiOpportunityCheck() {
           </div>}
         </fieldset>
 
+        <div className="ai-stepper-footer">
+        {navHint && <p className="ai-note ai-nav-hint" role="status">{navHint}</p>}
         <div className="ai-stepper-nav">
-          <button type="button" className="ai-secondary" onClick={goBack} disabled={qIndex === 0}>Back</button>
+          {qIndex > 0 || sizing
+            ? <button type="button" className="ai-secondary" onClick={goBack}>Back</button>
+            : <span aria-hidden="true" />}
           {/* Once every question has an answer (e.g. after "Change" from the results summary), the
               visitor can jump straight back instead of re-stepping the rest of the check. */}
           {allAnswered && <button type="button" className="ai-secondary ai-fc-back-to-results" onClick={() => setStep('result')}>Back to my results</button>}
           {question.type === 'multi' && <button type="button" className="ai-button" onClick={goNext} disabled={!isComplete(question, answers)}>
-            {qIndex === questions.length - 1 ? 'See my estimate' : 'Next'}
+            {qIndex === questions.length - 1 && !(isAreas && !sizing) ? 'See my estimate' : 'Next'}
           </button>}
+        </div>
         </div>
       </div>
     </>}
