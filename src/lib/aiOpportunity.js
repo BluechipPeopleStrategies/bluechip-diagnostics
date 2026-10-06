@@ -444,6 +444,15 @@ export function roundHoursLabel(n) {
   if (n < 1) return 'under 1';
   return String(Math.round(n));
 }
+// Summary totals keep whole-hour rounding. A range crossing one hour needs a numeric
+// lower endpoint; wholly sub-hour totals use one label, and equal rounded ends collapse.
+export function totalHoursRangeLabel(low, likely) {
+  if (likely > 0 && likely < 1) return 'under 1';
+  const lowLabel = low > 0 && low < 1
+    ? String(Math.round(low * 10) / 10) : roundHoursLabel(low);
+  const likelyLabel = roundHoursLabel(likely);
+  return lowLabel === likelyLabel ? likelyLabel : `${lowLabel} to ${likelyLabel}`;
+}
 // Per-area bars: one decimal under 10 hours ("0.4 to 0.8"), whole hours above, so small areas
 // never read as "under 1 to under 1".
 export function areaHoursLabel(n) {
