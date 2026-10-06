@@ -15,6 +15,7 @@ import RunningTotal, { HoursBackBar } from './RunningTotal';
 import GoldSlider from './GoldSlider';
 import ChipsRow from './ChipsRow';
 import RollingNumber from './RollingNumber';
+import TotalHours from './TotalHours';
 import Emblem from './Emblem';
 import HourglassHero from './HourglassHero';
 import { OrgTypeCards, SizeScale, MoodCards, TimingLine } from './ChoiceScales';
@@ -332,7 +333,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
     <p className="ai-fc-print-only ai-fc-print-head">BlueChip People Strategies · AI Opportunity Check results, {new Date().toLocaleDateString('en-CA', { dateStyle: 'long' })}</p>
     <p className="ai-eyebrow">Your estimate</p>
     <h1 className="ai-result-headline" ref={headingRef} tabIndex={-1}>
-      About <RollingNumber value={low} format={(n) => roundHoursLabel(n)} /> to <RollingNumber value={likely} format={(n) => roundHoursLabel(n)} /> hours a week
+      <TotalHours low={low} likely={likely} headline />
     </h1>
     <p className="ai-result-sub">across the areas you picked</p>
     <p className="ai-note">This estimate is based on the people you entered.</p>
@@ -340,11 +341,11 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
     <div className="ai-stat-tiles">
       <div className="ai-stat-tile">
         <span className="ai-stat-label">Hours a week</span>
-        <strong><RollingNumber value={low} format={(n) => roundHoursLabel(n)} /> to <RollingNumber value={likely} format={(n) => roundHoursLabel(n)} /></strong>
+        <strong><TotalHours low={low} likely={likely} /></strong>
       </div>
       <div className="ai-stat-tile">
         <span className="ai-stat-label">Hours a year</span>
-        <strong><RollingNumber value={low * weeks} format={(n) => roundHoursLabel(n)} /> to <RollingNumber value={likely * weeks} format={(n) => roundHoursLabel(n)} /></strong>
+        <strong><TotalHours low={low * weeks} likely={likely * weeks} /></strong>
       </div>
       <div className="ai-stat-tile">
         <span className="ai-stat-label">Potential staff time value</span>
@@ -394,7 +395,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
       <div className="ai-stat-tiles ai-stat-tiles--pair">
         <div className="ai-stat-tile">
           <span className="ai-stat-label">Hours a week back, {headcount} {headcount === 1 ? 'person' : 'people'}</span>
-          <strong><RollingNumber value={scaledLow} format={(n) => roundHoursLabel(n)} /> to <RollingNumber value={scaledLikely} format={(n) => roundHoursLabel(n)} /></strong>
+          <strong><TotalHours low={scaledLow} likely={scaledLikely} /></strong>
         </div>
         <div className="ai-stat-tile">
           <span className="ai-stat-label">Potential staff time value</span>
