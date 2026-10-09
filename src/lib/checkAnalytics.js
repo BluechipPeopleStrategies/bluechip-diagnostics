@@ -1,4 +1,4 @@
-// Funnel events for the free AI Opportunity Check, so drop-off can be read per question.
+// Funnel events for the free AI Pulse, so drop-off can be read per question.
 // Only structural facts leave the page (question id and number, step, counts). Never answer
 // values: the check asks about sensitive information and nothing the visitor chose is sent.
 // Safe when PostHog is absent (tests, ad blockers): it simply does nothing.

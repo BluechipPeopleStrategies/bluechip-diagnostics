@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { CLARITY_CALL_ENABLED } from '../lib/siteFeatures';
 import { scoreLikert, matchArchetype } from '../lib/scoring';
 import { bandLabelToKey } from '../data/ctaCopy';
 import ResultHeadline from './ResultHeadline';
@@ -8,7 +7,7 @@ import DimensionBreakdown from './DimensionBreakdown';
 import ArchetypeProfile from './ArchetypeProfile';
 import NextMoves from './NextMoves';
 import EmailOptIn from './EmailOptIn';
-import ClarityCallCTA from './ClarityCallCTA';
+import StartConversationCTA from './StartConversationCTA';
 import ShareButton from './ShareButton';
 import ResultTeaser from './ResultTeaser';
 
@@ -18,7 +17,6 @@ export default function ResultsPage({
   onRestart,
   emailSubmitted = false,
   onEmailSubmitted,
-  orgSize = null,
   onOrgSize,
 }) {
   // Bring the visitor to the top of their result (standalone page, and the Squarespace parent via postMessage).
@@ -31,7 +29,9 @@ export default function ResultsPage({
   const wantsArchetype = diagnostic.outputPattern === 'archetype-match' || diagnostic.outputPattern === 'both';
 
   const scoreResult = wantsScore ? scoreLikert(diagnostic, answers) : null;
-  const archetypeResult = wantsArchetype ? matchArchetype(diagnostic, answers) : null;
+  // The archetype can depend on the score (Decision Quality Index: a Calibrated score is the
+  // Calibrator), so it gets the score result as well.
+  const archetypeResult = wantsArchetype ? matchArchetype(diagnostic, answers, scoreResult) : null;
 
   // Prefer score-band format when a band exists so downstream (email tier
   // branching, Notion Band Label) gets the richer signal. Archetype-only
@@ -73,7 +73,7 @@ export default function ResultsPage({
     detail = archetypeResult.archetype.label || archetypeResult.archetype.name || '';
   }
 
-  // Result-specific Clarity Call copy (QW2): scored tools key by band label,
+  // Result-specific copy for the next-step block (QW2): scored tools key by band label,
   // archetype tools key by archetype id. lowestDimension fills the {lowest_dimension}
   // token in the Org Pulse CTAs.
   const resultKey = scoreResult?.totalBand
@@ -109,6 +109,7 @@ export default function ResultsPage({
         alreadySubmitted={emailSubmitted}
         hasDimensions={!!(scoreResult && diagnostic.dimensions)}
         hasCheatSheet={!!archetypeResult?.archetype?.cheatCode?.length}
+        hasNextMoves={nextMoves.length > 0}
         onOrgSize={onOrgSize}
       />
 
@@ -141,14 +142,11 @@ export default function ResultsPage({
 
       <hr />
 
-      {CLARITY_CALL_ENABLED && <ClarityCallCTA
+      <StartConversationCTA
         diagnosticId={diagnostic.id}
-        tier={scoreResult?.totalBand?.tier || null}
-        total={scoreResult?.total ?? null}
         resultKey={resultKey}
         lowestDimension={weakestDimensionLabel || null}
-        orgSize={orgSize}
-      />}
+      />
 
       <ShareButton diagnosticId={diagnostic.id} resultType={resultType} resultLabel={resultLabel} />
 

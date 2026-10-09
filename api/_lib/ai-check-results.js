@@ -1,13 +1,13 @@
 /* global process */
-// Free AI Opportunity Check "Email my results" (item 61, 2026-09-25), called from api/submit.js.
+// Free AI Pulse "Email my results" (item 61, 2026-09-25), called from api/submit.js.
 // Lives in _lib (not a Vercel route) and takes the sender as a dependency so it reuses
 // submit.js's Resend call rather than a second copy.
 import { buildLeadNotificationEmail } from '../_emails/lead-notification.js';
 import { buildAiCheckResultsEmail, cleanAiCheckInput } from '../_emails/ai-opportunity-check.js';
 import { isHoneypot } from './lead-helpers.js';
+import { cleanRecipient } from './email-address.js';
 
 export const AI_CHECK_ID = 'ai-opportunity-check';
-const EMAIL_RE = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
 
 // Sends the visitor the results they asked for, rebuilt server-side from their raw answers (see
 // api/_emails/ai-opportunity-check.js), and tells Thomas it happened. The honeypot (`bc_hp_trap`,
@@ -15,8 +15,8 @@ const EMAIL_RE = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]+$/;
 // visitor email, so the endpoint can't be used to mail third parties, but Thomas still gets a
 // flagged copy in case a real person's browser filled it.
 export async function handleAiCheckResults(body, res, { sendEmail }) {
-  const email = String(body.email || '').trim().slice(0, 254);
-  if (!EMAIL_RE.test(email)) return res.status(400).json({ error: 'invalid_email' });
+  const email = cleanRecipient(body.email);
+  if (!email) return res.status(400).json({ error: 'invalid_email' });
 
   const input = cleanAiCheckInput(body);
   const { subject, html, resultLabel } = buildAiCheckResultsEmail(input);

@@ -103,6 +103,9 @@
     'Practical AI and/or Embedded HR Retainers bring practical AI adoption and senior people advice into the work of your organization. Support can focus on AI alone or combine HR and AI. The scope and fee are agreed for your engagement.',
     'You can also start with the AI Handoff Plan. If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, your C$795 is credited against its first invoice.'
   ];
+  var OTHER_BUBBLES = [
+    'BlueChip works on practical AI, embedded HR, governance evaluations, Leadership Academies, workplace investigations, assessments and organizational design. Tell us where you need help and we will point you to the next step.'
+  ];
   var FREE_CHECK_BUBBLES = [
     'Twelve quick questions about your recurring work, about three minutes in all. AI Pulse gives you a starting range of hours, with no email required. It is not the AI Handoff Plan, and it does not confirm the guarantee.'
   ];
@@ -436,6 +439,7 @@
     if (topic.slug === 'public-sector') return PUBLIC_BUBBLES.slice();
     if (topic.slug === 'retainers') return RETAINER_BUBBLES.slice();
     if (topic.slug === 'free-check') return FREE_CHECK_BUBBLES.slice();
+    if (topic.slug === 'other') return OTHER_BUBBLES.slice();
     return PLAN_BUBBLES.slice();
   }
 
@@ -485,12 +489,14 @@
       var fine = el('div', { 'class': 'bcw-fine' });
       fine.textContent = "We text Canadian numbers only. Outside Canada? We'll reply by email. BlueChip People Strategies, Edmonton, Alberta. We won't share your number or message you about anything unrelated to the opt-in box above. A real person reads each message. We usually reply within a few hours on business days.";
       var send = el('button', { 'class': 'bcw-send', type: 'button', disabled: 'disabled', style: 'margin-top:12px;width:100%' }, 'Send');
+      var problem = el('div', { 'class': 'bcw-fine', role: 'alert' });
 
       footEl.appendChild(input);
       footEl.appendChild(emailInput);
       footEl.appendChild(hp);
       footEl.appendChild(consentWrap);
       footEl.appendChild(fine);
+      footEl.appendChild(problem);
       footEl.appendChild(send);
       input.focus();
 
@@ -503,8 +509,14 @@
         if (send.disabled) return;
         data.contact = input.value.trim();
         data.email = emailInput.value.trim();
-        submitLead(hp.value);
-        finish();
+        // Only say "Got it" once the server has recorded the inquiry; otherwise keep the form and
+        // say so (a silent failure here used to lose the lead while showing a confirmation).
+        problem.textContent = '';
+        send.disabled = true; send.textContent = 'Sending...';
+        submitLead(hp.value).then(finish, function () {
+          send.textContent = 'Send'; refresh();
+          problem.textContent = "Sorry, that didn't go through. Please try again, or email thomas@bluechip-people-strategies.com.";
+        });
       }
       send.addEventListener('click', go);
       input.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
@@ -518,17 +530,18 @@
     return p.replace(/^\//, '').replace(/\//g, ' ') + ' chat';
   }
 
+  // Resolves when the server recorded the inquiry; rejects on a network error or a non-2xx reply.
   function submitLead(companyHp) {
     try {
-      fetch(LEAD_ENDPOINT, {
+      return fetch(LEAD_ENDPOINT, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: data.name, need: data.need, contact: data.contact, email: data.email,
           consent: true, source: pageLabel(), bc_hp_trap: companyHp || ''
         })
-      }).catch(function () { /* failures logged server-side; user still sees confirmation */ });
-    } catch { /* no-op */ }
+      }).then(function (r) { if (!r.ok) throw new Error('lead ' + r.status); });
+    } catch (err) { return Promise.reject(err); }
   }
 
   function finish() {

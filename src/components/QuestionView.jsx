@@ -3,6 +3,9 @@ import { useEffect } from 'react';
 export default function QuestionView({ question, selectedValue, onAnswer }) {
   useEffect(() => {
     function handleKey(e) {
+      // Holding a number key repeats keydown and would answer the next question too; a modifier
+      // means a browser shortcut (Ctrl+1 switches tabs), not an answer.
+      if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
       const idx = Number(e.key) - 1;
       if (idx >= 0 && idx < (question.options?.length ?? 0)) {
         onAnswer(question.options[idx].value);

@@ -1,8 +1,8 @@
 {
   "id": "org-pulse",
   "title": "Org Pulse",
-  "tagline": "25 questions. 5 minutes. A precise read on where your organization is thriving — and where pressure is quietly building.",
-  "instructions": "Answer based on your current reality — not how you wish things were.",
+  "tagline": "25 questions. 5 minutes. A precise read on where your organization is thriving, and where pressure is quietly building.",
+  "instructions": "Answer based on your current reality, not how you wish things were.",
   "outputPattern": "score-and-dimensions",
   "_distinctness": {
     "clarity": "Priorities, roles, and direction are clearly communicated and understood.",
@@ -17,7 +17,7 @@
       "label": "Organizational Clarity",
       "description": "How clearly priorities, roles, and direction are communicated and understood across the org.",
       "scoreBands": [
-        { "min": 0, "max": 40, "tier": "exposed", "narrative": "Clarity is the missing ingredient. People are working hard but on different priorities — and they're starting to feel it." },
+        { "min": 0, "max": 40, "tier": "exposed", "narrative": "Clarity is the missing ingredient. People are working hard but on different priorities, and they're starting to feel it." },
         { "min": 40, "max": 70, "tier": "uneven", "narrative": "Some teams have line-of-sight; others are guessing. Clarity is leader-by-leader, not org-level." },
         { "min": 70, "max": 100, "tier": "healthy", "narrative": "Priorities are visible and shared. Most people can name what's most important this quarter without prompting." }
       ]
@@ -27,9 +27,9 @@
       "label": "Accountability",
       "description": "How reliably commitments are kept; how directly underperformance is addressed.",
       "scoreBands": [
-        { "min": 0, "max": 40, "tier": "exposed", "narrative": "Commitments slide without consequence. Underperformers are accommodated, not addressed. High performers notice — and start to leave." },
+        { "min": 0, "max": 40, "tier": "exposed", "narrative": "Commitments slide without consequence. Underperformers are accommodated, not addressed. High performers notice, and start to leave." },
         { "min": 40, "max": 70, "tier": "uneven", "narrative": "Accountability lives where individual managers create it. The org-level expectation isn't clear or consistent." },
-        { "min": 70, "max": 100, "tier": "healthy", "narrative": "Commitments are taken seriously. Performance gaps get named — often kindly, always plainly." }
+        { "min": 70, "max": 100, "tier": "healthy", "narrative": "Commitments are taken seriously. Performance gaps get named: often kindly, always plainly." }
       ]
     },
     {
@@ -37,7 +37,7 @@
       "label": "Talent Health",
       "description": "Whether the right people are in the right roles; whether retention is intentional.",
       "scoreBands": [
-        { "min": 0, "max": 40, "tier": "exposed", "narrative": "Wrong people in key seats. Retention is reactive — you find out someone's leaving when they tell you. Hiring is filling gaps, not building strength." },
+        { "min": 0, "max": 40, "tier": "exposed", "narrative": "Wrong people in key seats. Retention is reactive: you find out someone's leaving when they tell you. Hiring is filling gaps, not building strength." },
         { "min": 40, "max": 70, "tier": "uneven", "narrative": "Talent is a mixed picture. A few critical roles are right; others are stretched or mismatched. Retention conversations happen, but late." },
         { "min": 70, "max": 100, "tier": "healthy", "narrative": "You know who your A-players are. They know they're A-players. Succession is something you can name, not just hope for." }
       ]
@@ -45,11 +45,11 @@
     {
       "id": "decision-quality",
       "label": "Decision Quality",
-      "description": "How well org-level decisions get made — speed, rigor, and willingness to revisit when wrong.",
+      "description": "How well org-level decisions get made: speed, rigor, and willingness to revisit when wrong.",
       "scoreBands": [
         { "min": 0, "max": 40, "tier": "exposed", "narrative": "Decisions stall or get made by whoever pushes hardest. Reversing a bad call feels like losing face. You're paying for slow or poor decisions in dollars and morale." },
-        { "min": 40, "max": 70, "tier": "uneven", "narrative": "Decisions get made — eventually. Quality varies with who's in the room. Hard calls get deferred more often than they should." },
-        { "min": 70, "max": 100, "tier": "healthy", "narrative": "Decisions are made by the right people at the right altitude. Reversibility is understood. Speed and rigor are balanced — usually." }
+        { "min": 40, "max": 70, "tier": "uneven", "narrative": "Decisions get made, eventually. Quality varies with who's in the room. Hard calls get deferred more often than they should." },
+        { "min": 70, "max": 100, "tier": "healthy", "narrative": "Decisions are made by the right people at the right altitude. Reversibility is understood. Speed and rigor are balanced, usually." }
       ]
     },
     {
@@ -68,7 +68,7 @@
     { "id": "q02", "dimension": "clarity", "type": "likert-5", "reverseScored": false, "text": "Roles and decision rights are clear enough that people rarely step on each other's work.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
     { "id": "q03", "dimension": "clarity", "type": "likert-5", "reverseScored": true, "text": "I regularly hear different leaders give contradictory direction on the same topic.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
     { "id": "q04", "dimension": "clarity", "type": "likert-5", "reverseScored": false, "text": "Our strategy is communicated in language that a new hire could understand by week two.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
-    { "id": "q05", "dimension": "clarity", "type": "likert-5", "reverseScored": true, "text": "Important changes in direction often reach the team late — they hear it secondhand.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+    { "id": "q05", "dimension": "clarity", "type": "likert-5", "reverseScored": true, "text": "Important changes in direction often reach the team late: they hear it secondhand.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
 
     { "id": "q06", "dimension": "accountability", "type": "likert-5", "reverseScored": false, "text": "When someone commits to a deliverable, the rest of us assume it will land on time.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
     { "id": "q07", "dimension": "accountability", "type": "likert-5", "reverseScored": true, "text": "We have at least one chronic underperformer who's been protected from honest feedback for over a year.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
@@ -91,16 +91,16 @@
     { "id": "q21", "dimension": "pressure", "type": "likert-5", "reverseScored": true, "text": "More than half the team is operating in a sustained state of overload.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
     { "id": "q22", "dimension": "pressure", "type": "likert-5", "reverseScored": false, "text": "We have honest conversations about capacity before piling on more work.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
     { "id": "q23", "dimension": "pressure", "type": "likert-5", "reverseScored": true, "text": "Burnout signs (irritability, sloppy work, withdrawal) are visible and not being addressed.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
-    { "id": "q24", "dimension": "pressure", "type": "likert-5", "reverseScored": false, "text": "Pressure spikes here are time-bound — we know when the push ends.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+    { "id": "q24", "dimension": "pressure", "type": "likert-5", "reverseScored": false, "text": "Pressure spikes here are time-bound: we know when the push ends.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
     { "id": "q25", "dimension": "pressure", "type": "likert-5", "reverseScored": false, "text": "Leaders model sustainable pace, including taking real time off.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] }
   ],
   "scoring": {
     "method": "weighted-dimension-sum",
     "totalRange": [0, 100],
     "totalBands": [
-      { "min": 0, "max": 50, "label": "Pressure building", "narrative": "Pressure is building. The org is showing signs of strain in multiple dimensions. Most people would tell you something has to give — but the conversation hasn't happened openly. Your dimension breakdown, available below, shows where to start, because that's where the leverage is highest." },
+      { "min": 0, "max": 50, "label": "Pressure building", "narrative": "Pressure is building. The org is showing signs of strain in multiple dimensions. Most people would tell you something has to give, but the conversation hasn't happened openly. Your dimension breakdown, available below, shows where to start, because that's where the leverage is highest." },
       { "min": 50, "max": 75, "label": "Mixed signal", "narrative": "Some parts of the organization are healthy; others are exposed. The risk is letting the exposed dimensions drag the healthy ones down. Pick the lowest-scoring dimension below and spend the next 30 days focused there." },
-      { "min": 75, "max": 100, "label": "Healthy", "narrative": "Most signals point healthy. The work now is protecting it — staying honest about emerging weak spots before they become structural problems." }
+      { "min": 75, "max": 100, "label": "Healthy", "narrative": "Most signals point healthy. The work now is protecting it: staying honest about emerging weak spots before they become structural problems." }
     ]
   }
 }

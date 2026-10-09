@@ -25,7 +25,9 @@
 // the booking link.
 
 import { NUDGE_SUBJECT_RE } from '../_emails/nudge.js';
-import { CANCEL_FOLLOWUP_SUBJECT } from '../_emails/cancellation-followup.js';
+// Subject of the retired +48h cancelled-booking follow-up. Nothing schedules it any more, but one
+// already queued must still be found and cancelled.
+export const CANCEL_FOLLOWUP_SUBJECT = 'About your cancelled Clarity Call';
 
 export const LOOKBACK_HOURS = 50;
 export const MAX_PAGES = 10;

@@ -19,6 +19,8 @@ describe('DQI edge cases', () => {
         const opt = q.options.find((o) => (o.weights?.[arch.id] || 0) > 0);
         if (opt) answers[q.id] = opt.value;
       }
+      // The Calibrator has no answer option: it comes from a Calibrated score (tests/dqi-archetype.test.js).
+      if (arch.id === 'calibrated-decider') continue;
       const r = matchArchetype(diagnostic, answers);
       expect(r.archetypeId).toBe(arch.id);
     }

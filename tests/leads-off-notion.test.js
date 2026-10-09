@@ -4,7 +4,8 @@ import { EventEmitter } from 'events';
 import submitHandler from '../api/submit.js';
 import contactHandler from '../api/contact.js';
 import leadHandler from '../api/lead.js';
-import calWebhookHandler, { parseBookingNotes } from '../api/cal-webhook.js';
+import calWebhookHandler from '../api/cal-webhook.js';
+import { resetRateLimit } from '../api/_lib/rate-limit.js';
 import { buildLeadDataBlock, parseLeadDataBlock } from '../api/_emails/lead-data.js';
 import { buildLeadNotificationEmail } from '../api/_emails/lead-notification.js';
 import { buildContactNotificationEmail } from '../api/_emails/contact-notification.js';
@@ -32,6 +33,7 @@ function okFetch(json = { id: 'x' }) {
 }
 
 beforeEach(() => {
+  resetRateLimit();
   process.env.RESEND_API_KEY = 're_test';
   process.env.BLUECHIP_FROM_EMAIL = 'hi@bc.ca';
   process.env.BLUECHIP_NOTIFY_EMAIL = 't@bc.ca';
@@ -85,19 +87,20 @@ describe('Lead-Data block', () => {
 });
 
 describe('submit (scored diagnostics): no Notion row, the notification is the record', () => {
-  const body = { diagnosticId: 'dqi', email: 'pat@example.com', name: 'Pat Doe', resultLabel: 'Steady (61/100)', orgSize: '11-50', sector: 'municipal' };
+  const body = { diagnosticId: 'dqi', email: 'pat@example.com', name: 'Pat Doe', resultLabel: 'Mixed signal (61/100)', orgSize: '11-50', sector: 'municipal' };
 
-  it('sends result email, schedules the nudge, notifies Thomas with Lead-Data, never touches Notion', async () => {
+  it('sends result email, schedules no nudge, notifies Thomas with Lead-Data, never touches Notion', async () => {
     const res = mockRes();
     await submitHandler({ method: 'POST', body }, res);
     expect(res.statusCode).toBe(200);
-    expect(res.body).toEqual({ ok: true, emailSent: true, nudgeScheduled: true, leadNotificationSent: true });
+    expect(res.body).toEqual({ ok: true, emailSent: true, nudgeScheduled: false, leadNotificationSent: true });
+    expect(resendCalls().some(s => s.scheduled_at)).toBe(false);
     expect(global.fetch.mock.calls.some(c => String(c[0]).includes('notion'))).toBe(false);
     const note = resendCalls().find(s => s.to === 't@bc.ca');
     expect(note.reply_to).toBe('pat@example.com');
     expect(parseLeadDataBlock(note.html)).toMatchObject({
-      kind: 'diagnostic', diagnostic: 'dqi', name: 'Pat Doe', email: 'pat@example.com', band: 'Steady', score: '61',
-      org_size: '11-50', sector: 'municipal', visitor_email_sent: 'yes', nudge_scheduled: 'yes', spam_trap: 'no',
+      kind: 'diagnostic', diagnostic: 'dqi', name: 'Pat Doe', email: 'pat@example.com', band: 'Mixed signal', score: '61',
+      org_size: '11-50', sector: 'municipal', visitor_email_sent: 'yes', nudge_scheduled: 'no', spam_trap: 'no',
     });
   });
 
@@ -146,12 +149,16 @@ describe('contact and chat endpoints: no Notion row', () => {
     expect(parseLeadDataBlock(note.html)).toMatchObject({ kind: 'contact', email: 'jo@x.ca', inquiry: 'Hello', source: 'contact-form' });
   });
 
-  it('contact form honeypot is unchanged: pretend success, send nothing', async () => {
+  it('contact form honeypot: pretend success, no acknowledgement to the sender, but a flagged copy to Thomas', async () => {
     const res = mockRes();
     await contactHandler({ method: 'POST', headers: {}, body: { name: 'Bot', email: 'b@x.ca', inquiry: 'spam', company: 'Acme' } }, res);
     expect(res.statusCode).toBe(200);
     expect(res.body).toEqual({ ok: true });
-    expect(global.fetch).not.toHaveBeenCalled();
+    const sends = resendCalls();
+    expect(sends).toHaveLength(1);
+    expect(sends[0].to).toBe('t@bc.ca');
+    expect(sends[0].subject).toMatch(/^\[Check: spam trap\] New contact/);
+    expect(sends.some(s => s.to === 'b@x.ca')).toBe(false);
   });
 
   it('chat widget: text + email copy with Lead-Data, no Notion, no notionWritten in the response', async () => {
@@ -247,14 +254,6 @@ describe('cal-webhook: pending follow-ups found and cancelled in Resend, Notion 
     const r2 = mockRes();
     await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_CREATED', payload: { attendees: [{ email: '*' }] } }), r2);
     expect(r2.body).toMatchObject({ error: 'missing_attendee_email' });
-    // Cancelled booking without a known diagnostic in the notes: no follow-up.
-    const r3 = mockRes();
-    await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_CANCELLED', payload: { attendees: [{ email: 'lead@x.ca' }], responses: { notes: { value: 'Diagnostic: not-a-real-one | Total: 42/100' } } } }), r3);
-    expect(r3.body).toMatchObject({ followupScheduled: false, reason: 'no_diagnostic_context' });
-    // Cancelled booking with no email at all.
-    const r4 = mockRes();
-    await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_CANCELLED', payload: { additionalNotes: 'Diagnostic: dqi' } }), r4);
-    expect(r4.body).toMatchObject({ followupScheduled: false, reason: 'missing_attendee_email' });
     expect(cancels()).toHaveLength(0);
     expect(schedules()).toHaveLength(0);
     expect(notionCalls()).toHaveLength(0);
@@ -273,35 +272,17 @@ describe('cal-webhook: pending follow-ups found and cancelled in Resend, Notion 
     }
   });
 
-  it('BOOKING_CANCELLED schedules the +48h follow-up from the booking notes, HTML-escaped', async () => {
+  it('BOOKING_CANCELLED is acknowledged and ignored: the cancelled-call follow-up is retired', async () => {
     global.fetch = resendFake([[]]);
     const res = mockRes();
-    const before = Date.now();
     await calWebhookHandler(calReq({
       triggerEvent: 'BOOKING_CANCELLED',
-      payload: {
-        uid: 'u9',
-        attendees: [{ name: '<img src=x>Pat Lee', email: 'lead@x.ca' }],
-        responses: { notes: { value: 'Diagnostic: org-pulse | Result: Exposed | Total: 42/100' } },
-      },
+      payload: { attendees: [{ name: 'Pat', email: 'lead@x.ca' }], responses: { notes: { value: 'Diagnostic: org-pulse | Result: Exposed | Total: 42/100' } } },
     }), res);
-    expect(res.body).toMatchObject({ ok: true, event: 'BOOKING_CANCELLED', followupScheduled: true });
-    const [email] = schedules();
-    expect(email.to).toBe('lead@x.ca');
-    expect(email.subject).toBe('About your cancelled Clarity Call');
-    expect(email.html).not.toContain('<img');
-    const at = Date.parse(email.scheduled_at);
-    expect(at - before).toBeGreaterThanOrEqual(48 * HOUR - 1000);
-    expect(at - before).toBeLessThanOrEqual(48 * HOUR + 60000);
-    expect(notionCalls()).toHaveLength(0);
-  });
-
-  it('BOOKING_CANCELLED reads additionalNotes too, and never stacks a second pending follow-up', async () => {
-    global.fetch = resendFake([[sent({ id: 'cfu_1', subject: 'About your cancelled Clarity Call' })]]);
-    const res = mockRes();
-    await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_CANCELLED', payload: { attendees: [{ email: 'lead@x.ca' }], additionalNotes: 'Diagnostic: dqi | Tier: uneven' } }), res);
-    expect(res.body).toMatchObject({ followupScheduled: false, reason: 'already_pending' });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toMatchObject({ ok: true, ignored: 'BOOKING_CANCELLED' });
     expect(schedules()).toHaveLength(0);
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 
   it('BOOKING_RESCHEDULED does nothing and touches no Notion', async () => {
@@ -310,16 +291,5 @@ describe('cal-webhook: pending follow-ups found and cancelled in Resend, Notion 
     await calWebhookHandler(calReq({ triggerEvent: 'BOOKING_RESCHEDULED', payload: { uid: 'u3', rescheduleUid: 'u1' } }), res);
     expect(res.body).toMatchObject({ ok: true, rescheduled: true });
     expect(global.fetch).not.toHaveBeenCalled();
-  });
-});
-
-describe('parseBookingNotes', () => {
-  it('whitelists the diagnostic and clamps the rest', () => {
-    expect(parseBookingNotes('Diagnostic: org-pulse | Tier: exposed | Total: 42/100')).toEqual({ diagnosticId: 'org-pulse', bandLabel: 'exposed', total: 42 });
-    expect(parseBookingNotes('Diagnostic: dqi | Result: Solid <b>x</b> | Total: 999/100')).toEqual({ diagnosticId: 'dqi', bandLabel: 'Solid bxb', total: null });
-    expect(parseBookingNotes('Diagnostic: __proto__')).toBeNull();
-    expect(parseBookingNotes('Diagnostic: toString')).toBeNull();
-    expect(parseBookingNotes('I just want to chat')).toBeNull();
-    expect(parseBookingNotes('')).toBeNull();
   });
 });

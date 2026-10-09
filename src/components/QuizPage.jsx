@@ -5,6 +5,7 @@ import QuestionView from './QuestionView';
 import NavControls from './NavControls';
 import ResultsPage from './ResultsPage';
 import { loadState, saveState, clearState } from '../lib/persistence';
+import { describeSharedResult } from '../lib/share';
 
 import orgPulse from '../data/org-pulse.json';
 import dqi from '../data/dqi.json';
@@ -31,17 +32,27 @@ export default function QuizPage({ shareView = false }) {
   const [orgSize, setOrgSize] = useState('');
 
   // Restore state on mount (per slug). Clamp a stale saved index against the
-  // current questions length so a quiz that was lengthened/shortened — or a state
-  // that over-advanced via rapid-clicks — can't trap the user on a blank screen.
+  // current questions length so a quiz that was lengthened/shortened, or a state
+  // that over-advanced via rapid-clicks, can't trap the user on a blank screen.
+  // A saved "show results" is honoured only when every question has an answer; otherwise the
+  // visitor goes back to the first unanswered question instead of seeing a score built on gaps.
   useEffect(() => {
     if (!diagnostic) return;
     const lastIndex = diagnostic.questions.length - 1;
     const saved = loadState(slug);
     if (saved) {
       const savedIndex = saved.currentIndex || 0;
-      setAnswers(saved.answers || {});
-      setCurrentIndex(Math.min(Math.max(savedIndex, 0), lastIndex));
-      setShowResults(!!saved.showResults || savedIndex > lastIndex);
+      const savedAnswers = saved.answers || {};
+      const firstGap = diagnostic.questions.findIndex((q) => savedAnswers[q.id] === undefined);
+      const wantsResults = !!saved.showResults || savedIndex > lastIndex;
+      setAnswers(savedAnswers);
+      if (wantsResults && firstGap !== -1) {
+        setCurrentIndex(firstGap);
+        setShowResults(false);
+      } else {
+        setCurrentIndex(Math.min(Math.max(savedIndex, 0), lastIndex));
+        setShowResults(wantsResults);
+      }
       setEmailSubmitted(!!saved.emailSubmitted);
       setOrgSize(saved.orgSize || '');
     } else {
@@ -66,9 +77,11 @@ export default function QuizPage({ shareView = false }) {
       if (!q) return;
       setAnswers((prev) => ({ ...prev, [q.id]: value }));
       const lastIndex = diagnostic.questions.length - 1;
-      // Clamp inside the setter so rapid clicks can't over-advance past the last question.
+      // Advance only from the question that was answered. A second press inside the 220 ms delay
+      // (double click, key repeat) schedules a second advance; without this check it moved on
+      // twice and skipped a question unanswered.
       if (currentIndex < lastIndex) {
-        setTimeout(() => setCurrentIndex((i) => Math.min(i + 1, lastIndex)), 220);
+        setTimeout(() => setCurrentIndex((i) => (i === currentIndex ? i + 1 : i)), 220);
       } else {
         setTimeout(() => setShowResults(true), 220);
       }
@@ -99,12 +112,21 @@ export default function QuizPage({ shareView = false }) {
   }
 
   if (shareView && resultCode) {
+    const shared = describeSharedResult(diagnostic, resultCode);
     return (
       <main className="bc-page">
         <h1>Shared <em>result</em></h1>
-        <p>This is a shared result from someone else's quiz. Want to take it yourself?</p>
+        {shared ? (
+          <>
+            <p>Someone shared this result from {diagnostic.title}:</p>
+            <p><strong>{shared}</strong></p>
+            <p>Want to find out where you land?</p>
+          </>
+        ) : (
+          <p>This is a shared result from someone else's quiz. Want to take it yourself?</p>
+        )}
         <div className="bc-cta-row">
-          <a className="bc-cta" href={`/${slug}`}>Take the {diagnostic.title}</a>
+          <a className="bc-cta" href={`/${slug}`}>Take {/^The /.test(diagnostic.title) ? '' : 'the '}{diagnostic.title}</a>
         </div>
       </main>
     );
@@ -118,7 +140,6 @@ export default function QuizPage({ shareView = false }) {
         onRestart={handleRestart}
         emailSubmitted={emailSubmitted}
         onEmailSubmitted={() => setEmailSubmitted(true)}
-        orgSize={orgSize}
         onOrgSize={setOrgSize}
       />
     );

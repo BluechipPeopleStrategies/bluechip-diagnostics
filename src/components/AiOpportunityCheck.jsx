@@ -125,13 +125,27 @@ export default function AiOpportunityCheck() {
     return () => { clearInterval(msgTimer); clearTimeout(done); };
   }, [step]);
 
+  // How the last single-choice answer was made. A pointer pick moves on after a short beat. A
+  // keyboard pick (arrow keys or Space on the radios) records the answer and stays put, so keyboard
+  // and screen-reader users can look through the options before committing, and move on with Next.
+  const byKeyboard = useRef(false);
+  const [keyboardPicked, setKeyboardPicked] = useState(null); // id of the question answered by keyboard
+
   function selectSingle(value) {
-    const next = { ...answers, [question.id]: value };
-    setAnswers(next);
+    const id = question.id;
+    const fromQuestion = qIndex;
+    setAnswers(prev => ({ ...prev, [id]: value }));
+    if (byKeyboard.current) { setKeyboardPicked(id); return; }
+    setKeyboardPicked(null);
+    // Advance only from the question that was answered: a second pick inside the delay (two quick
+    // taps) used to schedule a second advance and skip a question.
     setTimeout(() => {
-      if (qIndex < questions.length - 1) setQIndex(i => i + 1);
+      if (fromQuestion < questions.length - 1) setQIndex(i => (i === fromQuestion ? i + 1 : i));
       else setStep('loading');
     }, 200);
+  }
+  function markInput(e) {
+    byKeyboard.current = e.type === 'keydown' && (e.key.startsWith('Arrow') || e.key === ' ');
   }
 
   function toggleOption(value) {
@@ -230,7 +244,7 @@ export default function AiOpportunityCheck() {
         <div className="ai-stepper-progress-track" aria-hidden="true"><div className="ai-stepper-progress-fill" style={{ transform: `scaleX(${pct / 100})` }} /></div>
         <p className="ai-live ai-visually-hidden" aria-live="polite">Question {qIndex + 1} of {questions.length}{isAreas ? (sizing ? ', step 2 of 2' : ', step 1 of 2') : ''}.</p>
 
-        <fieldset className="ai-stepper-question">
+        <fieldset className="ai-stepper-question" onKeyDown={markInput} onPointerDown={markInput} onClick={(e) => { if (e.detail > 0) byKeyboard.current = false; }}>
           <legend>{qIndex > 0 && <span className="ai-stepper-count">{qIndex + 1} / {questions.length}</span>} <span ref={qIndex > 0 ? headingRef : null} tabIndex={qIndex > 0 ? -1 : undefined}>{question.label}</span></legend>
 
           {isAreas && sizing && <>
@@ -273,7 +287,7 @@ export default function AiOpportunityCheck() {
           {/* Once every question has an answer (e.g. after "Change" from the results summary), the
               visitor can jump straight back instead of re-stepping the rest of the check. */}
           {allAnswered && <button type="button" className="ai-secondary ai-fc-back-to-results" onClick={() => setStep('result')}>Back to my results</button>}
-          {question.type === 'multi' && <button type="button" className="ai-button" onClick={goNext} disabled={!isComplete(question, answers)}>
+          {(question.type === 'multi' || keyboardPicked === question.id) && <button type="button" className="ai-button" onClick={goNext} disabled={!isComplete(question, answers)}>
             {qIndex === questions.length - 1 && !(isAreas && !sizing) ? 'See my estimate' : 'Next'}
           </button>}
         </div>
@@ -465,13 +479,29 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
   </>;
 }
 
-// A small inline-editable number, used in the equation strips and the tight caption line.
+// A small inline-editable number, used in the equation strips and the tight caption line. Typing
+// is free: the value is kept as text while the field has focus, applied as soon as it is a number
+// inside the allowed range (so 75 takes effect as you type), and clamped on blur or Enter. Clamping
+// on every keystroke turned "75" into 155 (the "7" was lifted to the minimum of 15).
 function CompactField({ value, onChange, min, max, prefix, suffix, ariaLabel }) {
+  const [draft, setDraft] = useState(null); // null = not editing, show the committed value
+  function commit() {
+    if (draft === null) return;
+    const n = Number(draft);
+    if (draft.trim() !== '' && Number.isFinite(n)) onChange(Math.min(max, Math.max(min, n)));
+    setDraft(null);
+  }
   return (
     <span className="ai-inline-field">
       {prefix && <span className="ai-compact-unit">{prefix}</span>}
-      <input type="number" inputMode="decimal" min={min} max={max} value={value} aria-label={ariaLabel}
-        onChange={(e) => { const n = Number(e.target.value); if (Number.isFinite(n)) onChange(Math.min(max, Math.max(min, n))); }} />
+      <input type="number" inputMode="decimal" min={min} max={max} value={draft ?? value} aria-label={ariaLabel}
+        onChange={(e) => {
+          setDraft(e.target.value);
+          const n = Number(e.target.value);
+          if (e.target.value.trim() !== '' && Number.isFinite(n) && n >= min && n <= max) onChange(n);
+        }}
+        onBlur={commit}
+        onKeyDown={(e) => { if (e.key === 'Enter') commit(); }} />
       {suffix && <span className="ai-compact-unit">{suffix}</span>}
     </span>
   );
