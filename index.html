@@ -16,6 +16,14 @@
         person_profiles: 'identified_only',
         capture_pageview: 'history_change'
       })
+      // Own devices: open any page once with ?bc_internal=1 to stop PostHog and Google Analytics
+      // counting this browser (?bc_internal=0 undoes it). Same switch as the main site.
+      try {
+        var bcq = location.search.match(/[?&]bc_internal=([01])/);
+        if (bcq) localStorage.setItem('bc_internal', bcq[1]);
+        if (localStorage.getItem('bc_internal') === '1') { posthog.opt_out_capturing(); window['ga-disable-G-VZBXPJQXWK'] = true; }
+        else if (bcq && bcq[1] === '0') posthog.opt_in_capturing();
+      } catch (e) { /* storage blocked: count as a normal visitor */ }
     </script>
     <!-- Google Analytics (GA4, same property as www.bluechip-people-strategies.com; cross-domain
          linking between the two is configured in the Google tag settings). Page views follow
