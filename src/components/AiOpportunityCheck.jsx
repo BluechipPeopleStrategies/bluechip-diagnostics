@@ -437,7 +437,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
           <span className="ai-term-low">up to <RollingNumber value={scaledValueLikely} format={(n) => money(roundDollars(n))} /></span>
         </div>
       </div>
-      <p className="ai-note">An illustration: each of these people saves about the same time as one person in your answers. Real results vary by role, and the plan measures what's actually there.</p>
+      <p className="ai-note">An illustration: each of these people saves about the same time as one person in your answers. Real results vary by role, and the AI Handoff Plan measures what's actually there.</p>
     </section>
 
     {lookoutCards.length > 0 && <LookoutSection cards={lookoutCards}
