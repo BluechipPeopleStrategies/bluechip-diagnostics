@@ -17,11 +17,16 @@
         capture_pageview: 'history_change'
       })
       // Own devices: open any page once with ?bc_internal=1 to stop PostHog and Google Analytics
-      // counting this browser (?bc_internal=0 undoes it). Same switch as the main site.
+      // counting this browser (?bc_internal=0 undoes it). Same switch as the main site. A cookie on
+      // .bluechip-people-strategies.com carries the mark between the main site and check. (Oct 9, 2026).
       try {
         var bcq = location.search.match(/[?&]bc_internal=([01])/);
-        if (bcq) localStorage.setItem('bc_internal', bcq[1]);
-        if (localStorage.getItem('bc_internal') === '1') { posthog.opt_out_capturing(); window['ga-disable-G-VZBXPJQXWK'] = true; }
+        var bck = document.cookie.match(/(?:^|; )bc_internal=([01])/);
+        var bcv = bcq ? bcq[1] : ((bck && bck[1]) || localStorage.getItem('bc_internal'));
+        if (bcv) localStorage.setItem('bc_internal', bcv);
+        if (bcv && /(^|\.)bluechip-people-strategies\.com$/.test(location.hostname))
+          document.cookie = 'bc_internal=' + bcv + '; domain=.bluechip-people-strategies.com; path=/; max-age=63072000; SameSite=Lax; Secure';
+        if (bcv === '1') { posthog.opt_out_capturing(); window['ga-disable-G-VZBXPJQXWK'] = true; }
         else if (bcq && bcq[1] === '0') posthog.opt_in_capturing();
       } catch (e) { /* storage blocked: count as a normal visitor */ }
     </script>

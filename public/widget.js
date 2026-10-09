@@ -1,13 +1,13 @@
 /* BlueChip People Strategies: lead-capture chat widget.
    Served from Vercel and loaded on Squarespace with a single:
-   <script defer src="https://bluechip-diagnostics.vercel.app/widget.js"></script>
+   <script defer src="https://check.bluechip-people-strategies.com/widget.js"></script>
    Self-injecting: builds its own styles, DOM, and handlers. No dependencies. */
 (function () {
   'use strict';
   if (window.__bcwLoaded) return;            // guard against double-injection
   window.__bcwLoaded = true;
 
-  var LEAD_ENDPOINT = 'https://bluechip-diagnostics.vercel.app/api/lead';
+  var LEAD_ENDPOINT = 'https://check.bluechip-people-strategies.com/api/lead';
 
   // ---- lead-source attribution (2026-10-09) ----
   // Records where this visitor came from: a first touch once per browser (localStorage,
@@ -158,7 +158,7 @@
   // Approved fixed answers. Update alongside the service pages when offers change. `slug` is
   // used by the topic-preselect API/hash param (window.BlueChipChat.open, #chat?topic=).
   var KNOWLEDGE = [
-    { slug: 'ai-handoff-plan', title: 'The AI Handoff Plan', need: PLAN_NEED, url: 'https://bluechip-diagnostics.vercel.app/ai-handoff-plan', link: 'Read the full AI Handoff Plan details', answers: [
+    { slug: 'ai-handoff-plan', title: 'The AI Handoff Plan', need: PLAN_NEED, url: 'https://check.bluechip-people-strategies.com/ai-handoff-plan', link: 'Read the full AI Handoff Plan details', answers: [
       ['What does the AI Handoff Plan cost?', "C$795 per organization. BlueChip People Strategies is not registered for GST, so no tax is added. Asking here doesn't book the AI Handoff Plan or take payment. We'll confirm the next steps with you first. Businesses and nonprofits are invoiced once we've both agreed to go ahead, and pay before the discovery session. Public bodies book the discovery session once their purchase order is issued and pay on their normal terms. " + REFUND_REF],
       ['What is included?', INCLUDED_ANSWER],
       ['How does the three-hour guarantee work?', GUARANTEE_ANSWER],
@@ -167,7 +167,7 @@
       ['Can I cancel, or get a refund?', "Payment, refunds and cancellation are covered in section 1 of our Refund Policy, so they're written down in one place. " + REFUND_REF],
       ['Do I have to buy a retainer?', "No. You can keep your AI plan and put it in place yourself or with another provider, or ask us about ongoing help. " + RETAINER_CREDIT]
     ] },
-    { slug: 'public-sector', title: 'The AI Handoff Plan for municipalities and public bodies', need: PUBLIC_NEED, url: 'https://bluechip-diagnostics.vercel.app/ai-handoff-plan/public-sector', link: 'Read the public sector page', answers: [
+    { slug: 'public-sector', title: 'The AI Handoff Plan for municipalities and public bodies', need: PUBLIC_NEED, url: 'https://check.bluechip-people-strategies.com/ai-handoff-plan/public-sector', link: 'Read the public sector page', answers: [
       ['What does it cover?', "Name one workflow your staff repeat. You get a written plan showing a realistic way to use AI to give the people who do it back at least 3 net hours a week between them. Then, on the findings call, one or two of them set up the first step with us, because a process nobody uses is just a document."],
       ['What does it cost, and how do we pay?', "C$795, with no tax added. We book the discovery session once your purchase order is issued, and you pay the invoice on your normal payment terms. If an invoice is still unpaid after its terms, we hold the remaining deliverables until it's paid. " + REFUND_REF],
       ['Does AI replace CAO judgment or council governance?', "AI doesn't replace CAO judgment, council governance, or your privacy and records requirements. Your AI plan looks for time that can go back to council priorities, not positions to cut, and what you do with any time it frees up stays your decision."],
@@ -176,7 +176,7 @@
       ['How are tools approved?', "Before the findings and setup call, you confirm by email which tools your organization has approved, through your procurement or IT team. We set up the first step only in those."],
       ['Do I have to buy a retainer?', "No. You can keep your AI plan and put it in place yourself or with another provider, or ask us about ongoing help. " + RETAINER_CREDIT]
     ] },
-    { slug: 'free-check', title: 'AI Pulse', need: PULSE_NEED, url: 'https://bluechip-diagnostics.vercel.app/ai-opportunity-check', link: 'Open the free AI Pulse', answers: [
+    { slug: 'free-check', title: 'AI Pulse', need: PULSE_NEED, url: 'https://check.bluechip-people-strategies.com/ai-opportunity-check', link: 'Open the free AI Pulse', answers: [
       ['What does AI Pulse give me?', "Twelve quick questions about your recurring work, about three minutes in all. You'll get a starting range of the hours in play, and the areas where we'd start looking, before deciding whether you want the AI Handoff Plan."],
       ['Do I need to give my email?', 'No email or contact details are required for AI Pulse. Its answers stay in your browser tab until you close it, unless you choose to email your results to yourself at the end. Please do not enter confidential information.'],
       ['Does AI Pulse prove I will save three hours?', "No. It's a starting estimate from your own answers and published studies, not a plan and not a confirmation of the guarantee. The AI Handoff Plan checks your actual work to see where you really land."]
@@ -566,7 +566,7 @@
     footEl.innerHTML = '';
     if (t.slug === 'free-check') {
       sayBotSequence(offeringBubbles(t), function () {
-        var checkLink = el('a', { 'class': 'bcw-choice', href: 'https://bluechip-diagnostics.vercel.app/ai-opportunity-check' });
+        var checkLink = el('a', { 'class': 'bcw-choice', href: 'https://check.bluechip-people-strategies.com/ai-opportunity-check' });
         var checkSpan = document.createElement('span'); checkSpan.textContent = 'Start the free AI Pulse';
         checkLink.appendChild(checkSpan);
         footEl.appendChild(checkLink);
