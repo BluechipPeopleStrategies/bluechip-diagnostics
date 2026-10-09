@@ -531,7 +531,7 @@
   .ai-funnel.ai-funnel--check .ai-fc-section-icon, .ai-funnel.ai-funnel--check .ai-fc-bars-icon, .ai-funnel.ai-funnel--check .ai-fc-lens, .ai-funnel.ai-funnel--check .ai-fc-medallion, .ai-funnel.ai-funnel--check .ai-fc-action .ai-fc-icon { background: #fff !important; border: 1px solid #cfc8b8; }
   .ai-funnel.ai-funnel--check .ai-fc-medal svg circle:nth-child(2) { fill: #fff; }
   .ai-funnel.ai-funnel--check .ai-fc-cta { border-color: #cfc8b8 !important; background: #fff !important; }
-  .ai-funnel.ai-funnel--check .ai-fc-cta::after { content: " (bluechip-diagnostics.vercel.app/ai-handoff-plan)"; font-weight: 400; font-size: 12px; }
+  .ai-funnel.ai-funnel--check .ai-fc-cta::after { content: " (check.bluechip-people-strategies.com/ai-handoff-plan)"; font-weight: 400; font-size: 12px; }
   .ai-funnel.ai-funnel--check .ai-fc-qr-tile { background: #fff; padding: 0; }
   .ai-funnel.ai-funnel--check .ai-fc-qr-tile img { width: 30mm; height: 30mm; }
   .ai-funnel.ai-funnel--check a { text-decoration: none; }

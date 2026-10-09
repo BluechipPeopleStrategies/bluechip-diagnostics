@@ -10,7 +10,7 @@ import {
 // the same estimate engine the page uses, so this endpoint can never be used to mail arbitrary
 // text to an arbitrary address. Typed-in text (the "Other" labels) is sanitized, capped at 60
 // characters and HTML-escaped.
-const PLAN_URL = 'https://bluechip-diagnostics.vercel.app/ai-handoff-plan';
+const PLAN_URL = 'https://check.bluechip-people-strategies.com/ai-handoff-plan';
 
 function esc(s) {
   return String(s ?? '')

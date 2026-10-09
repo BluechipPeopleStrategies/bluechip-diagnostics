@@ -1,6 +1,28 @@
 {
   "redirects": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "bluechip-diagnostics.vercel.app"
+        }
+      ],
+      "destination": "https://check.bluechip-people-strategies.com/",
+      "permanent": true
+    },
+    {
+      "source": "/:path((?!api/)[^.]+)",
+      "has": [
+        {
+          "type": "host",
+          "value": "bluechip-diagnostics.vercel.app"
+        }
+      ],
+      "destination": "https://check.bluechip-people-strategies.com/:path",
+      "permanent": true
+    },
+    {
       "source": "/ai-audit",
       "destination": "/ai-handoff-plan",
       "permanent": true
@@ -26,13 +48,19 @@
     {
       "source": "/assets/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     },
     {
       "source": "/((?!assets/|api/).*)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, must-revalidate"
+        }
       ]
     }
   ],

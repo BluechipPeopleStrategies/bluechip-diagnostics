@@ -31,6 +31,9 @@ export async function sendLeadEmail({ subject, html, replyTo }) {
 const ALLOWED_ORIGINS = [
   'https://bluechip-people-strategies.com',
   'https://www.bluechip-people-strategies.com',
+  // Free checks on BlueChip's own address (Oct 9, 2026), plus the old Vercel address during the move.
+  'https://check.bluechip-people-strategies.com',
+  'https://bluechip-diagnostics.vercel.app',
   // Squarespace editor and preview, so Thomas can test the chat without publishing (2026-09-24).
   'https://helix-radish-yk5a.squarespace.com',
 ];
