@@ -19,15 +19,17 @@ function showResult(area, hours) {
   return render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>).container;
 }
 
-it('renders the reported low estimate consistently in the headline and both weekly tiles', () => {
+it('renders a low under 1 with a likely of 1 or more as "Up to about 1 hour", with no decimals, in the headline and both weekly tiles', () => {
+  // correspondence, 5 hours, 1 person: low 0.6, likely 1.1
   const container = showResult('correspondence', 5);
-  expect(container.querySelector('.ai-result-headline')).toHaveTextContent('About 0.6 to 1 hours a week');
-  expect(container.querySelector('.ai-stat-tile strong')).toHaveTextContent(/^0.6 to 1$/);
-  expect(container.querySelector('.ai-headcount-section .ai-stat-tile strong')).toHaveTextContent(/^0.6 to 1$/);
+  expect(container.querySelector('.ai-result-headline')).toHaveTextContent('Up to about 1 hour a week');
+  expect(container.querySelector('.ai-stat-tile strong')).toHaveTextContent(/^Up to about 1$/);
+  expect(container.querySelector('.ai-headcount-section .ai-stat-tile strong')).toHaveTextContent(/^Up to about 1$/);
+  expect(container.querySelector('.ai-result-headline').textContent).not.toMatch(/\d\.\d/);
 });
 
 it('renders a wholly sub-hour estimate without a repeated endpoint or plural hour', () => {
   const container = showResult('scheduling', 0.5);
   expect(container.querySelector('.ai-result-headline')).toHaveTextContent('Under 1 hour a week');
-  expect(container.querySelector('.ai-stat-tile strong')).toHaveTextContent(/^under 1$/);
+  expect(container.querySelector('.ai-stat-tile strong')).toHaveTextContent(/^Under 1$/);
 });

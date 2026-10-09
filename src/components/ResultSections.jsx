@@ -156,15 +156,17 @@ function CopyStepsButton({ steps }) {
 // Item 57: the closing next step, built out as one designed block (headline, the plan link as a
 // glass button rather than a gold CTA, the guarantee as a sealed line) with the estimate's
 // method disclosure attached underneath instead of floating on its own.
-export function ClosingNextStep({ planHref, children }) {
+export function ClosingNextStep({ planHref, showFit = false, children }) {
   return (
     <section className="ai-next-step ai-fc-close" aria-labelledby="ai-fc-close-title">
       <div className="ai-fc-close-body">
         <p className="ai-eyebrow ai-fc-close-eyebrow">Your next step</p>
         <h2 id="ai-fc-close-title" className="ai-fc-close-title">Want to know which tasks and tools could get you there?</h2>
-        <p className="ai-fc-close-copy">That's what The AI Handoff Plan works out, measured against your actual work.</p>
-        <p className="ai-fc-close-cta-row"><Link className="ai-secondary ai-fc-cta" to={planHref}>See how the plan works<FcIcon name="arrow" className="ai-fc-cta-arrow" /></Link></p>
-        <p className="ai-note ai-fc-seal"><span className="ai-fc-seal-icon" aria-hidden="true"><FcIcon name="shield" /></span><span>We'll show you where to save at least 3 net hours a week across your organization, or your fee back.</span></p>
+        <p className="ai-fc-close-copy">That's what the AI Handoff Plan works out, measured against your actual work.</p>
+        {showFit && <p className="ai-fc-fit"><span className="ai-fc-fit-icon" aria-hidden="true"><FcIcon name="check" /></span><span>With this many hours across your team, this looks like a good place to start.</span></p>}
+        <p className="ai-fc-gap">You know roughly where the time goes. Your AI plan shows which steps AI could take on for everyone who does that work, in tools you're allowed to use, and helps your people start on the first one.</p>
+        <p className="ai-fc-close-cta-row"><Link className="ai-secondary ai-fc-cta" to={planHref}>See how the AI Handoff Plan works<FcIcon name="arrow" className="ai-fc-cta-arrow" /></Link></p>
+        <p className="ai-note ai-fc-seal"><span className="ai-fc-seal-icon" aria-hidden="true"><FcIcon name="shield" /></span><span>If your AI plan can't show at least 3 net hours a week in total across the people who do that workflow, your full fee comes back automatically within 10 business days of your findings call.</span></p>
       </div>
       <div className="ai-fc-close-art" aria-hidden="true">
         <span className="ai-fc-sheet ai-fc-sheet--3" />

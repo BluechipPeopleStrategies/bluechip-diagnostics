@@ -1,4 +1,4 @@
-// Free AI Opportunity Check: 12-question stepper data + the hours-range engine.
+// Free AI Pulse (route /ai-opportunity-check, internal ids unchanged): 12-question stepper data + the hours-range engine.
 // Source of truth: BlueChip/projects/ai-audit/free-check-range-spec.md, "FINAL STRINGS (launch)".
 // Net rates come from the Audit Opportunity Finder (automation-calculator.html): the study's
 // saving rate minus a checking allowance. Versioned here, with sources, per Future Self's condition.
@@ -124,13 +124,14 @@ export const HOUR_CAP_PER_AREA = 25; // hours a week, one person, per area (the 
 // No cap across areas (Thomas, 2026-10-04): each row is its own group of people, so one person's weekly
 // total is not the right ceiling. The 25-hour per-area cap above still applies to every row.
 
-// The AI Handoff Plan's guarantee: net hours a week found across the whole organization, or the
-// fee comes back (Thomas, 2026-09-25: lowered from 5 to 3). One source of truth for every
-// comparison and illustration that depends on it.
+// The AI Handoff Plan's guarantee: net hours a week in total across the people who do the chosen
+// workflow (Thomas, late 2026-10-08; was one person that morning), or the fee comes back
+// (Thomas, 2026-09-25: lowered from 5 to 3). One source of truth for every comparison and
+// illustration that depends on it.
 export const GUARANTEE_NET_HOURS = 3;
-// The plan page's fixed illustration of what the guarantee is worth (illustrative assumptions).
-export const ILLUSTRATION_RATE = 40;   // C$ an hour in staff cost
-export const ILLUSTRATION_WEEKS = 48;  // working weeks a year
+// The plan page's hours-only illustration (Infy batch 3): 48 working weeks a year, 37.5-hour week.
+export const ILLUSTRATION_WEEKS = 48;
+export const ILLUSTRATION_WEEK_HOURS = 37.5;
 
 export const questions = [
   {
@@ -444,14 +445,40 @@ export function roundHoursLabel(n) {
   if (n < 1) return 'under 1';
   return String(Math.round(n));
 }
-// Summary totals keep whole-hour rounding. A range crossing one hour needs a numeric
-// lower endpoint; wholly sub-hour totals use one label, and equal rounded ends collapse.
-export function totalHoursRangeLabel(low, likely) {
-  if (likely > 0 && likely < 1) return 'under 1';
-  const lowLabel = low > 0 && low < 1
-    ? String(Math.round(low * 10) / 10) : roundHoursLabel(low);
-  const likelyLabel = roundHoursLabel(likely);
-  return lowLabel === likelyLabel ? likelyLabel : `${lowLabel} to ${likelyLabel}`;
+// Whole-hour display (Infy batch 3, 2026-10-08). Round to the nearest whole hour, but never round
+// the top end up: the plan has to live up to a free estimate, so the top end drops to the whole
+// hour below. Yearly totals use step 10 and fall back to whole hours when they are under 10.
+//   likely under 1                 -> "under"   (Under 1 hour a week)
+//   low under 1, likely 1 or more  -> "upTo"    (Up to about N hours a week)
+//   normal range                   -> "range"   (About L to N hours a week)
+//   endpoints equal once rounded   -> "about"   (About N hours a week)
+export function wholeHoursRange(low, likely, step = 1) {
+  if (!(likely > 0)) return { kind: 'zero' };
+  if (likely < 1) return { kind: 'under' };
+  const unit = likely < step ? 1 : step;
+  const hi = Math.floor(likely / unit + 1e-9) * unit; // 1e-9: 2.0 stored as 1.9999999999999998 must not drop to 1
+  if (!(low >= unit)) return { kind: 'upTo', hi };
+  const lo = Math.min(Math.round(low / unit) * unit, hi);
+  return lo === hi ? { kind: 'about', hi } : { kind: 'range', lo, hi };
+}
+const hoursWord = (n) => (n === 1 ? 'hour' : 'hours');
+// The short form used inside tiles that already carry their own unit label.
+export function totalHoursRangeLabel(low, likely, step = 1) {
+  const r = wholeHoursRange(low, likely, step);
+  if (r.kind === 'zero') return '0';
+  if (r.kind === 'under') return 'Under 1';
+  if (r.kind === 'upTo') return `Up to about ${r.hi}`;
+  if (r.kind === 'about') return `About ${r.hi}`;
+  return `About ${r.lo} to ${r.hi}`;
+}
+// The full sentence form ("About 2 to 5 hours a week"), for the headline.
+export function totalHoursSentence(low, likely, { step = 1, period = 'a week' } = {}) {
+  const r = wholeHoursRange(low, likely, step);
+  if (r.kind === 'zero') return `About 0 hours ${period}`;
+  if (r.kind === 'under') return `Under 1 hour ${period}`;
+  if (r.kind === 'upTo') return `Up to about ${r.hi} ${hoursWord(r.hi)} ${period}`;
+  if (r.kind === 'about') return `About ${r.hi} ${hoursWord(r.hi)} ${period}`;
+  return `About ${r.lo} to ${r.hi} hours ${period}`;
 }
 // Per-area bars: one decimal under 10 hours ("0.4 to 0.8"), whole hours above, so small areas
 // never read as "under 1 to under 1".
@@ -531,14 +558,14 @@ export function tailoredLines(answers) {
     if (noProtection) {
       return ['A short written AI-use policy is often the simplest first step to protect sensitive information.'];
     }
-    return ['If some of your work is sensitive, it may need private or approved tools, and we check that before the plan recommends anything.'];
+    return ['If some of your work is sensitive, it may need private or approved tools, and we check that before the AI Handoff Plan recommends anything.'];
   }
 
   let q4Line = null;
   if (aiTools.some(v => ['copilot', 'gemini', 'builtin'].includes(v))) {
-    q4Line = 'You may already have licences or features that cover some of this. The plan starts with what you have before suggesting anything new.';
+    q4Line = 'You may already have licences or features that cover some of this. The AI Handoff Plan starts with what you have before suggesting anything new.';
   } else if (aiTools.includes('none')) {
-    q4Line = "You'd be starting fresh, so the plan begins with the tools you already pay for.";
+    q4Line = "You'd be starting fresh, so the AI Handoff Plan begins with the tools you already pay for.";
   }
   if (q4Line) return [q4Line];
 
@@ -547,14 +574,14 @@ export function tailoredLines(answers) {
   const feel = answers.feel;
   const timing = answers.timing;
   const priority = [
-    heldBack.includes('triedDidntStick') && "The plan talks through your key workflows and ranks what it finds, so there's one clear place to begin.",
-    (heldBack.includes('staffHesitant') || feel === 'worried') && 'The plan keeps human checkpoints in place, so your people stay in charge of what goes out.',
+    heldBack.includes('triedDidntStick') && "The AI Handoff Plan talks through your key workflows and ranks what it finds, so there's one clear place to begin.",
+    (heldBack.includes('staffHesitant') || feel === 'worried') && 'The AI Handoff Plan keeps human checkpoints in place, so your people stay in charge of what goes out.',
     owner === 'variesOrNoOne' && "Workflows tend to hold up better when each step has a named owner before the work starts.",
     owner === 'outsideGuidance' && 'Some teams bring in outside help for their first workflow. Others start with one small workflow in-house and build from there.',
-    heldBack.includes('notSureStart') && 'The plan ranks what it finds, so you know which opportunity to start with.',
-    heldBack.includes('noTime') && 'The plan lists the setup effort for each recommendation, so you can see what it asks of your team before you commit to anything.',
-    heldBack.includes('budget') && 'The plan lists the expected software cost of each recommendation, and it starts with tools you already pay for where they fit.',
-    heldBack.includes('privacySecurity') && 'The plan includes practical guidance on which information should go into which tool.',
+    heldBack.includes('notSureStart') && 'The AI Handoff Plan ranks what it finds, so you know which opportunity to start with.',
+    heldBack.includes('noTime') && 'The AI Handoff Plan lists the setup effort for each recommendation, so you can see what it asks of your team before you commit to anything.',
+    heldBack.includes('budget') && 'The AI Handoff Plan lists the expected software cost of each recommendation, and it starts with tools you already pay for where they fit.',
+    heldBack.includes('privacySecurity') && 'The AI Handoff Plan includes practical guidance on which information should go into which tool.',
     owner === 'it' && 'Your IT team gets what each recommended tool takes to set up, and guidance on which information goes where.',
     timing === 'exploring' && "If you're just exploring, this estimate may be all you need for now.",
   ].filter(Boolean);
@@ -664,6 +691,33 @@ export function nextSteps(answers, topAreaLabel) {
     picked.push(f.text);
   }
   return picked;
+}
+
+// Where the most time goes: the picked area with the most hands-on hours across the people
+// counted (hours x people, from computeRange's detail rows). "Not sure yet" can't be named as
+// the place the time goes, so it only wins when nothing else was picked. Ties keep pick order.
+export function topTimeArea(detail = []) {
+  const named = detail.filter(r => r.area !== 'notSureArea');
+  const pool = named.length ? named : detail;
+  let best = null;
+  for (const r of pool) {
+    const team = r.hours * r.people;
+    if (!best || team > best.teamHours) best = { ...r, teamHours: team };
+  }
+  return best && best.teamHours > 0 ? best : null;
+}
+
+// Positive fit signal (Thomas, 2026-10-08): shown only when the biggest area's hands-on team
+// hours reach about 12 a week for drafting work, about 20 for everything else. A steer, never
+// a gate: below the threshold nothing is shown and nothing else on the result changes.
+export const FIT_HOURS_DRAFTING = 12;
+export const FIT_HOURS_OTHER = 20;
+export const DRAFTING_AREAS = ['correspondence', 'writingEditing', 'socialContent', 'reports', 'proposals',
+  'trainingMaterials', 'policies'];
+export function fitSignalReached(top) {
+  if (!top) return false;
+  const need = DRAFTING_AREAS.includes(top.area) ? FIT_HOURS_DRAFTING : FIT_HOURS_OTHER;
+  return top.teamHours >= need;
 }
 
 // Legacy ?workflow= values from the pre-launch 6-question check, kept working per the launch

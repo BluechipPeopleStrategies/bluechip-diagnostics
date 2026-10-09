@@ -45,7 +45,7 @@ export default function PlanFlow({ steps }) {
   }, []);
 
   return (
-    <div className="plan-flow" ref={ref}>
+    <div className="plan-flow" ref={ref} style={{ '--cols': steps.length }}>
       <div className="plan-flow-track" aria-hidden="true"><span className="plan-flow-fill" /><span className="plan-flow-head" /></div>
       <ol className="plan-flow-list">
         {steps.map((s, i) => (

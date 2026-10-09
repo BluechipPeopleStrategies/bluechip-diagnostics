@@ -9,6 +9,11 @@
       "source": "/ai-check",
       "destination": "/ai-opportunity-check",
       "permanent": true
+    },
+    {
+      "source": "/ai-handoff-plan/municipal",
+      "destination": "/ai-handoff-plan/public-sector",
+      "permanent": true
     }
   ],
   "rewrites": [

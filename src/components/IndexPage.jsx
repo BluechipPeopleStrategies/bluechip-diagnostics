@@ -46,7 +46,7 @@ export default function IndexPage() {
       <div className="bc-card-grid">
         <Link to="/ai-opportunity-check" className="bc-card-link-block">
           <Emblem slug="ai-opportunity-check" size="md" />
-          <h3>AI Opportunity Check</h3>
+          <h3>AI Pulse</h3>
           <p className="bc-card-link-tagline">Find a practical place to start with AI.</p>
           <p className="bc-card-audience">For organizations exploring tools to reduce recurring work. Free, with no email required.</p>
           <span className="bc-card-link-cta">Start →</span>

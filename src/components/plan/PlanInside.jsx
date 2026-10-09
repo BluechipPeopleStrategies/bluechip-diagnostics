@@ -44,7 +44,7 @@ const SECTIONS = [
     ),
   },
   {
-    title: 'Costs, permissions and setup effort',
+    title: "Costs, setup effort, and what should and shouldn't go into each tool",
     sketch: (
       <span className="plan-doc-sketch plan-doc-sketch--table" aria-hidden="true">
         <span><small>Costs</small><i style={{ width: '58%' }} /></span>
@@ -54,9 +54,9 @@ const SECTIONS = [
     ),
   },
   {
-    // Scope (Thomas, 2026-09-25): key workflows talked through, not one workflow redesigned.
+    // Scope (Thomas, 2026-10-08, late): one workflow, counted across the people who do it, at C$795.
     // A few workflow rows, each ending in its own small first-step marker.
-    title: "Your key workflows talked through, with where AI fits and where it doesn't, and a first step for each",
+    title: 'Which parts of the workflow AI can take on and which stay with your people',
     sketch: (
       <span className="plan-doc-sketch plan-doc-sketch--walk" aria-hidden="true">
         <span><small>Workflow</small><i style={{ width: '58%' }} /><b className="plan-doc-first">First step<em /></b></span>
@@ -66,12 +66,13 @@ const SECTIONS = [
     ),
   },
   {
-    // Panel condition (2026-09-25): the plan names the one place to start.
-    title: 'The one recommendation to start with',
+    // Workflow-scope change (2026-10-08): the plan shows how the 3 hours add up across the people.
+    title: 'How the hours add up across the people who do it',
     sketch: (
-      <span className="plan-doc-sketch plan-doc-sketch--start" aria-hidden="true">
-        <b className="plan-doc-flag"><span className="plan-doc-tick">&#9873;</span>Start here</b>
-        <i style={{ width: '54%' }} />
+      <span className="plan-doc-sketch plan-doc-sketch--table" aria-hidden="true">
+        <span><small>Person</small><i style={{ width: '38%' }} /></span>
+        <span><small>Person</small><i style={{ width: '52%' }} /></span>
+        <span><small>Total</small><i style={{ width: '74%' }} /></span>
       </span>
     ),
   },
@@ -95,7 +96,7 @@ export default function PlanInside() {
     <section className="plan-inside" aria-labelledby="plan-inside-title" ref={ref}>
       <div className="plan-inside-intro">
         <p className="ai-eyebrow">What you receive</p>
-        <h2 id="plan-inside-title">Look inside the plan</h2>
+        <h2 id="plan-inside-title">Look inside your AI plan</h2>
         <p className="plan-inside-tag"><span aria-hidden="true" className="plan-inside-tag-dot" />Illustrative structure, not a client result.</p>
         <p className="plan-inside-note">No savings figure is assigned until the actual work has been assessed.</p>
       </div>

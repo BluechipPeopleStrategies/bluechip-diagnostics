@@ -8,13 +8,15 @@ afterEach(() => { cleanup(); vi.unstubAllGlobals(); vi.useRealTimers(); });
 describe('total hours display', () => {
   it.each([
     [0, 0, '0'],
-    [0.025, 0.06, 'under 1'],
-    [0.6, 0.9, 'under 1'],
-    [0.6, 1.1, '0.6 to 1'],
-    [0.6, 2.2, '0.6 to 2'],
-    [1, 1.4, '1'],
-    [2.1, 2.4, '2'],
-    [2.4, 4.6, '2 to 5'],
+    [0.025, 0.06, 'Under 1'],
+    [0.6, 0.9, 'Under 1'],
+    [0.6, 1.1, 'Up to about 1'],
+    [0.6, 2.2, 'Up to about 2'],
+    [1, 1.4, 'About 1'],
+    [2.1, 2.4, 'About 2'],
+    [2.4, 4.6, 'About 2 to 4'],
+    [2, 2, 'About 2'],
+    [1.5, 1.9, 'About 1'],
   ])('formats %s to %s hours as %s', (low, likely, expected) => {
     expect(totalHoursRangeLabel(low, likely)).toBe(expected);
   });
@@ -22,10 +24,11 @@ describe('total hours display', () => {
   it.each([
     [0, 0, 'About 0 hours a week'],
     [0.025, 0.06, 'Under 1 hour a week'],
-    [0.6, 1.1, 'About 0.6 to 1 hours a week'],
+    [0.6, 1.1, 'Up to about 1 hour a week'],
+    [0.6, 3.7, 'Up to about 3 hours a week'],
     [1, 1.4, 'About 1 hour a week'],
     [2.1, 2.4, 'About 2 hours a week'],
-    [2.4, 4.6, 'About 2 to 5 hours a week'],
+    [2.4, 4.6, 'About 2 to 4 hours a week'],
   ])('renders the complete estimate for %s to %s', (low, likely, expected) => {
     const { container } = render(<TotalHours low={low} likely={likely} headline />);
     expect(container.textContent).toBe(expected);
@@ -33,9 +36,9 @@ describe('total hours display', () => {
 
   it('uses the same range in summary tiles and after an updated estimate', () => {
     const { container, rerender } = render(<TotalHours low={0.6} likely={1.1} />);
-    expect(container.textContent).toBe('0.6 to 1');
+    expect(container.textContent).toBe('Up to about 1');
     rerender(<TotalHours low={1} likely={1.4} />);
-    expect(container.textContent).toBe('1');
+    expect(container.textContent).toBe('About 1');
     rerender(<TotalHours low={0.6} likely={0.9} headline />);
     expect(container.textContent).toBe('Under 1 hour a week');
   });

@@ -139,12 +139,12 @@
 /* =====================================================================================
    How it works (item 36): a lit track that draws on scroll, coins that light as it arrives.
    ===================================================================================== */
-.ai-plan .plan-flow { --flow-p: 1; --cols: 5; position: relative; margin: 30px 0 6px; }
+.ai-plan .plan-flow { --flow-p: 1; position: relative; margin: 30px 0 6px; }
 .ai-plan .plan-flow-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); gap: 14px; align-items: stretch; }
 .ai-plan .plan-flow-step { position: relative; margin: 0; padding: 0; max-width: none; display: flex; flex-direction: column; }
 /* track: from the first coin's centre to the last coin's centre (coins sit at each column's left) */
 .ai-plan .plan-flow-track { position: absolute; z-index: 0; top: 21px; left: 22px; height: 4px; border-radius: 4px;
-  width: calc((100% - 4 * 14px) / 5 * 4 + 4 * 14px);
+  width: calc((100% - (var(--cols) - 1) * 14px) / var(--cols) * (var(--cols) - 1) + (var(--cols) - 1) * 14px);
   background: linear-gradient(90deg, rgba(199, 208, 220, .1), rgba(199, 208, 220, .16));
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, .55), 0 1px 0 rgba(255, 255, 255, .04); }
 .ai-plan .plan-flow-fill { position: absolute; inset: 0; border-radius: inherit; transform-origin: left center; transform: scaleX(var(--flow-p));
@@ -407,3 +407,60 @@
   .ai-plan .plan-flow-step:hover .plan-flow-coin, .ai-plan .plan-free-check-link:hover { transform: none; }
   .ai-plan .plan-doc-scene:hover .plan-doc { transform: rotateX(4deg) rotateY(-6deg) rotateZ(-.4deg); }
 }
+
+/* =====================================================================================
+   AI door release (2026-10-08): edition switch, capacity-first lead, the example, the
+   "What you get for C$795" box and "Your safety net". Selectors carry three classes so they
+   beat `.bc-page p` and `.ai-funnel.ai-glass .glass-panel h2`.
+   ===================================================================================== */
+.ai-funnel.ai-glass .plan-edition { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 0 0 18px; }
+.ai-funnel.ai-glass .plan-edition .plan-edition-lead { margin: 0; font-size: 14px; color: var(--ai-soft); }
+.ai-funnel.ai-glass .plan-edition .plan-edition-list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; max-width: none; }
+.ai-funnel.ai-glass .plan-edition .plan-edition-list li { margin: 0; max-width: none; }
+.ai-funnel.ai-glass .plan-edition .plan-edition-link { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; box-sizing: border-box; padding: 9px 16px; border-radius: 999px;
+  font-size: 15px; font-weight: 600; line-height: 1.2; text-decoration: none; color: var(--ai-body);
+  border: 1px solid var(--g-line-hi); background: rgba(255, 255, 255, .04); transition: border-color .2s ease, background .2s ease; }
+.ai-funnel.ai-glass .plan-edition .plan-edition-link:hover, .ai-funnel.ai-glass .plan-edition .plan-edition-link:focus-visible { border-color: var(--g-gold-hi); }
+/* the current edition: a tick, a heavier frame and a gold fill, so it reads by shape and weight as well as colour */
+.ai-funnel.ai-glass .plan-edition .plan-edition-link.is-current { color: var(--ai-ink); border: 2px solid var(--g-gold-hi); background: rgba(227, 196, 124, .16); }
+.ai-funnel.ai-glass .plan-edition .plan-edition-tick { font-size: 13px; color: var(--g-gold-hi); }
+
+.ai-funnel.ai-glass .glass-hero-copy .plan-headline { margin: 0 0 14px; font-size: clamp(22px, 2.5vw, 30px); line-height: 1.25; color: var(--ai-ink); max-width: 26em; }
+.ai-funnel.ai-glass .glass-hero-copy .glass-lede { margin: 0; }
+
+.ai-funnel.ai-glass .glass-panel.plan-example { margin: 28px 0; }
+.ai-funnel.ai-glass .plan-example .plan-example-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 0 0 18px; }
+.ai-funnel.ai-glass .plan-example .plan-example-tile { display: grid; gap: 4px; padding: 16px 18px; border-radius: 14px; border: 1px solid var(--g-line);
+  background: linear-gradient(160deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .015)); box-shadow: var(--g-edge); }
+.ai-funnel.ai-glass .plan-example .plan-example-tile span { font-size: 14.5px; color: var(--ai-body); }
+.ai-funnel.ai-glass .plan-example .plan-example-tile .plan-example-people { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--g-gold-hi); }
+.ai-funnel.ai-glass .plan-example .plan-example-tile strong { font: 600 clamp(22px, 2.6vw, 28px)/1.25 Inter, sans-serif; color: var(--ai-ink); }
+.ai-funnel.ai-glass .plan-example .plan-example-text { margin: 0 0 8px; max-width: 70ch; }
+.ai-funnel.ai-glass .plan-example .plan-example-basis { margin: 0 0 16px; font-size: 14px; color: var(--ai-soft); }
+.ai-funnel.ai-glass .plan-example .plan-guardrail { margin: 0; padding-top: 14px; border-top: 1px solid var(--g-line); max-width: 70ch; color: var(--ai-ink); }
+
+.ai-funnel.ai-glass .plan-box h2 { font-size: clamp(28px, 3.4vw, 38px); margin: 0 0 16px; }
+.ai-funnel.ai-glass .plan-box .plan-box-opener { margin: 0 0 18px; max-width: 70ch; }
+.ai-funnel.ai-glass .plan-box .plan-box-list { margin: 0 0 18px; padding-left: 26px; display: grid; gap: 10px; max-width: 72ch; }
+.ai-funnel.ai-glass .plan-box .plan-box-list li { margin: 0; font-size: 16.5px; line-height: 1.5; color: var(--ai-ink); padding-left: 4px; }
+.ai-funnel.ai-glass .plan-box .plan-box-list li::marker { color: var(--g-gold-hi); font-weight: 700; }
+.ai-funnel.ai-glass .plan-box .plan-box-note { margin: 0 0 12px; max-width: 72ch; }
+.ai-funnel.ai-glass .plan-box .plan-box-note strong { color: var(--ai-ink); }
+.ai-funnel.ai-glass .plan-box .plan-box-note:last-child { margin-bottom: 0; }
+
+.ai-funnel.ai-glass .glass-panel.plan-safety { margin: 32px 0; }
+.ai-funnel.ai-glass .plan-safety p { max-width: 72ch; font-size: 16.5px; line-height: 1.6; }
+.ai-funnel.ai-glass .plan-safety .plan-safety-body { margin: 0 0 12px; color: var(--ai-ink); }
+.ai-funnel.ai-glass .plan-safety .plan-safety-body strong { color: var(--g-gold-hi); }
+.ai-funnel.ai-glass .plan-safety .plan-safety-defs { margin: 0 0 12px; }
+.ai-funnel.ai-glass .plan-safety .plan-safety-refund { margin: 0 0 22px; }
+.ai-funnel.ai-glass .plan-safety .plan-cta-lead { margin: 0 0 6px; padding-top: 20px; border-top: 1px solid var(--g-line); color: var(--ai-ink); }
+.ai-funnel.ai-glass .plan-safety .ai-cta-row { margin: 16px 0 0; }
+
+@media (max-width: 700px) {
+  .ai-funnel.ai-glass .plan-example .plan-example-tiles { grid-template-columns: 1fr; }
+  .ai-funnel.ai-glass .plan-edition .plan-edition-link { width: 100%; box-sizing: border-box; }
+  .ai-funnel.ai-glass .plan-edition .plan-edition-list { width: 100%; flex-direction: column; }
+}
+/* the definitions and the basis line are italic in the page's own body face, not the serif display face `em` gets elsewhere */
+.ai-funnel.ai-glass .plan-safety .plan-safety-defs em, .ai-funnel.ai-glass .plan-example .plan-example-basis em { font-family: inherit; font-style: italic; font-weight: 400; letter-spacing: normal; }

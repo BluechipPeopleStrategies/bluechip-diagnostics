@@ -43,7 +43,7 @@ describe('free check result never disqualifies a visitor', () => {
 
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     const result = container.querySelector('main');
-    expect(within(result).getByRole('link', { name: 'See how the plan works' })).toBeInTheDocument();
+    expect(within(result).getByRole('link', { name: 'See how the AI Handoff Plan works' })).toBeInTheDocument();
     expect(result.textContent).not.toMatch(/not qualify|don't qualify|do not qualify|ineligible|disqualif/i);
   });
 

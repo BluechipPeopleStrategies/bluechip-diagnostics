@@ -107,7 +107,11 @@ export function formatVisitorConfirmation({ name, need }) {
   // "Practical AI Audit" is the old label, kept so inquiries from a cached widget (or an old
   // shared link) still get the right confirmation text after the rename to The AI Handoff Plan.
   if (need === 'The AI Handoff Plan' || need === 'Practical AI Audit') {
-    return hi + "it's Chip with BlueChip People Strategies. We received your AI Handoff Plan inquiry. This is not a booking or payment. While you wait, here's how the plan works and what you get: https://bluechip-diagnostics.vercel.app/ai-handoff-plan We'll text you about next steps, usually within a few hours on business days. Reply STOP to opt out.";
+    return hi + "it's Chip with BlueChip People Strategies. We received your AI Handoff Plan inquiry. This is not a booking or payment. While you wait, here's how the AI Handoff Plan works and what you get: https://bluechip-diagnostics.vercel.app/ai-handoff-plan We'll text you about next steps, usually within a few hours on business days. Reply STOP to opt out.";
+  }
+  // The public sector edition (2026-10-08) has its own page and its own widget topic.
+  if (need === 'The AI Handoff Plan (public sector)') {
+    return hi + "it's Chip with BlueChip People Strategies. We received your AI Handoff Plan inquiry. This is not a booking or payment. While you wait, here's how the AI Handoff Plan works and what you get: https://bluechip-diagnostics.vercel.app/ai-handoff-plan/public-sector We'll text you about next steps, usually within a few hours on business days. Reply STOP to opt out.";
   }
   // Old label kept so inquiries from a cached widget still get the right text.
   if (need === 'Practical AI and/or Embedded HR Retainers' || need === 'Embedded HR + AI Advisory') {

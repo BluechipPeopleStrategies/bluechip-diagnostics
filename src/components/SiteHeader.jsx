@@ -3,14 +3,14 @@ import { scrollPageToTop } from '../lib/motion';
 import './SiteHeader.css';
 
 const NAV = [
-  { to: '/ai-opportunity-check', label: 'AI Opportunity Check' },
-  { to: '/ai-handoff-plan', label: 'The AI Handoff Plan' },
+  { to: '/ai-opportunity-check', label: 'AI Pulse' },
+  { to: '/ai-handoff-plan', label: 'The AI Handoff Plan', section: true }, // also current on /ai-handoff-plan/public-sector
 ];
 
 // Shared brand header for the AI pages (design review finding #2: the two AI pages were the
 // only pages on the whole property with no BlueChip wordmark, nav, or way back to the main site).
 // Sticky on scroll with a translucent navy blur; safe-area aware for notched phones.
-export default function SiteHeader({ showCta = false }) {
+export default function SiteHeader({ showCta = false, chatTopic = 'ai-handoff-plan' }) {
   const { pathname } = useLocation();
   return (
     <header className="bc-site-header">
@@ -20,17 +20,17 @@ export default function SiteHeader({ showCta = false }) {
         </a>
         <nav className="bc-site-header-links" aria-label="AI pages">
           {NAV.map(item => (
-            <NavLink key={item.to} to={item.to} end
+            <NavLink key={item.to} to={item.to} end={!item.section}
               className={({ isActive }) => `bc-site-header-link${isActive ? ' is-current' : ''}`}
               onClick={(e) => {
-                if (pathname === item.to) { e.preventDefault(); scrollPageToTop(); }
+                if (pathname.replace(/\/$/, '') === item.to) { e.preventDefault(); scrollPageToTop(); }
               }}>
               {item.label}
             </NavLink>
           ))}
         </nav>
         {showCta && (
-          <a className="ai-button plan-btn plan-btn--compact bc-site-header-cta" href="#chat?topic=ai-handoff-plan">Start the conversation</a>
+          <a className="ai-button plan-btn plan-btn--compact bc-site-header-cta" href={`#chat?topic=${chatTopic}`}>Start the conversation</a>
         )}
       </div>
     </header>
