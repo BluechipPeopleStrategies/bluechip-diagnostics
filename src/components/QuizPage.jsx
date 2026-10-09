@@ -7,6 +7,7 @@ import ResultsPage from './ResultsPage';
 import { loadState, saveState, clearState } from '../lib/persistence';
 import { describeSharedResult } from '../lib/share';
 import { trackEvent } from '../lib/checkAnalytics';
+import { usePageMeta } from '../lib/seo';
 
 import orgPulse from '../data/org-pulse.json';
 import dqi from '../data/dqi.json';
@@ -25,6 +26,10 @@ const diagnostics = {
 export default function QuizPage({ shareView = false }) {
   const { slug, resultCode } = useParams();
   const diagnostic = diagnostics[slug];
+  // Own title per quiz; the canonical is the main-site page that wraps this quiz (Oct 9, 2026).
+  usePageMeta(diagnostic ? `${diagnostic.title} (free) | BlueChip` : 'Not found | BlueChip',
+    diagnostic ? diagnostic.tagline : undefined,
+    diagnostic ? `https://www.bluechip-people-strategies.com/${slug}` : undefined);
 
   const [answers, setAnswers] = useState({});
   const [currentIndex, setCurrentIndex] = useState(0);

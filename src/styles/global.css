@@ -585,3 +585,9 @@ html,body{background:#0b1a33;}
 .bc-option.is-selected .bc-option-shortcut{color:#0b1a33;}
 .bc-card-badge{color:#0b1a33;}
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline-color:#c9a24b;}
+
+/* Free-checks hub: a way back to the main site (Oct 9, 2026). */
+.bc-page .bc-back { margin: 0 0 18px; font-size: 14px; }
+.bc-back a, .bc-hub-foot a { color: inherit; opacity: .8; text-decoration: none; }
+.bc-back a:hover, .bc-hub-foot a:hover { opacity: 1; text-decoration: underline; }
+.bc-hub-foot { display: flex; flex-wrap: wrap; gap: 10px 22px; justify-content: center; margin: 40px 0 8px; font-size: 14px; }
