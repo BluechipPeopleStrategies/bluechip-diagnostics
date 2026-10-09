@@ -28,7 +28,7 @@ const BODY = {
 
 const resendCalls = () => global.fetch.mock.calls.filter(c => String(c[0]).includes('resend')).map(c => JSON.parse(c[1].body));
 
-describe('submit handler: AI Opportunity Check results email', () => {
+describe('submit handler: AI Pulse results email', () => {
   beforeEach(() => {
     process.env.RESEND_API_KEY = 're_test';
     process.env.BLUECHIP_FROM_EMAIL = 'hi@bc.ca';
@@ -49,8 +49,9 @@ describe('submit handler: AI Opportunity Check results email', () => {
     expect(sends).toHaveLength(2);
     expect(sends.some(s => s.scheduled_at)).toBe(false);
     const visitor = sends.find(s => s.to === 'pat@example.com');
-    expect(visitor.subject).toBe('Your AI Opportunity Check results');
+    expect(visitor.subject).toBe('Your AI Pulse results');
     expect(visitor.html).toMatch(/About 1 to 2 hours a week/);
+    expect(visitor.html).toMatch(/See how the AI Handoff Plan works/);
     expect(visitor.html).toMatch(/36 min to 1.1 hrs\/week/);
     expect(visitor.html).toMatch(/24 to 54 min\/week/);
     expect(visitor.html).not.toMatch(/Your answers/);
@@ -76,7 +77,7 @@ describe('submit handler: AI Opportunity Check results email', () => {
       areaInputs: { otherArea: { hours: 999, people: 1e9, label: '<a href=evil>click</a>' } },
     } }, res);
     const visitor = resendCalls().find(s => s.to === 'pat@example.com');
-    expect(visitor.subject).toBe('Your AI Opportunity Check results');
+    expect(visitor.subject).toBe('Your AI Pulse results');
     expect(visitor.html).not.toMatch(/<script|<h1>spam|<a href=evil/);
     expect(visitor.html).not.toMatch(/bogus/);
     expect(visitor.html).toMatch(/a href=evilclick\/a/); // angle brackets stripped, text kept
@@ -157,7 +158,7 @@ describe('cleanAiCheckInput', () => {
     const { html } = buildAiCheckResultsEmail(cleanAiCheckInput(BODY));
     expect(html).toContain('Thomas Slifka, BlueChip People Strategies');
     expect(html).toContain('10060 Jasper Ave NW #2020, Edmonton, AB T5J 3R8');
-    expect(html).toContain('You&#39;re getting this because you asked for your AI Opportunity Check results. It&#39;s the only email we&#39;ll send unless you write back.');
+    expect(html).toContain('You&#39;re getting this because you asked for your AI Pulse results. It&#39;s the only email we&#39;ll send unless you write back.');
     // the generic diagnostic footer does not also appear
     expect(html).not.toMatch(/completed a BlueChip diagnostic/);
   });

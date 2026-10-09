@@ -1,4 +1,4 @@
-/* BlueChip People Strategies — lead-capture chat widget.
+/* BlueChip People Strategies: lead-capture chat widget.
    Served from Vercel and loaded on Squarespace with a single:
    <script defer src="https://bluechip-diagnostics.vercel.app/widget.js"></script>
    Self-injecting: builds its own styles, DOM, and handlers. No dependencies. */
@@ -9,41 +9,75 @@
 
   var LEAD_ENDPOINT = 'https://bluechip-diagnostics.vercel.app/api/lead';
 
-  // Browse questions and answers is hidden for now (Thomas, 2026-09-24). Reconsider around 2026-10-08.
-  var SHOW_BROWSE = false;
+  // Browse questions and answers: hidden 2026-09-24, back on 2026-10-08 (Thomas, AI door release).
+  var SHOW_BROWSE = true;
 
   var NAVY = '#0B1A33', GOLD = '#C9A24B', CREAM = '#F5EFE6', TEXT = '#2c2c2c';
 
+  var PLAN_NEED = 'The AI Handoff Plan';
+  var PUBLIC_NEED = 'The AI Handoff Plan (public sector)';
+  var PULSE_NEED = 'AI Pulse';
+  var RETAINER_NEED = 'Practical AI and/or Embedded HR Retainers';
+
   var CHOICES = [
-    'The AI Handoff Plan',
-    'Practical AI and/or Embedded HR Retainers',
+    PLAN_NEED,
+    'The AI Handoff Plan for a municipality or public body',
+    RETAINER_NEED,
     'Leadership coaching',
     'Governance or CEO evaluation',
     'Termination or workplace investigation',
     "Something else (I'm not sure yet)"
   ];
+  // Chooser label -> the lead's topic label (what Thomas sees). Labels not listed are their own topic label.
+  var CHOICE_NEED = { 'The AI Handoff Plan for a municipality or public body': PUBLIC_NEED };
+  // Topic label -> topic slug, for the offering bubbles.
+  var NEED_SLUG = {};
+  NEED_SLUG[PLAN_NEED] = 'ai-handoff-plan';
+  NEED_SLUG[PUBLIC_NEED] = 'public-sector';
+  NEED_SLUG[PULSE_NEED] = 'free-check';
+  NEED_SLUG[RETAINER_NEED] = 'retainers';
+
+  var REFUND_URL = 'https://www.bluechip-people-strategies.com/refund';
+  var REFUND_REF = 'See our Refund Policy, section 1: ' + REFUND_URL;
+
+  // The guarantee, as one answer (Infy batch 3, "Your safety net"): automatic, a finding and not a result.
+  var GUARANTEE_ANSWER = "Your safety net: if your AI plan can't show at least 3 net hours a week in total across the people who do that workflow, your full fee comes back automatically within 10 business days of your findings call. No forms, no hoops. It's a promise about what your AI plan finds, not about what happens afterwards, because the hours you actually get back depend on your team putting your AI plan in place. Net means the hours saved each week, minus the time it takes each week to check the AI's work and keep the tools running. The people who do the work means everyone who regularly does that workflow, agreed with you before we start. The 3 hours are their total, not 3 hours each. You get a copy of the hours tally that scores your AI plan. If you think we've scored it wrong, tell us within 30 days of your findings call and we'll go through it together. That review can only change the result in your favour.";
+  // "What you get for C$795", in box order.
+  var INCLUDED_ANSWER = "For C$795, you get: 1. A 60-minute discovery session with up to two of the people who do the work. 2. A written plan within five business days of having what it needs: which parts of the workflow AI can take on and which stay with your people, how the hours add up across the people who do it, which tool to start with and why, the costs, the setup effort, and what should and shouldn't go into each tool. 3. A starter kit: the prompts, templates and a checklist for checking the AI's work. 4. A one-page summary for whoever signs off. 5. A simple hours tracker for the people doing the work, to see how the workflow's time changes. 6. A 45-minute findings and setup call, where the first step gets set up in a tool you already allow, or, if none fits yet, the IT request gets written and ready to send. 7. A 15-minute check-in about 30 days later. Not included: software and licences, anything your IT team installs, rolling the change out to the rest of the team, and any other workflow.";
+  var SETUP_ANSWER = "On the findings and setup call, one or two of the people who do the work set up the first step with us, in a tool you already allow. If none fits yet, the call ends with the IT request written and ready to send. Rolling the change out to the rest of the team, software and licences, and anything your IT team installs are not included.";
+  var RETAINER_CREDIT = "If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, your C$795 is credited against its first invoice. Conditions are in our Refund Policy, section 1.";
 
   // Approved fixed answers. Update alongside the service pages when offers change. `slug` is
   // used by the topic-preselect API/hash param (window.BlueChipChat.open, #chat?topic=).
   var KNOWLEDGE = [
-    { slug: 'ai-handoff-plan', title: 'The AI Handoff Plan', need: 'The AI Handoff Plan', url: 'https://bluechip-diagnostics.vercel.app/ai-handoff-plan', link: 'Read the full plan details', answers: [
-      ['What does The AI Handoff Plan cost?', "C$595 per organization, including applicable tax. It's an introductory price, so it may change as feedback comes in. Asking here doesn't book the plan or take payment. We'll confirm the next steps with you, and the invoice only comes once we've both agreed to go ahead, and it's paid before the discovery session. If you cancel before discovery, before any work on your plan has begun, your full fee comes back. If an invoice is still unpaid when a refund would apply, we cancel it."],
-      ['What is included?', "A 60-minute discovery session on the work you picked: how it actually happens, the handoffs, the tools and the people involved. Then a written plan that sets out what to hand to AI and what stays with the person, which tool to start with and why, the alternatives, the costs and setup effort, and what information should and shouldn't go into each tool. Then a 30-minute findings call that ends with the one recommendation we'd start with. The plan is yours to keep."],
-      ['How does the three-hour guarantee work?', "Pick one person and one task they repeat. If the plan can't show a realistic way to give that person back at least 3 net hours a week from that work, your full fee comes back automatically within 10 business days of your findings call, no forms, no hoops. It's a promise about what the plan finds, not about what happens afterwards, because the hours you actually get back depend on your team putting the plan in place. Net means the hours saved each week, minus the time it takes each week to check the AI's work and keep the tools running. One person means one person, the one who does the work you picked, not a team or a department. If several people do that same work, the hours are counted for one of them, not added up. The plan has to back the hours with evidence, and you get a copy of the hours tally that scores it. If you think we've scored it wrong, tell us within 30 days of your findings call and we'll go through it together. That review can only change the result in your favour."],
-      ['Do you set the tools up for us?', "Not as part of the plan itself. The plan names the tool to start with and what it takes to set it up. If you'd like a hand putting it in place, we can do that as separate work, in an Implementation Sprint or on a Practical AI Retainer (six-month minimum). Software licences, and any installs your IT team needs to do, stay with you."],
-      ['When will I receive the plan?', "Within five business days, counted from whichever comes later: your discovery session, or the day we have the information the plan needs. The 30-minute findings call then walks you through it."],
-      ['Do I have to buy a retainer?', "No. The plan stands on its own. You keep it, and you can put it in place yourself or with another provider. If it does lead into a Practical AI and/or Embedded HR Retainer (six-month minimum), the plan fee is credited against your first invoice."]
+    { slug: 'ai-handoff-plan', title: 'The AI Handoff Plan', need: PLAN_NEED, url: 'https://bluechip-diagnostics.vercel.app/ai-handoff-plan', link: 'Read the full AI Handoff Plan details', answers: [
+      ['What does the AI Handoff Plan cost?', "C$795 per organization. BlueChip People Strategies is not registered for GST, so no tax is added. Asking here doesn't book the AI Handoff Plan or take payment. We'll confirm the next steps with you first. Businesses and nonprofits are invoiced once we've both agreed to go ahead, and pay before the discovery session. Public bodies book the discovery session once their purchase order is issued and pay on their normal terms. " + REFUND_REF],
+      ['What is included?', INCLUDED_ANSWER],
+      ['How does the three-hour guarantee work?', GUARANTEE_ANSWER],
+      ['Do you set the tools up for us?', SETUP_ANSWER],
+      ['When will I receive my AI plan?', "Within five business days of having what it needs. The 45-minute findings and setup call then walks you through it."],
+      ['Can I cancel, or get a refund?', "Payment, refunds and cancellation are covered in section 1 of our Refund Policy, so they're written down in one place. " + REFUND_REF],
+      ['Do I have to buy a retainer?', "No. You can keep your AI plan and put it in place yourself or with another provider, or ask us about ongoing help. " + RETAINER_CREDIT]
     ] },
-    { slug: 'free-check', title: 'Free AI Opportunity Check', need: 'Free AI Opportunity Check', url: 'https://bluechip-diagnostics.vercel.app/ai-opportunity-check', link: 'Open the free AI Opportunity Check', answers: [
-      ['What does the free check give me?', "Twelve quick questions about your recurring work, about three minutes in all. You'll get a starting range of the hours in play, and the areas where we'd start looking, before deciding whether you want The AI Handoff Plan."],
-      ['Do I need to give my email?', 'No email or contact details are required for the free check. Its answers stay in your browser tab until you close it, unless you choose to email your results to yourself at the end. Please do not enter confidential information.'],
-      ['Does the free check prove I will save three hours?', "No. It's a starting estimate from your own answers and published studies, not a plan and not a confirmation of the guarantee. The plan checks your actual work to see where you really land."]
+    { slug: 'public-sector', title: 'The AI Handoff Plan for municipalities and public bodies', need: PUBLIC_NEED, url: 'https://bluechip-diagnostics.vercel.app/ai-handoff-plan/public-sector', link: 'Read the public sector page', answers: [
+      ['What does it cover?', "Name one workflow your staff repeat. You get a written plan showing a realistic way to use AI to give the people who do it back at least 3 net hours a week between them. Then, on the findings call, one or two of them set up the first step with us, because a process nobody uses is just a document."],
+      ['What does it cost, and how do we pay?', "C$795, with no tax added. We book the discovery session once your purchase order is issued, and you pay the invoice on your normal payment terms. If an invoice is still unpaid after its terms, we hold the remaining deliverables until it's paid. " + REFUND_REF],
+      ['Does AI replace CAO judgment or council governance?', "AI doesn't replace CAO judgment, council governance, or your privacy and records requirements. Your AI plan looks for time that can go back to council priorities, not positions to cut, and what you do with any time it frees up stays your decision."],
+      ['What is included?', INCLUDED_ANSWER],
+      ['How does the three-hour guarantee work?', GUARANTEE_ANSWER],
+      ['How are tools approved?', "Before the findings and setup call, you confirm by email which tools your organization has approved, through your procurement or IT team. We set up the first step only in those."],
+      ['Do I have to buy a retainer?', "No. You can keep your AI plan and put it in place yourself or with another provider, or ask us about ongoing help. " + RETAINER_CREDIT]
     ] },
-    { slug: 'retainers', title: 'Practical AI and/or Embedded HR Retainers', need: 'Practical AI and/or Embedded HR Retainers', url: 'https://www.bluechip-people-strategies.com/embedded-hr-retainers', link: 'Explore Practical AI and/or Embedded HR Retainers', answers: [
+    { slug: 'free-check', title: 'AI Pulse', need: PULSE_NEED, url: 'https://bluechip-diagnostics.vercel.app/ai-opportunity-check', link: 'Open the free AI Pulse', answers: [
+      ['What does AI Pulse give me?', "Twelve quick questions about your recurring work, about three minutes in all. You'll get a starting range of the hours in play, and the areas where we'd start looking, before deciding whether you want the AI Handoff Plan."],
+      ['Do I need to give my email?', 'No email or contact details are required for AI Pulse. Its answers stay in your browser tab until you close it, unless you choose to email your results to yourself at the end. Please do not enter confidential information.'],
+      ['Does AI Pulse prove I will save three hours?', "No. It's a starting estimate from your own answers and published studies, not a plan and not a confirmation of the guarantee. The AI Handoff Plan checks your actual work to see where you really land."]
+    ] },
+    { slug: 'retainers', title: 'Practical AI and/or Embedded HR Retainers', need: RETAINER_NEED, url: 'https://www.bluechip-people-strategies.com/embedded-hr-retainers', link: 'Explore Practical AI and/or Embedded HR Retainers', answers: [
       ['Can I retain BlueChip for AI alone?', 'Yes. Support can focus on practical AI adoption alone or combine AI with embedded HR advice. The scope and fee are agreed for your engagement.'],
       ['What does embedded HR cover?', 'Senior advice on people decisions: hiring strategy, organizational design, performance management, compensation philosophy, leadership and change. It is strategic advisory, not payroll or benefits administration.'],
       ['How are tools and sensitive information handled?', 'Tools need your approval. Employee or client information should not go into a system you have not cleared. The work identifies where human judgment and review belong. Please keep personnel records and confidential client information out of this chat.'],
-      ['How much is ongoing advisory?', 'Advisory pricing is scoped to your engagement. The C$595 plan price is a one-time plan fee, not a monthly advisory price. BlueChip can discuss the work and propose the appropriate scope.']
+      ['How much is ongoing advisory?', 'Advisory pricing is scoped to your engagement. BlueChip can discuss the work and propose the appropriate scope.']
     ] },
     { slug: 'other', title: 'Other BlueChip services', need: 'Other BlueChip services', url: 'https://www.bluechip-people-strategies.com/services', link: 'Explore BlueChip services', answers: [
       ['What is a governance evaluation?', 'A structured, independent review for a board or council and its senior leader. The engagement may include stakeholder interviews, leadership assessment, a written report, a presentation and a forward-looking performance plan. Scope and pricing are discussed with BlueChip.'],
@@ -53,18 +87,24 @@
     ] }
   ];
 
-  // The AI Handoff Plan's answer, as three short bubbles: what it is, the deal, whose it is.
+  // Opening bubbles, one short set per topic. The AI Handoff Plan leads with capacity across the
+  // people who do the work, then the deal, then whose it is (Thomas, 2026-10-08).
   var PLAN_BUBBLES = [
-    "The AI Handoff Plan takes one task that one person repeats and finds where AI can give them time back. It's C$595, taxes included, an introductory price.",
-    "Here's the deal. If we can find a realistic way to give that person back at least 3 net hours a week, you get a written plan to go get them. If we can't, your full fee comes back automatically within 10 business days of your findings call. No forms, no hoops.",
-    'The plan is yours to put in place, on your own or with our help.'
+    "An hour a week each doesn't sound like much until you count the people. The AI Handoff Plan takes one workflow your team repeats and looks for the steps AI could take on for everyone who does it. It's C$795, with no tax added.",
+    "Here's the deal. If your AI plan can't show at least 3 net hours a week in total across the people who do that workflow, your full fee comes back automatically within 10 business days of your findings call. No forms, no hoops.",
+    'Your AI plan is yours to put in place, on your own or with our help.'
+  ];
+  var PUBLIC_BUBBLES = [
+    "An hour a week each doesn't sound like much until you count the people. Name one workflow your staff repeat, and the AI Handoff Plan looks for the steps AI could take on for everyone who does it. It's C$795, with no tax added.",
+    "Here's the deal. If your AI plan can't show at least 3 net hours a week in total across the people who do that workflow, your full fee comes back automatically within 10 business days of your findings call. No forms, no hoops.",
+    "AI doesn't replace CAO judgment, council governance, or your privacy and records requirements. Your AI plan looks for time that can go back to council priorities, not positions to cut."
   ];
   var RETAINER_BUBBLES = [
     'Practical AI and/or Embedded HR Retainers bring practical AI adoption and senior people advice into the work of your organization. Support can focus on AI alone or combine HR and AI. The scope and fee are agreed for your engagement.',
-    'You can also start with The AI Handoff Plan. Its C$595 fee, taxes included, is credited against your first invoice if you start a Practical AI and/or Embedded HR Retainer (six-month minimum) within 60 days of your findings call.'
+    'You can also start with the AI Handoff Plan. If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, your C$795 is credited against its first invoice.'
   ];
   var FREE_CHECK_BUBBLES = [
-    'Twelve quick questions about your recurring work, about three minutes in all. The free check gives you a starting range of hours, with no email required. It is not the plan, and it does not confirm the guarantee.'
+    'Twelve quick questions about your recurring work, about three minutes in all. AI Pulse gives you a starting range of hours, with no email required. It is not the AI Handoff Plan, and it does not confirm the guarantee.'
   ];
 
   // ---- styles ----
@@ -369,8 +409,8 @@
     sayBotSequence(['Thanks, ' + data.name + '. What’s on your plate?'], function () {
       CHOICES.forEach(function (c) {
         choiceButton(c, function () {
-          data.need = c; addMsg(c, 'user');
-          if (c === 'Free AI Opportunity Check' || c === 'The AI Handoff Plan' || c === 'Practical AI and/or Embedded HR Retainers') renderOffering();
+          data.need = CHOICE_NEED[c] || c; addMsg(c, 'user');
+          if (NEED_SLUG[data.need]) renderOffering();
           else renderContact();
         });
       });
@@ -393,6 +433,7 @@
   function offeringBubbles(topic) {
     if (!topic) return PLAN_BUBBLES.slice();
     if (topic.slug === 'ai-handoff-plan') return PLAN_BUBBLES.slice();
+    if (topic.slug === 'public-sector') return PUBLIC_BUBBLES.slice();
     if (topic.slug === 'retainers') return RETAINER_BUBBLES.slice();
     if (topic.slug === 'free-check') return FREE_CHECK_BUBBLES.slice();
     return PLAN_BUBBLES.slice();
@@ -400,16 +441,12 @@
 
   function renderOffering(topic) {
     typingGeneration++;
-    var t = topic || topicBySlug(
-      data.need === 'The AI Handoff Plan' ? 'ai-handoff-plan'
-        : data.need === 'Free AI Opportunity Check' ? 'free-check'
-          : 'retainers'
-    );
+    var t = topic || topicBySlug(NEED_SLUG[data.need] || 'retainers');
     footEl.innerHTML = '';
     if (t.slug === 'free-check') {
       sayBotSequence(offeringBubbles(t), function () {
         var checkLink = el('a', { 'class': 'bcw-choice', href: 'https://bluechip-diagnostics.vercel.app/ai-opportunity-check' });
-        var checkSpan = document.createElement('span'); checkSpan.textContent = 'Start the free AI Opportunity Check';
+        var checkSpan = document.createElement('span'); checkSpan.textContent = 'Start the free AI Pulse';
         checkLink.appendChild(checkSpan);
         footEl.appendChild(checkLink);
         if (SHOW_BROWSE) choiceButton('Browse questions and answers', renderTopics);

@@ -360,6 +360,18 @@
   .ai-funnel.ai-funnel--check .ai-fc-steps .ai-next-steps-list li > .ai-fc-step-text { padding: 12px 14px; font-size: 15px; }
 }
 
+
+/* ---------- the two lines at the top of the result, the gap line and the fit signal ---------- */
+.ai-funnel.ai-funnel--check .ai-fc-top { margin: 0 0 22px; padding: 16px 18px; border-radius: 14px; border: 1px solid rgba(201, 162, 75, .4);
+  background: linear-gradient(160deg, rgba(201, 162, 75, .12), rgba(255, 255, 255, .02)); }
+.ai-funnel.ai-funnel--check .ai-fc-top .ai-fc-top-line { margin: 0; max-width: none; font-size: 16.5px; line-height: 1.5; color: var(--ai-ink); }
+.ai-funnel.ai-funnel--check .ai-fc-top .ai-fc-top-line + .ai-fc-top-line { margin-top: 10px; }
+.ai-funnel.ai-funnel--check .ai-fc-top .ai-fc-top-label { color: var(--ai-gold); font-weight: 700; }
+.ai-funnel.ai-funnel--check .ai-fc-close .ai-fc-gap { margin: 0 0 18px; font-size: 16px; line-height: 1.55; color: var(--ai-body); max-width: 60ch; }
+.ai-funnel.ai-funnel--check .ai-fc-close .ai-fc-fit { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; max-width: none; font-size: 16px; font-weight: 600; color: var(--ai-ink); }
+.ai-funnel.ai-funnel--check .ai-fc-fit-icon { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--ai-gold); color: var(--ai-gold); }
+.ai-funnel.ai-funnel--check .ai-fc-fit-icon .ai-fc-icon { width: 15px; height: 15px; }
+
 /* ---------- item 57: the closing next step ---------- */
 .ai-funnel.ai-funnel--check .ai-fc-close { position: relative; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, .8fr); gap: 10px 28px; margin: 36px 0 28px;
   padding: 34px 36px 8px; border-top: 0; border-radius: 22px; overflow: hidden;

@@ -3,11 +3,12 @@ import {
   questions, isComplete, toggleMulti, computeRange, roundHoursLabel, roundDollars, money,
   suggestedAreas, AREA_LABELS, lowerFirst, joinList, groupedOptions,
   sanitizeAreaLabel, sanitizeShortText, areaLookoutLines, crossCuttingCards, nextSteps,
-  orgSizeMidpoint, perPersonHoursForCarry, HOURS_DISPLAY_CAP,
+  orgSizeMidpoint, HOURS_DISPLAY_CAP, topTimeArea, fitSignalReached,
   PEOPLE_MAX, areaHoursLabel, GUARANTEE_NET_HOURS } from '../lib/aiOpportunity';
 import { prefersReducedMotion } from '../lib/useRollingNumber';
 import { loadCheckSession, saveCheckSession, clearCheckSession } from '../lib/freeCheckSession';
 import { trackCheck } from '../lib/checkAnalytics';
+import { usePageMeta } from '../lib/seo';
 import SiteHeader from './SiteHeader';
 import AreaIcon from './AreaIcon';
 import AreaHoursInput from './AreaHoursInput';
@@ -50,6 +51,7 @@ function handleGridArrowKeys(e) {
 }
 
 export default function AiOpportunityCheck() {
+  usePageMeta('AI Pulse: a free AI check | BlueChip', 'Find out roughly how many hours a week AI could give your team back. About three minutes. No email needed.');
   // Restored once from sessionStorage (item 59): leaving for the plan page and coming back, or a
   // reload, lands the visitor where they were instead of on an empty question 1.
   const [restored] = useState(() => loadCheckSession());
@@ -217,7 +219,7 @@ export default function AiOpportunityCheck() {
 
     {step === 'questions' && <>
       {qIndex === 0 && <div className="ai-intro-head">
-        <p className="ai-eyebrow ai-intro-eyebrow">Free AI Opportunity Check</p>
+        <p className="ai-eyebrow ai-intro-eyebrow">Free AI Pulse</p>
         <h1 className="ai-intro-h1" ref={headingRef} tabIndex={-1}>How much time could AI give back to your team?</h1>
         <p className="ai-intro-sub">Find out roughly how many hours a week AI could give your team back. About three minutes. No email needed.</p>
         <HourglassHero />
@@ -310,9 +312,12 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
     lines: areaLookoutLines(a),
   }));
   const lookoutCards = [...areaCards, ...crossCuttingCards(answers)];
-  const topArea = rows[0]?.area;
+  // Where the most time goes: the area with the most hands-on team hours (hours x people).
+  const top = topTimeArea(rowDetail);
+  const topArea = top?.area;
   const topAreaLabel = topArea ? (topArea === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : lowerFirst(AREA_LABELS[topArea])) : null;
   const steps = nextSteps(answers, topAreaLabel);
+  const showFit = fitSignalReached(top);
 
   const peopleMax = PEOPLE_MAX;
   const totalPeopleEntered = Math.max(1, rowDetail.reduce((s, r) => s + r.people, 0));
@@ -326,11 +331,12 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
   const scaledValueLow = scaledLow * rate * weeks;
   const scaledValueLikely = scaledLikely * rate * weeks;
 
-  const carryHours = perPersonHoursForCarry(rows);
-  const carryEmployees = orgSizeMidpoint(answers.orgSize);
-
   return <>
-    <p className="ai-fc-print-only ai-fc-print-head">BlueChip People Strategies · AI Opportunity Check results, {new Date().toLocaleDateString('en-CA', { dateStyle: 'long' })}</p>
+    <p className="ai-fc-print-only ai-fc-print-head">BlueChip People Strategies · AI Pulse results, {new Date().toLocaleDateString('en-CA', { dateStyle: 'long' })}</p>
+    <div className="ai-fc-top">
+      {topArea && <p className="ai-fc-top-line"><span className="ai-fc-top-label">Where the most time goes:</span> <strong>{labelFor(topArea)}</strong></p>}
+      <p className="ai-fc-top-line"><span className="ai-fc-top-label">One thing to try this week:</span> {steps[0]}</p>
+    </div>
     <p className="ai-eyebrow">Your estimate</p>
     <h1 className="ai-result-headline" ref={headingRef} tabIndex={-1}>
       <TotalHours low={low} likely={likely} headline />
@@ -340,12 +346,12 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
 
     <div className="ai-stat-tiles">
       <div className="ai-stat-tile">
-        <span className="ai-stat-label">Hours a week</span>
+        <span className="ai-stat-label">Hours a week AI could free up</span>
         <strong><TotalHours low={low} likely={likely} /></strong>
       </div>
       <div className="ai-stat-tile">
-        <span className="ai-stat-label">Hours a year</span>
-        <strong><TotalHours low={low * weeks} likely={likely * weeks} /></strong>
+        <span className="ai-stat-label">Hours a year AI could free up</span>
+        <strong><TotalHours low={low * weeks} likely={likely * weeks} step={10} /></strong>
       </div>
       <div className="ai-stat-tile">
         <span className="ai-stat-label">Potential staff time value</span>
@@ -439,7 +445,7 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
 
     <NextStepsSection steps={steps} />
 
-    <ClosingNextStep planHref={`/ai-handoff-plan?perPersonHours=${carryHours}&employees=${carryEmployees}`}>
+    <ClosingNextStep showFit={showFit} planHref="/ai-handoff-plan">
       <details className="ai-disclosure ai-fc-disclosure">
         <summary>How this estimate works</summary>
         <p>For each area you picked, we take the hours one person spends on it each week, multiply by the number of people who do that work, then multiply by the share of that time AI can realistically save. That share comes from published studies of similar work, minus an allowance for checking the tools' work. Where no study matches closely, or you typed your own area, we use our most conservative rate. Then we add the areas together. We count at most 25 hours a week per person for any one area. We don't check whether two areas cover the same work, so if they overlap, the same hour can be counted twice. The dollar figure uses the hourly cost and working weeks shown above. The range is only as good as the numbers you enter, and your own results could land outside it. It's an estimate, not a promise of results or a cash saving.</p>

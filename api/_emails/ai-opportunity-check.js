@@ -1,11 +1,11 @@
 import { layout } from './_shared.js';
 import {
-  questions, computeRange, roundHoursLabel, roundDollars, money, AREA_LABELS, sanitizeAreaLabel,
+  questions, computeRange, totalHoursSentence, topTimeArea, roundDollars, money, AREA_LABELS, sanitizeAreaLabel,
   sanitizeShortText, areaWeeklyLabel, nextSteps, lowerFirst, answerSummary, orgSizeMidpoint,
   HOUR_CAP_PER_AREA, PEOPLE_MAX, HOURS_DISPLAY_CAP,
 } from '../../src/lib/aiOpportunity.js';
 
-// "Email my results" for the free AI Opportunity Check (item 61, 2026-09-25). The browser sends
+// "Email my results" for the free AI Pulse (item 61, 2026-09-25). The browser sends
 // raw answers only; everything in the email is rebuilt here from whitelisted option labels and
 // the same estimate engine the page uses, so this endpoint can never be used to mail arbitrary
 // text to an arbitrary address. Typed-in text (the "Other" labels) is sanitized, capped at 60
@@ -63,7 +63,7 @@ export function cleanAiCheckInput(body = {}) {
 export const AI_CHECK_FOOTER_LINES = [
   'Thomas Slifka, BlueChip People Strategies',
   '10060 Jasper Ave NW #2020, Edmonton, AB T5J 3R8',
-  "You're getting this because you asked for your AI Opportunity Check results. It's the only email we'll send unless you write back.",
+  "You're getting this because you asked for your AI Pulse results. It's the only email we'll send unless you write back.",
 ];
 const FOOTER_HTML = `<div style="font-size:12px;color:#6b6b6b;margin-top:40px;border-top:1px solid #e5e5e5;padding-top:14px;">${AI_CHECK_FOOTER_LINES.map(l => `<p style="margin:0 0 6px;">${esc(l)}</p>`).join('')}</div>`;
 
@@ -75,16 +75,14 @@ export function buildAiCheckResultsEmail(input) {
   const labelFor = (a) => (a === 'otherArea' ? sanitizeAreaLabel(areaInputs.otherArea?.label) : AREA_LABELS[a]);
   const rows = (answers.areas || []).map(a => ({ area: a, hours: areaInputs[a]?.hours ?? 5, people: areaInputs[a]?.people ?? 1 }));
   const { low, likely, rows: detail } = computeRange(rows);
-  const lowLabel = roundHoursLabel(low);
-  const likelyLabel = roundHoursLabel(likely);
-  const headline = lowLabel === likelyLabel ? `About ${likelyLabel} hours a week` : `About ${lowLabel} to ${likelyLabel} hours a week`;
+  const headline = totalHoursSentence(low, likely);
 
   const totalPeople = Math.max(1, detail.reduce((s, r) => s + r.people, 0));
   const headcount = input.headcount ?? orgSizeMidpoint(answers.orgSize);
   const teamLow = Math.min(HOURS_DISPLAY_CAP, (low / totalPeople) * headcount);
   const teamLikely = Math.min(HOURS_DISPLAY_CAP, (likely / totalPeople) * headcount);
 
-  const topArea = rows[0]?.area;
+  const topArea = topTimeArea(detail)?.area;
   const topLabel = topArea ? (topArea === 'otherArea' ? labelFor(topArea) : lowerFirst(AREA_LABELS[topArea])) : null;
   const steps = nextSteps(answers, topLabel);
 
@@ -100,19 +98,19 @@ export function buildAiCheckResultsEmail(input) {
 
   const html = layout(`
     <p style="${P}">Hi there,</p>
-    <p style="${P}">Thanks for taking the AI Opportunity Check. Here are your results.</p>
+    <p style="${P}">Thanks for taking the AI Pulse. Here are your results.</p>
     <p style="margin:0 0 4px;font-size:24px;font-weight:bold;">${esc(headline)}</p>
     <p style="${P}${SMALL}">across the areas you picked</p>
     <ul style="padding-left:20px;${P}">${areaList}</ul>
-    <p style="${P}">That is ${esc(roundHoursLabel(low * weeks))} to ${esc(roundHoursLabel(likely * weeks))} hours a year, or ${esc(money(roundDollars(low * rate * weeks)))} to ${esc(money(roundDollars(likely * rate * weeks)))} a year in potential staff time value at ${esc(money(rate))} an hour over ${esc(weeks)} working weeks. Time for other work, not a cash saving.</p>
-    <p style="${P}">If ${esc(headcount)} people each saved the same amount of time: about ${esc(roundHoursLabel(teamLow))} to ${esc(roundHoursLabel(teamLikely))} hours a week.</p>
+    <p style="${P}">That is ${esc(lowerFirst(totalHoursSentence(low * weeks, likely * weeks, { step: 10, period: 'a year' })))}, or ${esc(money(roundDollars(low * rate * weeks)))} to ${esc(money(roundDollars(likely * rate * weeks)))} a year in potential staff time value at ${esc(money(rate))} an hour over ${esc(weeks)} working weeks. Time for other work, not a cash saving.</p>
+    <p style="${P}">If ${esc(headcount)} people each saved the same amount of time: ${esc(lowerFirst(totalHoursSentence(teamLow, teamLikely)))}.</p>
     <h3 style="font-size:17px;margin:24px 0 10px;">Next steps you can take this week</h3>
     <ol style="padding-left:20px;${P}">${stepList}</ol>
     ${answersBlock}
-    <p style="margin:24px 0 14px;">Want to know which tasks and tools could get you there? That's what The AI Handoff Plan works out, measured against your actual work. <a href="${PLAN_URL}" style="color:#1a1a1a;text-decoration:underline;">See how the plan works</a>.</p>
+    <p style="margin:24px 0 14px;">Want to know which tasks and tools could get you there? That's what the AI Handoff Plan works out, measured against your actual work. <a href="${PLAN_URL}" style="color:#1a1a1a;text-decoration:underline;">See how the AI Handoff Plan works</a>.</p>
     <p style="${P}">Want to continue the discussion? Just reply to this email. It comes straight to me.</p>
     <p style="${P}${SMALL}">It's an estimate, not a promise of results or a cash saving.</p>
     <p style="${P}">Thomas</p>
   `, { footerHtml: FOOTER_HTML });
-  return { subject: 'Your AI Opportunity Check results', html, resultLabel: headline };
+  return { subject: 'Your AI Pulse results', html, resultLabel: headline };
 }

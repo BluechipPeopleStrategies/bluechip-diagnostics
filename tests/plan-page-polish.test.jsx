@@ -6,35 +6,34 @@ import AiOpportunityCheck from '../src/components/AiOpportunityCheck';
 
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 
-const RETAINERS = 'https://www.bluechip-people-strategies.com/embedded-hr-retainers';
 const renderPlan = () => render(<MemoryRouter initialEntries={['/ai-handoff-plan']}><AiHandoffPlanPage /></MemoryRouter>);
 
-describe('plan page FAQ copy and named offerings (punch list 38, 39)', () => {
-  it('uses the exact new retainer sentence', () => {
+describe('plan page FAQ copy and retainer line (AI door release, 2026-10-08)', () => {
+  it('says a retainer is not needed to keep your AI plan', () => {
     renderPlan();
-    expect(screen.getByText(/A retainer isn't required to keep your plan or to decide if we can meet your needs\./)).toBeInTheDocument();
-    expect(screen.queryByText(/to qualify for the refund/)).not.toBeInTheDocument();
+    expect(screen.getByText('Do I need to buy ongoing support?')).toBeInTheDocument();
+    expect(screen.getByText('No. You can keep your AI plan and put it in place yourself or with another provider.')).toBeInTheDocument();
   });
 
-  it('links every named offering to the page that explains it', () => {
-    renderPlan();
-    const sprint = screen.getAllByRole('link', { name: 'Implementation Sprint' });
-    expect(sprint.length).toBe(2);
-    sprint.forEach(a => expect(a).toHaveAttribute('href', `${RETAINERS}#practical-ai-audit`));
-    screen.getAllByRole('link', { name: 'Practical AI Retainer' }).forEach(a => expect(a).toHaveAttribute('href', RETAINERS));
-    expect(screen.getByRole('link', { name: 'Embedded HR Retainer' })).toHaveAttribute('href', RETAINERS);
+  it('states the retainer credit and points to the Refund Policy, with no roadmap, minimum or Implementation Sprint', () => {
+    const { container } = renderPlan();
+    expect(container.textContent).toContain('If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, your C$795 is credited against its first invoice.');
+    expect(container.textContent).not.toMatch(/roadmap|six-month|Implementation Sprint/i);
+    expect(screen.queryByRole('link', { name: /Retainer/ })).not.toBeInTheDocument(); // "ask us about ongoing help" has no link
+    screen.getAllByRole('link', { name: 'Refund Policy' }).forEach(a => expect(a).toHaveAttribute('href', 'https://www.bluechip-people-strategies.com/refund'));
   });
 });
 
 describe('site header (punch list 41, 42, 58)', () => {
-  it('names the free check "AI Opportunity Check" and marks the current page', () => {
+  it('names the free check "AI Pulse" and marks the current page', () => {
     renderPlan();
     const nav = screen.getByRole('navigation', { name: 'AI pages' });
-    expect(within(nav).getByRole('link', { name: 'AI Opportunity Check' })).toBeInTheDocument();
+    expect(within(nav).getByRole('link', { name: 'AI Pulse' })).toBeInTheDocument();
+    expect(within(nav).queryByText('AI Opportunity Check')).not.toBeInTheDocument();
     expect(within(nav).queryByText('Free AI check')).not.toBeInTheDocument();
     const current = within(nav).getByRole('link', { name: 'The AI Handoff Plan' });
     expect(current).toHaveAttribute('aria-current', 'page');
-    expect(within(nav).getByRole('link', { name: 'AI Opportunity Check' })).not.toHaveAttribute('aria-current');
+    expect(within(nav).getByRole('link', { name: 'AI Pulse' })).not.toHaveAttribute('aria-current');
   });
 
   it('clicking the current page scrolls to the top instead of doing nothing', () => {
@@ -51,22 +50,22 @@ describe('site header (punch list 41, 42, 58)', () => {
   it('marks the free check as current on its own page', () => {
     render(<MemoryRouter initialEntries={['/ai-opportunity-check']}><AiOpportunityCheck /></MemoryRouter>);
     const nav = screen.getByRole('navigation', { name: 'AI pages' });
-    expect(within(nav).getByRole('link', { name: 'AI Opportunity Check' })).toHaveAttribute('aria-current', 'page');
+    expect(within(nav).getByRole('link', { name: 'AI Pulse' })).toHaveAttribute('aria-current', 'page');
   });
 });
 
-describe('look inside the plan (punch list 37)', () => {
-  it('is a labelled illustrative document with the six sections, on the walkthrough scope', () => {
+describe('look inside your AI plan (punch list 37, updated 2026-10-08)', () => {
+  it('is a labelled illustrative document with the six sections, matching the "What you get for C$795" box', () => {
     renderPlan();
-    const section = screen.getByRole('region', { name: 'Look inside the plan' });
+    const section = screen.getByRole('region', { name: 'Look inside your AI plan' });
     expect(within(section).getByText('Illustrative structure, not a client result.')).toBeInTheDocument();
     [
       'Current workflow and evidence',
       'Recommended tool and alternatives',
       'Baseline time, expected review time and net savings',
-      'Costs, permissions and setup effort',
-      "The work you picked talked through, with where AI fits and where it doesn't, and a first step",
-      'The one recommendation to start with',
+      "Costs, setup effort, and what should and shouldn't go into each tool",
+      'Which parts of the workflow AI can take on and which stay with your people',
+      'How the hours add up across the people who do it',
     ].forEach(t => expect(within(section).getByText(t)).toBeInTheDocument());
     expect(within(section).getAllByRole('listitem')).toHaveLength(6);
     expect(section.textContent).not.toMatch(/redesign/i);
@@ -81,7 +80,7 @@ describe('closing CTA (punch list 40)', () => {
     const ctas = screen.getAllByRole('link', { name: 'Start the conversation' });
     expect(ctas.length).toBe(3); // header, price panel, closing card
     ctas.forEach(a => expect(a.className).toContain('plan-btn'));
-    const free = screen.getByRole('link', { name: 'Start with the free AI Opportunity Check' });
+    const free = screen.getByRole('link', { name: 'Start with the free AI Pulse' });
     expect(free).toHaveAttribute('href', '/ai-opportunity-check');
     expect(free.closest('.plan-free-check')).toBeTruthy();
   });

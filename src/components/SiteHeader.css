@@ -2,7 +2,7 @@
    Design review fix #2 gave the AI pages a logo, nav and way back. Punch list 41/42/58 (2026-09-25):
    the CTA sits in proportion with the nav and is vertically centred in the bar, the current page
    is marked with aria-current plus a non-colour treatment (weight + an underline bar), and the
-   nav uses the page's real name, "AI Opportunity Check". Selectors use two classes because
+   nav uses the page's real name, "AI Pulse". Selectors use two classes because
    AiFunnel.css (loaded after this file) sets `.ai-funnel a` and `.ai-funnel .ai-button`. */
 
 .bc-site-header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40;

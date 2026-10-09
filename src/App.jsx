@@ -4,7 +4,8 @@ import QuizPage from './components/QuizPage';
 import AiOpportunityCheck from './components/AiOpportunityCheck';
 import AiHandoffPlanPage from './components/AiHandoffPlanPage';
 
-// Vercel 301s /ai-audit -> /ai-handoff-plan and /ai-check -> /ai-opportunity-check at the edge
+// Vercel 301s /ai-audit -> /ai-handoff-plan, /ai-check -> /ai-opportunity-check and
+// /ai-handoff-plan/municipal -> /ai-handoff-plan/public-sector at the edge
 // (see vercel.json). This client-side fallback covers the SPA-only dev/preview servers that
 // never see vercel.json, so an old link still lands correctly and keeps its query string.
 function LegacyRedirect({ to }) {
@@ -20,6 +21,8 @@ export default function App() {
         <Route path="/ai-opportunity-check" element={<AiOpportunityCheck />} />
         <Route path="/ai-check" element={<LegacyRedirect to="/ai-opportunity-check" />} />
         <Route path="/ai-handoff-plan" element={<AiHandoffPlanPage />} />
+        <Route path="/ai-handoff-plan/public-sector" element={<AiHandoffPlanPage edition="public-sector" />} />
+        <Route path="/ai-handoff-plan/municipal" element={<LegacyRedirect to="/ai-handoff-plan/public-sector" />} />
         <Route path="/ai-audit" element={<LegacyRedirect to="/ai-handoff-plan" />} />
         <Route path="/:slug" element={<QuizPage />} />
         <Route path="/:slug/result/:resultCode" element={<QuizPage shareView />} />
