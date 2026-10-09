@@ -164,7 +164,7 @@ export function ClosingNextStep({ planHref, children }) {
         <h2 id="ai-fc-close-title" className="ai-fc-close-title">Want to know which tasks and tools could get you there?</h2>
         <p className="ai-fc-close-copy">That's what The AI Handoff Plan works out, measured against your actual work.</p>
         <p className="ai-fc-close-cta-row"><Link className="ai-secondary ai-fc-cta" to={planHref}>See how the plan works<FcIcon name="arrow" className="ai-fc-cta-arrow" /></Link></p>
-        <p className="ai-note ai-fc-seal"><span className="ai-fc-seal-icon" aria-hidden="true"><FcIcon name="shield" /></span><span>We'll show you where to save at least 3 net hours a week across your organization, or your fee back.</span></p>
+        <p className="ai-note ai-fc-seal"><span className="ai-fc-seal-icon" aria-hidden="true"><FcIcon name="shield" /></span><span>We'll show you a realistic way to give one person back at least 3 net hours a week, or your full fee comes back.</span></p>
       </div>
       <div className="ai-fc-close-art" aria-hidden="true">
         <span className="ai-fc-sheet ai-fc-sheet--3" />

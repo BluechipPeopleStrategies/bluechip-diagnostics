@@ -65,7 +65,7 @@ describe('look inside the plan (punch list 37)', () => {
       'Recommended tool and alternatives',
       'Baseline time, expected review time and net savings',
       'Costs, permissions and setup effort',
-      "Your key workflows talked through, with where AI fits and where it doesn't, and a first step for each",
+      "The work you picked talked through, with where AI fits and where it doesn't, and a first step",
       'The one recommendation to start with',
     ].forEach(t => expect(within(section).getByText(t)).toBeInTheDocument());
     expect(within(section).getAllByRole('listitem')).toHaveLength(6);

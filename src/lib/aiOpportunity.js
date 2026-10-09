@@ -124,7 +124,7 @@ export const HOUR_CAP_PER_AREA = 25; // hours a week, one person, per area (the 
 // No cap across areas (Thomas, 2026-10-04): each row is its own group of people, so one person's weekly
 // total is not the right ceiling. The 25-hour per-area cap above still applies to every row.
 
-// The AI Handoff Plan's guarantee: net hours a week found across the whole organization, or the
+// The AI Handoff Plan's guarantee: net hours a week found for ONE person (Thomas, 2026-10-08), or the
 // fee comes back (Thomas, 2026-09-25: lowered from 5 to 3). One source of truth for every
 // comparison and illustration that depends on it.
 export const GUARANTEE_NET_HOURS = 3;

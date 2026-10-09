@@ -54,9 +54,9 @@ const SECTIONS = [
     ),
   },
   {
-    // Scope (Thomas, 2026-09-25): key workflows talked through, not one workflow redesigned.
+    // Scope (Thomas, 2026-10-08): one workflow and one person, at C$595 (reverses the 2026-09-25 key-workflows scope).
     // A few workflow rows, each ending in its own small first-step marker.
-    title: "Your key workflows talked through, with where AI fits and where it doesn't, and a first step for each",
+    title: "The work you picked talked through, with where AI fits and where it doesn't, and a first step",
     sketch: (
       <span className="plan-doc-sketch plan-doc-sketch--walk" aria-hidden="true">
         <span><small>Workflow</small><i style={{ width: '58%' }} /><b className="plan-doc-first">First step<em /></b></span>

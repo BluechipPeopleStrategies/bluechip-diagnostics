@@ -33,9 +33,9 @@ const SPRINT_URL = `${RETAINERS_URL}#practical-ai-audit`;
 // Scope (Thomas, 2026-09-25): the plan no longer commits to redesigning one workflow. Step 3 is
 // a walkthrough of the client's key workflows, with where AI fits and where it doesn't.
 const FLOW_STEPS = [
-  { time: '60 minutes', name: 'Discovery', Icon: DiscoveryIcon, youGet: 'a review of your actual work, covering tasks, handoffs, tools and people.' },
-  { time: 'Organization-wide', name: 'Opportunity scan', Icon: ScanIcon, youGet: 'a time-savings breakdown, net of checking and upkeep. Shared work counts once.' },
-  { time: 'Key workflows', name: 'Walkthrough', Icon: RouteIcon, youGet: "your key workflows talked through, with where AI fits and where it doesn't, and a first step for each." },
+  { time: '60 minutes', name: 'Discovery', Icon: DiscoveryIcon, youGet: 'a review of the work you picked, covering tasks, handoffs, tools and the person who does it.' },
+  { time: 'One workflow', name: 'Opportunity scan', Icon: ScanIcon, youGet: 'a time-savings breakdown for that work, net of checking and upkeep.' },
+  { time: 'Your pick', name: 'Walkthrough', Icon: RouteIcon, youGet: "the work you picked talked through, with where AI fits and where it doesn't, and a first step." },
   { time: 'Within 5 business days', name: 'Written plan', Icon: PlanDocIcon, youGet: 'a prioritized tool roadmap (what to use, why, the alternatives), plus costs, setup effort and what information can safely go into which tool.', key: true },
   { time: '30 minutes', name: 'Findings call', Icon: CallIcon, youGet: "a walkthrough together, ending with the one recommendation we'd start with. The plan is yours to keep." },
 ];
@@ -44,7 +44,7 @@ const FLOW_STEPS = [
 // plan itself, what the plan delivers, or optional, so nothing depends on the gold highlight.
 const JOURNEY = [
   { tag: 'Free', name: 'Free AI Opportunity Check', Icon: ChecklistIcon },
-  { tag: 'C$999', name: 'The AI Handoff Plan', Icon: RouteIcon, key: true },
+  { tag: 'C$595', name: 'The AI Handoff Plan', Icon: RouteIcon, key: true },
   { tag: 'You get', name: 'Written plan and findings call', Icon: PlanDocIcon },
   { tag: 'Optional', name: 'A retainer, if you want help', Icon: HelpIcon, optional: true },
 ];
@@ -104,7 +104,7 @@ export default function AiHandoffPlanPage() {
 
   usePageMeta(
     'The AI Handoff Plan: Practical AI Audit | BlueChip',
-    "A practical AI audit of your organization's recurring work. We'll show you where to save at least 3 net hours a week with AI, or your fee back. C$999."
+    "A practical AI plan for one task. We'll show a realistic way to give one person back at least 3 net hours a week with AI, or your full fee comes back. C$595."
   );
   useEffect(() => { loadChatWidget(); }, []);
 
@@ -116,7 +116,7 @@ export default function AiHandoffPlanPage() {
         <div className="glass-hero-copy">
           <p className="ai-eyebrow">AI workflow review and roadmap</p>
           <h1>The AI Handoff Plan</h1>
-          <p className="glass-lede">A practical AI review of your organization's recurring work, with your key workflows talked through and a roadmap your team can put into practice. You'll know what to hand to AI, what stays with your people, and which tools to start with.</p>
+          <p className="glass-lede">A practical AI review of one task that one person repeats, with a written plan your team can put into practice. You'll know what to hand to AI, what stays with your person, and which tool to start with.</p>
         </div>
         <PlanHeroArt />
       </header>
@@ -130,10 +130,12 @@ export default function AiHandoffPlanPage() {
           plasma={{ radius: 24, tint: '#0E2140', opacity: 0.62, elevation: 0.7 }}>
           <div className="glass-price-grid">
             <div className="glass-price-main">
-              <h2 id="ai-price-title">C$999, taxes included</h2>
+              <h2 id="ai-price-title">C$595, taxes included</h2>
+              <p className="ai-intro-note">An introductory price. It may change as we get feedback, and the price on your invoice is the price you pay.</p>
               <div className="ai-guarantee-band">
-                <p className="ai-guarantee-headline">We'll show you where to save at least 3 net hours a week with AI, or your fee back.</p>
-                <p className="ai-guarantee-support">If the plan can't find tools with evidence-backed potential to save at least 3 net hours a week across your organization, your full fee comes back within 10 business days of your findings call, no forms, no hoops.</p>
+                <p className="ai-guarantee-headline">Pick one person and one task they repeat. We'll show you a realistic way to give them back at least 3 net hours a week, or your full fee comes back.</p>
+                <p className="ai-guarantee-support">If the plan can't show tools with evidence-backed potential to save that person at least 3 net hours a week, your full fee comes back automatically within 10 business days of your findings call, no forms, no hoops. It's a promise about what the plan finds, not about what happens afterwards.</p>
+                <p className="ai-guarantee-support">Net means the hours saved each week, minus the time each week to check the AI's work and keep the tools running. One person means one individual who does the work you picked, not a team or a department. If several people do it, the hours are counted for one of them.</p>
               </div>
               <p>If you cancel before your discovery session, and before any work on your plan has begun, we refund your full fee. See the <a href="https://www.bluechip-people-strategies.com/refund">Refund Policy</a> for how refunds work.</p>
               <p className="ai-cta-row"><PlanButton href="#chat?topic=ai-handoff-plan">Start the conversation</PlanButton></p>
@@ -165,7 +167,7 @@ export default function AiHandoffPlanPage() {
             <thead><tr><th>We do</th><th>You do</th><th>Optional, if you want help</th></tr></thead>
             <tbody>
               <tr>
-                <td data-label="We do">Map your recurring work, find the time, talk through your key workflows, write the plan and the net-hours tally</td>
+                <td data-label="We do">Map the work you picked, find the time, talk it through, write the plan and the net-hours tally</td>
                 <td data-label="You do">Choose what to adopt, approve security and privacy, set up the tools, train your team, run the new workflow</td>
                 <td data-label="Optional, if you want help">A retainer where we work alongside your team (six-month minimum, plan fee credited if you start within 60 days)</td>
               </tr>
@@ -201,7 +203,7 @@ export default function AiHandoffPlanPage() {
 
       <GlassPanel className="glass-panel glass-faq" plasma={{ radius: 18, opacity: 0.5 }}>
         {/* FAQ answers below are drafted verbatim per Thomas, 2026-09-24, and still need an Infy pass before this page goes live -- see the PR description. */}
-        <details><summary>Does the guarantee mean three hours for every employee?</summary><p>No. The guarantee is three net hours a week across your whole organization, from one opportunity or several. But savings can multiply: when several people do the same kind of work, a change that saves one person an hour a week can save each of them about that much. That's why the plan counts the people doing each task, not just the task.</p></details>
+        <details><summary>Does the guarantee mean three hours for every employee?</summary><p>No. The guarantee is three net hours a week for one person, the one who does the work you picked. If several people do that same work, the hours are counted for one of them, not added up. The plan doesn't need that person's name, and it looks at the work, not at how well anyone does it.</p></details>
         <details><summary>Do you set the tools up for us?</summary><p>Not as part of the plan itself. The plan gives you the tools and the setup steps. If you go further with us, yes. In an <a href={SPRINT_URL}>Implementation Sprint</a> we set up the first workflow your plan recommends, with your team. On a <a href={RETAINERS_URL}>Practical AI Retainer</a> we handle the setup, then keep the tools tuned and updated as the software changes. Software licences and any installs your IT team needs to do stay with you.</p></details>
         <details><summary>Do I need to buy ongoing support?</summary><p>No. A retainer isn't required to keep your plan or to decide if we can meet your needs. Going without one is the right choice if you'd rather move the plan forward yourselves. If you want a hand later, an <a href={SPRINT_URL}>Implementation Sprint</a> or a retainer is there when you need it.</p></details>
       </GlassPanel>

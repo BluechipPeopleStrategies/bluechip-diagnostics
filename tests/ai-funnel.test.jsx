@@ -399,7 +399,7 @@ describe('the free check stepper', () => {
     expect(cta.className).toContain('ai-secondary');
     expect(cta.className).not.toContain('ai-button');
     expect(cta.getAttribute('href')).toMatch(/^\/ai-handoff-plan\?perPersonHours=[\d.]+&employees=\d+$/);
-    expect(screen.getByText("We'll show you where to save at least 3 net hours a week across your organization, or your fee back.")).toBeInTheDocument();
+    expect(screen.getByText("We'll show you a realistic way to give one person back at least 3 net hours a week, or your full fee comes back.")).toBeInTheDocument();
   });
 
   it('keeps the "not a promise of results" honesty line, folded into the disclosure', async () => {
@@ -943,8 +943,8 @@ describe('the AI Handoff Plan page', () => {
   it('names the plan, the price, and the automatic no-claim-window guarantee', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
     expect(screen.getByRole('heading', { name: 'The AI Handoff Plan', level: 1 })).toBeInTheDocument();
-    expect(screen.getByText('C$999, taxes included')).toBeInTheDocument();
-    expect(screen.getByText(/your full fee comes back within 10 business days of your findings call, no forms, no hoops/)).toBeInTheDocument();
+    expect(screen.getByText('C$595, taxes included')).toBeInTheDocument();
+    expect(screen.getByText(/your full fee comes back automatically within 10 business days of your findings call, no forms, no hoops/)).toBeInTheDocument();
     expect(screen.queryByText(/claim window|within 7 days/i)).not.toBeInTheDocument();
   });
 
@@ -1009,27 +1009,27 @@ describe('the AI Handoff Plan page', () => {
 
   it('pins the guarantee at 3 net hours a week, with the illustration recalculated (3 x 48 = 144 hrs, x C$40 = C$5,760)', () => {
     const { container } = render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
-    expect(screen.getByText("We'll show you where to save at least 3 net hours a week with AI, or your fee back.")).toBeInTheDocument();
+    expect(screen.getByText("Pick one person and one task they repeat. We'll show you a realistic way to give them back at least 3 net hours a week, or your full fee comes back.")).toBeInTheDocument();
     expect(screen.getByText('What three hours a week adds up to')).toBeInTheDocument();
     const eq = container.querySelector('.ai-eq');
     expect(eq).toHaveAttribute('aria-label', '3 net hours a week times 48 working weeks equals 144 hours a year; at C$40 an hour that is C$5,760 a year in potential staff capacity.');
     expect(within(eq).getByText('144')).toBeInTheDocument();
     expect(within(eq).getByText('C$5,760')).toBeInTheDocument();
     expect(container.textContent).not.toMatch(/9,600|\b240\b|5 net hours|five net hours/);
-    expect(screen.getByText('C$999, taxes included')).toBeInTheDocument();
+    expect(screen.getByText('C$595, taxes included')).toBeInTheDocument();
   });
 
-  it('describes a walkthrough of key workflows, not a redesigned workflow (scope change 2026-09-25)', () => {
+  it('describes the work you picked talked through, not a redesigned workflow (scope: one workflow, one person, 2026-10-08)', () => {
     const { container } = render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
     expect(screen.getByText('Walkthrough')).toBeInTheDocument();
-    expect(screen.getAllByText(/key workflows talked through, with where AI fits and where it doesn't/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/work you picked talked through, with where AI fits and where it doesn't/).length).toBeGreaterThan(0);
     expect(container.textContent).not.toMatch(/redesign/i);
     expect(document.querySelector('meta[name="description"]').getAttribute('content')).not.toMatch(/redesign/i);
   });
 
   it('keeps a first step per workflow and one recommendation to start with (panel condition, 2026-09-25)', () => {
     const { container } = render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
-    expect(container.textContent).toMatch(/a first step for each/);
+    expect(container.textContent).toMatch(/and a first step/);
     expect(container.textContent).toMatch(/one recommendation (we'd start with|to start with)/);
   });
 
@@ -1063,6 +1063,6 @@ describe('the AI Handoff Plan page', () => {
   it('sets the document title and meta description from the launch strings', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
     expect(document.title).toBe('The AI Handoff Plan: Practical AI Audit | BlueChip');
-    expect(document.querySelector('meta[name="description"]').getAttribute('content')).toMatch(/practical AI audit of your organization's recurring work/);
+    expect(document.querySelector('meta[name="description"]').getAttribute('content')).toMatch(/practical AI plan for one task/);
   });
 });

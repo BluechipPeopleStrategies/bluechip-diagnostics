@@ -15,7 +15,7 @@ const HEADCOUNT_CHIPS = [10, 25, 50, 100, 250].map(n => ({ label: String(n), val
 
 // Hours and value first, price second (Thomas, 2026-09-23: "highlight the amount saved and the hours").
 // The 3-hour equation is the guarantee illustration and never changes with headcount (the
-// guarantee is 3 hours across the WHOLE organization, not per person -- multiplying it by
+// guarantee is 3 hours for ONE person (Thomas, 2026-10-08), not per employee -- multiplying it by
 // headcount would misstate it). "Across your team" below is a separate, clearly distinct
 // illustration: the one interactive team calculator on this page (2026-09-24: replaces both the
 // old standalone "What could that time be worth?" calculator and the first draft of this row,
@@ -46,15 +46,15 @@ export default function SavingsEquation({ defaultPerPersonHours = 1, defaultEmpl
         <div className="ai-term ai-total"><strong>{G_YEAR_VALUE}</strong><span>a year in potential staff capacity</span></div>
       </div>
       <div className="ai-save-fee">
-        <span className="ai-fee">C$999<small>including applicable tax</small></span>
-        <p><strong>If the plan can't recommend tools with evidence-backed potential to save at least three net hours a week, you get your full fee back.</strong> That's three hours across your whole organization, not per employee, and it's counted after the time your team spends checking the tools' work.</p>
+        <span className="ai-fee">C$595<small>including applicable tax</small></span>
+        <p><strong>If the plan can't recommend tools with evidence-backed potential to save one person at least three net hours a week, you get your full fee back.</strong> That's three hours for one person, not per employee, and it's counted each week after the time spent checking the tools' work.</p>
       </div>
 
       <hr className="ai-save-divider" />
 
       <p className="ai-eyebrow">Across your team</p>
       <h3>What could that time be worth for your organization?</h3>
-      <p className="ai-note">An illustration of your team's time, not a guarantee or a cash saving. The plan's guarantee: we show you where to save at least 3 net hours a week across your whole organization, or your fee back.</p>
+      <p className="ai-note">An illustration of your team's time, not a guarantee or a cash saving. The plan's guarantee covers one person: we show you a realistic way to give them back at least 3 net hours a week, or your full fee comes back.</p>
 
       <div className="ai-team-calc-grid">
         <div>

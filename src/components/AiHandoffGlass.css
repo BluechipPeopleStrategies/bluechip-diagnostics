@@ -100,6 +100,8 @@
 .ai-funnel.ai-glass .ai-guarantee-band { margin: 0 0 20px; padding: 18px 20px; border-radius: 16px; border: 1px solid rgba(227, 196, 124, .5);
   background: linear-gradient(160deg, rgba(227, 196, 124, .16), rgba(227, 196, 124, .04)); box-shadow: var(--g-edge); }
 .ai-funnel.ai-glass .ai-guarantee-band p { max-width: none; }
+.ai-funnel.ai-glass .ai-guarantee-band .ai-guarantee-support + .ai-guarantee-support { margin-top: 10px; }
+.ai-funnel.ai-glass .glass-price-main .ai-intro-note { margin: -8px 0 18px; font-size: 14.5px; color: var(--ai-body); }
 .ai-funnel.ai-glass .ai-cta-row { margin: 22px 0 0; }
 @media (max-width: 900px) {
   .glass-price-grid { grid-template-columns: 1fr; gap: 24px; }
