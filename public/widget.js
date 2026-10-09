@@ -9,6 +9,114 @@
 
   var LEAD_ENDPOINT = 'https://bluechip-diagnostics.vercel.app/api/lead';
 
+  // ---- lead-source attribution (2026-10-09) ----
+  // Records where this visitor came from: a first touch once per browser (localStorage,
+  // kept 90 days) and a last touch per session (sessionStorage). Campaign tags come from the
+  // utm_* query params, the referrer is the host only (and empty for our own sites), and the
+  // landing page is the path only. Every storage access is wrapped: if storage is blocked the
+  // values still live in memory for this page. The lead payload carries it as `attribution`.
+  var FIRST_KEY = 'bc_first_touch', LAST_KEY = 'bc_last_touch', FIRST_DAYS = 90;
+  var OWN_HOSTS = ['bluechip-people-strategies.com', 'bluechip-diagnostics.vercel.app'];
+  var TOUCH_KEYS = ['source', 'medium', 'campaign', 'content', 'referrer', 'landing', 'date'];
+
+  function attrTag(v) {
+    return String(v == null ? '' : v).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9._-]/g, '').slice(0, 60);
+  }
+  function attrParam(name) {
+    var q = String(location.search || '').replace(/^\?/, '');
+    if (!q) return '';
+    var parts = q.split('&');
+    for (var i = 0; i < parts.length; i++) {
+      var kv = parts[i].split('=');
+      if (kv[0] === name) {
+        try { return decodeURIComponent((kv.slice(1).join('=') || '').replace(/\+/g, ' ')); }
+        catch { return ''; }
+      }
+    }
+    return '';
+  }
+  function attrHost(h) { return String(h || '').toLowerCase().replace(/^www\./, ''); }
+  function attrReferrerHost() {
+    var ref;
+    try { ref = document.referrer || ''; } catch { return ''; }
+    var m = /^[a-z][a-z0-9+.-]*:\/\/(?:[^@/?#]*@)?([^/?#:]+)/i.exec(ref);
+    if (!m) return '';
+    var host = attrHost(m[1]).replace(/[^a-z0-9.-]/g, '');
+    if (!host) return '';
+    var hosts = OWN_HOSTS.concat([attrHost(location.hostname)]);
+    for (var i = 0; i < hosts.length; i++) {
+      if (hosts[i] && (host === hosts[i] || host.slice(-(hosts[i].length + 1)) === '.' + hosts[i])) return '';
+    }
+    return host.slice(0, 100);
+  }
+  function attrToday() {
+    var d = new Date();
+    function two(n) { return (n < 10 ? '0' : '') + n; }
+    return d.getFullYear() + '-' + two(d.getMonth() + 1) + '-' + two(d.getDate());
+  }
+  // Only the known keys, strings only: what is stored and what get() hands out.
+  function attrStrip(t) {
+    var out = {};
+    for (var i = 0; i < TOUCH_KEYS.length; i++) out[TOUCH_KEYS[i]] = (t && typeof t[TOUCH_KEYS[i]] === 'string') ? t[TOUCH_KEYS[i]] : '';
+    return out;
+  }
+  // This page view as a touch, and whether it carries any new signal (a UTM or an outside referrer).
+  function attrCurrent() {
+    var t = {
+      source: attrTag(attrParam('utm_source')),
+      medium: attrTag(attrParam('utm_medium')),
+      campaign: attrTag(attrParam('utm_campaign')),
+      content: attrTag(attrParam('utm_content')),
+      referrer: attrReferrerHost(),
+      landing: String(location.pathname || '/').slice(0, 100),
+      date: attrToday()
+    };
+    var known = !!(t.source || t.medium || t.campaign || t.content || t.referrer);
+    if (!known) t.source = 'direct';
+    return { touch: attrStrip(t), known: known };
+  }
+  function attrRead(store, key) {
+    try {
+      var raw = window[store].getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  }
+  function attrWrite(store, key, value) {
+    try { window[store].setItem(key, JSON.stringify(value)); } catch { /* storage blocked: keep it in memory only */ }
+  }
+  var attrFirst = null, attrLast = null;
+  function captureAttribution() {
+    var cur = attrCurrent();
+    var now = Date.now();
+    var stored = attrRead('localStorage', FIRST_KEY);
+    var fresh = !!(stored && stored.touch && typeof stored.ts === 'number' && now - stored.ts >= 0 && now - stored.ts <= FIRST_DAYS * 86400000);
+    if (fresh) {
+      attrFirst = attrStrip(stored.touch);
+    } else {
+      attrFirst = cur.touch;
+      attrWrite('localStorage', FIRST_KEY, { ts: now, touch: attrFirst });
+    }
+    var last = attrRead('sessionStorage', LAST_KEY);
+    if (last && last.touch && !cur.known) {
+      attrLast = attrStrip(last.touch);   // same session and nothing new on this page: keep the earlier last touch
+    } else {
+      attrLast = cur.touch;
+      attrWrite('sessionStorage', LAST_KEY, { touch: attrLast });
+    }
+  }
+  window.BlueChipAttribution = {
+    get: function () { return { first: attrStrip(attrFirst), last: attrStrip(attrLast) }; }
+  };
+  try { captureAttribution(); } catch { /* never let attribution break the chat */ }
+
+  // "How did you hear about us?" choices: label shown, slug sent as `heard_about`.
+  var HEARD_OPTIONS = [
+    ['LinkedIn', 'linkedin'], ['Instagram', 'instagram'], ['TikTok', 'tiktok'], ['YouTube', 'youtube'],
+    ['Facebook', 'facebook'], ['Threads', 'threads'], ['Google search', 'google'],
+    ['ChatGPT or another AI', 'ai_assistant'], ['Someone referred me', 'referral'],
+    ['An email from BlueChip', 'email'], ['An event or talk', 'event'], ['Other', 'other']
+  ];
+
   // Browse questions and answers: hidden 2026-09-24, back on 2026-10-08 (Thomas, AI door release).
   var SHOW_BROWSE = true;
 
@@ -169,6 +277,7 @@
     '.bcw-choice::after{content:"\\2192";flex:none;color:' + GOLD + ';font-weight:700}' +
     '.bcw-choice:hover,.bcw-choice:focus-visible{border-color:' + GOLD + ';background:#faf3e3}' +
     '.bcw-choice:focus-visible{outline:2px solid ' + GOLD + ';outline-offset:2px;box-shadow:0 0 0 3px rgba(201,162,75,.25)}' +
+    '.bcw-choice.bcw-skip{margin-top:18px}' +
     '.bcw-consent{display:flex;gap:9px;align-items:flex-start;margin:10px 2px 4px;font-size:13px;line-height:1.4;color:' + TEXT + '}' +
     '.bcw-consent input{margin-top:2px;width:16px;height:16px;accent-color:' + NAVY + ';flex:0 0 auto}' +
     '.bcw-fine{margin:6px 2px 0;font-size:11px;line-height:1.4;color:#5B6675}' +
@@ -196,7 +305,11 @@
   }
 
   var launch, greet, panel, bodyEl, footEl, started = false;
-  var data = { name: '', need: '', contact: '', email: '' };
+  var data = { name: '', need: '', contact: '', email: '', heard: '' };
+  // The lead is never held hostage by the optional question: while it shows, leadState is
+  // 'pending', and closing the chat or leaving the page sends the lead without the answer.
+  var leadState = 'idle';   // idle | pending | sending | sent
+  var pendingTrap = '';
   var typingGeneration = 0; // bumped to cancel any in-flight typing sequence
 
   function reducedMotion() {
@@ -239,6 +352,7 @@
     greet.addEventListener('click', function () { open(); });
     greet.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
     closeBtn.addEventListener('click', function () { close(); });
+    window.addEventListener('pagehide', flushPendingLead);
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && panel.classList.contains('bcw-open')) close(); });
 
     // Any link/button marked for the chat opens it instead of navigating.
@@ -313,6 +427,8 @@
     if (!started) {
       started = true;
       renderName(topic ? function () { renderPreselected(topic); } : undefined);
+    } else if (leadState === 'pending' && !topic && !footEl.querySelector('button')) {
+      renderHeard(pendingTrap);   // closed before the question finished appearing, and the send did not go through
     } else if (topic) {
       // Already mid-conversation and asked to jump to a topic: cancel whatever was queued and
       // go straight there (skips re-asking for a name if we already have one).
@@ -322,6 +438,7 @@
     }
   }
   function close() {
+    flushPendingLead();
     typingGeneration++; // cancel any queued typing sequence so nothing lands after close
     panel.classList.remove('bcw-open');
     panel.setAttribute('aria-hidden', 'true');
@@ -489,14 +606,12 @@
       var fine = el('div', { 'class': 'bcw-fine' });
       fine.textContent = "We text Canadian numbers only. Outside Canada? We'll reply by email. BlueChip People Strategies, Edmonton, Alberta. We won't share your number or message you about anything unrelated to the opt-in box above. A real person reads each message. We usually reply within a few hours on business days.";
       var send = el('button', { 'class': 'bcw-send', type: 'button', disabled: 'disabled', style: 'margin-top:12px;width:100%' }, 'Send');
-      var problem = el('div', { 'class': 'bcw-fine', role: 'alert' });
 
       footEl.appendChild(input);
       footEl.appendChild(emailInput);
       footEl.appendChild(hp);
       footEl.appendChild(consentWrap);
       footEl.appendChild(fine);
-      footEl.appendChild(problem);
       footEl.appendChild(send);
       input.focus();
 
@@ -509,19 +624,58 @@
         if (send.disabled) return;
         data.contact = input.value.trim();
         data.email = emailInput.value.trim();
-        // Only say "Got it" once the server has recorded the inquiry; otherwise keep the form and
-        // say so (a silent failure here used to lose the lead while showing a confirmation).
-        problem.textContent = '';
-        send.disabled = true; send.textContent = 'Sending...';
-        submitLead(hp.value).then(finish, function () {
-          send.textContent = 'Send'; refresh();
-          problem.textContent = "Sorry, that didn't go through. Please try again, or email thomas@bluechip-people-strategies.com.";
-        });
+        // One optional question comes before the inquiry goes out; the send itself happens there.
+        renderHeard(hp.value);
       }
       send.addEventListener('click', go);
       input.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
       emailInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
     });
+  }
+
+  // ---- step 4: how did you hear about us (optional) ----
+  // Shown after the details and before the inquiry is sent; choosing an option, or Skip, sends it.
+  // Only say "Got it" once the server has recorded the inquiry; otherwise keep the choices and
+  // say so (a silent failure here used to lose the lead while showing a confirmation).
+  function renderHeard(trapValue) {
+    typingGeneration++;
+    footEl.innerHTML = '';
+    leadState = 'pending';
+    pendingTrap = trapValue || '';
+    sayBotSequence(['One last thing: how did you hear about us? (optional)'], function () {
+      var buttons = [];
+      var problem = el('div', { 'class': 'bcw-fine', role: 'alert' });
+      function pick(slug, label) {
+        if (leadState !== 'pending') return;
+        leadState = 'sending';
+        problem.textContent = '';
+        for (var i = 0; i < buttons.length; i++) buttons[i].disabled = true;
+        data.heard = slug;
+        if (label) addMsg(label, 'user');
+        submitLead(trapValue).then(finish, function () {
+          leadState = 'pending';
+          for (var j = 0; j < buttons.length; j++) buttons[j].disabled = false;
+          problem.textContent = "Sorry, that didn't go through. Please try again, or email thomas@bluechip-people-strategies.com.";
+          focusChoices();
+        });
+      }
+      footEl.appendChild(problem);   // first, so a failure message is not scrolled out of sight
+      HEARD_OPTIONS.forEach(function (o) {
+        buttons.push(choiceButton(o[0], function () { pick(o[1], o[0]); }));
+      });
+      var skip = choiceButton('Skip', function () { pick('', ''); });
+      skip.classList.add('bcw-skip');
+      buttons.push(skip);
+      focusChoices();
+    });
+  }
+
+  // Close or page-leave while the question shows: send the lead now, without an answer.
+  function flushPendingLead() {
+    if (leadState !== 'pending') return;
+    leadState = 'sending';
+    data.heard = '';
+    submitLead(pendingTrap, true).then(finish, function () { leadState = 'pending'; });
   }
 
   function pageLabel() {
@@ -531,20 +685,22 @@
   }
 
   // Resolves when the server recorded the inquiry; rejects on a network error or a non-2xx reply.
-  function submitLead(companyHp) {
+  function submitLead(companyHp, keepalive) {
     try {
-      return fetch(LEAD_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: data.name, need: data.need, contact: data.contact, email: data.email,
-          consent: true, source: pageLabel(), bc_hp_trap: companyHp || ''
-        })
-      }).then(function (r) { if (!r.ok) throw new Error('lead ' + r.status); });
+      var payload = {
+        name: data.name, need: data.need, contact: data.contact, email: data.email,
+        consent: true, source: pageLabel(), bc_hp_trap: companyHp || '',
+        attribution: window.BlueChipAttribution.get()
+      };
+      if (data.heard) payload.heard_about = data.heard;
+      var opts = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) };
+      if (keepalive) opts.keepalive = true;   // lets the request finish while the page unloads
+      return fetch(LEAD_ENDPOINT, opts).then(function (r) { if (!r.ok) throw new Error('lead ' + r.status); });
     } catch (err) { return Promise.reject(err); }
   }
 
   function finish() {
+    leadState = 'sent';
     typingGeneration++;
     footEl.innerHTML = '';
     var done = el('div', { 'class': 'bcw-done' },

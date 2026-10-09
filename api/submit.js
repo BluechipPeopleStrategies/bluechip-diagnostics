@@ -10,6 +10,7 @@ import { cleanRecipient } from './_lib/email-address.js';
 import { isKnownDiagnostic, knownOrEmpty } from './_lib/diagnostic-allowlist.js';
 import { isHoneypot } from './_lib/lead-helpers.js';
 import { allowSubmit, clientIp } from './_lib/rate-limit.js';
+import { sanitizeAttribution, sanitizeHeardAbout } from './_lib/attribution.js';
 
 const TEMPLATE_BUILDERS = {
   'org-pulse': buildOrgPulseEmail,
@@ -66,6 +67,9 @@ export default async function handler(req, res) {
     orgSize: cap(orgSize, 60),
     sector: cap(sector, 60),
     submittedAt: cap(submittedAt, 40) || new Date().toISOString(),
+    // Where they came from (2026-10-09): optional, narrowed to a known shape, shown to Thomas only.
+    attribution: sanitizeAttribution(body.attribution) || undefined,
+    heardAbout: sanitizeHeardAbout(body.heard_about) || undefined,
   };
 
   // A filled spam-trap field (same name as the chat widget's) means probably a bot: the visitor

@@ -1,4 +1,5 @@
 import { buildLeadDataBlock } from '../_emails/lead-data.js';
+import { sanitizeAttribution, sanitizeHeardAbout, buildAttributionBlockHtml, attributionLeadData } from './attribution.js';
 const CAPS = { name: 120, need: 1500, contact: 200, email: 200, source: 100 };
 
 // The trap field is named bc_hp_trap. It used to be "company", but browsers autofill any
@@ -51,7 +52,7 @@ export function buildChatLeadEmail(lead, { smsSent, suspectedSpam, confirmationN
     : '';
   return {
     subject: `${flag}New chat lead: ${lead.name || lead.contact} (${lead.need || 'no topic'})`,
-    html: `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;color:#1a1a1a;line-height:1.5;padding:20px"><div style="max-width:600px;margin:0 auto"><p style="font-size:18px"><strong>New chat lead</strong></p>${note}<table cellpadding="6" style="border-collapse:collapse">${rows.map(([k, v]) => `<tr><td style="color:#555;vertical-align:top"><strong>${esc(k)}</strong></td><td>${esc(v)}</td></tr>`).join('')}</table><p style="font-size:13px;color:#666;margin-top:20px">Reply to this email to reach them if they gave an email address.</p>${buildLeadDataBlock({
+    html: `<!DOCTYPE html><html><body style="font-family:Arial,sans-serif;color:#1a1a1a;line-height:1.5;padding:20px"><div style="max-width:600px;margin:0 auto"><p style="font-size:18px"><strong>New chat lead</strong></p>${note}<table cellpadding="6" style="border-collapse:collapse">${rows.map(([k, v]) => `<tr><td style="color:#555;vertical-align:top"><strong>${esc(k)}</strong></td><td>${esc(v)}</td></tr>`).join('')}</table>${buildAttributionBlockHtml({ attribution: lead.attribution, heardAbout: lead.heardAbout })}<p style="font-size:13px;color:#666;margin-top:20px">Reply to this email to reach them if they gave an email address.</p>${buildLeadDataBlock({
       kind: 'chat',
       name: lead.name || '',
       need: lead.need || '',
@@ -63,6 +64,7 @@ export function buildChatLeadEmail(lead, { smsSent, suspectedSpam, confirmationN
       visitor_confirmation: confirmationNote || undefined,
       spam_trap: !!suspectedSpam,
       submitted_at: submittedAt || new Date().toISOString(),
+      ...attributionLeadData({ attribution: lead.attribution, heardAbout: lead.heardAbout }),
     })}</div></body></html>`,
   };
 }
@@ -72,6 +74,11 @@ function clean(value, cap) {
 }
 
 export function sanitizeLead(body = {}) {
+  // Where the visitor came from (2026-10-09): both optional, and only added when present so
+  // an older widget's payload sanitizes to exactly what it did before. For Thomas's notification
+  // email only; never part of anything the visitor receives.
+  const attribution = sanitizeAttribution(body.attribution);
+  const heardAbout = sanitizeHeardAbout(body.heard_about);
   return {
     name: clean(body.name, CAPS.name),
     need: clean(body.need, CAPS.need),
@@ -79,6 +86,8 @@ export function sanitizeLead(body = {}) {
     email: clean(body.email, CAPS.email),
     source: clean(body.source, CAPS.source),
     consent: body.consent === true || body.consent === 'true',
+    ...(attribution ? { attribution } : {}),
+    ...(heardAbout ? { heardAbout } : {}),
   };
 }
 

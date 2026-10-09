@@ -31,6 +31,12 @@ function openOnTopic(slug) {
   flushBot();
   return ui;
 }
+// Send the details, then answer (or skip) the optional "how did you hear about us?" question.
+function sendLead(ui, answer = 'Skip') {
+  fireEvent.click(ui.getByRole('button', { name: 'Send', exact: true }));
+  flushBot();
+  fireEvent.click(ui.getByRole('button', { name: answer, exact: true }));
+}
 function fillContact(ui) {
   fireEvent.click(ui.getByRole('button', { name: 'Discuss this with BlueChip' }));
   flushBot();
@@ -51,7 +57,7 @@ describe('"Other BlueChip services" topic (opened from a quiz result)', () => {
   it('sends the inquiry under the topic label', () => {
     const ui = openOnTopic('other');
     fillContact(ui);
-    fireEvent.click(ui.getByRole('button', { name: 'Send', exact: true }));
+    sendLead(ui);
     expect(JSON.parse(fetchMock.mock.calls[0][1].body).need).toBe('Other BlueChip services');
   });
 });
@@ -60,7 +66,7 @@ describe('the widget only says "Got it" once the inquiry was recorded', () => {
   it('confirms on a 2xx reply', async () => {
     const ui = openOnTopic('ai-handoff-plan');
     fillContact(ui);
-    fireEvent.click(ui.getByRole('button', { name: 'Send', exact: true }));
+    sendLead(ui);
     await flushPromises();
     expect(document.body.textContent).toContain('Got it, Test.');
   });
@@ -69,14 +75,14 @@ describe('the widget only says "Got it" once the inquiry was recorded', () => {
     fetchMock.mockResolvedValueOnce({ ok: false, status: 502 });
     const ui = openOnTopic('ai-handoff-plan');
     fillContact(ui);
-    fireEvent.click(ui.getByRole('button', { name: 'Send', exact: true }));
+    sendLead(ui);
     await flushPromises();
     expect(document.body.textContent).not.toContain('Got it');
     expect(document.body.textContent).toContain("Sorry, that didn't go through.");
     expect(document.body.textContent).toContain('thomas@bluechip-people-strategies.com');
-    const send = ui.getByRole('button', { name: 'Send', exact: true });
-    expect(send).not.toBeDisabled();
-    fireEvent.click(send);
+    const skip = ui.getByRole('button', { name: 'Skip', exact: true });
+    expect(skip).not.toBeDisabled();
+    fireEvent.click(skip);
     await flushPromises();
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(document.body.textContent).toContain('Got it, Test.');
@@ -86,7 +92,7 @@ describe('the widget only says "Got it" once the inquiry was recorded', () => {
     fetchMock.mockRejectedValueOnce(new TypeError('Failed to fetch'));
     const ui = openOnTopic('ai-handoff-plan');
     fillContact(ui);
-    fireEvent.click(ui.getByRole('button', { name: 'Send', exact: true }));
+    sendLead(ui);
     await flushPromises();
     expect(document.body.textContent).not.toContain('Got it');
     expect(document.body.textContent).toContain("Sorry, that didn't go through.");
@@ -97,9 +103,9 @@ describe('the widget only says "Got it" once the inquiry was recorded', () => {
     fetchMock.mockImplementationOnce(() => new Promise(r => { release = r; }));
     const ui = openOnTopic('ai-handoff-plan');
     fillContact(ui);
-    const send = ui.getByRole('button', { name: 'Send', exact: true });
-    fireEvent.click(send);
-    fireEvent.click(send);
+    sendLead(ui);
+    const skip = ui.getByRole('button', { name: 'Skip', exact: true });
+    fireEvent.click(skip);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     release({ ok: true });
     await flushPromises();

@@ -452,6 +452,8 @@ describe('chat widget answers (AI door release)', () => {
     fireEvent.change(ui.getByLabelText('Your email'), { target: { value: 'sam@example.com' } });
     fireEvent.click(ui.getByRole('checkbox'));
     fireEvent.click(ui.getByRole('button', { name: 'Send', exact: true }));
+    flush();
+    fireEvent.click(ui.getByRole('button', { name: 'Skip', exact: true }));   // the optional "how did you hear" question
     expect(JSON.parse(fetchMock.mock.calls[0][1].body).need).toBe('The AI Handoff Plan (public sector)');
   });
 

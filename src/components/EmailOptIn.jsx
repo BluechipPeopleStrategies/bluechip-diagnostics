@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getAttribution } from '../lib/attribution.js';
 
 // Optional org-context capture (QW1): qualifies the lead and personalizes follow-up.
 // Kept optional so it never adds friction to the email step.
@@ -55,6 +56,7 @@ export default function EmailOptIn({
           orgSize,
           sector,
           bc_hp_trap: trap,
+          attribution: getAttribution(),
           submittedAt: new Date().toISOString(),
         }),
       });
