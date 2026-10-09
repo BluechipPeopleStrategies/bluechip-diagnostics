@@ -1,13 +1,15 @@
+/* global process */
 import { buildOrgPulseEmail } from './_emails/org-pulse.js';
 import { buildDqiEmail } from './_emails/dqi.js';
 import { buildSupervisorBlindSpotEmail } from './_emails/supervisor-blind-spot.js';
 import { buildWorkplaceReadEmail } from './_emails/workplace-read.js';
 import { buildGovernanceEvalReadinessEmail } from './_emails/governance-eval-readiness.js';
-import { buildNudgeEmail } from './_emails/nudge.js';
 import { buildLeadNotificationEmail } from './_emails/lead-notification.js';
 import { AI_CHECK_ID, handleAiCheckResults } from './_lib/ai-check-results.js';
-
-const NUDGE_DELAY_HOURS = 24;
+import { cleanRecipient } from './_lib/email-address.js';
+import { isKnownDiagnostic, knownOrEmpty } from './_lib/diagnostic-allowlist.js';
+import { isHoneypot } from './_lib/lead-helpers.js';
+import { allowSubmit, clientIp } from './_lib/rate-limit.js';
 
 const TEMPLATE_BUILDERS = {
   'org-pulse': buildOrgPulseEmail,
@@ -17,47 +19,75 @@ const TEMPLATE_BUILDERS = {
   'governance-eval-readiness': buildGovernanceEvalReadinessEmail,
 };
 
+const cap = (value, max) => (typeof value === 'string' ? value : '').trim().slice(0, max);
+
+// Letters, marks, apostrophes and hyphens only, first word, 40 characters: enough for any real
+// first name, too little to carry a link or markup into the visitor's email.
+function safeFirstName(name) {
+  const first = cap(name, 120).split(/\s+/)[0] || '';
+  return first.replace(/[^\p{L}\p{M}'’-]/gu, '').slice(0, 40);
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'method_not_allowed' });
   }
 
-  const { diagnosticId, resultLabel, detail, email, name, orgSize, sector, submittedAt } = req.body || {};
+  const body = req.body || {};
+  const { diagnosticId, resultLabel, detail, name, orgSize, sector, submittedAt } = body;
+  const email = cleanRecipient(body.email);
 
-  // The free AI Opportunity Check's "Email my results" has its own path (2026-09-25): no
-  // scoring template, no 24-hour nudge.
-  if (diagnosticId === AI_CHECK_ID) return handleAiCheckResults(req.body || {}, res, { sendEmail: sendResendEmail });
-
-  if (!diagnosticId || !email) {
-    return res.status(400).json({ error: 'missing_required_fields' });
+  if (diagnosticId !== AI_CHECK_ID && !isKnownDiagnostic(diagnosticId)) {
+    return res.status(400).json({ error: 'unknown_diagnostic' });
+  }
+  if (!email) {
+    return res.status(400).json({ error: 'invalid_email' });
+  }
+  // Best effort (see api/_lib/rate-limit.js): stops a loop of requests from mailing one address,
+  // or from one client, over and over.
+  if (!allowSubmit({ ip: clientIp(req), email })) {
+    return res.status(429).json({ error: 'rate_limited' });
   }
 
-  const { bandLabel, total } = parseResultLabel(resultLabel);
-  const firstName = (name || '').trim().split(/\s+/)[0] || '';
+  // The free AI Pulse "Email my results" has its own path (2026-09-25): no scoring template.
+  if (diagnosticId === AI_CHECK_ID) return handleAiCheckResults({ ...body, email }, res, { sendEmail: sendResendEmail });
 
+  const { bandLabel: rawBand, total: rawTotal } = parseResultLabel(resultLabel);
+  const total = Number.isInteger(rawTotal) && rawTotal >= 0 && rawTotal <= 100 ? rawTotal : null;
+  const notifyTo = process.env.BLUECHIP_NOTIFY_EMAIL || process.env.BLUECHIP_FROM_EMAIL;
+  const leadFields = {
+    name: cap(name, 120),
+    email,
+    diagnosticId,
+    bandLabel: cap(rawBand, 80),
+    total,
+    resultLabel: cap(resultLabel, 120),
+    orgSize: cap(orgSize, 60),
+    sector: cap(sector, 60),
+    submittedAt: cap(submittedAt, 40) || new Date().toISOString(),
+  };
+
+  // A filled spam-trap field (same name as the chat widget's) means probably a bot: the visitor
+  // gets no email, so the endpoint cannot be used to mail a third party, but Thomas still gets a
+  // flagged copy in case a real person's browser filled it.
+  if (isHoneypot(body)) {
+    console.warn('submit: quiz honeypot triggered');
+    const flagged = buildLeadNotificationEmail({ ...leadFields, emailSent: false, nudgeScheduled: false, spamTrap: true });
+    await sendResendEmail({ to: notifyTo, subject: `[Check: spam trap] ${flagged.subject}`, html: flagged.html });
+    return res.status(200).json({ ok: true, emailSent: true, nudgeScheduled: false, leadNotificationSent: true });
+  }
+
+  // The visitor email is built only from known labels and a letters-only first name (see
+  // api/_lib/diagnostic-allowlist.js); the templates escape what they print as well.
   const buildTemplate = TEMPLATE_BUILDERS[diagnosticId];
-  let emailSent = false;
-  let nudgeEmailId = null;
-  if (buildTemplate) {
-    const { subject, html } = buildTemplate({ firstName, bandLabel, total, detail: detail || '', diagnosticId });
-    emailSent = await sendResendEmail({ to: email, subject, html });
-
-    const nudgeAt = new Date(Date.now() + NUDGE_DELAY_HOURS * 60 * 60 * 1000).toISOString();
-    const { subject: nudgeSubject, html: nudgeHtml } = buildNudgeEmail({
-      firstName,
-      diagnosticId,
-      bandLabel,
-      total,
-      detail: detail || '',
-    });
-    nudgeEmailId = await scheduleResendEmail({
-      to: email,
-      subject: nudgeSubject,
-      html: nudgeHtml,
-      scheduledAt: nudgeAt,
-    });
-  }
+  const { subject, html } = buildTemplate({
+    firstName: safeFirstName(name),
+    bandLabel: knownOrEmpty(diagnosticId, 'bands', rawBand),
+    total,
+    detail: knownOrEmpty(diagnosticId, 'details', cap(detail, 80)),
+  });
+  const emailSent = await sendResendEmail({ to: email, subject, html });
 
   // The lead notification to Thomas is the lead record (2026-09-26): Notion is legacy and
   // read-only, and a local job files these emails in the Obsidian vault (Website Leads note)
@@ -65,25 +95,13 @@ export default async function handler(req, res) {
   // vars), the lead is lost: do NOT report success. Return a non-2xx so the client shows the
   // "email Thomas directly" fallback instead of a false "Got it." A failed result email
   // alone is degraded (the lead is still recorded), so it does not fail the request;
-  // emailSent is reported so the client can soften its copy.
-  const { subject: notifSubject, html: notifHtml } = buildLeadNotificationEmail({
-    name: name || '',
-    email,
-    diagnosticId,
-    bandLabel,
-    total,
-    resultLabel: resultLabel || '',
-    orgSize: orgSize || '',
-    sector: sector || '',
-    emailSent,
-    nudgeScheduled: !!nudgeEmailId,
-    submittedAt: (typeof submittedAt === 'string' && submittedAt.slice(0, 40)) || new Date().toISOString(),
-  });
-  const notifyTo = process.env.BLUECHIP_NOTIFY_EMAIL || process.env.BLUECHIP_FROM_EMAIL;
+  // emailSent is reported so the client can soften its copy. There is no 24-hour follow-up
+  // email any more (retired 2026-10-09): the opt-in promises "No auto-sequence".
+  const note = buildLeadNotificationEmail({ ...leadFields, emailSent, nudgeScheduled: false });
   const leadNotificationSent = await sendResendEmail({
     to: notifyTo,
-    subject: notifSubject,
-    html: notifHtml,
+    subject: note.subject,
+    html: note.html,
     replyTo: email,
   });
   const captured = leadNotificationSent;
@@ -91,7 +109,7 @@ export default async function handler(req, res) {
   return res.status(captured ? 200 : 502).json({
     ok: captured,
     emailSent,
-    nudgeScheduled: !!nudgeEmailId,
+    nudgeScheduled: false,
     leadNotificationSent,
   });
 }
@@ -131,30 +149,5 @@ async function sendResendEmail({ to, subject, html, replyTo }) {
   } catch (err) {
     console.error('Resend send error', err);
     return false;
-  }
-}
-
-async function scheduleResendEmail({ to, subject, html, scheduledAt }) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.BLUECHIP_FROM_EMAIL;
-  if (!apiKey || !from) return null;
-  try {
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ from, to, subject, html, scheduled_at: scheduledAt }),
-    });
-    if (!res.ok) {
-      console.error('Resend schedule failed', res.status, await res.text());
-      return null;
-    }
-    const data = await res.json();
-    return data.id || null;
-  } catch (err) {
-    console.error('Resend schedule error', err);
-    return null;
   }
 }

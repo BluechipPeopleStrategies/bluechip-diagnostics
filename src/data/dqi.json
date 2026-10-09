@@ -1,8 +1,8 @@
 {
   "id": "dqi",
   "title": "Decision Quality Index",
-  "tagline": "18 questions. 5 minutes. A precise read on how you actually make decisions — and where your thinking breaks down under pressure.",
-  "instructions": "Answer based on how you actually decide — not how you wish you did.",
+  "tagline": "18 questions. 5 minutes. A precise read on how you actually make decisions, and where your thinking breaks down under pressure.",
+  "instructions": "Answer based on how you actually decide, not how you wish you did.",
   "outputPattern": "both",
   "_distinctness": {
     "gut-caller": "Overweights intuition; underweights available data.",
@@ -37,7 +37,7 @@
       "label": "Calibration",
       "description": "How well your confidence in a decision matches your actual track record on calls of that type.",
       "scoreBands": [
-        { "min": 0, "max": 40, "tier": "overconfident", "narrative": "Your confidence outruns your accuracy. You don't know what you don't know — and your team can't tell you." },
+        { "min": 0, "max": 40, "tier": "overconfident", "narrative": "Your confidence outruns your accuracy. You don't know what you don't know, and your team can't tell you." },
         { "min": 40, "max": 70, "tier": "drifting", "narrative": "You're calibrated on familiar calls; overconfident on edge ones. The cost shows up on the unusual decisions." },
         { "min": 70, "max": 100, "tier": "calibrated", "narrative": "You can tell the difference between 'I know this' and 'I'm pattern-matching from limited data.' Rare and valuable." }
       ]
@@ -57,7 +57,7 @@
     {
       "id": "gut-caller",
       "name": "The Gut-Caller",
-      "summary": "You decide fast. You trust your read. You've been right enough times that you've stopped checking. The risk is that your gut is calibrated to the patterns you've seen — and the next high-stakes call may sit outside that pattern.",
+      "summary": "You decide fast. You trust your read. You've been right enough times that you've stopped checking. The risk is that your gut is calibrated to the patterns you've seen, and the next high-stakes call may sit outside that pattern.",
       "blindSpot": "Your accuracy is in the rooms you've been in. Unfamiliar rooms are where gut-callers go wrong.",
       "nextMoves": [
         "Before your next high-stakes decision, write down two pieces of data that would change your answer. Go find them.",
@@ -68,7 +68,7 @@
     {
       "id": "analyst",
       "name": "The Over-Analyst",
-      "summary": "You make better decisions than most — when you finish them. The problem is the windows you've missed waiting for more data. Quality is real. So is the cost of not deciding.",
+      "summary": "You make better decisions than most, when you finish them. The problem is the windows you've missed waiting for more data. Quality is real. So is the cost of not deciding.",
       "blindSpot": "Inaction is a decision. You're making it without acknowledging the trade.",
       "nextMoves": [
         "Set a hard deadline on your next decision in progress. Pick the date now.",
@@ -79,7 +79,7 @@
     {
       "id": "consensus-seeker",
       "name": "The Consensus-Seeker",
-      "summary": "You bring people in. You hear them out. You also let the meeting end without a decision because no one was clearly aligned. The team starts to read you as someone who won't commit — which costs you more than being wrong would.",
+      "summary": "You bring people in. You hear them out. You also let the meeting end without a decision because no one was clearly aligned. The team starts to read you as someone who won't commit, which costs you more than being wrong would.",
       "blindSpot": "Consensus is rarer than you think; alignment is what most groups can actually offer. They're not the same thing.",
       "nextMoves": [
         "Distinguish consensus from alignment in your next decision meeting. Tell the room which one you need.",
@@ -90,7 +90,7 @@
     {
       "id": "loudest-voice",
       "name": "The Deferrer",
-      "summary": "Your decisions track whoever speaks first, longest, or most forcefully in the room. You'd say you weigh inputs — but the timing and intensity of those inputs is doing more work than the substance.",
+      "summary": "Your decisions track whoever speaks first, longest, or most forcefully in the room. You'd say you weigh inputs, but the timing and intensity of those inputs is doing more work than the substance.",
       "blindSpot": "Confidence is not evidence. The most confident person in the room is often the least calibrated.",
       "nextMoves": [
         "For your next call, write your answer down before the discussion. Compare after.",
@@ -101,7 +101,7 @@
     {
       "id": "calibrated-decider",
       "name": "The Calibrator",
-      "summary": "You're matching speed to stakes. You gather the data you need and stop. You can name when you're guessing. This is the rarest archetype — and the easiest to slip out of when the pressure rises.",
+      "summary": "You're matching speed to stakes. You gather the data you need and stop. You can name when you're guessing. This is the rarest archetype, and the easiest to slip out of when the pressure rises.",
       "blindSpot": "Your calibration is hard-won. It's also easy to lose. The pressure that erodes it is usually invisible until it's too late.",
       "nextMoves": [
         "Once a quarter, hand-pick five decisions and audit your reasoning quality vs. outcome. Watch for drift.",
@@ -111,8 +111,12 @@
     }
   ],
   "tiebreakOrder": ["calibrated-decider", "gut-caller", "analyst", "consensus-seeker", "loudest-voice"],
+  "archetypeRules": {
+    "scoreBandOverride": { "band": "Calibrated", "archetype": "calibrated-decider" },
+    "tieBreakQuestion": "q18"
+  },
   "questions": [
-    { "id": "q01", "dimension": "speed", "type": "likert-5", "reverseScored": false, "text": "I match decision speed to the stakes — small reversible decisions move fast.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+    { "id": "q01", "dimension": "speed", "type": "likert-5", "reverseScored": false, "text": "I match decision speed to the stakes: small reversible decisions move fast.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
     { "id": "q02", "dimension": "speed", "type": "likert-5", "reverseScored": true, "text": "I have decisions that have been sitting open for weeks longer than they should.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
     { "id": "q03", "dimension": "speed", "type": "likert-5", "reverseScored": false, "text": "When a window is closing, I can name the cost of waiting in concrete terms.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
     { "id": "q04", "dimension": "speed", "type": "likert-5", "reverseScored": true, "text": "I make most decisions in the last 24 hours before they're due, regardless of how long I've had to think about them.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
@@ -124,19 +128,19 @@
 
     { "id": "q09", "dimension": "calibration", "type": "likert-5", "reverseScored": false, "text": "I can tell the difference between 'I know this' and 'I'm pattern-matching from limited data.'", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
     { "id": "q10", "dimension": "calibration", "type": "likert-5", "reverseScored": true, "text": "I'm typically more confident in my decisions than the outcomes warrant.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
-    { "id": "q11", "dimension": "calibration", "type": "likert-5", "reverseScored": false, "text": "I can name a recent decision where I was wrong — and what I missed.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+    { "id": "q11", "dimension": "calibration", "type": "likert-5", "reverseScored": false, "text": "I can name a recent decision where I was wrong, and what I missed.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
     { "id": "q12", "dimension": "calibration", "type": "likert-5", "reverseScored": true, "text": "When someone challenges my reasoning, my first instinct is to defend.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
 
     { "id": "q13", "dimension": "review", "type": "likert-5", "reverseScored": false, "text": "I revisit my big decisions a few months later to see how they played out.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
-    { "id": "q14", "dimension": "review", "type": "likert-5", "reverseScored": true, "text": "If a decision had a bad outcome, I assume the decision was bad — without checking the process.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+    { "id": "q14", "dimension": "review", "type": "likert-5", "reverseScored": true, "text": "If a decision had a bad outcome, I assume the decision was bad, without checking the process.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
     { "id": "q15", "dimension": "review", "type": "likert-5", "reverseScored": false, "text": "I keep track of decisions I was confident about that turned out wrong.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
-    { "id": "q16", "dimension": "review", "type": "likert-5", "reverseScored": true, "text": "I rarely talk about my decision-making process with anyone — I just make the calls.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
+    { "id": "q16", "dimension": "review", "type": "likert-5", "reverseScored": true, "text": "I rarely talk about my decision-making process with anyone: I just make the calls.", "options": [{"value":1,"label":"Strongly disagree"},{"value":2,"label":"Disagree"},{"value":3,"label":"Neutral"},{"value":4,"label":"Agree"},{"value":5,"label":"Strongly agree"}] },
 
     { "id": "q17", "type": "multiple-choice", "text": "When you made your last hard call, the dominant input was:",
       "options": [
-        { "value": "a", "label": "My read of the situation — I knew what to do.", "weights": { "gut-caller": 1 } },
-        { "value": "b", "label": "The data — I waited until the numbers were clear.", "weights": { "analyst": 1 } },
-        { "value": "c", "label": "The conversation — I needed everyone aligned.", "weights": { "consensus-seeker": 1 } },
+        { "value": "a", "label": "My read of the situation: I knew what to do.", "weights": { "gut-caller": 1 } },
+        { "value": "b", "label": "The data: I waited until the numbers were clear.", "weights": { "analyst": 1 } },
+        { "value": "c", "label": "The conversation: I needed everyone aligned.", "weights": { "consensus-seeker": 1 } },
         { "value": "d", "label": "The strongest argument in the room.", "weights": { "loudest-voice": 1 } }
       ] },
     { "id": "q18", "type": "multiple-choice", "text": "Looking back at a recent decision you got wrong, the most accurate diagnosis is:",
@@ -151,9 +155,9 @@
     "method": "weighted-dimension-sum",
     "totalRange": [0, 100],
     "totalBands": [
-      { "min": 0, "max": 50, "label": "Decision drag", "narrative": "Decision quality is costing you. Pick the lowest-scoring dimension below — that's the leverage point. Pair the score with your archetype to see the specific trap." },
+      { "min": 0, "max": 50, "label": "Decision drag", "narrative": "Decision quality is costing you. Pick the lowest-scoring dimension below: that's the leverage point. Pair the score with your archetype to see the specific trap." },
       { "min": 50, "max": 75, "label": "Mixed signal", "narrative": "You're solid on some dimensions and exposed on others. Your archetype tells you which trap is most likely to surface under pressure." },
-      { "min": 75, "max": 100, "label": "Calibrated", "narrative": "You're decision-healthy across the board. The work now is protecting it. Calibration erodes under pressure — and the pressure rarely warns you it's eroding." }
+      { "min": 75, "max": 100, "label": "Calibrated", "narrative": "You're decision-healthy across the board. The work now is protecting it. Calibration erodes under pressure, and the pressure rarely warns you it's eroding." }
     ]
   }
 }

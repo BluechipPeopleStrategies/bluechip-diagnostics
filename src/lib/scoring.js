@@ -44,13 +44,28 @@ export function scoreLikert(diagnostic, answers) {
 
 /**
  * Match answers to an archetype using weighted scoring.
+ *
+ * Optional rules, declared on the diagnostic as `archetypeRules` (used by the Decision Quality
+ * Index, whose "Calibrated decider" archetype has no answer option of its own):
+ *   scoreBandOverride { band, archetype }: when the Likert score lands in that total band, that
+ *     archetype wins outright, so a 100/100 result is never labelled with a decision trap.
+ *   tieBreakQuestion: when two or more archetypes tie on top, the one the person's answer to this
+ *     question points at wins, before the fixed tiebreakOrder is consulted.
  * @param {Object} diagnostic
  * @param {Object} answers - map of questionId -> selected option value
+ * @param {Object|null} [scoreResult] - the scoreLikert() result, for diagnostics with a score
  * @returns {{archetypeId: string|null, archetype: Object|null, scores: Object}}
  */
-export function matchArchetype(diagnostic, answers) {
+export function matchArchetype(diagnostic, answers, scoreResult = null) {
   const scores = {};
   for (const a of diagnostic.archetypes || []) scores[a.id] = 0;
+
+  const rules = diagnostic.archetypeRules || {};
+  const override = rules.scoreBandOverride;
+  if (override && scoreResult?.totalBand?.label === override.band) {
+    const archetype = (diagnostic.archetypes || []).find((a) => a.id === override.archetype) || null;
+    if (archetype) return { archetypeId: archetype.id, archetype, scores };
+  }
 
   for (const q of diagnostic.questions || []) {
     if (q.type !== 'multiple-choice') continue;
@@ -70,12 +85,20 @@ export function matchArchetype(diagnostic, answers) {
   const maxScore = Math.max(...Object.values(scores));
   const tied = archetypeIds.filter((id) => scores[id] === maxScore);
 
-  const order = diagnostic.tiebreakOrder || [];
   let winner = tied[0];
-  for (const id of order) {
-    if (tied.includes(id)) {
-      winner = id;
-      break;
+  const tieQuestion = rules.tieBreakQuestion
+    ? (diagnostic.questions || []).find((q) => q.id === rules.tieBreakQuestion)
+    : null;
+  const tieOption = tieQuestion?.options?.find((o) => o.value === answers[tieQuestion.id]);
+  const byQuestion = tied.length > 1 && tieOption ? tied.find((id) => (tieOption.weights?.[id] || 0) > 0) : null;
+  if (byQuestion) {
+    winner = byQuestion;
+  } else {
+    for (const id of diagnostic.tiebreakOrder || []) {
+      if (tied.includes(id)) {
+        winner = id;
+        break;
+      }
     }
   }
 

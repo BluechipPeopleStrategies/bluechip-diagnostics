@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import handler from '../api/submit.js';
 import { cleanAiCheckInput, buildAiCheckResultsEmail } from '../api/_emails/ai-opportunity-check.js';
 import { parseLeadDataBlock } from '../api/_emails/lead-data.js';
+import { resetRateLimit } from '../api/_lib/rate-limit.js';
 
 // Every network call is a vi.fn: nothing here reaches Resend or Notion.
 function mockRes() {
@@ -30,6 +31,7 @@ const resendCalls = () => global.fetch.mock.calls.filter(c => String(c[0]).inclu
 
 describe('submit handler: AI Pulse results email', () => {
   beforeEach(() => {
+    resetRateLimit();
     process.env.RESEND_API_KEY = 're_test';
     process.env.BLUECHIP_FROM_EMAIL = 'hi@bc.ca';
     process.env.BLUECHIP_NOTIFY_EMAIL = 't@bc.ca';
@@ -108,11 +110,12 @@ describe('submit handler: AI Pulse results email', () => {
     expect(res.body.ok).toBe(false);
   });
 
-  it('other diagnostics still take their existing path (result email + nudge), with no Notion write', async () => {
+  it('other diagnostics still take their existing path (result email, no nudge), with no Notion write', async () => {
     const res = mockRes();
-    await handler({ method: 'POST', body: { diagnosticId: 'dqi', email: 'pat@example.com', resultLabel: 'Band (50/100)' } }, res);
+    await handler({ method: 'POST', body: { diagnosticId: 'dqi', email: 'pat@example.com', resultLabel: 'Mixed signal (50/100)' } }, res);
     expect(global.fetch.mock.calls.some(c => String(c[0]).includes('notion'))).toBe(false);
-    expect(resendCalls().some(s => s.scheduled_at)).toBe(true);
+    expect(resendCalls().some(s => s.scheduled_at)).toBe(false);
+    expect(resendCalls().some(s => s.to === 'pat@example.com' && s.subject === 'Your DQI result')).toBe(true);
   });
 
   it('the note to Thomas carries a Lead-Data block for the Obsidian capture job', async () => {

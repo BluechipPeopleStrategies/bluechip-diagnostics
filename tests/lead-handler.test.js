@@ -1,3 +1,4 @@
+/* global process, global */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import handler from '../api/lead.js';
 
@@ -82,5 +83,33 @@ describe('lead handler', () => {
     expect(payload.from).toBe('+15875550000');
     expect(payload.content).toContain('Name: Jane');
     expect(call[1].headers.Authorization).toBe('op_test');
+  });
+
+  it('returns 502 (lead lost) when neither the text nor the email could be sent, so the widget can say so', async () => {
+    global.fetch = vi.fn(async () => ({ ok: false, status: 500, text: async () => 'down' }));
+    const res = mockRes();
+    await handler({ method: 'POST', headers: {}, body: { name: 'Jane', need: 'help', contact: '7805550100', email: 'j@x.ca', consent: true } }, res);
+    expect(res.statusCode).toBe(502);
+    expect(res.body).toMatchObject({ ok: false, smsSent: false, emailSent: false });
+  });
+
+  it('stays 200 when only one of the two got through', async () => {
+    process.env.RESEND_API_KEY = 're_test';
+    process.env.BLUECHIP_FROM_EMAIL = 'hi@bc.ca';
+    process.env.BLUECHIP_NOTIFY_EMAIL = 't@bc.ca';
+    global.fetch = vi.fn(async (url) => (String(url).includes('openphone')
+      ? { ok: false, status: 402, text: async () => 'no credits' }
+      : { ok: true, status: 200, text: async () => '' }));
+    const res = mockRes();
+    await handler({ method: 'POST', headers: {}, body: { name: 'Jane', need: 'help', contact: '7805550100', email: 'j@x.ca' } }, res);
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toMatchObject({ ok: true, smsSent: false, emailSent: true });
+  });
+
+  it('the retainer confirmation text no longer talks about tiers', async () => {
+    const { formatVisitorConfirmation } = await import('../api/_lib/lead-helpers.js');
+    const text = formatVisitorConfirmation({ name: 'Jane', need: 'Practical AI and/or Embedded HR Retainers' });
+    expect(text).not.toMatch(/tier/i);
+    expect(text).toContain('https://www.bluechip-people-strategies.com/embedded-hr-retainers');
   });
 });

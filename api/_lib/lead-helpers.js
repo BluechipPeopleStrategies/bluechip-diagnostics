@@ -115,7 +115,7 @@ export function formatVisitorConfirmation({ name, need }) {
   }
   // Old label kept so inquiries from a cached widget still get the right text.
   if (need === 'Practical AI and/or Embedded HR Retainers' || need === 'Embedded HR + AI Advisory') {
-    return hi + "it's Chip with BlueChip People Strategies. We received your Practical AI and/or Embedded HR Retainers inquiry. Support can focus on AI alone or combine HR and AI. See how the tiers compare: https://www.bluechip-people-strategies.com/embedded-hr-retainers We'll text you about next steps, usually within a few hours on business days. Reply STOP to opt out.";
+    return hi + "it's Chip with BlueChip People Strategies. We received your Practical AI and/or Embedded HR Retainers inquiry. Support can focus on AI alone or combine HR and AI. Here is how it works: https://www.bluechip-people-strategies.com/embedded-hr-retainers We'll text you about next steps, usually within a few hours on business days. Reply STOP to opt out.";
   }
   return hi + "it's Chip with BlueChip People Strategies. Thanks for reaching out. We've got your note, and someone will text you back at this number, usually within a few hours on business days. In the meantime, here's everything we do: https://www.bluechip-people-strategies.com/services Reply STOP to opt out.";
 }

@@ -1,3 +1,4 @@
+/* global process */
 import { isHoneypot, sanitizeLead, validateLead, formatLeadSms, looksLikePhone, formatVisitorConfirmation, samePhone, buildChatLeadEmail, isCanadianPhone } from './_lib/lead-helpers.js';
 
 export async function sendLeadEmail({ subject, html, replyTo }) {
@@ -133,5 +134,8 @@ export default async function handler(req, res) {
   const mail = buildChatLeadEmail(clean, { smsSent, confirmationNote, submittedAt });
   const emailSent = await sendLeadEmail({ ...mail, replyTo });
 
-  return res.status(200).json({ ok: true, smsSent, confirmationSent, emailSent });
+  // If neither the text nor the email went out the lead is lost: say so (non-2xx) so the widget
+  // keeps the form and tells the visitor, instead of confirming an inquiry nobody received.
+  const captured = smsSent || emailSent;
+  return res.status(captured ? 200 : 502).json({ ok: captured, smsSent, confirmationSent, emailSent });
 }
