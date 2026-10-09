@@ -234,6 +234,7 @@
 
 /* ---------- one-question-per-screen stepper (free check) ---------- */
 .ai-stepper { margin-top:20px; }
+.ai-funnel .ai-carried-note { margin:0 0 14px; color:var(--ai-ink); }
 .ai-stepper-progress-track { height:6px; border-radius:99px; background:rgba(199,208,220,.14); overflow:hidden; margin-bottom:10px; }
 .ai-stepper-progress-fill { width:100%; height:100%; border-radius:99px; background:linear-gradient(90deg,var(--ai-gold-2),var(--ai-gold)); box-shadow:0 0 12px rgba(201,162,75,.5); transform-origin:left center; transition:transform .35s ease; }
 .ai-funnel .ai-live { color:var(--ai-soft); margin:0 0 18px; }

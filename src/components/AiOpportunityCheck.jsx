@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   questions, isComplete, toggleMulti, computeRange, roundHoursLabel, roundDollars, money,
   suggestedAreas, AREA_LABELS, lowerFirst, joinList, groupedOptions,
@@ -7,7 +8,8 @@ import {
   PEOPLE_MAX, areaHoursLabel, GUARANTEE_NET_HOURS } from '../lib/aiOpportunity';
 import { prefersReducedMotion } from '../lib/useRollingNumber';
 import { loadCheckSession, saveCheckSession, clearCheckSession } from '../lib/freeCheckSession';
-import { trackCheck } from '../lib/checkAnalytics';
+import { trackCheck, trackEvent } from '../lib/checkAnalytics';
+import { prefillFor } from '../lib/calcPrefill';
 import { usePageMeta } from '../lib/seo';
 import SiteHeader from './SiteHeader';
 import AreaIcon from './AreaIcon';
@@ -54,9 +56,18 @@ export default function AiOpportunityCheck() {
   usePageMeta('AI Pulse: a free AI check | BlueChip', 'Find out roughly how many hours a week AI could give your team back. About three minutes. No email needed.');
   // Restored once from sessionStorage (item 59): leaving for the plan page and coming back, or a
   // reload, lands the visitor where they were instead of on an empty question 1.
-  const [restored] = useState(() => loadCheckSession());
-  const [answers, setAnswers] = useState(() => restored?.answers ?? {});
+  // Arriving from the homepage "Quick estimate" calculator (src=calc) pre-answers what maps cleanly,
+  // but only when there is no in-progress saved session: a saved session always wins and the params
+  // are ignored. A blank saved session (written just by opening the page) is not in progress.
+  const { search } = useLocation();
+  const [{ restored, prefill }] = useState(() => {
+    const saved = loadCheckSession();
+    const pre = prefillFor(search, saved);
+    return { restored: pre ? null : saved, prefill: pre };
+  });
+  const [answers, setAnswers] = useState(() => restored?.answers ?? prefill?.answers ?? {});
   const [qIndex, setQIndex] = useState(() => {
+    if (!restored && prefill) return prefill.startIndex;
     const i = Number(restored?.qIndex);
     return Number.isInteger(i) && i >= 0 && i < questions.length ? i : 0;
   });
@@ -66,7 +77,7 @@ export default function AiOpportunityCheck() {
     if (s === 'result' || s === 'loading') return questions.every(q => isComplete(q, restored.answers)) ? 'result' : 'questions';
     return 'questions';
   }); // questions -> loading -> result
-  const [areaInputs, setAreaInputs] = useState(() => restored?.areaInputs ?? {}); // { [area]: { hours, people, label? } }
+  const [areaInputs, setAreaInputs] = useState(() => restored?.areaInputs ?? prefill?.areaInputs ?? {}); // { [area]: { hours, people, label? } }
   const [rate, setRate] = useState(() => restored?.rate ?? 40);
   const [weeks, setWeeks] = useState(() => restored?.weeks ?? 48);
   const [headcount, setHeadcount] = useState(() => restored?.headcount ?? null); // null = org-size default
@@ -76,6 +87,14 @@ export default function AiOpportunityCheck() {
   const headingRef = useRef(null);
   // Q2 is two steps on one screen each: pick the areas, then size each pick (hours, people).
   const [sizingFor, setSizingFor] = useState(null); // the question index whose sizing step is open
+
+  // One analytics event per arrival from the calculator: structure only (the seat and two counts).
+  const prefillTracked = useRef(false);
+  useEffect(() => {
+    if (!prefill || prefillTracked.current) return;
+    prefillTracked.current = true;
+    trackEvent('check_prefilled', { seat: prefill.seat, tasks_mapped: prefill.mapped, tasks_skipped: prefill.skipped });
+  }, [prefill]);
 
   useEffect(() => {
     saveCheckSession({ answers, qIndex, step, areaInputs, rate, weeks, headcount, ownerOtherText, toolsOtherText });
@@ -243,6 +262,10 @@ export default function AiOpportunityCheck() {
       <div className="ai-stepper">
         <div className="ai-stepper-progress-track" aria-hidden="true"><div className="ai-stepper-progress-fill" style={{ transform: `scaleX(${pct / 100})` }} /></div>
         <p className="ai-live ai-visually-hidden" aria-live="polite">Question {qIndex + 1} of {questions.length}{isAreas ? (sizing ? ', step 2 of 2' : ', step 1 of 2') : ''}.</p>
+
+        {prefill?.carried && qIndex <= prefill.startIndex && !sizing && <p className="ai-note ai-carried-note" role="status">
+          We've carried over what you picked in the quick estimate. Change anything that's off.
+        </p>}
 
         <fieldset className="ai-stepper-question" onKeyDown={markInput} onPointerDown={markInput} onClick={(e) => { if (e.detail > 0) byKeyboard.current = false; }}>
           <legend>{qIndex > 0 && <span className="ai-stepper-count">{qIndex + 1} / {questions.length}</span>} <span ref={qIndex > 0 ? headingRef : null} tabIndex={qIndex > 0 ? -1 : undefined}>{question.label}</span></legend>
