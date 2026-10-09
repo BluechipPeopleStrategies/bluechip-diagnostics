@@ -101,6 +101,8 @@ describe('new offering intake', () => {
     fireEvent.change(ui.getByLabelText('Your email'), { target: { value: 'test@example.com' } });
     fireEvent.click(ui.getByRole('checkbox'));
     fireEvent.click(ui.getByRole('button', { name: 'Send', exact: true }));
+    flushBot();
+    fireEvent.click(ui.getByRole('button', { name: 'Skip', exact: true }));
     expect(JSON.parse(fetchMock.mock.calls[0][1].body).need).toBe('The AI Handoff Plan');
   });
   it('supports returning to topics and links resources without collecting details', () => {
@@ -140,6 +142,8 @@ describe('new offering intake', () => {
     expect(send).toBeDisabled();
     fireEvent.click(ui.getByRole('checkbox'));
     fireEvent.click(send);
+    flushBot();
+    fireEvent.click(ui.getByRole('button', { name: 'Skip', exact: true }));
     const payload = JSON.parse(fetchMock.mock.calls[0][1].body);
     expect(payload).toMatchObject({ need: 'The AI Handoff Plan', consent: true });
     expect(payload).toHaveProperty('bc_hp_trap');
@@ -264,6 +268,8 @@ describe('topic preselect (plan-page CTA and #chat?topic=)', () => {
     fireEvent.change(ui.getByLabelText('Your email'), { target: { value: 'sam@example.com' } });
     fireEvent.click(ui.getByRole('checkbox'));
     fireEvent.click(ui.getByRole('button', { name: 'Send', exact: true }));
+    flushBot();
+    fireEvent.click(ui.getByRole('button', { name: 'Skip', exact: true }));
     expect(JSON.parse(fetchMock.mock.calls[0][1].body).need).toBe('The AI Handoff Plan');
   });
   it('opened with no topic (plain #chat or the launch button), it behaves as it does now: the chooser is shown', () => {

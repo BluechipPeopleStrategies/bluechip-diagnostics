@@ -5,6 +5,8 @@
 // `bc_hp_trap` is the honeypot: the same field name the chat widget already uses, chosen because
 // no browser autofill heuristic targets it (a field named "company" on another BlueChip form was
 // silently filled by autofill and dropped real leads for three months).
+import { getAttribution } from './attribution.js';
+
 export const AI_CHECK_DIAGNOSTIC_ID = 'ai-opportunity-check';
 
 export async function sendFreeCheckResultsEmail({ email, include, answers, areaInputs, rate, weeks, headcount, ownerOtherText, toolsOtherText, honeypot = '' }) {
@@ -18,6 +20,7 @@ export async function sendFreeCheckResultsEmail({ email, include, answers, areaI
       include: include === 'answers' ? 'answers' : 'estimate',
       answers, areaInputs, rate, weeks, headcount, ownerOtherText, toolsOtherText,
       bc_hp_trap: honeypot,
+      attribution: getAttribution(),
       submittedAt: new Date().toISOString(),
     }),
   });
