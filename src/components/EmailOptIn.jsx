@@ -71,11 +71,18 @@ export default function EmailOptIn({
           lead_notification_sent: data.leadNotificationSent ?? null,
         });
       }
+      // GA4's recommended lead event; the diagnostic only, never the address.
+      if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+        window.gtag('event', 'generate_lead', { diagnostic_id: diagnosticId, http_ok: res.ok });
+      }
       setEmailSent(data.emailSent !== false);
       setStatus(res.ok ? 'success' : 'error');
     } catch {
       if (typeof window !== 'undefined' && window.posthog) {
         window.posthog.capture('lead_submit_failed', { diagnosticId });
+      }
+      if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+        window.gtag('event', 'lead_submit_failed', { diagnostic_id: diagnosticId });
       }
       setStatus('error');
     }
