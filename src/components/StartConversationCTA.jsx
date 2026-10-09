@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { loadChatWidget } from '../lib/chatWidget';
 import { getCtaCopy } from '../data/ctaCopy';
+import { trackEvent } from '../lib/checkAnalytics';
 
 // The next step after a quiz result (2026-10-09): "Start the conversation", which opens the site
 // chat widget on its "Other BlueChip services" topic. This replaces the paused Clarity Call block;
@@ -40,7 +41,8 @@ export default function StartConversationCTA({ diagnosticId, resultKey = null, l
       {specific && <p>If you would like to talk it through, start a conversation with BlueChip.</p>}
       <p className="bc-cta-note">It sends an inquiry. It doesn't book anything or charge you.</p>
       <div className="bc-cta-row">
-        <a className="bc-cta" href={`#chat?topic=${QUIZ_CHAT_TOPIC}`}>Start the conversation →</a>
+        <a className="bc-cta" href={`#chat?topic=${QUIZ_CHAT_TOPIC}`}
+          onClick={() => trackEvent('quiz_start_conversation', { diagnostic_id: diagnosticId })}>Start the conversation →</a>
       </div>
       {teamOnramp && (
         <p className="bc-cta-note">

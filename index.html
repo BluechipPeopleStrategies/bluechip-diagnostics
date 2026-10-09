@@ -17,6 +17,16 @@
         capture_pageview: 'history_change'
       })
     </script>
+    <!-- Google Analytics (GA4, same property as www.bluechip-people-strategies.com; cross-domain
+         linking between the two is configured in the Google tag settings). Page views follow
+         route changes through enhanced measurement. -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VZBXPJQXWK"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-VZBXPJQXWK');
+    </script>
   </head>
   <body>
     <div id="root"></div>

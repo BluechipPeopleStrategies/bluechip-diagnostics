@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import QuizHeader from './QuizHeader';
 import QuestionView from './QuestionView';
@@ -6,6 +6,7 @@ import NavControls from './NavControls';
 import ResultsPage from './ResultsPage';
 import { loadState, saveState, clearState } from '../lib/persistence';
 import { describeSharedResult } from '../lib/share';
+import { trackEvent } from '../lib/checkAnalytics';
 
 import orgPulse from '../data/org-pulse.json';
 import dqi from '../data/dqi.json';
@@ -30,6 +31,14 @@ export default function QuizPage({ shareView = false }) {
   const [showResults, setShowResults] = useState(false);
   const [emailSubmitted, setEmailSubmitted] = useState(false);
   const [orgSize, setOrgSize] = useState('');
+  // Questions already counted this visit, so a double press or a changed answer is not counted twice.
+  const counted = useRef(new Set());
+
+  // Quiz funnel counts (started, each question, completed) for PostHog and GA4: the diagnostic,
+  // question number and total only, never the answer.
+  useEffect(() => {
+    if (shareView && resultCode && diagnostic) trackEvent('quiz_shared_result_viewed', { diagnostic_id: slug });
+  }, [shareView, resultCode, diagnostic, slug]);
 
   // Restore state on mount (per slug). Clamp a stale saved index against the
   // current questions length so a quiz that was lengthened/shortened, or a state
@@ -77,6 +86,13 @@ export default function QuizPage({ shareView = false }) {
       if (!q) return;
       setAnswers((prev) => ({ ...prev, [q.id]: value }));
       const lastIndex = diagnostic.questions.length - 1;
+      if (!counted.current.has(q.id)) {
+        const total = diagnostic.questions.length;
+        if (counted.current.size === 0 && Object.keys(answers).length === 0) trackEvent('quiz_started', { diagnostic_id: slug, total_questions: total });
+        counted.current.add(q.id);
+        trackEvent('quiz_question_answered', { diagnostic_id: slug, question_number: currentIndex + 1, total_questions: total });
+        if (currentIndex === lastIndex) trackEvent('quiz_completed', { diagnostic_id: slug, total_questions: total });
+      }
       // Advance only from the question that was answered. A second press inside the 220 ms delay
       // (double click, key repeat) schedules a second advance; without this check it moved on
       // twice and skipped a question unanswered.
@@ -86,7 +102,7 @@ export default function QuizPage({ shareView = false }) {
         setTimeout(() => setShowResults(true), 220);
       }
     },
-    [diagnostic, currentIndex]
+    [diagnostic, currentIndex, answers, slug]
   );
 
   const handleBack = useCallback(() => {
@@ -94,6 +110,8 @@ export default function QuizPage({ shareView = false }) {
   }, [currentIndex]);
 
   const handleRestart = useCallback(() => {
+    trackEvent('quiz_restarted', { diagnostic_id: slug });
+    counted.current = new Set();
     clearState(slug);
     setAnswers({});
     setCurrentIndex(0);
