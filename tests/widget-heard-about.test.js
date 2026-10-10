@@ -39,7 +39,7 @@ const flushPromises = async () => { await vi.advanceTimersByTimeAsync(10); };
 const body = (i = 0) => JSON.parse(fetchMock.mock.calls[i][1].body);
 
 // Opens the chat on the plan topic, gives a name, then fills in and sends the contact details.
-function toQuestion() {
+function toQuestion({ phone = '7805550100', email = 'test@example.com', consent = true } = {}) {
   window.BlueChipChat.open({ topic: 'ai-handoff-plan' });
   const ui = within(document.body);
   flushBot();
@@ -48,9 +48,9 @@ function toQuestion() {
   flushBot();
   fireEvent.click(ui.getByRole('button', { name: 'Discuss this with BlueChip' }));
   flushBot();
-  fireEvent.change(ui.getByLabelText('Your phone number'), { target: { value: '7805550100' } });
-  fireEvent.change(ui.getByLabelText('Your email'), { target: { value: 'test@example.com' } });
-  fireEvent.click(ui.getByRole('checkbox'));
+  fireEvent.input(ui.getByLabelText('Your phone number'), { target: { value: phone } });
+  fireEvent.input(ui.getByLabelText('Your email'), { target: { value: email } });
+  if (consent) fireEvent.click(ui.getByRole('checkbox'));
   fireEvent.click(ui.getByRole('button', { name: 'Send', exact: true }));
   return ui;
 }
@@ -61,6 +61,25 @@ const OPTIONS = [
 ];
 
 describe('"How did you hear about us?" step', () => {
+  it.each([
+    { phone: '', email: 'test@example.com', consent: true },
+    { phone: '7805550100', email: 'invalid', consent: false },
+  ])('blocks invalid contact details: %j', (contact) => {
+    const ui = toQuestion(contact);
+    flushBot();
+    expect(ui.getByRole('button', { name: 'Send', exact: true }).disabled).toBe(true);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+  it.each(['', '7805550100'])('sends an email enquiry with phone "%s" and no texting consent', async (phone) => {
+    const ui = toQuestion({ phone, consent: false });
+    flushBot();
+    fireEvent.click(ui.getByRole('button', { name: 'Skip', exact: true }));
+    await flushPromises();
+    expect(body()).toMatchObject({ contact: phone, email: 'test@example.com', consent: false });
+    expect(document.body.textContent).toContain('reply by email');
+    expect(document.body.textContent).not.toContain('reply by text');
+  });
+
   it('asks the optional question after the details, and sends nothing until it is answered', () => {
     toQuestion();
     expect(document.body.textContent).not.toContain('One last thing');   // still typing
@@ -101,6 +120,7 @@ describe('"How did you hear about us?" step', () => {
     expect(sent.attribution.last.source).toBe('tiktok');
     expect(sent).toMatchObject({ name: 'Test', need: 'The AI Handoff Plan', contact: '7805550100', email: 'test@example.com', consent: true });
     expect(document.body.textContent).toContain('Got it, Test.');
+    expect(document.body.textContent).toContain('reply by text or email');
   });
 
   it.each([
