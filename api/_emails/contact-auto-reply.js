@@ -10,6 +10,7 @@ export const AUTO_REPLY_LINES = {
   thanks: "Thanks for getting in touch. We'll reply within two business days.",
   sooner: 'Need a quicker answer? Chat with Chip on our website and leave your number. We usually text back within a few hours on business days.',
   button: 'Chat with Chip',
+  closing: 'We look forward to talking to you.',
   signoff: 'BlueChip People Strategies',
 };
 // Sender and why this one email arrived. No street address (Thomas, Oct 9: "We don't need the address in there").
@@ -29,7 +30,8 @@ export function buildContactAutoReplyEmail({ name } = {}) {
     <p style="${P}">${escapeHtml(AUTO_REPLY_LINES.thanks)}</p>
     <p style="${P}">${escapeHtml(AUTO_REPLY_LINES.sooner)}</p>
     <p style="margin:0 0 22px;"><a href="${AUTO_REPLY_CHAT_URL}" style="display:inline-block;background:#0B1A33;color:#F5EFE6;text-decoration:none;padding:12px 20px;border-radius:999px;font-family:Arial,sans-serif;font-size:15px;">${escapeHtml(AUTO_REPLY_LINES.button)}</a></p>
+    <p style="${P}">${escapeHtml(AUTO_REPLY_LINES.closing)}</p>
     <p style="${P}">${escapeHtml(AUTO_REPLY_LINES.signoff)}</p>`, { footerHtml });
-  const text = [greeting, '', AUTO_REPLY_LINES.thanks, '', AUTO_REPLY_LINES.sooner, `${AUTO_REPLY_LINES.button}: ${AUTO_REPLY_CHAT_URL}`, '', AUTO_REPLY_LINES.signoff, '', '--', ...AUTO_REPLY_FOOTER_LINES].join('\n');
+  const text = [greeting, '', AUTO_REPLY_LINES.thanks, '', AUTO_REPLY_LINES.sooner, `${AUTO_REPLY_LINES.button}: ${AUTO_REPLY_CHAT_URL}`, '', AUTO_REPLY_LINES.closing, '', AUTO_REPLY_LINES.signoff, '', '--', ...AUTO_REPLY_FOOTER_LINES].join('\n');
   return { subject: AUTO_REPLY_SUBJECT, html, text };
 }
