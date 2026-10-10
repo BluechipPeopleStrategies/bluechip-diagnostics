@@ -190,7 +190,7 @@
       ['How much is ongoing advisory?', "Priced to the scope you need. Tell us what's going on and we'll suggest a starting point."]
     ] },
     { slug: 'leadership', title: 'Leadership development', need: LEADERSHIP_NEED, url: 'https://www.bluechip-people-strategies.com/leadership', link: 'Explore leadership development', answers: [
-      ['What sizes are there?', "From a half-day team session to a multi-month cohort, including our nine-month Leadership Academies. We'll suggest a size after a short conversation."],
+      ['What sizes are there?', "From a half-day team session to a Leadership Cohort, set to the length that suits your leaders. We'll suggest a size after a short conversation."],
       ['Can we start small?', 'Yes. Start with a half-day session or a short assessment.'],
       ['Are assessments confidential?', 'Yes. Individual reports go to the person, and how results are used is agreed up front.']
     ] },
