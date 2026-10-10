@@ -39,7 +39,7 @@ describe('plan page: order, both editions', () => {
     expect(follows(example, box)).toBe(true);
     expect(follows(box, safety)).toBe(true);
     // the button is the last thing inside the safety-net block, after the definitions and the Refund Policy reference
-    expect(follows(within(safety).getByText(/Net means the hours saved each week/), cta)).toBe(true);
+    expect(follows(within(safety).getByText(/Net means after the weekly time needed/), cta)).toBe(true);
     expect(follows(within(safety).getByRole('link', { name: 'Refund Policy' }), cta)).toBe(true);
   });
 
@@ -86,21 +86,19 @@ describe('plan page: lead, example, box and safety net text', () => {
     expect(municipal).toMatch(/not positions to cut/);
   });
 
-  it('lists the seven inclusions in box order, with Your time and Not included, and no guarantee line inside the box', () => {
-    renderEdition('/ai-handoff-plan');
+  it('keeps the box short (opener, Your time, Not included, no numbered list) and names every old inclusion in the four steps', () => {
+    const { container } = renderEdition('/ai-handoff-plan');
     const box = screen.getByRole('heading', { name: 'What you get for C$795' }).closest('section');
-    const items = within(box).getAllByRole('listitem').map(li => li.textContent);
-    expect(items).toHaveLength(7);
-    expect(items[0]).toBe('A 60-minute discovery session with up to two of the people who do the work');
-    expect(items[1]).toMatch(/^A written plan within five business days of having what it needs: which parts of the workflow AI can take on and which stay with your people, how the hours add up across the people who do it/);
-    expect(items[2]).toMatch(/^A starter kit/);
-    expect(items[3]).toBe('A one-page summary for whoever signs off');
-    expect(items[4]).toMatch(/^A simple hours tracker for the people doing the work/);
-    expect(items[5]).toMatch(/^A 45-minute findings and setup call, where the first step gets set up in a tool you already allow, or, if none fits yet, the IT request gets written and ready to send/);
-    expect(items[6]).toBe('A 15-minute check-in about 30 days later');
+    expect(within(box).queryAllByRole('listitem')).toHaveLength(0);
     expect(box.textContent).toMatch(/Your time: a short conversation with you before we start/);
     expect(box.textContent).toMatch(/Not included: software and licences, anything your IT team installs, rolling the change out to the rest of the team, and any other workflow\./);
     expect(box.textContent).not.toMatch(/guarantee|full fee/i);
+    expect(container.querySelectorAll('.plan-flow-step')).toHaveLength(4);
+    const flow = container.querySelector('.plan-flow').textContent;
+    [/60 minutes/, /discovery session with up to two of the people who do the work/, /Within 5 business days of having what it needs/, /written AI plan/,
+      /which stay with your people/, /starter kit \(prompts, templates and a checklist for checking the AI's work\)/, /one-page summary for whoever signs off/,
+      /simple hours tracker/, /45 minutes/, /findings and setup call/, /15-minute check-in/, /About 30 days later/].forEach(re => expect(flow).toMatch(re));
+    expect(container.querySelector('.ai-flow-footnote').textContent).toMatch(/within five business days of having what it needs/);
   });
 
   it('shows "Your safety net" in the page, at body size, with its definitions, never behind a link or a details block', () => {
@@ -109,8 +107,8 @@ describe('plan page: lead, example, box and safety net text', () => {
     expect(safety.closest('details')).toBeNull();
     expect(safety.textContent).toContain("Your safety net: if your AI plan can't show at least 3 net hours a week in total across the people who do that workflow, your full fee comes back automatically within 10 business days of your findings call. No forms, no hoops.");
     expect(safety.textContent).toContain("It's a promise about what your AI plan finds, not about what happens afterwards.");
-    expect(safety.textContent).toContain('The 3 hours are their total, not 3 hours each.');
-    expect(safety.textContent).toContain('Net means the hours saved each week, minus the time it takes each week to check the AI\'s work and keep the tools running.');
+    expect(safety.textContent).toContain("Net means after the weekly time needed to check the AI's work and keep the tools running.");
+    expect(safety.textContent).not.toMatch(/Net means the hours saved each week/);
     expect(within(safety).getByRole('link', { name: 'Refund Policy' })).toHaveAttribute('href', 'https://www.bluechip-people-strategies.com/refund');
     expect(safety.textContent).toMatch(/Asking doesn't book the AI Handoff Plan or take payment\./);
   });
@@ -379,19 +377,14 @@ describe('chat widget answers (AI door release)', () => {
       .forEach(re => expect(script).not.toMatch(re));
   });
 
-  it('cost: C$795, no tax, a reference to Refund Policy section 1', () => {
+  it('cost: C$795, no tax added, and asking books nothing', () => {
     const a = ask('The AI Handoff Plan', 'What does the AI Handoff Plan cost?');
-    expect(a).toMatch(/^C\$795 per organization\./);
-    expect(a).toMatch(/not registered for GST, so no tax is added/);
-    expect(a).toContain('See our Refund Policy, section 1: https://www.bluechip-people-strategies.com/refund');
+    expect(a).toBe("C$795 per organization, no tax added. Asking here doesn't book anything or take payment.");
   });
 
-  it('included: the seven inclusions in box order, then what is not included', () => {
+  it('included: the short list, in box order', () => {
     const a = ask('The AI Handoff Plan', 'What is included?');
-    const order = ['1. A 60-minute discovery session', '2. A written plan within five business days', '3. A starter kit', '4. A one-page summary',
-      '5. A simple hours tracker', '6. A 45-minute findings and setup call', '7. A 15-minute check-in about 30 days later', 'Not included: software and licences'];
-    let at = -1;
-    order.forEach(part => { const i = a.indexOf(part); expect(i).toBeGreaterThan(at); at = i; });
+    expect(a).toBe('A discovery session, a written AI plan, a starter kit, a findings and setup call, and a check-in about 30 days later.');
   });
 
   it('guarantee: across the people who do the workflow, automatic, a finding and not a result', () => {

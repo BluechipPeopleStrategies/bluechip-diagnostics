@@ -50,7 +50,7 @@ describe('"Other BlueChip services" topic (opened from a quiz result)', () => {
     openOnTopic('other');
     const text = document.body.textContent;
     expect(text).toContain("You’re looking at Other BlueChip services");
-    expect(text).toContain('practical AI, embedded HR, governance evaluations');
+    expect(text).toContain("Tell us what's going on and we'll point you to the right next step.");
     expect(text).not.toMatch(/C\$795|guarantee|net hours|fee comes back/);
   });
 

@@ -11,7 +11,7 @@ export default function PlanClose({ chatTopic = 'ai-handoff-plan' }) {
       <section className="ai-panel plan-close" aria-label="Start the conversation">
         <div className="plan-close-copy">
           <h2>Talk through the AI Handoff Plan</h2>
-          <p>Start a conversation with BlueChip to confirm the fit, scope and next steps. An inquiry does not create a booking or take payment.</p>
+          <p>Start a conversation with BlueChip to confirm the fit, scope and next steps.</p>
           <p className="plan-close-cta"><PlanButton href={`#chat?topic=${chatTopic}`}>Start the conversation</PlanButton></p>
         </div>
         <div className="plan-close-art" aria-hidden="true">

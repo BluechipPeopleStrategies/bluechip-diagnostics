@@ -441,9 +441,6 @@
 
 .ai-funnel.ai-glass .plan-box h2 { font-size: clamp(28px, 3.4vw, 38px); margin: 0 0 16px; }
 .ai-funnel.ai-glass .plan-box .plan-box-opener { margin: 0 0 18px; max-width: 70ch; }
-.ai-funnel.ai-glass .plan-box .plan-box-list { margin: 0 0 18px; padding-left: 26px; display: grid; gap: 10px; max-width: 72ch; }
-.ai-funnel.ai-glass .plan-box .plan-box-list li { margin: 0; font-size: 16.5px; line-height: 1.5; color: var(--ai-ink); padding-left: 4px; }
-.ai-funnel.ai-glass .plan-box .plan-box-list li::marker { color: var(--g-gold-hi); font-weight: 700; }
 .ai-funnel.ai-glass .plan-box .plan-box-note { margin: 0 0 12px; max-width: 72ch; }
 .ai-funnel.ai-glass .plan-box .plan-box-note strong { color: var(--ai-ink); }
 .ai-funnel.ai-glass .plan-box .plan-box-note:last-child { margin-bottom: 0; }

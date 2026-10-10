@@ -126,14 +126,15 @@
   var PUBLIC_NEED = 'The AI Handoff Plan (public sector)';
   var PULSE_NEED = 'AI Pulse';
   var RETAINER_NEED = 'Practical AI and/or Embedded HR Retainers';
+  var LEADERSHIP_NEED = 'Leadership development';
 
   var CHOICES = [
     PLAN_NEED,
     'The AI Handoff Plan for a municipality or public body',
     RETAINER_NEED,
-    'Leadership coaching',
+    LEADERSHIP_NEED,
     'Governance or CEO evaluation',
-    'Termination or workplace investigation',
+    'Workplace investigation',
     "Something else (I'm not sure yet)"
   ];
   // Chooser label -> the lead's topic label (what Thomas sees). Labels not listed are their own topic label.
@@ -144,6 +145,7 @@
   NEED_SLUG[PUBLIC_NEED] = 'public-sector';
   NEED_SLUG[PULSE_NEED] = 'free-check';
   NEED_SLUG[RETAINER_NEED] = 'retainers';
+  NEED_SLUG[LEADERSHIP_NEED] = 'leadership';
 
   var REFUND_URL = 'https://www.bluechip-people-strategies.com/refund';
   var REFUND_REF = 'See our Refund Policy, section 1: ' + REFUND_URL;
@@ -151,7 +153,7 @@
   // The guarantee, as one answer (Infy batch 3, "Your safety net"): automatic, a finding and not a result.
   var GUARANTEE_ANSWER = "Your safety net: if your AI plan can't show at least 3 net hours a week in total across the people who do that workflow, your full fee comes back automatically within 10 business days of your findings call. No forms, no hoops. It's a promise about what your AI plan finds, not about what happens afterwards, because the hours you actually get back depend on your team putting your AI plan in place. Net means the hours saved each week, minus the time it takes each week to check the AI's work and keep the tools running. The people who do the work means everyone who regularly does that workflow, agreed with you before we start. The 3 hours are their total, not 3 hours each. You get a copy of the hours tally that scores your AI plan. If you think we've scored it wrong, tell us within 30 days of your findings call and we'll go through it together. That review can only change the result in your favour.";
   // "What you get for C$795", in box order.
-  var INCLUDED_ANSWER = "For C$795, you get: 1. A 60-minute discovery session with up to two of the people who do the work. 2. A written plan within five business days of having what it needs: which parts of the workflow AI can take on and which stay with your people, how the hours add up across the people who do it, which tool to start with and why, the costs, the setup effort, and what should and shouldn't go into each tool. 3. A starter kit: the prompts, templates and a checklist for checking the AI's work. 4. A one-page summary for whoever signs off. 5. A simple hours tracker for the people doing the work, to see how the workflow's time changes. 6. A 45-minute findings and setup call, where the first step gets set up in a tool you already allow, or, if none fits yet, the IT request gets written and ready to send. 7. A 15-minute check-in about 30 days later. Not included: software and licences, anything your IT team installs, rolling the change out to the rest of the team, and any other workflow.";
+  var INCLUDED_ANSWER = "A discovery session, a written AI plan, a starter kit, a findings and setup call, and a check-in about 30 days later.";
   var SETUP_ANSWER = "On the findings and setup call, one or two of the people who do the work set up the first step with us, in a tool you already allow. If none fits yet, the call ends with the IT request written and ready to send. Rolling the change out to the rest of the team, software and licences, and anything your IT team installs are not included.";
   var RETAINER_CREDIT = "If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, your C$795 is credited against its first invoice. Conditions are in our Refund Policy, section 1.";
 
@@ -159,7 +161,7 @@
   // used by the topic-preselect API/hash param (window.BlueChipChat.open, #chat?topic=).
   var KNOWLEDGE = [
     { slug: 'ai-handoff-plan', title: 'The AI Handoff Plan', need: PLAN_NEED, url: 'https://check.bluechip-people-strategies.com/ai-handoff-plan', link: 'Read the full AI Handoff Plan details', answers: [
-      ['What does the AI Handoff Plan cost?', "C$795 per organization. BlueChip People Strategies is not registered for GST, so no tax is added. Asking here doesn't book the AI Handoff Plan or take payment. We'll confirm the next steps with you first. Businesses and nonprofits are invoiced once we've both agreed to go ahead, and pay before the discovery session. Public bodies book the discovery session once their purchase order is issued and pay on their normal terms. " + REFUND_REF],
+      ['What does the AI Handoff Plan cost?', "C$795 per organization, no tax added. Asking here doesn't book anything or take payment."],
       ['What is included?', INCLUDED_ANSWER],
       ['How does the three-hour guarantee work?', GUARANTEE_ANSWER],
       ['Do you set the tools up for us?', SETUP_ANSWER],
@@ -182,16 +184,21 @@
       ['Does AI Pulse prove I will save three hours?', "No. It's a starting estimate from your own answers and published studies, not a plan and not a confirmation of the guarantee. The AI Handoff Plan checks your actual work to see where you really land."]
     ] },
     { slug: 'retainers', title: 'Practical AI and/or Embedded HR Retainers', need: RETAINER_NEED, url: 'https://www.bluechip-people-strategies.com/embedded-hr-retainers', link: 'Explore Practical AI and/or Embedded HR Retainers', answers: [
-      ['Can I retain BlueChip for AI alone?', 'Yes. Support can focus on practical AI adoption alone or combine AI with embedded HR advice. The scope and fee are agreed for your engagement.'],
-      ['What does embedded HR cover?', 'Senior advice on people decisions: hiring strategy, organizational design, performance management, compensation philosophy, leadership and change. It is strategic advisory, not payroll or benefits administration.'],
-      ['How are tools and sensitive information handled?', 'Tools need your approval. Employee or client information should not go into a system you have not cleared. The work identifies where human judgment and review belong. Please keep personnel records and confidential client information out of this chat.'],
-      ['How much is ongoing advisory?', 'Advisory pricing is scoped to your engagement. BlueChip can discuss the work and propose the appropriate scope.']
+      ['Can I retain BlueChip for AI alone?', 'Yes. AI alone, HR alone, or both, scoped to what you need.'],
+      ['What does embedded HR cover?', 'Senior advice on people decisions: hiring, structure, performance, pay and leadership.'],
+      ['How are tools and sensitive information handled?', 'Only in tools you approve. Please keep personal and confidential details out of this chat.'],
+      ['How much is ongoing advisory?', "Priced to the scope you need. Tell us what's going on and we'll suggest a starting point."]
+    ] },
+    { slug: 'leadership', title: 'Leadership development', need: LEADERSHIP_NEED, url: 'https://www.bluechip-people-strategies.com/leadership', link: 'Explore leadership development', answers: [
+      ['What sizes are there?', "From a half-day team session to a multi-month cohort, including our nine-month Leadership Academies. We'll suggest a size after a short conversation."],
+      ['Can we start small?', 'Yes. Start with a half-day session or a short assessment.'],
+      ['Are assessments confidential?', 'Yes. Individual reports go to the person, and how results are used is agreed up front.']
     ] },
     { slug: 'other', title: 'Other BlueChip services', need: 'Other BlueChip services', url: 'https://www.bluechip-people-strategies.com/services', link: 'Explore BlueChip services', answers: [
-      ['What is a governance evaluation?', 'A structured, independent review for a board or council and its senior leader. The engagement may include stakeholder interviews, leadership assessment, a written report, a presentation and a forward-looking performance plan. Scope and pricing are discussed with BlueChip.'],
-      ['What are Leadership Academies?', 'Cohort-based development for senior leaders, combining leadership assessment, peer learning and practical development over nine months. BlueChip can discuss whether a regional or single-organization cohort fits your team.'],
-      ['Can I get a standalone assessment?', 'Yes. BlueChip offers individual leadership, team and organizational assessments, either on their own or within a larger engagement. The tool, scope and price depend on the question you want to answer.'],
-      ['What if my question is not listed?', 'These are approved answers to common questions, not a live AI conversation. Ask BlueChip for a response about your situation. Share a high-level description rather than employee or client details.']
+      ['What is a governance evaluation?', 'An independent evaluation of your CAO or executive director, done with them, not to them.'],
+      ['What about workplace investigations?', "Fair and documented, and independent where it counts. If we're your HR partner, complaints about senior leaders go to an independent investigator we'll refer you to."],
+      ['What is org architecture?', 'Structure and roles that fit the work: a clear read first, then design if you need it.'],
+      ['What if my question is not listed?', "Not listed? Ask here and we'll reply personally. Please leave out names and confidential details."]
     ] }
   ];
 
@@ -208,11 +215,14 @@
     "AI doesn't replace CAO judgment, council governance, or your privacy and records requirements. Your AI plan looks for time that can go back to council priorities, not positions to cut."
   ];
   var RETAINER_BUBBLES = [
-    'Practical AI and/or Embedded HR Retainers bring practical AI adoption and senior people advice into the work of your organization. Support can focus on AI alone or combine HR and AI. The scope and fee are agreed for your engagement.',
+    'Practical AI, embedded HR or both, scoped to what you need.',
     'You can also start with the AI Handoff Plan. If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, your C$795 is credited against its first invoice.'
   ];
   var OTHER_BUBBLES = [
-    'BlueChip works on practical AI, embedded HR, governance evaluations, Leadership Academies, workplace investigations, assessments and organizational design. Tell us where you need help and we will point you to the next step.'
+    "Tell us what's going on and we'll point you to the right next step."
+  ];
+  var LEADERSHIP_BUBBLES = [
+    "From a half-day team session to a multi-month cohort, sized to you. Tell us what's prompting it and we'll suggest a size."
   ];
   var FREE_CHECK_BUBBLES = [
     'Twelve quick questions about your recurring work, about three minutes in all. AI Pulse gives you a starting range of hours, with no email required. It is not the AI Handoff Plan, and it does not confirm the guarantee.'
@@ -556,6 +566,7 @@
     if (topic.slug === 'public-sector') return PUBLIC_BUBBLES.slice();
     if (topic.slug === 'retainers') return RETAINER_BUBBLES.slice();
     if (topic.slug === 'free-check') return FREE_CHECK_BUBBLES.slice();
+    if (topic.slug === 'leadership') return LEADERSHIP_BUBBLES.slice();
     if (topic.slug === 'other') return OTHER_BUBBLES.slice();
     return PLAN_BUBBLES.slice();
   }
@@ -699,8 +710,19 @@
     } catch (err) { return Promise.reject(err); }
   }
 
+  // Counts a sent lead in GA4 and PostHog. Topic label only: no name, email, phone or message text.
+  function trackLead() {
+    try {
+      var props = { lead_source: 'chat', topic: data.need };
+      if (typeof window.gtag === 'function') window.gtag('event', 'generate_lead', props);
+      if (window.posthog && window.posthog.capture) window.posthog.capture('generate_lead', props);
+    } catch (e) { /* analytics must never break the chat */ }
+  }
+
   function finish() {
+    if (leadState === 'sent') return;   // fire the lead event once
     leadState = 'sent';
+    trackLead();
     typingGeneration++;
     footEl.innerHTML = '';
     var done = el('div', { 'class': 'bcw-done' },
