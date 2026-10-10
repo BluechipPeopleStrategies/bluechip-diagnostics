@@ -61,7 +61,7 @@ describe('look inside your AI plan (punch list 37, updated 2026-10-08)', () => {
     expect(within(section).getByText('Illustrative structure, not a client result.')).toBeInTheDocument();
     [
       'Current workflow and evidence',
-      'Recommended tool and alternatives',
+      'Recommended tool, why it fits, and alternatives',
       'Baseline time, expected review time and net savings',
       "Costs, setup effort, and what should and shouldn't go into each tool",
       'Which parts of the workflow AI can take on and which stay with your people',
