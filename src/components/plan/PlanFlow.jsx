@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { prefersReducedMotion } from '../../lib/motion';
 import GlassPanel from '../glass/GlassPanel';
 
-// "How it works, and what you get" (punch list item 36, 2026-09-25). Same five steps and copy as
+// "How it works, and what you get" (punch list item 36, 2026-09-25). Four delivery steps,
 // before, now a lit track the visitor travels along: the connector draws itself as the section
 // scrolls through the viewport, each step's coin lights as the line reaches it, and tiles lift on
 // hover. Progress is written straight to CSS custom properties / data attributes (no React

@@ -27,18 +27,18 @@ import './plan/plan.css';
 // page (how it works, what is inside, questions) follows. Two editions share this component:
 // general at /ai-handoff-plan, public sector at /ai-handoff-plan/public-sector.
 
-// How the visit runs, from the box. Same steps, same times, same order as the box and the letter.
+// Written-plan kit, followed by the four delivery steps shared by both editions.
 const PLAN_KIT = [
-  'Four-day quick-start plan: set up → test → check results',
+  "Four-day quick-start plan: a day-by-day guide your team follows to set up, test and check the AI's work",
   'Starter kit: prompts, templates and a review checklist',
   'One-page summary for sign-off',
-  'Hours tracker: measure the time change',
+  "Hours tracker: see how the workflow's time changes",
 ];
 const FLOW_STEPS = [
   { time: '60 minutes', name: 'Discovery', Icon: DiscoveryIcon, bullets: ['Up to two people who do the work', 'Map the workflow and time sinks'] },
-  { time: 'Within 5 business days*', name: 'Written plan', Icon: PlanDocIcon, bullets: ['What AI does; what people keep', 'Tool choice, costs and setup effort', 'Information safeguards', 'Estimated net team hours saved', 'Four-day quick-start plan'], key: true },
-  { time: '45 minutes', name: 'Findings and setup', Icon: CallIcon, bullets: ['Walk through your plan', 'Set up the first step in an allowed tool', 'If needed: IT request ready to send'] },
-  { time: 'About 30 days later', name: 'Check-in', Icon: ChecklistIcon, bullets: ['15-minute progress review', 'Check how it is going'] },
+  { time: 'Within 5 business days*', name: 'Written plan', Icon: PlanDocIcon, bullets: ['What AI could take on, what your people keep', 'Tool choice, costs and setup effort', 'What information can go into which tool', 'Projected net team hours a week'], key: true },
+  { time: '45 minutes', name: 'Findings and setup', Icon: CallIcon, bullets: ['Walk through your AI plan', 'Set up the first step in an allowed tool', 'If needed: IT request ready to send'] },
+  { time: 'About 30 days later', name: 'Check-in', Icon: ChecklistIcon, bullets: ['15-minute check-in on how it is going'] },
 ];
 
 // Visible edition switch: two links, the current one marked in words (aria-current) as well as
