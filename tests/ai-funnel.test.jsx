@@ -986,10 +986,10 @@ describe('the AI Handoff Plan page', () => {
 
   it('replaces the old deliverables list and takeaway cards with the numbered step flow', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
-    expect(screen.getByText('How it works, and what you get.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'What you get for C$795' }).closest('section').querySelectorAll('.plan-flow-step')).toHaveLength(4);
     expect(screen.getByText('Discovery')).toBeInTheDocument();
     expect(screen.getByText('Written plan')).toBeInTheDocument();
-    expect(screen.getByText('Findings and setup call')).toBeInTheDocument();
+    expect(screen.getByText('Findings and setup')).toBeInTheDocument();
     expect(screen.getByText('Check-in')).toBeInTheDocument();
     expect(screen.queryByText('A focused plan, with clear deliverables.')).not.toBeInTheDocument();
     expect(screen.queryByText('What you take away')).not.toBeInTheDocument();
@@ -1002,16 +1002,12 @@ describe('the AI Handoff Plan page', () => {
     expect(document.querySelector('meta[name="description"]').getAttribute('content')).not.toMatch(/redesign/i);
   });
 
-  it('draws where your AI plan fits as four labelled nodes, with free, paid and optional stated in words', () => {
+  it('keeps the free starting point and paid price clear, with ongoing support optional', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
-    const journey = screen.getByRole('list', { name: 'Where your AI plan fits' });
-    const nodes = within(journey).getAllByRole('listitem');
-    expect(nodes).toHaveLength(4);
-    expect(within(nodes[0]).getByText('Free')).toBeInTheDocument();
-    expect(within(nodes[0]).getByText('AI Pulse')).toBeInTheDocument();
-    expect(within(nodes[1]).getByText('The AI Handoff Plan')).toBeInTheDocument();
-    expect(within(nodes[1]).getByText('Paid')).toBeInTheDocument();
-    expect(within(nodes[3]).getByText('Optional')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Start with the free AI Pulse' })).toHaveAttribute('href', '/ai-opportunity-check');
+    expect(screen.getByRole('heading', { name: 'What you get for C$795' })).toBeInTheDocument();
+    expect(screen.getByText('Do I need to buy ongoing support?')).toBeInTheDocument();
+    expect(screen.getByText('No. You can keep your AI plan and put it in place yourself or with another provider.')).toBeInTheDocument();
   });
 
   it('renders the CSS glass (no WebGL surface) where plasma is not available, like jsdom', () => {

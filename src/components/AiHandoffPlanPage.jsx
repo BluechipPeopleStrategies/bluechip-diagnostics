@@ -4,7 +4,7 @@ import SiteHeader from './SiteHeader';
 import GlassStage from './glass/GlassStage';
 import GlassPanel from './glass/GlassPanel';
 import {
-  DiscoveryIcon, PlanDocIcon, CallIcon, ChecklistIcon, HelpIcon, RouteIcon,
+  DiscoveryIcon, PlanDocIcon, CallIcon, ChecklistIcon,
 } from './PlanIcons';
 import { LEGACY_WORKFLOW_LABELS } from '../lib/aiOpportunity';
 import { usePageMeta } from '../lib/seo';
@@ -15,7 +15,7 @@ import PlanFlow from './plan/PlanFlow';
 import PlanInside from './plan/PlanInside';
 import PlanClose from './plan/PlanClose';
 import {
-  EDITIONS, GENERAL_PATH, PUBLIC_SECTOR_PATH, REFUND_URL, ILLUSTRATION, ILLUSTRATION_BASIS, ILLUSTRATION_TEXT,
+  EDITIONS, GENERAL_PATH, PUBLIC_SECTOR_PATH, REFUND_URL, ILLUSTRATION,
   BOX_YOUR_TIME, BOX_NOT_INCLUDED, SAFETY_NET, SAFETY_NET_DEFINITIONS, CTA_LEAD, RETAINER_HEADING, RETAINER_BODY,
 } from './plan/planCopy';
 import './AiFunnel.css';
@@ -28,20 +28,16 @@ import './plan/plan.css';
 // general at /ai-handoff-plan, public sector at /ai-handoff-plan/public-sector.
 
 // How the visit runs, from the box. Same steps, same times, same order as the box and the letter.
-const FLOW_STEPS = [
-  { time: '60 minutes', name: 'Discovery', Icon: DiscoveryIcon, youGet: 'a discovery session with up to two of the people who do the work.' },
-  { time: 'Within 5 business days of having what it needs', name: 'Written plan', Icon: PlanDocIcon, youGet: 'a written AI plan: which parts of the workflow AI can take on and which stay with your people, how the hours add up across the people who do it, which tool to start with and why, the costs, the setup effort, and what should and shouldn\'t go into each tool. It comes with a starter kit (prompts, templates and a checklist for checking the AI\'s work), a one-page summary for whoever signs off, and a simple hours tracker.', key: true },
-  { time: '45 minutes', name: 'Findings and setup call', Icon: CallIcon, youGet: 'a findings and setup call where the first step gets set up in a tool you already allow, or, if none fits yet, the IT request gets written and ready to send.' },
-  { time: 'About 30 days later', name: 'Check-in', Icon: ChecklistIcon, youGet: 'a 15-minute check-in on how it is going.' },
+const PLAN_KIT = [
+  "A starter kit: the prompts, templates and a checklist for checking the AI's work",
+  'A one-page summary for whoever signs off',
+  "A simple hours tracker for the people doing the work, to see how the workflow's time changes",
 ];
-
-// Where your AI plan sits in the whole journey. Every node says in words whether it is free,
-// paid, what it delivers, or optional, so nothing depends on the gold highlight.
-const JOURNEY = [
-  { tag: 'Free', name: 'AI Pulse', Icon: ChecklistIcon },
-  { tag: 'Paid', name: 'The AI Handoff Plan', Icon: RouteIcon, key: true },
-  { tag: 'You get', name: 'Written plan and findings call', Icon: PlanDocIcon },
-  { tag: 'Optional', name: 'A retainer, if you want help', Icon: HelpIcon, optional: true },
+const FLOW_STEPS = [
+  { time: '60 minutes', name: 'Discovery', Icon: DiscoveryIcon, youGet: 'a session with up to two people who do the work.' },
+  { time: 'Within 5 business days*', name: 'Written plan', Icon: PlanDocIcon, youGet: 'the workflow, tools, costs, setup effort and net team hours, and what AI can take on.', key: true },
+  { time: '45 minutes', name: 'Findings and setup', Icon: CallIcon, youGet: 'the first step set up in an allowed tool, or an IT request ready to send.' },
+  { time: 'About 30 days later', name: 'Check-in', Icon: ChecklistIcon, youGet: 'a 15-minute check-in on how it is going.' },
 ];
 
 // Visible edition switch: two links, the current one marked in words (aria-current) as well as
@@ -69,30 +65,35 @@ function EditionSwitch({ edition, search }) {
   );
 }
 
-// The page's one illustration, in hours only. The two tiles repeat the paragraph's figures for a
-// quick read and are hidden from screen readers so the numbers are not announced twice.
+// One labeled illustration. The equation is real text for every reader.
 function CapacityExample({ guardrail }) {
-  const { small, big } = ILLUSTRATION;
+  const { small } = ILLUSTRATION;
   return (
     <GlassPanel as="section" className="glass-panel plan-example" aria-labelledby="plan-example-title" plasma={{ radius: 20, opacity: 0.55, elevation: 0.5 }}>
-      <p className="ai-eyebrow" id="plan-example-title">An example</p>
-      <div className="plan-example-tiles" aria-hidden="true">
-        <div className="plan-example-tile">
-          <span className="plan-example-people">{small.people} people</span>
-          <strong>{small.weekly} hours a week</strong>
-          <span>about {small.yearly} hours a year</span>
-        </div>
-        <div className="plan-example-tile">
-          <span className="plan-example-people">{big.people} people</span>
-          <strong>{big.weekly} hours a week</strong>
-          <span>about {big.weeks} working weeks a year</span>
-        </div>
+      <h2 id="plan-example-title">Small amounts of time add up</h2>
+      <p className="plan-example-label">Illustration, not a promise or a client result.</p>
+      <div className="plan-equation" role="group" aria-label="Illustrative team hours">
+        <div><strong>{small.people}</strong><span>people</span></div>
+        <span className="plan-equation-sign" aria-label="times">×</span>
+        <div><strong>1</strong><span>net hour each / week</span></div>
+        <span className="plan-equation-sign" aria-label="equals">=</span>
+        <div className="plan-equation-total"><strong>{small.weekly}</strong><span>team hours / week</span></div>
       </div>
-      <p className="plan-example-text">{ILLUSTRATION_TEXT}</p>
-      <p className="plan-example-basis"><em>{ILLUSTRATION_BASIS}</em></p>
+      <p className="plan-example-basis">About {small.yearly} hours a year at 48 working weeks. Net time allows for checking AI's work and keeping the tools running.</p>
       <p className="plan-guardrail">{guardrail}</p>
     </GlassPanel>
   );
+}
+
+function WorkflowOverview() {
+  return <section className="plan-workflow" aria-labelledby="plan-workflow-title">
+    <h2 id="plan-workflow-title">One workflow. Shared time.</h2>
+    <ol className="plan-workflow-list">
+      <li><span className="plan-workflow-number">01</span><strong>One repeated workflow</strong><span>Start with work your team already does.</span></li>
+      <li><span className="plan-workflow-number">02</span><strong>AI handles suitable steps</strong><span>Your AI plan identifies what could be handed over.</span></li>
+      <li><span className="plan-workflow-number">03</span><strong>People review and decide</strong><span>Judgment and checking stay with your people.</span></li>
+    </ol>
+  </section>;
 }
 
 // Inquiry only until the plan's own checkout is connected.
@@ -122,6 +123,7 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
 
       {legacyWorkflow && <p className="ai-context">Your starting point: <strong>{legacyWorkflow}</strong>. We examine how the work happens before recommending a tool.</p>}
 
+      <WorkflowOverview />
       <CapacityExample guardrail={copy.guardrail} />
 
       <div className="glass-stack">
@@ -131,8 +133,15 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
           plasma={{ radius: 24, tint: '#0E2140', opacity: 0.62, elevation: 0.7 }}>
           <h2 id="ai-price-title">What you get for C$795</h2>
           <p className="plan-box-opener">{copy.opener}</p>
+          <PlanFlow steps={FLOW_STEPS} />
+          <ul className="plan-included-tools" aria-label="Included with your written plan">
+            {PLAN_KIT.map(item => <li key={item}>{item}</li>)}
+          </ul>
+          <p className="plan-box-timing">*Within five business days of having what the written plan needs. Before invoicing, we agree which roles do the workflow.</p>
+          <div className="plan-scope-pair">
           <p className="plan-box-note"><strong>Your time:</strong> {BOX_YOUR_TIME}</p>
           <p className="plan-box-note"><strong>Not included:</strong> {BOX_NOT_INCLUDED}</p>
+          </div>
         </GlassPanel>
       </div>
 
@@ -148,38 +157,11 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
         <h2 id="ai-next-title">{RETAINER_HEADING}</h2>
         <p>{RETAINER_BODY} Conditions are in our <a href={REFUND_URL}>Refund Policy</a>, section 1.</p>
 
-        <p className="ai-eyebrow glass-journey-title" id="ai-journey-title">Where your AI plan fits</p>
-        <ol className="glass-journey" aria-labelledby="ai-journey-title">
-          {JOURNEY.map(({ tag, name, Icon, key, optional }) => (
-            <li key={name} className={`glass-journey-node${key ? ' is-key' : ''}${optional ? ' is-optional' : ''}`}>
-              <Icon className="glass-journey-icon" />
-              <span className="glass-journey-tag">{tag}</span>
-              <span className="glass-journey-name">{name}</span>
-            </li>
-          ))}
-        </ol>
       </GlassPanel>
 
       <GlassPanel as="section" className="glass-panel glass-strip ai-credibility" aria-label="About BlueChip" plasma={{ radius: 14, opacity: 0.5 }}>
         <p>Built and run by BlueChip People Strategies. <a href="https://www.bluechip-people-strategies.com/about">More about us &rarr;</a></p>
       </GlassPanel>
-
-      <section className="ai-flow glass-flow" aria-labelledby="ai-flow-title">
-        <div className="ai-flow-head">
-          <div>
-            <h2 id="ai-flow-title">How it works, and what you get.</h2>
-            <p className="ai-flow-footnote">Before we invoice, we agree with you which roles do the chosen workflow. Your written plan arrives within five business days of having what it needs.</p>
-          </div>
-          <GlassPanel className="glass-panel glass-flow-frame" plasma={{ radius: 18, opacity: 0.35 }}>
-            <img className="ai-flow-photo" alt=""
-              src="/img/ai/05-human-checkpoint-1600.webp"
-              srcSet="/img/ai/05-human-checkpoint-800.webp 800w, /img/ai/05-human-checkpoint-1600.webp 1600w"
-              sizes="(max-width: 700px) 100vw, 380px"
-              width="1600" height="1073" loading="lazy" />
-          </GlassPanel>
-        </div>
-        <PlanFlow steps={FLOW_STEPS} />
-      </section>
 
       <PlanInside />
 

@@ -461,3 +461,44 @@
 }
 /* the definitions and the basis line are italic in the page's own body face, not the serif display face `em` gets elsewhere */
 .ai-funnel.ai-glass .plan-safety .plan-safety-defs em, .ai-funnel.ai-glass .plan-example .plan-example-basis em { font-family: inherit; font-style: italic; font-weight: 400; letter-spacing: normal; }
+/* Shorter Handoff Plan: readable text diagrams, shared by both editions. */
+.ai-plan .plan-workflow { margin: 26px 0; }
+.ai-plan .plan-workflow-list { list-style: none; padding: 0; margin: 0; max-width: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.ai-plan .plan-workflow-list li { position: relative; margin: 0; padding: 20px; border: 1px solid var(--g-line); border-radius: 16px; display: grid; gap: 8px; background: rgba(255,255,255,.035); }
+.ai-plan .plan-workflow-list li:not(:last-child)::after { content: '→'; position: absolute; right: -15px; top: 38%; color: var(--g-gold-hi); font-size: 20px; }
+.ai-plan .plan-workflow-number { font-size: 14px; color: var(--g-gold-hi); }
+.ai-plan .plan-workflow-list strong { font-size: 18px; line-height: 1.35; }
+.ai-plan .plan-workflow-list li > span:last-child { font-size: 15px; line-height: 1.5; }
+.ai-plan .plan-example .plan-equation { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 16px; align-items: center; margin: 20px 0; }
+.ai-plan .plan-equation > div { display: grid; gap: 6px; text-align: center; padding: 16px 8px; border-radius: 14px; border: 1px solid var(--g-line); }
+.ai-plan .plan-equation strong { font: 600 clamp(30px, 4vw, 48px)/1.1 Inter, sans-serif; color: var(--ai-ink); }
+.ai-plan .plan-equation span { font-size: 15px; line-height: 1.4; }
+.ai-plan .plan-equation .plan-equation-sign { font-size: 24px; color: var(--g-gold-hi); }
+.ai-plan .plan-equation .plan-equation-total { border-color: var(--g-gold-hi); background: rgba(227,196,124,.08); }
+.ai-plan .plan-example .plan-example-label { font-size: 14px; color: var(--ai-soft); margin: 0; }
+.ai-plan .plan-box .plan-flow { margin: 26px 0 16px; }
+.ai-plan .plan-box .plan-box-timing { font-size: 14px; line-height: 1.5; margin: 0 0 24px; }
+.ai-plan .plan-scope-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding-top: 20px; border-top: 1px solid var(--g-line); }
+.ai-plan .plan-scope-pair .plan-box-note { font-size: 15px; line-height: 1.5; }
+.ai-plan .plan-scope-pair strong { display: block; margin-bottom: 6px; }
+.ai-plan .plan-inside-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; margin: 22px 0; }
+.ai-plan .plan-inside-card h3 { font-size: 24px; margin: 0 0 16px; }
+.ai-plan .plan-inside-diagram { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 16px 0; border-block: 1px solid var(--g-line); margin-bottom: 16px; }
+.ai-plan .plan-inside-diagram span { font-size: 15px; color: var(--g-gold-hi); line-height: 1.5; }
+.ai-plan .plan-inside-card ul { padding-left: 18px; margin: 0; }
+.ai-plan .plan-inside-card li { font-size: 15px; line-height: 1.5; margin-bottom: 10px; }
+@media (max-width: 700px) {
+  .ai-plan .plan-workflow-list, .ai-plan .plan-inside-grid, .ai-plan .plan-scope-pair { grid-template-columns: 1fr; }
+  .ai-plan .plan-workflow-list li:not(:last-child)::after { content: '↓'; right: 24px; top: auto; bottom: -23px; }
+  .ai-plan .plan-example .plan-equation { gap: 6px; }
+  .ai-plan .plan-equation > div { padding: 14px 4px; }
+  .ai-plan .plan-equation span { font-size: 12px; }
+  .ai-plan .plan-equation strong { font-size: 32px; }
+  .ai-plan .plan-equation .plan-equation-sign { font-size: 18px; }
+}
+.ai-plan .plan-included-tools { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; max-width: none; padding-left: 18px; margin: 0 0 22px; }
+.ai-plan .plan-included-tools li { font-size: 15px; line-height: 1.5; padding-right: 8px; }
+@media (max-width: 700px) { .ai-plan .plan-included-tools { grid-template-columns: 1fr; gap: 8px; } }
+/* The former mock-document layout split this section into two columns. */
+.ai-plan .plan-inside { display: block; }
+.ai-plan .plan-inside .plan-inside-note { margin: 0 0 8px; }

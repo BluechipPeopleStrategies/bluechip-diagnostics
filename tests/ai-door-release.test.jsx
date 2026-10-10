@@ -62,18 +62,15 @@ describe('plan page: order, both editions', () => {
 });
 
 describe('plan page: lead, example, box and safety net text', () => {
-  it('leads with capacity across people and labels the example, in hours only', () => {
+  it('uses a short lead and labels the team-hours equation as an illustration', () => {
     const { container } = renderEdition('/ai-handoff-plan');
-    expect(screen.getByRole('heading', { name: 'Most teams have one piece of routine work that quietly adds up to hours every week. Which one is yours?' })).toBeInTheDocument();
-    expect(container.querySelector('.glass-lede').textContent).toMatch(/so it rarely gets added up/);
-    expect(container.querySelector('.glass-lede').textContent).toMatch(/An hour a week each doesn't sound like much until you count the people, and what you do with that time is your call\.$/);
+    expect(screen.getByRole('heading', { name: 'Which routine task could your team hand to AI?' })).toBeInTheDocument();
+    expect(container.querySelector('.glass-lede').textContent).toMatch(/what stays with your people/);
     const example = container.querySelector('.plan-example');
-    expect(within(example).getByText('An example')).toBeInTheDocument();
-    expect(example.textContent).toContain("Say 5 people do that work, and your AI plan finds a change that could give each of them an hour a week, after checking the AI's work.");
-    expect(example.textContent).toContain("That's 5 hours a week across your team, about 240 hours over a working year.");
-    expect(example.textContent).toContain("With 12 people, it's 12 hours a week, about 15 working weeks of time a year.");
-    expect(example.textContent).toContain("It's an example to show the scale, not a promise or a client result.");
-    expect(example.textContent).toContain('Based on 48 working weeks a year and a 37.5-hour week.');
+    expect(within(example).getByText('Illustration, not a promise or a client result.')).toBeInTheDocument();
+    expect(within(example).getByRole('group', { name: 'Illustrative team hours' }).textContent).toMatch(/5people.*1net hour each.*5team hours/);
+    expect(example.textContent).toContain('240 hours a year at 48 working weeks');
+    expect(example.textContent).toContain("checking AI's work and keeping the tools running");
     expect(example.textContent).not.toMatch(/C\$|\$/);
   });
 
@@ -86,19 +83,22 @@ describe('plan page: lead, example, box and safety net text', () => {
     expect(municipal).toMatch(/not positions to cut/);
   });
 
-  it('keeps the box short (opener, Your time, Not included, no numbered list) and names every old inclusion in the four steps', () => {
-    const { container } = renderEdition('/ai-handoff-plan');
+  it('keeps all deliverables, timing conditions and exclusions in the compact package', () => {
+    renderEdition('/ai-handoff-plan');
     const box = screen.getByRole('heading', { name: 'What you get for C$795' }).closest('section');
-    expect(within(box).queryAllByRole('listitem')).toHaveLength(0);
+    const steps = box.querySelectorAll('.plan-flow-step');
+    expect(steps).toHaveLength(4);
+    expect(steps[0].textContent).toMatch(/60 minutes.*up to two people/);
+    expect(steps[1].textContent).toMatch(/Within 5 business days.*workflow, tools, costs, setup effort and net team hours/);
+    expect(steps[2].textContent).toMatch(/45 minutes.*allowed tool, or an IT request ready to send/);
+    expect(steps[3].textContent).toMatch(/About 30 days later.*15-minute check-in/);
+    expect(box.textContent).toContain('Within five business days of having what the written plan needs.');
+    expect(box.textContent).toContain('A starter kit: the prompts, templates and a checklist for checking the AI');
+    expect(box.textContent).toContain('A one-page summary for whoever signs off');
+    expect(box.textContent).toContain('A simple hours tracker');
     expect(box.textContent).toMatch(/Your time: a short conversation with you before we start/);
-    expect(box.textContent).toMatch(/Not included: software and licences, anything your IT team installs, rolling the change out to the rest of the team, and any other workflow\./);
+    expect(box.textContent).toContain('Not included: software and licences, anything your IT team installs, rolling the change out to the rest of the team, and any other workflow.');
     expect(box.textContent).not.toMatch(/guarantee|full fee/i);
-    expect(container.querySelectorAll('.plan-flow-step')).toHaveLength(4);
-    const flow = container.querySelector('.plan-flow').textContent;
-    [/60 minutes/, /discovery session with up to two of the people who do the work/, /Within 5 business days of having what it needs/, /written AI plan/,
-      /which stay with your people/, /starter kit \(prompts, templates and a checklist for checking the AI's work\)/, /one-page summary for whoever signs off/,
-      /simple hours tracker/, /45 minutes/, /findings and setup call/, /15-minute check-in/, /About 30 days later/].forEach(re => expect(flow).toMatch(re));
-    expect(container.querySelector('.ai-flow-footnote').textContent).toMatch(/within five business days of having what it needs/);
   });
 
   it('shows "Your safety net" in the page, at body size, with its definitions, never behind a link or a details block', () => {
@@ -124,9 +124,9 @@ describe('plan page: lead, example, box and safety net text', () => {
 describe('plan page: two editions and the switch', () => {
   it('the public sector edition uses municipal wording and its own chat topic', () => {
     const { container } = renderEdition('/ai-handoff-plan/public-sector');
-    expect(screen.getByRole('heading', { name: 'Council sets the priorities. Where does the time to deliver them come from?' })).toBeInTheDocument();
-    expect(container.querySelector('.plan-box-opener').textContent).toMatch(/^Name one workflow your staff repeat\./);
-    expect(container.querySelector('.glass-lede').textContent).toMatch(/that's time that can go back to council priorities\.$/);
+    expect(screen.getByRole('heading', { name: 'Make more time for council priorities.' })).toBeInTheDocument();
+    expect(container.querySelector('.plan-box-opener').textContent).toMatch(/^One workflow\./);
+    expect(container.querySelector('.glass-lede').textContent).toMatch(/how much time could go back to council priorities\.$/);
     screen.getAllByRole('link', { name: 'Start the conversation' }).forEach(a => expect(a).toHaveAttribute('href', '#chat?topic=public-sector'));
     expect(document.title).toMatch(/municipalities and public bodies/);
     expect(document.querySelector('meta[name="description"]').getAttribute('content')).toMatch(/^Name one workflow your staff repeat, and for C\$795/);
@@ -134,7 +134,7 @@ describe('plan page: two editions and the switch', () => {
 
   it('the general edition says "Pick one workflow your team repeats"', () => {
     const { container } = renderEdition('/ai-handoff-plan');
-    expect(container.querySelector('.plan-box-opener').textContent).toMatch(/^Pick one workflow your team repeats\./);
+    expect(container.querySelector('.plan-box-opener').textContent).toMatch(/^One workflow\./);
   });
 
   it('a visible switch links the two editions and marks the current one in words', () => {
@@ -163,7 +163,7 @@ describe('plan page: two editions and the switch', () => {
     render(<App />);
     expect(window.location.pathname).toBe('/ai-handoff-plan/public-sector');
     expect(window.location.search).toBe('?workflow=reporting');
-    expect(screen.getByRole('heading', { name: 'Council sets the priorities. Where does the time to deliver them come from?' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Make more time for council priorities.' })).toBeInTheDocument();
     const r = vercelConfig.redirects.find(x => x.source === '/ai-handoff-plan/municipal');
     expect(r).toEqual({ source: '/ai-handoff-plan/municipal', destination: '/ai-handoff-plan/public-sector', permanent: true });
   });
