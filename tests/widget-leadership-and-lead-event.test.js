@@ -91,17 +91,21 @@ describe('generate_lead event', () => {
     fireEvent.click(ui.getByRole('button', { name: 'Skip' }));
   }
 
+  const leadCalls = (fn) => fn.mock.calls.filter(c => c[1] === 'generate_lead');
+
   it('fires once on success with the topic label and no personal details', async () => {
     const ui = openOnTopic('leadership');
-    expect(window.gtag).not.toHaveBeenCalled();
+    expect(leadCalls(window.gtag)).toHaveLength(0);
     sendLead(ui);
     await flushPromises();
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(window.gtag).toHaveBeenCalledTimes(1);
-    expect(window.gtag).toHaveBeenCalledWith('event', 'generate_lead', { lead_source: 'chat', topic: 'Leadership development' });
-    expect(window.posthog.capture).toHaveBeenCalledTimes(1);
-    expect(window.posthog.capture).toHaveBeenCalledWith('generate_lead', { lead_source: 'chat', topic: 'Leadership development' });
+    expect(leadCalls(window.gtag)).toEqual([['event', 'generate_lead', { lead_source: 'chat', topic: 'Leadership development' }]]);
+    expect(window.posthog.capture.mock.calls.filter(c => c[0] === 'generate_lead')).toEqual([['generate_lead', { lead_source: 'chat', topic: 'Leadership development' }]]);
+    // The chat funnel steps are tracked too (Oct 9), with topic labels only.
+    const steps = window.gtag.mock.calls.map(c => c[1]);
+    expect(steps).toEqual(expect.arrayContaining(['bc_chat_panel_open', 'bc_chat_topic', 'bc_chat_form']));
     expect(JSON.stringify(window.gtag.mock.calls)).not.toMatch(/Test|test@example|7805550100/);
+    expect(JSON.stringify(window.posthog.capture.mock.calls)).not.toMatch(/Test|test@example|7805550100/);
   });
 
   it('does not fire when the send fails', async () => {
@@ -109,7 +113,7 @@ describe('generate_lead event', () => {
     const ui = openOnTopic('leadership');
     sendLead(ui);
     await flushPromises();
-    expect(window.gtag).not.toHaveBeenCalled();
-    expect(window.posthog.capture).not.toHaveBeenCalled();
+    expect(leadCalls(window.gtag)).toHaveLength(0);
+    expect(window.posthog.capture.mock.calls.filter(c => c[0] === 'generate_lead')).toHaveLength(0);
   });
 });

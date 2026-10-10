@@ -299,6 +299,16 @@
     '.bcw-greet small{font-size:12px}' +
     '@media (max-width:480px){.bcw-panel{right:8px;left:8px;bottom:84px;width:auto;max-width:none}.bcw-greet{display:none}.bcw-choice{min-height:44px}}';
 
+  // Chat funnel analytics (Oct 9, 2026): steps and topic labels only, never names, numbers, emails or message text.
+  // On the main site the header code mirrors bc_* gtag events to PostHog; anywhere else, send to PostHog directly.
+  function track(name, props) {
+    try {
+      var p = props || {}; p.page_path = location.pathname;
+      if (typeof window.gtag === 'function') window.gtag('event', name, p);
+      if (!(window.gtag && window.gtag.__bcMirror) && window.posthog && window.posthog.capture) window.posthog.capture(name, p);
+    } catch (e) { /* analytics never breaks the chat */ }
+  }
+
   function injectStyle() {
     var s = document.createElement('style');
     s.setAttribute('data-bcw', '');
@@ -434,6 +444,7 @@
     panel.classList.add('bcw-open');
     panel.setAttribute('aria-hidden', 'false');
     var topic = opts && opts.topic ? topicBySlug(opts.topic) : null;
+    track('bc_chat_panel_open', { topic: topic ? topic.title : '', resumed: started });
     if (!started) {
       started = true;
       renderName(topic ? function () { renderPreselected(topic); } : undefined);
@@ -470,7 +481,7 @@
       function go() {
         var v = input.value.trim();
         if (!v) return;
-        data.name = v; addMsg(v, 'user'); if (typeof onNext === 'function') onNext(); else renderChoices();
+        data.name = v; addMsg(v, 'user'); track('bc_chat_name'); if (typeof onNext === 'function') onNext(); else renderChoices();
       }
       send.addEventListener('click', go);
       input.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
@@ -498,7 +509,7 @@
     footEl.innerHTML = '';
     sayBotSequence(['Browse common questions about BlueChip. No contact details needed.'], function () {
       KNOWLEDGE.forEach(function (topic) {
-        choiceButton(topic.title, function () { renderQuestions(topic); });
+        choiceButton(topic.title, function () { track('bc_chat_browse_topic', { topic: topic.title }); renderQuestions(topic); });
       });
       choiceButton('Ask BlueChip a different question', function () {
         data.need = 'General service inquiry';
@@ -514,6 +525,7 @@
     topic.answers.forEach(function (answer) {
       choiceButton(answer[0], function () {
         typingGeneration++;
+        track('bc_chat_question', { topic: topic.title, question: answer[0] });
         addMsg(answer[0], 'user');
         sayBotSequence([answer[1]], function () {
           renderQuestions(topic);
@@ -526,6 +538,7 @@
     footEl.appendChild(resource);
     choiceButton('Ask BlueChip about this', function () {
       data.need = topic.need;
+      track('bc_chat_ask', { topic: topic.need });
       if (data.name) renderContact(); else renderName(renderContact);
     });
     choiceButton('All topics', renderTopics);
@@ -539,7 +552,7 @@
     sayBotSequence(['Thanks, ' + data.name + '. What’s on your plate?'], function () {
       CHOICES.forEach(function (c) {
         choiceButton(c, function () {
-          data.need = CHOICE_NEED[c] || c; addMsg(c, 'user');
+          data.need = CHOICE_NEED[c] || c; addMsg(c, 'user'); track('bc_chat_topic', { topic: data.need });
           if (NEED_SLUG[data.need]) renderOffering();
           else renderContact();
         });
@@ -554,6 +567,7 @@
   function renderPreselected(topic) {
     typingGeneration++;
     data.need = topic.need;
+    track('bc_chat_topic', { topic: data.need, preselected: true });
     footEl.innerHTML = '';
     sayBotSequence(['Thanks, ' + data.name + '. You’re looking at ' + topic.title + '. What would you like to know, or shall I tell you how it works?'], function () {
       renderOffering(topic);
@@ -604,6 +618,7 @@
   // ---- step 3: contact + consent ----
   function renderContact() {
     typingGeneration++;
+    track('bc_chat_form', { topic: data.need || '' });
     footEl.innerHTML = '';
     sayBotSequence(["What's the best number and email for BlueChip to reach you about this? We usually reply within a few hours on business days. This sends an inquiry. It doesn't book anything or charge you. Please keep employee and client details out of this chat."], function () {
       var input = el('input', { 'class': 'bcw-input', type: 'tel', 'aria-label': 'Your phone number', placeholder: 'Canadian phone number', style: 'width:100%' });
