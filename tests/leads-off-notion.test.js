@@ -161,11 +161,32 @@ describe('contact and chat endpoints: no Notion row', () => {
     expect(sends.some(s => s.to === 'b@x.ca')).toBe(false);
   });
 
+  it('contact form: one auto-reply to the sender (Oct 9), after the lead is captured', async () => {
+    const res = mockRes();
+    await leadHandler({ method: 'POST', headers: {}, body: { name: 'Jane Doe', need: 'Question about the plan', contact: 'jane@acme.org', consent: false, source: 'contact form' } }, res);
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toMatchObject({ ok: true, emailSent: true, autoReplySent: true });
+    const toVisitor = resendCalls().filter(s => s.to === 'jane@acme.org');
+    expect(toVisitor).toHaveLength(1);
+    expect(toVisitor[0].subject).toBe("We've got your message");
+    expect(toVisitor[0].reply_to).toBe('hello@bluechip-people-strategies.com');
+    expect(toVisitor[0].html).toContain('Hi Jane,');
+    expect(toVisitor[0].html).toContain('#chat');
+    expect(toVisitor[0].html).not.toMatch(/—/);
+  });
+
+  it('contact form: no auto-reply when the address is not a single plain email', async () => {
+    const res = mockRes();
+    await leadHandler({ method: 'POST', headers: {}, body: { name: 'Jane', need: 'Hi', contact: 'a@x.ca,b@y.ca', consent: false, source: 'contact form' } }, res);
+    expect(res.body).toMatchObject({ ok: true, autoReplySent: false });
+    expect(resendCalls().some(s => String(s.to).includes('a@x.ca'))).toBe(false);
+  });
+
   it('chat widget: text + email copy with Lead-Data, no Notion, no notionWritten in the response', async () => {
     const res = mockRes();
     await leadHandler({ method: 'POST', headers: {}, body: { name: 'Jane', need: 'help', contact: '7805551234', email: 'j@x.ca', consent: false, source: 'homepage chat' } }, res);
     expect(res.statusCode).toBe(200);
-    expect(res.body).toEqual({ ok: true, smsSent: true, confirmationSent: false, emailSent: true });
+    expect(res.body).toEqual({ ok: true, smsSent: true, confirmationSent: false, emailSent: true, autoReplySent: false });
     expect(global.fetch.mock.calls.some(c => String(c[0]).includes('notion'))).toBe(false);
     const mail = resendCalls()[0];
     expect(parseLeadDataBlock(mail.html)).toMatchObject({ kind: 'chat', name: 'Jane', email: 'j@x.ca', text_alert_sent: 'yes', spam_trap: 'no', page: 'homepage chat' });

@@ -1,5 +1,7 @@
 /* global process */
 import { isHoneypot, sanitizeLead, validateLead, formatLeadSms, looksLikePhone, formatVisitorConfirmation, samePhone, buildChatLeadEmail, isCanadianPhone } from './_lib/lead-helpers.js';
+import { cleanRecipient } from './_lib/email-address.js';
+import { buildContactAutoReplyEmail } from './_emails/contact-auto-reply.js';
 
 export async function sendLeadEmail({ subject, html, replyTo }) {
   const apiKey = (process.env.RESEND_API_KEY || '').trim();
@@ -37,6 +39,25 @@ const ALLOWED_ORIGINS = [
   // Squarespace editor and preview, so Thomas can test the chat without publishing (2026-09-24).
   'https://helix-radish-yk5a.squarespace.com',
 ];
+
+// Auto-reply to the visitor (contact form only). Separate from sendLeadEmail, which always goes to BlueChip.
+export async function sendVisitorEmail({ to, subject, html, text }) {
+  const apiKey = (process.env.RESEND_API_KEY || '').trim();
+  const from = (process.env.BLUECHIP_FROM_EMAIL || '').trim();
+  if (!apiKey || !from || !to) return false;
+  try {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from, to, subject, html, text, reply_to: 'hello@bluechip-people-strategies.com' }),
+    });
+    if (!r.ok) { console.error('lead: auto-reply send failed', r.status, await r.text()); return false; }
+    return true;
+  } catch (err) {
+    console.error('lead: auto-reply send error', err);
+    return false;
+  }
+}
 
 function setCorsHeaders(req, res) {
   const origin = req.headers.origin;
@@ -140,5 +161,13 @@ export default async function handler(req, res) {
   // If neither the text nor the email went out the lead is lost: say so (non-2xx) so the widget
   // keeps the form and tells the visitor, instead of confirming an inquiry nobody received.
   const captured = smsSent || emailSent;
-  return res.status(captured ? 200 : 502).json({ ok: captured, smsSent, confirmationSent, emailSent });
+
+  // Contact-form senders get one short auto-reply (Thomas, Oct 9 2026). Only once the lead is captured, and a
+  // failed auto-reply never fails the lead.
+  let autoReplySent = false;
+  if (captured && /contact form/i.test(clean.source || '')) {
+    const to = cleanRecipient(clean.email || clean.contact);
+    if (to) autoReplySent = await sendVisitorEmail({ to, ...buildContactAutoReplyEmail({ name: clean.name }) });
+  }
+  return res.status(captured ? 200 : 502).json({ ok: captured, smsSent, confirmationSent, emailSent, autoReplySent });
 }
