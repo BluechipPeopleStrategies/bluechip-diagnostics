@@ -2,6 +2,7 @@
 import { isHoneypot, sanitizeLead, validateLead, formatLeadSms, looksLikePhone, formatVisitorConfirmation, samePhone, buildChatLeadEmail, isCanadianPhone } from './_lib/lead-helpers.js';
 import { cleanRecipient } from './_lib/email-address.js';
 import { buildContactAutoReplyEmail } from './_emails/contact-auto-reply.js';
+import { allowLead, allowVisitorSend, clientIp } from './_lib/rate-limit.js';
 
 export async function sendLeadEmail({ subject, html, replyTo }) {
   const apiKey = (process.env.RESEND_API_KEY || '').trim();
@@ -114,6 +115,12 @@ export default async function handler(req, res) {
 
   const body = req.body || {};
 
+  // Every lead texts Thomas (paid) and emails him, so a loop from one client stops here. Best effort
+  // per instance; the Vercel firewall rule on this path is the durable limit (api/_lib/rate-limit.js).
+  if (!allowLead({ ip: clientIp(req) })) {
+    return res.status(429).json({ error: 'rate_limited' });
+  }
+
   const clean = sanitizeLead(body);
   const replyTo = /@/.test(clean.email) ? clean.email : undefined;
 
@@ -131,7 +138,7 @@ export default async function handler(req, res) {
   }
 
   const submittedAt = new Date().toISOString();
-  const to = (process.env.LEAD_NOTIFY_PHONE || '+15877130585').trim();
+  const to = (process.env.LEAD_NOTIFY_PHONE || '').trim();
 
   const leadResult = await sendOpenPhoneSms({ to, content: formatLeadSms(clean) });
   const smsSent = leadResult.sent;
@@ -145,6 +152,8 @@ export default async function handler(req, res) {
       confirmationNote = "skipped: the visitor's number is BlueChip's own texting number";
     } else if (!isCanadianPhone(clean.contact)) {
       confirmationNote = 'skipped: not a Canadian number, so reply by email';
+    } else if (!allowVisitorSend(clean.contact)) {
+      confirmationNote = 'skipped: this number already got two confirmation texts today';
     } else {
       const conf = await sendOpenPhoneSms({ to: clean.contact, content: formatVisitorConfirmation(clean) });
       confirmationSent = conf.sent;
@@ -167,7 +176,7 @@ export default async function handler(req, res) {
   let autoReplySent = false;
   if (captured && /contact form/i.test(clean.source || '')) {
     const to = cleanRecipient(clean.email || clean.contact);
-    if (to) autoReplySent = await sendVisitorEmail({ to, ...buildContactAutoReplyEmail({ name: clean.name }) });
+    if (to && allowVisitorSend(to)) autoReplySent = await sendVisitorEmail({ to, ...buildContactAutoReplyEmail({ name: clean.name }) });
   }
   return res.status(captured ? 200 : 502).json({ ok: captured, smsSent, confirmationSent, emailSent, autoReplySent });
 }

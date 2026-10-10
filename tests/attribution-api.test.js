@@ -201,7 +201,7 @@ describe('handlers', () => {
     resetRateLimit();
     process.env.OPENPHONE_API_KEY = 'op_test';
     process.env.OPENPHONE_FROM = '+15875550000';
-    process.env.LEAD_NOTIFY_PHONE = '+15877130585';
+    process.env.LEAD_NOTIFY_PHONE = '+15875550123';
     process.env.RESEND_API_KEY = 're_test';
     process.env.BLUECHIP_FROM_EMAIL = 'hi@bc.ca';
     process.env.BLUECHIP_NOTIFY_EMAIL = 't@bc.ca';

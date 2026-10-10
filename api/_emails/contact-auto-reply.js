@@ -1,4 +1,5 @@
 import { layout, escapeHtml } from './_shared.js';
+import { safeFirstName } from '../_lib/first-name.js';
 
 // Auto-reply to a contact-form sender (Thomas, Oct 9 2026): confirm we have the message, and point anyone who
 // wants a quicker answer to the chat (Chip). Option B of the panel verdict: it reuses the chat's own live promise
@@ -22,7 +23,7 @@ export const AUTO_REPLY_FOOTER_LINES = [
 const P = 'margin:0 0 14px;';
 
 export function buildContactAutoReplyEmail({ name } = {}) {
-  const first = String(name ?? '').trim().split(/\s+/)[0] || '';
+  const first = safeFirstName(name);
   const greeting = first ? `Hi ${escapeHtml(first)},` : 'Hi there,';
   const footerHtml = `<div style="font-size:12px;color:#6b6b6b;margin-top:40px;border-top:1px solid #e5e5e5;padding-top:14px;">${AUTO_REPLY_FOOTER_LINES.map((l) => `<p style="margin:0 0 6px;">${escapeHtml(l)}</p>`).join('')}</div>`;
   const html = layout(`

@@ -18,7 +18,7 @@ describe('lead handler', () => {
   beforeEach(() => {
     process.env.OPENPHONE_API_KEY = 'op_test';
     process.env.OPENPHONE_FROM = '+15875550000';
-    process.env.LEAD_NOTIFY_PHONE = '+15877130585';
+    process.env.LEAD_NOTIFY_PHONE = '+15875550123';
     delete process.env.NOTION_API_KEY;
     delete process.env.NOTION_CONTACT_DATABASE_ID;
     global.fetch = vi.fn(async () => ({ ok: true, status: 200, text: async () => '' }));
@@ -79,7 +79,7 @@ describe('lead handler', () => {
     const call = global.fetch.mock.calls.find(c => String(c[0]).includes('openphone'));
     expect(call).toBeTruthy();
     const payload = JSON.parse(call[1].body);
-    expect(payload.to).toEqual(['+15877130585']);
+    expect(payload.to).toEqual(['+15875550123']);
     expect(payload.from).toBe('+15875550000');
     expect(payload.content).toContain('Name: Jane');
     expect(call[1].headers.Authorization).toBe('op_test');
@@ -111,5 +111,50 @@ describe('lead handler', () => {
     const text = formatVisitorConfirmation({ name: 'Jane', need: 'Practical AI and/or Embedded HR Retainers' });
     expect(text).not.toMatch(/tier/i);
     expect(text).toContain('https://www.bluechip-people-strategies.com/embedded-hr-retainers');
+  });
+});
+
+// Pre-launch checklist (Oct 9, 2026): a loop against /api/lead, or the form aimed at someone else's
+// number or inbox, stops after a few sends. Best effort per instance; the firewall rule is the hard limit.
+describe('lead handler: rate limits and safe first name', () => {
+  it('stops a ninth lead from one client within the hour', async () => {
+    const { default: handler } = await import('../api/lead.js');
+    const { resetRateLimit } = await import('../api/_lib/rate-limit.js');
+    resetRateLimit();
+    process.env.RESEND_API_KEY = 're_test'; process.env.BLUECHIP_FROM_EMAIL = 'hi@bc.ca'; process.env.BLUECHIP_NOTIFY_EMAIL = 't@bc.ca';
+    global.fetch = vi.fn(async () => ({ ok: true, status: 200, text: async () => '', json: async () => ({}) }));
+    const codes = [];
+    for (let i = 0; i < 9; i++) {
+      const res = { statusCode: 0, headers: {}, body: null, setHeader() {}, status(c) { this.statusCode = c; return this; }, json(b) { this.body = b; return this; }, end() { return this; } };
+      await handler({ method: 'POST', headers: { 'x-forwarded-for': '203.0.113.9' }, body: { name: 'Jo', need: 'help', contact: 'jo@x.ca' } }, res);
+      codes.push(res.statusCode);
+    }
+    expect(codes.slice(0, 8).every(c => c === 200)).toBe(true);
+    expect(codes[8]).toBe(429);
+  });
+
+  it('sends the auto-reply to one address at most twice a day', async () => {
+    const { default: handler } = await import('../api/lead.js');
+    const { resetRateLimit } = await import('../api/_lib/rate-limit.js');
+    resetRateLimit();
+    process.env.RESEND_API_KEY = 're_test'; process.env.BLUECHIP_FROM_EMAIL = 'hi@bc.ca'; process.env.BLUECHIP_NOTIFY_EMAIL = 't@bc.ca';
+    global.fetch = vi.fn(async () => ({ ok: true, status: 200, text: async () => '', json: async () => ({}) }));
+    const sent = [];
+    for (let i = 0; i < 3; i++) {
+      const res = { statusCode: 0, headers: {}, body: null, setHeader() {}, status(c) { this.statusCode = c; return this; }, json(b) { this.body = b; return this; }, end() { return this; } };
+      await handler({ method: 'POST', headers: {}, body: { name: 'Jo', need: 'hi', contact: 'Victim@Example.org', source: 'contact form' } }, res);
+      sent.push(res.body.autoReplySent);
+    }
+    expect(sent).toEqual([true, true, false]);
+  });
+
+  it('texts and emails the visitor a letters-only first name, never the rest of what they typed', async () => {
+    const { formatVisitorConfirmation } = await import('../api/_lib/lead-helpers.js');
+    const { buildContactAutoReplyEmail } = await import('../api/_emails/contact-auto-reply.js');
+    const text = formatVisitorConfirmation({ name: 'Win-a-prize.example.com/claim now', need: 'x' });
+    expect(text.startsWith('Hi Win-a-prizeexamplecomclaim, ')).toBe(true);
+    expect(text).not.toContain('example.com');
+    expect(formatVisitorConfirmation({ name: "D'Arcy Smith", need: 'x' }).startsWith("Hi D'Arcy, ")).toBe(true);
+    expect(buildContactAutoReplyEmail({ name: 'evil.example/x <b>' }).text.startsWith('Hi evilexamplex,')).toBe(true);
   });
 });

@@ -1,3 +1,4 @@
+/* global process */
 import { sendOpenPhoneSms, sendLeadEmail } from './lead.js';
 
 // Daily lead-path check (Vercel cron, see vercel.json). Sends one test text to the lead
@@ -10,7 +11,7 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'unauthorized' });
   }
   const when = new Date().toLocaleString('en-CA', { timeZone: 'America/Edmonton' });
-  const to = (process.env.LEAD_NOTIFY_PHONE || '+15877130585').trim();
+  const to = (process.env.LEAD_NOTIFY_PHONE || '').trim();
 
   const sms = await sendOpenPhoneSms({ to, content: `BlueChip daily lead check (${when}): lead texts are working. No action needed.` });
   const smsLine = sms.sent ? 'working' : `FAILING (${sms.status || 'no status'}: ${String(sms.error || '').slice(0, 160)})`;

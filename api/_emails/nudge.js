@@ -1,7 +1,7 @@
 // The 24-hour "Following up on your ... result" nudge is retired (2026-10-09): the opt-in
 // promises "No auto-sequence", and the Clarity Call it pointed at no longer exists. Nothing
 // schedules it any more. These two exports remain only so a nudge already sitting in Resend's
-// queue can still be found and cancelled (api/_lib/followups.js, api/cal-webhook.js).
+// queue can still be found and cancelled (api/_lib/followups.js; the Cal.com webhook that used it was removed Oct 9, 2026).
 export const DIAGNOSTIC_TITLES = {
   'org-pulse': 'Org Pulse',
   'dqi': 'DQI',
