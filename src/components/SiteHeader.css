@@ -6,11 +6,14 @@
    AiFunnel.css (loaded after this file) sets `.ai-funnel a` and `.ai-funnel .ai-button`. */
 
 .bc-site-header { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 40;
-  background: linear-gradient(180deg, rgba(10, 24, 46, .97), rgba(8, 20, 40, .95));
+  background: linear-gradient(180deg, rgb(10, 24, 46), rgb(8, 20, 40));
   backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2);
   border-bottom: 1px solid rgba(199, 208, 220, .12);
   box-shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 12px 28px -22px rgba(0, 0, 0, .9);
   margin: 0 0 32px; }
+/* Mobile review (Oct 9, 2026): the bar was slightly see-through, so question text ghosted behind it, and a new
+   step could open with its heading under the bar. Opaque bar, and focus or anchor scrolling stops below it. */
+html:has(.bc-site-header) { scroll-padding-top: 84px; }
 /* Only .ai-funnel pages pad their <main>, so only there does the bar bleed out of that padding to
    span full width. A page with no padding of its own (/lunch, /lunch/live) keeps margin 0: the old
    unconditional negative margin pushed the logo flush against the phone's left edge and added
