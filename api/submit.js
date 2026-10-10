@@ -11,6 +11,7 @@ import { isKnownDiagnostic, knownOrEmpty } from './_lib/diagnostic-allowlist.js'
 import { isHoneypot } from './_lib/lead-helpers.js';
 import { allowSubmit, clientIp } from './_lib/rate-limit.js';
 import { sanitizeAttribution, sanitizeHeardAbout } from './_lib/attribution.js';
+import { safeFirstName } from './_lib/first-name.js';
 
 const TEMPLATE_BUILDERS = {
   'org-pulse': buildOrgPulseEmail,
@@ -21,13 +22,6 @@ const TEMPLATE_BUILDERS = {
 };
 
 const cap = (value, max) => (typeof value === 'string' ? value : '').trim().slice(0, max);
-
-// Letters, marks, apostrophes and hyphens only, first word, 40 characters: enough for any real
-// first name, too little to carry a link or markup into the visitor's email.
-function safeFirstName(name) {
-  const first = cap(name, 120).split(/\s+/)[0] || '';
-  return first.replace(/[^\p{L}\p{M}'’-]/gu, '').slice(0, 40);
-}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {

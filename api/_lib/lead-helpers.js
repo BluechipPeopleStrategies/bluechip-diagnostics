@@ -1,4 +1,5 @@
 import { buildLeadDataBlock } from '../_emails/lead-data.js';
+import { safeFirstName } from './first-name.js';
 import { sanitizeAttribution, sanitizeHeardAbout, buildAttributionBlockHtml, attributionLeadData } from './attribution.js';
 const CAPS = { name: 120, need: 1500, contact: 200, email: 200, source: 100 };
 
@@ -112,7 +113,8 @@ export function looksLikePhone(value) {
 
 // Confirmation texted back to the visitor (they opted in via the consent box).
 export function formatVisitorConfirmation({ name, need }) {
-  const hi = name ? `Hi ${name}, ` : 'Hi, ';   // reads: "Hi T, it's Chip with BlueChip People Strategies."
+  const first = safeFirstName(name);   // texted to a number the visitor typed: first name only, letters only
+  const hi = first ? `Hi ${first}, ` : 'Hi, ';   // reads: "Hi T, it's Chip with BlueChip People Strategies."
   // "Practical AI Audit" is the old label, kept so inquiries from a cached widget (or an old
   // shared link) still get the right confirmation text after the rename to The AI Handoff Plan.
   if (need === 'The AI Handoff Plan' || need === 'Practical AI Audit') {

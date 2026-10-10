@@ -47,7 +47,7 @@ See `docs/authoring-standards.md` for the voice rules and quality bar that gover
 
 Vercel-connected to the `main` branch of this repo. Env var `VITE_FORMSPREE_DIAGNOSTICS_ENDPOINT` is set in Vercel project settings.
 
-## Result emails, and the retired follow-ups (`/api/submit`, `/api/cal-webhook`)
+## Result emails and leads (`/api/submit`, `/api/lead`)
 
 A scored diagnostic sends the visitor one result email and Thomas one lead note
 (`api/submit.js`). There is no 24-hour nudge and no Clarity Call any more (retired 2026-10-09:
@@ -55,12 +55,14 @@ the opt-in promises "No auto-sequence", and the call is gone); the next step in 
 on every result screen is "Start the conversation", the site chat. The visitor email is built
 only from the labels in `api/_lib/diagnostic-allowlist.js` and a letters-only first name, the
 address must be a single plain address, and requests are limited per address and per client
-(best effort, `api/_lib/rate-limit.js`). `/api/cal-webhook` is kept only to cancel a follow-up
-that was already queued before the retirement (`BOOKING_CREATED`, matched by the booker's email
-through Resend's List Emails endpoint, `api/_lib/followups.js`); other events are ignored.
-Needs `RESEND_API_KEY`, `BLUECHIP_FROM_EMAIL`, `BLUECHIP_NOTIFY_EMAIL` and, for the webhook,
-`CAL_WEBHOOK_SECRET` (set it: without it the webhook accepts unsigned requests).
-`CAL_BOOKING_URL` is no longer read.
+(best effort, `api/_lib/rate-limit.js`). Needs `RESEND_API_KEY`, `BLUECHIP_FROM_EMAIL` and
+`BLUECHIP_NOTIFY_EMAIL`.
+
+Chat and contact-form leads go to `/api/lead`, which texts Thomas (`OPENPHONE_*`,
+`LEAD_NOTIFY_PHONE`) and emails him. It is limited per client and sends a visitor at most two
+confirmation texts or auto-replies a day; the durable limit is a Vercel firewall rule on
+POST /api/lead (5 per 10 minutes per IP, Oct 9 2026). `/api/contact` and `/api/cal-webhook` were
+removed on Oct 9, 2026 (unused; Cal.com is retired).
 
 ## Lead chat widget (`/api/lead`)
 
