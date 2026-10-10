@@ -88,14 +88,18 @@ describe('plan page: lead, example, box and safety net text', () => {
     const box = screen.getByRole('heading', { name: 'What you get for C$795' }).closest('section');
     const steps = box.querySelectorAll('.plan-flow-step');
     expect(steps).toHaveLength(4);
-    expect(steps[0].textContent).toMatch(/60 minutes.*up to two people/);
-    expect(steps[1].textContent).toMatch(/Within 5 business days.*workflow, tools, costs, setup effort and net team hours/);
-    expect(steps[2].textContent).toMatch(/45 minutes.*allowed tool, or an IT request ready to send/);
-    expect(steps[3].textContent).toMatch(/About 30 days later.*15-minute check-in/);
+    expect(steps[0].textContent).toMatch(/60 minutes.*Up to two people/);
+    ['What AI could take on, what your people keep', 'Tool choice, costs and setup effort', 'What information can go into which tool', 'Projected net team hours a week'].forEach(text => {
+      expect(within(steps[1]).getByText(text).tagName).toBe('LI');
+    });
+    expect(steps[1].textContent).toContain('Within 5 business days');
+    expect(steps[2].textContent).toMatch(/45 minutes.*allowed tool.*IT request ready to send/);
+    expect(steps[3].textContent).toMatch(/About 30 days later.*15-minute check-in on how it is going/);
     expect(box.textContent).toContain('Within five business days of having what the written plan needs.');
-    expect(box.textContent).toContain('A starter kit: the prompts, templates and a checklist for checking the AI');
-    expect(box.textContent).toContain('A one-page summary for whoever signs off');
-    expect(box.textContent).toContain('A simple hours tracker');
+    expect(box.textContent).toContain('Starter kit: prompts, templates and a review checklist');
+    expect(box.textContent).toContain('One-page summary for sign-off');
+    expect(box.textContent).toContain("Hours tracker: see how the workflow's time changes");
+    expect(box.textContent).toContain("Four-day quick-start plan: a day-by-day guide your team follows to set up, test and check the AI's work");
     expect(box.textContent).toMatch(/Your time: a short conversation with you before we start/);
     expect(box.textContent).toContain('Not included: software and licences, anything your IT team installs, rolling the change out to the rest of the team, and any other workflow.');
     expect(box.textContent).not.toMatch(/guarantee|full fee/i);

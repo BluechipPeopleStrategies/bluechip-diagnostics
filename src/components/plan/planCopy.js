@@ -50,8 +50,8 @@ export const ILLUSTRATION_BASIS = `Based on ${ILLUSTRATION_WEEKS} working weeks 
 export const ILLUSTRATION_TEXT = `Say ${ILLUSTRATION.small.people} people do that work, and your AI plan finds a change that could give each of them an hour a week, after checking the AI's work. That's ${ILLUSTRATION.small.weekly} hours a week across your team, about ${ILLUSTRATION.small.yearly} hours over a working year. With ${ILLUSTRATION.big.people} people, it's ${ILLUSTRATION.big.weekly} hours a week, about ${ILLUSTRATION.big.weeks} working weeks of time a year. It's an example to show the scale, not a promise or a client result.`;
 
 // "What you get for C$795" box: the short opener, "Your time" and "Not included" only. The seven
-// inclusions that used to be a numbered list now live in the four "How it works" steps
-// (AiHandoffPlanPage FLOW_STEPS), so nothing the old list named is lost. The guarantee line sits
+// inclusions now live in the four delivery steps and written-plan kit
+// (AiHandoffPlanPage FLOW_STEPS and PLAN_KIT). The guarantee line sits
 // in the "Your safety net" block below the box (Infy batch 3, item 1).
 export const BOX_YOUR_TIME = 'a short conversation with you before we start, and you on the findings call. Beyond that, about two hours each from one or two of the people who do the work, across the discovery session, the findings and setup call, and the check-in.';
 export const BOX_NOT_INCLUDED = 'software and licences, anything your IT team installs, rolling the change out to the rest of the team, and any other workflow.';

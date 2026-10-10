@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { prefersReducedMotion } from '../../lib/motion';
 import GlassPanel from '../glass/GlassPanel';
 
-// "How it works, and what you get" (punch list item 36, 2026-09-25). Same five steps and copy as
+// "How it works, and what you get" (punch list item 36, 2026-09-25). Four delivery steps,
 // before, now a lit track the visitor travels along: the connector draws itself as the section
 // scrolls through the viewport, each step's coin lights as the line reaches it, and tiles lift on
 // hover. Progress is written straight to CSS custom properties / data attributes (no React
@@ -57,7 +57,9 @@ export default function PlanFlow({ steps }) {
               {s.Icon && <s.Icon className="ai-flow-icon" />}
               <p className="ai-flow-time">{s.time}</p>
               <p className="ai-flow-name">{s.name}</p>
-              <p className="ai-flow-you-get"><span>You get</span> {s.youGet}</p>
+              {s.bullets ? <ul className="plan-flow-bullets">
+                {s.bullets.map(item => <li key={item}>{item}</li>)}
+              </ul> : <p className="ai-flow-you-get"><span>You get</span> {s.youGet}</p>}
             </GlassPanel>
           </li>
         ))}

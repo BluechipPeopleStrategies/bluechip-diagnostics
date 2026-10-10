@@ -27,17 +27,18 @@ import './plan/plan.css';
 // page (how it works, what is inside, questions) follows. Two editions share this component:
 // general at /ai-handoff-plan, public sector at /ai-handoff-plan/public-sector.
 
-// How the visit runs, from the box. Same steps, same times, same order as the box and the letter.
+// Written-plan kit, followed by the four delivery steps shared by both editions.
 const PLAN_KIT = [
-  "A starter kit: the prompts, templates and a checklist for checking the AI's work",
-  'A one-page summary for whoever signs off',
-  "A simple hours tracker for the people doing the work, to see how the workflow's time changes",
+  "Four-day quick-start plan: a day-by-day guide your team follows to set up, test and check the AI's work",
+  'Starter kit: prompts, templates and a review checklist',
+  'One-page summary for sign-off',
+  "Hours tracker: see how the workflow's time changes",
 ];
 const FLOW_STEPS = [
-  { time: '60 minutes', name: 'Discovery', Icon: DiscoveryIcon, youGet: 'a session with up to two people who do the work.' },
-  { time: 'Within 5 business days*', name: 'Written plan', Icon: PlanDocIcon, youGet: 'the workflow, tools, costs, setup effort and net team hours, and what AI can take on.', key: true },
-  { time: '45 minutes', name: 'Findings and setup', Icon: CallIcon, youGet: 'the first step set up in an allowed tool, or an IT request ready to send.' },
-  { time: 'About 30 days later', name: 'Check-in', Icon: ChecklistIcon, youGet: 'a 15-minute check-in on how it is going.' },
+  { time: '60 minutes', name: 'Discovery', Icon: DiscoveryIcon, bullets: ['Up to two people who do the work', 'Map the workflow and time sinks'] },
+  { time: 'Within 5 business days*', name: 'Written plan', Icon: PlanDocIcon, bullets: ['What AI could take on, what your people keep', 'Tool choice, costs and setup effort', 'What information can go into which tool', 'Projected net team hours a week'], key: true },
+  { time: '45 minutes', name: 'Findings and setup', Icon: CallIcon, bullets: ['Walk through your AI plan', 'Set up the first step in an allowed tool', 'If needed: IT request ready to send'] },
+  { time: 'About 30 days later', name: 'Check-in', Icon: ChecklistIcon, bullets: ['15-minute check-in on how it is going'] },
 ];
 
 // Visible edition switch: two links, the current one marked in words (aria-current) as well as
