@@ -133,7 +133,6 @@
     'The AI Handoff Plan for a municipality or public body',
     RETAINER_NEED,
     LEADERSHIP_NEED,
-    'Leadership coaching',
     'Governance or CEO evaluation',
     'Workplace investigation',
     "Something else (I'm not sure yet)"
