@@ -14,7 +14,9 @@
       posthog.init('phc_mkn6e8rKo7rWY43CNYGBqFn3Bui7wBvKfcaDymqm9Edw', {
         api_host: 'https://us.i.posthog.com',
         person_profiles: 'identified_only',
-        capture_pageview: 'history_change'
+        capture_pageview: 'history_change',
+        // Real page speed from visitors' devices (LCP, INP, CLS, FCP) for the daily email (Oct 9, 2026).
+        capture_performance: { web_vitals: true }
       })
       // Own devices: open any page once with ?bc_internal=1 to stop PostHog and Google Analytics
       // counting this browser (?bc_internal=0 undoes it). Same switch as the main site. A cookie on
