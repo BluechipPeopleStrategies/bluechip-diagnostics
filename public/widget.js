@@ -179,7 +179,7 @@
       ['Do I have to buy a retainer?', "No. You can keep your AI plan and put it in place yourself or with another provider, or ask us about ongoing help. " + RETAINER_CREDIT]
     ] },
     { slug: 'free-check', title: 'AI Pulse', need: PULSE_NEED, url: 'https://check.bluechip-people-strategies.com/ai-opportunity-check', link: 'Open the free AI Pulse', answers: [
-      ['What does AI Pulse give me?', "Twelve quick questions about your recurring work, about three minutes in all. You'll get a starting range of the hours in play, and the areas where we'd start looking, before deciding whether you want the AI Handoff Plan."],
+      ['What does AI Pulse give me?', "Twelve quick questions about your recurring work, about four minutes in all. You'll get a starting range of the hours in play, and the areas where we'd start looking, before deciding whether you want the AI Handoff Plan."],
       ['Do I need to give my email?', 'No email or contact details are required for AI Pulse. Its answers stay in your browser tab until you close it, unless you choose to email your results to yourself at the end. Please do not enter confidential information.'],
       ['Does AI Pulse prove I will save three hours?', "No. It's a starting estimate from your own answers and published studies, not a plan and not a confirmation of the guarantee. The AI Handoff Plan checks your actual work to see where you really land."]
     ] },
@@ -225,7 +225,7 @@
     "From a half-day team session to a multi-month cohort, sized to you. Tell us what's prompting it and we'll suggest a size."
   ];
   var FREE_CHECK_BUBBLES = [
-    'Twelve quick questions about your recurring work, about three minutes in all. AI Pulse gives you a starting range of hours, with no email required. It is not the AI Handoff Plan, and it does not confirm the guarantee.'
+    'Twelve quick questions about your recurring work, about four minutes in all. AI Pulse gives you a starting range of hours, with no email required. It is not the AI Handoff Plan, and it does not confirm the guarantee.'
   ];
 
   // ---- styles ----

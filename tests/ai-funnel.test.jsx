@@ -61,7 +61,7 @@ describe('the free check stepper', () => {
   it('is 12 questions, with no mention of the plan, price or guarantee before the result', () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     expect(screen.getByText('How much time could AI give back to your team?')).toBeInTheDocument();
-    expect(screen.getByText('Find out roughly how many hours a week AI could give your team back. About three minutes. No email needed.')).toBeInTheDocument();
+    expect(screen.getByText('Find out roughly how many hours a week AI could give your team back. About four minutes. No email needed.')).toBeInTheDocument();
     expect(screen.getByText('Question 1 of 12.')).toBeInTheDocument();
     // Scoped to the stepper content, not the shared SiteHeader nav (which always names the
     // plan as a navigation link -- that's wayfinding, not sales copy).
