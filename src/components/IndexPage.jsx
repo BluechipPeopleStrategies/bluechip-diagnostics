@@ -17,7 +17,7 @@ const governance = {
 const SITE = 'https://www.bluechip-people-strategies.com';
 
 export default function IndexPage() {
-  usePageMeta('Free checks | BlueChip', 'Free checks from BlueChip: start with the AI Pulse, about 3 minutes, no email needed.');
+  usePageMeta('Free checks | BlueChip', 'Free checks from BlueChip: start with the AI Pulse, about 4 minutes, no email needed.');
   return (
     <main className="bc-page">
       <p className="bc-back"><a href={SITE + '/'}>← BlueChip People Strategies</a></p>

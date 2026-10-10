@@ -1,7 +1,7 @@
 {
   "id": "dqi",
   "title": "Decision Quality Index",
-  "tagline": "18 questions. 5 minutes. A precise read on how you actually make decisions, and where your thinking breaks down under pressure.",
+  "tagline": "18 questions. 3 minutes. A precise read on how you actually make decisions, and where your thinking breaks down under pressure.",
   "instructions": "Answer based on how you actually decide, not how you wish you did.",
   "outputPattern": "both",
   "_distinctness": {

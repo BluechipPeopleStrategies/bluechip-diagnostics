@@ -53,7 +53,7 @@ function handleGridArrowKeys(e) {
 }
 
 export default function AiOpportunityCheck() {
-  usePageMeta('AI Pulse: a free AI check | BlueChip', 'Find out roughly how many hours a week AI could give your team back. About three minutes. No email needed.');
+  usePageMeta('AI Pulse: a free AI check | BlueChip', 'Find out roughly how many hours a week AI could give your team back. About four minutes. No email needed.');
   // Restored once from sessionStorage (item 59): leaving for the plan page and coming back, or a
   // reload, lands the visitor where they were instead of on an empty question 1.
   // Arriving from the homepage "Quick estimate" calculator (src=calc) pre-answers what maps cleanly,
@@ -254,7 +254,7 @@ export default function AiOpportunityCheck() {
       {qIndex === 0 && <div className="ai-intro-head">
         <p className="ai-eyebrow ai-intro-eyebrow">Free AI Pulse</p>
         <h1 className="ai-intro-h1" ref={headingRef} tabIndex={-1}>How much time could AI give back to your team?</h1>
-        <p className="ai-intro-sub">Find out roughly how many hours a week AI could give your team back. About three minutes. No email needed.</p>
+        <p className="ai-intro-sub">Find out roughly how many hours a week AI could give your team back. About four minutes. No email needed.</p>
         <HourglassHero />
         <p className="ai-note ai-intro-note">Your answers stay in this browser tab until you close it, unless you choose to email them to yourself at the end. Please don't enter confidential information.</p>
       </div>}

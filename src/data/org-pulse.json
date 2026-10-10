@@ -1,7 +1,7 @@
 {
   "id": "org-pulse",
   "title": "Org Pulse",
-  "tagline": "25 questions. 5 minutes. A precise read on where your organization is thriving, and where pressure is quietly building.",
+  "tagline": "25 questions. 4 minutes. A precise read on where your organization is thriving, and where pressure is quietly building.",
   "instructions": "Answer based on your current reality, not how you wish things were.",
   "outputPattern": "score-and-dimensions",
   "_distinctness": {
