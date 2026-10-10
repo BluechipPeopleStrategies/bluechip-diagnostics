@@ -57,7 +57,9 @@ export default function PlanFlow({ steps }) {
               {s.Icon && <s.Icon className="ai-flow-icon" />}
               <p className="ai-flow-time">{s.time}</p>
               <p className="ai-flow-name">{s.name}</p>
-              <p className="ai-flow-you-get"><span>You get</span> {s.youGet}</p>
+              {s.bullets ? <ul className="plan-flow-bullets">
+                {s.bullets.map(item => <li key={item}>{item}</li>)}
+              </ul> : <p className="ai-flow-you-get"><span>You get</span> {s.youGet}</p>}
             </GlassPanel>
           </li>
         ))}

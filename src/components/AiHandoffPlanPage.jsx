@@ -29,15 +29,16 @@ import './plan/plan.css';
 
 // How the visit runs, from the box. Same steps, same times, same order as the box and the letter.
 const PLAN_KIT = [
-  "A starter kit: the prompts, templates and a checklist for checking the AI's work",
-  'A one-page summary for whoever signs off',
-  "A simple hours tracker for the people doing the work, to see how the workflow's time changes",
+  'Four-day quick-start plan: set up → test → check results',
+  'Starter kit: prompts, templates and a review checklist',
+  'One-page summary for sign-off',
+  'Hours tracker: measure the time change',
 ];
 const FLOW_STEPS = [
-  { time: '60 minutes', name: 'Discovery', Icon: DiscoveryIcon, youGet: 'a session with up to two people who do the work.' },
-  { time: 'Within 5 business days*', name: 'Written plan', Icon: PlanDocIcon, youGet: 'the workflow, tools, costs, setup effort and net team hours, and what AI can take on.', key: true },
-  { time: '45 minutes', name: 'Findings and setup', Icon: CallIcon, youGet: 'the first step set up in an allowed tool, or an IT request ready to send.' },
-  { time: 'About 30 days later', name: 'Check-in', Icon: ChecklistIcon, youGet: 'a 15-minute check-in on how it is going.' },
+  { time: '60 minutes', name: 'Discovery', Icon: DiscoveryIcon, bullets: ['Up to two people who do the work', 'Map the workflow and time sinks'] },
+  { time: 'Within 5 business days*', name: 'Written plan', Icon: PlanDocIcon, bullets: ['What AI does; what people keep', 'Tool choice, costs and setup effort', 'Information safeguards', 'Estimated net team hours saved', 'Four-day quick-start plan'], key: true },
+  { time: '45 minutes', name: 'Findings and setup', Icon: CallIcon, bullets: ['Walk through your plan', 'Set up the first step in an allowed tool', 'If needed: IT request ready to send'] },
+  { time: 'About 30 days later', name: 'Check-in', Icon: ChecklistIcon, bullets: ['15-minute progress review', 'Check how it is going'] },
 ];
 
 // Visible edition switch: two links, the current one marked in words (aria-current) as well as
