@@ -49,23 +49,16 @@ export const ILLUSTRATION = {
 export const ILLUSTRATION_BASIS = `Based on ${ILLUSTRATION_WEEKS} working weeks a year and a ${ILLUSTRATION_WEEK_HOURS}-hour week.`;
 export const ILLUSTRATION_TEXT = `Say ${ILLUSTRATION.small.people} people do that work, and your AI plan finds a change that could give each of them an hour a week, after checking the AI's work. That's ${ILLUSTRATION.small.weekly} hours a week across your team, about ${ILLUSTRATION.small.yearly} hours over a working year. With ${ILLUSTRATION.big.people} people, it's ${ILLUSTRATION.big.weekly} hours a week, about ${ILLUSTRATION.big.weeks} working weeks of time a year. It's an example to show the scale, not a promise or a client result.`;
 
-// "What you get for C$795" (FINAL box text). The guarantee line moved out of the box into the
-// "Your safety net" block below it (Infy batch 3, item 1).
-export const BOX_ITEMS = [
-  'A 60-minute discovery session with up to two of the people who do the work',
-  "A written plan within five business days of having what it needs: which parts of the workflow AI can take on and which stay with your people, how the hours add up across the people who do it, which tool to start with and why, the costs, the setup effort, and what should and shouldn't go into each tool",
-  "A starter kit: the prompts, templates and a checklist for checking the AI's work",
-  'A one-page summary for whoever signs off',
-  "A simple hours tracker for the people doing the work, to see how the workflow's time changes",
-  'A 45-minute findings and setup call, where the first step gets set up in a tool you already allow, or, if none fits yet, the IT request gets written and ready to send',
-  'A 15-minute check-in about 30 days later',
-];
+// "What you get for C$795" box: the short opener, "Your time" and "Not included" only. The seven
+// inclusions that used to be a numbered list now live in the four "How it works" steps
+// (AiHandoffPlanPage FLOW_STEPS), so nothing the old list named is lost. The guarantee line sits
+// in the "Your safety net" block below the box (Infy batch 3, item 1).
 export const BOX_YOUR_TIME = 'a short conversation with you before we start, and you on the findings call. Beyond that, about two hours each from one or two of the people who do the work, across the discovery session, the findings and setup call, and the check-in.';
 export const BOX_NOT_INCLUDED = 'software and licences, anything your IT team installs, rolling the change out to the rest of the team, and any other workflow.';
 
 // "Your safety net" (Infy batch 3, item 1c). Body-text size, never behind a link or accordion.
 export const SAFETY_NET = "if your AI plan can't show at least 3 net hours a week in total across the people who do that workflow, your full fee comes back automatically within 10 business days of your findings call. No forms, no hoops. It's a promise about what your AI plan finds, not about what happens afterwards.";
-export const SAFETY_NET_DEFINITIONS = "Net means the hours saved each week, minus the time it takes each week to check the AI's work and keep the tools running. The people who do the work means everyone who regularly does that workflow, agreed with you before we start. The 3 hours are their total, not 3 hours each. The hours you actually get back depend on your team putting your AI plan in place.";
+export const SAFETY_NET_DEFINITIONS = "Net means after the weekly time needed to check the AI's work and keep the tools running.";
 
 export const CTA_LEAD = "Tell us which workflow you'd start with and roughly how many people do it, and we'll tell you plainly whether it looks like a good place to start. Asking doesn't book the AI Handoff Plan or take payment.";
 

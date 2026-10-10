@@ -968,7 +968,7 @@ describe('the AI Handoff Plan page', () => {
 
   it('shows the credibility strip linking to /about', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
-    expect(screen.getByRole('link', { name: /More about BlueChip/ })).toHaveAttribute('href', 'https://www.bluechip-people-strategies.com/about');
+    expect(screen.getByRole('link', { name: /More about us/ })).toHaveAttribute('href', 'https://www.bluechip-people-strategies.com/about');
   });
 
   it('keeps an old ?workflow= link working', () => {

@@ -16,7 +16,7 @@ import PlanInside from './plan/PlanInside';
 import PlanClose from './plan/PlanClose';
 import {
   EDITIONS, GENERAL_PATH, PUBLIC_SECTOR_PATH, REFUND_URL, ILLUSTRATION, ILLUSTRATION_BASIS, ILLUSTRATION_TEXT,
-  BOX_ITEMS, BOX_YOUR_TIME, BOX_NOT_INCLUDED, SAFETY_NET, SAFETY_NET_DEFINITIONS, CTA_LEAD, RETAINER_HEADING, RETAINER_BODY,
+  BOX_YOUR_TIME, BOX_NOT_INCLUDED, SAFETY_NET, SAFETY_NET_DEFINITIONS, CTA_LEAD, RETAINER_HEADING, RETAINER_BODY,
 } from './plan/planCopy';
 import './AiFunnel.css';
 import './AiHandoffGlass.css';
@@ -29,9 +29,9 @@ import './plan/plan.css';
 
 // How the visit runs, from the box. Same steps, same times, same order as the box and the letter.
 const FLOW_STEPS = [
-  { time: '60 minutes', name: 'Discovery', Icon: DiscoveryIcon, youGet: 'a session with up to two of the people who do the work.' },
-  { time: 'Within 5 business days', name: 'Written plan', Icon: PlanDocIcon, youGet: 'which parts of the workflow AI can take on, how the hours add up across the people who do it, which tool to start with and why, the costs, the setup effort, and what should and shouldn\'t go into each tool.', key: true },
-  { time: '45 minutes', name: 'Findings and setup call', Icon: CallIcon, youGet: 'the first step set up in a tool you already allow, or, if none fits yet, the IT request written and ready to send.' },
+  { time: '60 minutes', name: 'Discovery', Icon: DiscoveryIcon, youGet: 'a discovery session with up to two of the people who do the work.' },
+  { time: 'Within 5 business days of having what it needs', name: 'Written plan', Icon: PlanDocIcon, youGet: 'a written AI plan: which parts of the workflow AI can take on and which stay with your people, how the hours add up across the people who do it, which tool to start with and why, the costs, the setup effort, and what should and shouldn\'t go into each tool. It comes with a starter kit (prompts, templates and a checklist for checking the AI\'s work), a one-page summary for whoever signs off, and a simple hours tracker.', key: true },
+  { time: '45 minutes', name: 'Findings and setup call', Icon: CallIcon, youGet: 'a findings and setup call where the first step gets set up in a tool you already allow, or, if none fits yet, the IT request gets written and ready to send.' },
   { time: 'About 30 days later', name: 'Check-in', Icon: ChecklistIcon, youGet: 'a 15-minute check-in on how it is going.' },
 ];
 
@@ -131,9 +131,6 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
           plasma={{ radius: 24, tint: '#0E2140', opacity: 0.62, elevation: 0.7 }}>
           <h2 id="ai-price-title">What you get for C$795</h2>
           <p className="plan-box-opener">{copy.opener}</p>
-          <ol className="plan-box-list">
-            {BOX_ITEMS.map(item => <li key={item}>{item}</li>)}
-          </ol>
           <p className="plan-box-note"><strong>Your time:</strong> {BOX_YOUR_TIME}</p>
           <p className="plan-box-note"><strong>Not included:</strong> {BOX_NOT_INCLUDED}</p>
         </GlassPanel>
@@ -164,7 +161,7 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
       </GlassPanel>
 
       <GlassPanel as="section" className="glass-panel glass-strip ai-credibility" aria-label="About BlueChip" plasma={{ radius: 14, opacity: 0.5 }}>
-        <p>Built and run by BlueChip People Strategies: senior HR experience across training, recruitment and organizational decision-making, a background in education and coaching, and 25 years of high-stakes, globally competitive strategy. <a href="https://www.bluechip-people-strategies.com/about">More about BlueChip &rarr;</a></p>
+        <p>Built and run by BlueChip People Strategies. <a href="https://www.bluechip-people-strategies.com/about">More about us &rarr;</a></p>
       </GlassPanel>
 
       <section className="ai-flow glass-flow" aria-labelledby="ai-flow-title">

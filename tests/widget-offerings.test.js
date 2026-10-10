@@ -151,7 +151,7 @@ describe('new offering intake', () => {
   });
   it('keeps AI-only and combined advisory options and supports changing service', () => {
     const ui = choose('Practical AI and/or Embedded HR Retainers');
-    expect(document.body.textContent).toContain('Support can focus on AI alone or combine HR and AI');
+    expect(document.body.textContent).toContain('Practical AI, embedded HR or both, scoped to what you need.');
     fireEvent.click(ui.getByRole('button', { name: 'Choose a different service' }));
     flushBot();
     expect(ui.getByRole('button', { name: 'The AI Handoff Plan', exact: true })).toBeVisible();
