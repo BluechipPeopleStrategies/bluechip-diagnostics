@@ -52,6 +52,10 @@ describe('sanitizeLead', () => {
 });
 
 describe('validateLead', () => {
+  it('accepts a valid email enquiry without a phone', () => {
+    expect(validateLead({ name: 'Jane', need: 'help', contact: '', email: 'jane@example.com' })).toEqual({ ok: true });
+    expect(validateLead({ name: 'Jane', need: 'help', contact: '', email: 'invalid' }).ok).toBe(false);
+  });
   it('ok when all required present', () => {
     expect(validateLead({ name: 'Jane', need: 'help', contact: 'x@y.ca' })).toEqual({ ok: true });
   });

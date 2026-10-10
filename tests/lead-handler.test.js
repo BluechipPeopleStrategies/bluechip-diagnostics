@@ -32,6 +32,20 @@ describe('lead handler', () => {
     expect(res.statusCode).toBe(405);
   });
 
+  it.each(['', '7805550100'])('captures an email enquiry with phone "%s" without texting consent', async (contact) => {
+    process.env.RESEND_API_KEY = 're_test'; process.env.BLUECHIP_FROM_EMAIL = 'hi@bc.ca'; process.env.BLUECHIP_NOTIFY_EMAIL = 't@bc.ca';
+    const res = mockRes();
+    await handler({ method: 'POST', headers: { 'x-forwarded-for': '203.0.113.84' }, body: { name: 'Email Test', need: 'Leadership development', contact, email: 'visitor@example.com', consent: false } }, res);
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toMatchObject({ emailSent: true, confirmationSent: false });
+    const texts = global.fetch.mock.calls.filter(c => String(c[0]).includes('openphone'));
+    expect(texts).toHaveLength(1);
+    expect(JSON.parse(texts[0][1].body).to).toEqual(['+15875550123']);
+    const mail = JSON.parse(global.fetch.mock.calls.find(c => String(c[0]).includes('resend'))[1].body);
+    expect(mail.html).toContain('texting_consent: no');
+    expect(mail.reply_to).toBe('visitor@example.com');
+  });
+
   it('honeypot: returns 200, sends no text, but emails a flagged copy', async () => {
     process.env.RESEND_API_KEY = 're_test'; process.env.BLUECHIP_FROM_EMAIL = 'hi@bc.ca'; process.env.BLUECHIP_NOTIFY_EMAIL = 't@bc.ca';
     const req = { method: 'POST', headers: {}, body: { name: 'x', need: 'y', contact: 'z', bc_hp_trap: 'bot' } };

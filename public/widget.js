@@ -325,7 +325,7 @@
   }
 
   var launch, greet, panel, bodyEl, footEl, started = false;
-  var data = { name: '', need: '', contact: '', email: '', heard: '' };
+  var data = { name: '', need: '', contact: '', email: '', consent: false, heard: '' };
   // The lead is never held hostage by the optional question: while it shows, leadState is
   // 'pending', and closing the chat or leaving the page sends the lead without the answer.
   var leadState = 'idle';   // idle | pending | sending | sent
@@ -620,9 +620,9 @@
     typingGeneration++;
     track('bc_chat_form', { topic: data.need || '' });
     footEl.innerHTML = '';
-    sayBotSequence(["What's the best number and email for BlueChip to reach you about this? We usually reply within a few hours on business days. This sends an inquiry. It doesn't book anything or charge you. Please keep employee and client details out of this chat."], function () {
-      var input = el('input', { 'class': 'bcw-input', type: 'tel', 'aria-label': 'Your phone number', placeholder: 'Canadian phone number', style: 'width:100%' });
-      var emailInput = el('input', { 'class': 'bcw-input', type: 'email', 'aria-label': 'Your email', placeholder: 'Email', autocomplete: 'email', style: 'width:100%;margin-top:8px' });
+    sayBotSequence(["What's the best email for BlueChip to reach you about this? You can also add a phone number and choose whether we may text you. We usually reply within a few hours on business days. This sends an inquiry. It doesn't book anything or charge you. Please keep employee and client details out of this chat."], function () {
+      var input = el('input', { 'class': 'bcw-input', type: 'tel', 'aria-label': 'Your phone number', placeholder: 'Phone number (optional)', style: 'width:100%;margin-top:8px' });
+      var emailInput = el('input', { 'class': 'bcw-input', type: 'email', 'aria-label': 'Your email', placeholder: 'Email', autocomplete: 'email', style: 'width:100%' });
       var hp = el('input', { 'class': 'bcw-hp', type: 'text', name: 'bc_hp_trap', tabindex: '-1', 'aria-hidden': 'true', autocomplete: 'off' });   // not "company": browsers autofill that and flagged real visitors as bots
       var consentWrap = el('label', { 'class': 'bcw-consent' });
       var cb = el('input', { type: 'checkbox' });
@@ -633,15 +633,15 @@
       fine.textContent = "We text Canadian numbers only. Outside Canada? We'll reply by email. BlueChip People Strategies, Edmonton, Alberta. We won't share your number or message you about anything unrelated to the opt-in box above. A real person reads each message. We usually reply within a few hours on business days.";
       var send = el('button', { 'class': 'bcw-send', type: 'button', disabled: 'disabled', style: 'margin-top:12px;width:100%' }, 'Send');
 
-      footEl.appendChild(input);
       footEl.appendChild(emailInput);
+      footEl.appendChild(input);
       footEl.appendChild(hp);
       footEl.appendChild(consentWrap);
       footEl.appendChild(fine);
       footEl.appendChild(send);
-      input.focus();
+      emailInput.focus();
 
-      function refresh() { send.disabled = !(input.value.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim()) && cb.checked); }   // phone, email and consent all required
+      function refresh() { send.disabled = !(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim()) && (!cb.checked || input.value.trim())); }
       input.addEventListener('input', refresh);
       emailInput.addEventListener('input', refresh);
       cb.addEventListener('change', refresh);
@@ -650,6 +650,7 @@
         if (send.disabled) return;
         data.contact = input.value.trim();
         data.email = emailInput.value.trim();
+        data.consent = cb.checked;
         // One optional question comes before the inquiry goes out; the send itself happens there.
         renderHeard(hp.value);
       }
@@ -715,7 +716,7 @@
     try {
       var payload = {
         name: data.name, need: data.need, contact: data.contact, email: data.email,
-        consent: true, source: pageLabel(), bc_hp_trap: companyHp || '',
+        consent: data.consent, source: pageLabel(), bc_hp_trap: companyHp || '',
         attribution: window.BlueChipAttribution.get()
       };
       if (data.heard) payload.heard_about = data.heard;
@@ -743,7 +744,7 @@
     var done = el('div', { 'class': 'bcw-done' },
       '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>');
     var line = document.createElement('div');
-    line.textContent = "Got it, " + data.name + ". You've taken the hard first step. Someone from BlueChip People Strategies will text you at " + data.contact + ", usually within a few hours on business days. Nothing you've shared goes any further.";
+    line.textContent = "Got it, " + data.name + ". You've taken the hard first step. Someone from BlueChip People Strategies will reply by " + (data.consent ? "text or email" : "email") + ", usually within a few hours on business days. Nothing you've shared goes any further.";
     done.appendChild(line);
     bodyEl.appendChild(done);
     bodyEl.scrollTop = bodyEl.scrollHeight;
