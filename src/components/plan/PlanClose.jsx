@@ -1,18 +1,13 @@
 import { Link } from 'react-router-dom';
-import PlanButton from './PlanButton';
 
-// Closing CTA (punch list item 40, 2026-09-25). The flat card + flat gold button read as generic,
-// so the card is now a lit glass slab with a gold edge light and a small, slowly floating chat
-// composition on the right (it signals what the button opens: a conversation). The free-check
-// link below gets its own spacing and a quiet glass row instead of sitting flush under the card.
-export default function PlanClose({ chatTopic = 'ai-handoff-plan' }) {
+// Closing conversation reminder. The free-check link keeps its own quiet row below the card.
+export default function PlanClose() {
   return (
     <>
       <section className="ai-panel plan-close" aria-label="Start the conversation">
         <div className="plan-close-copy">
           <h2>Talk through the AI Handoff Plan</h2>
           <p>Start a conversation with BlueChip to confirm the fit, scope and next steps.</p>
-          <p className="plan-close-cta"><PlanButton href={`#chat?topic=${chatTopic}`}>Start the conversation</PlanButton></p>
         </div>
         <div className="plan-close-art" aria-hidden="true">
           <span className="plan-bubble plan-bubble--in"><i style={{ width: '78%' }} /><i style={{ width: '52%' }} /></span>

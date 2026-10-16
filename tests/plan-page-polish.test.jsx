@@ -78,7 +78,7 @@ describe('closing CTA (punch list 40)', () => {
   it('keeps the chat hook on every primary button and gives the free check its own row', () => {
     renderPlan();
     const ctas = screen.getAllByRole('link', { name: 'Start the conversation' });
-    expect(ctas.length).toBe(3); // header, price panel, closing card
+    expect(ctas.length).toBe(2); // header and price panel
     ctas.forEach(a => expect(a.className).toContain('plan-btn'));
     const free = screen.getByRole('link', { name: 'Start with the free AI Pulse' });
     expect(free).toHaveAttribute('href', '/ai-opportunity-check');
