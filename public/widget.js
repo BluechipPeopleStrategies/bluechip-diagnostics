@@ -151,7 +151,7 @@
   var REFUND_REF = 'See our Refund Policy, section 1: ' + REFUND_URL;
 
   // The guarantee, as one answer (Infy batch 3, "Your safety net"): automatic, a finding and not a result.
-  var GUARANTEE_ANSWER = "Your safety net: if your AI plan can't show at least 3 net hours a week in total across the people who do that workflow, your full fee comes back automatically within 10 business days of your findings call. No forms, no hoops. It's a promise about what your AI plan finds, not about what happens afterwards, because the hours you actually get back depend on your team putting your AI plan in place. Net means the hours saved each week, minus the time it takes each week to check the AI's work and keep the tools running. The people who do the work means everyone who regularly does that workflow, agreed with you before we start. The 3 hours are their total, not 3 hours each. You get a copy of the hours tally that scores your AI plan. If you think we've scored it wrong, tell us within 30 days of your findings call and we'll go through it together. That review can only change the result in your favour.";
+  var GUARANTEE_ANSWER = "Your safety net: if your AI plan cannot show evidence-backed potential for at least 3 net team hours a week across the agreed people and work reviewed, your full fee comes back automatically within 10 business days of your findings call. No forms, no hoops. It's a promise about what your AI plan finds, not about what happens afterwards, because the hours you actually get back depend on your team putting your AI plan in place. Net means the hours saved each week, minus the time it takes each week to check the AI's work and keep the tools running. During discovery, we agree whose time to count and which parts of the work to review. The 3 hours are their total, not 3 hours each. You get a copy of the hours tally that scores your AI plan. If you think we've scored it wrong, tell us within 30 days of your findings call and we'll go through it together. That review can only change the result in your favour.";
   // "What you get for C$795", in box order.
   var INCLUDED_ANSWER = "A discovery session, a written AI plan, a starter kit, a findings and setup call, and a check-in about 30 days later.";
   var SETUP_ANSWER = "On the findings and setup call, one or two of the people who do the work set up the first step with us, in a tool you already allow. If none fits yet, the call ends with the IT request written and ready to send. Rolling the change out to the rest of the team, software and licences, and anything your IT team installs are not included.";
@@ -170,7 +170,7 @@
       ['Do I have to buy a retainer?', "No. You can keep your AI plan and put it in place yourself or with another provider, or ask us about ongoing help. " + RETAINER_CREDIT]
     ] },
     { slug: 'public-sector', title: 'The AI Handoff Plan for municipalities and public bodies', need: PUBLIC_NEED, url: 'https://check.bluechip-people-strategies.com/ai-handoff-plan/public-sector', link: 'Read the public sector page', answers: [
-      ['What does it cover?', "Name one workflow your staff repeat. You get a written plan showing a realistic way to use AI to give the people who do it back at least 3 net hours a week between them. Then, on the findings call, one or two of them set up the first step with us, because a process nobody uses is just a document."],
+      ['What does it cover?', "Tell us about the work your staff repeat. You get an AI Handoff Plan with practical priorities and evidence-backed potential for at least 3 net team hours a week across the agreed work. Then, on the findings call, one or two of them set up the first step with us, because a process nobody uses is just a document."],
       ['What does it cost, and how do we pay?', "C$795, with no tax added. We book the discovery session once your purchase order is issued, and you pay the invoice on your normal payment terms. If an invoice is still unpaid after its terms, we hold the remaining deliverables until it's paid. " + REFUND_REF],
       ['Does AI replace CAO judgment or council governance?', "AI doesn't replace CAO judgment, council governance, or your privacy and records requirements. Your AI plan looks for time that can go back to council priorities, not positions to cut, and what you do with any time it frees up stays your decision."],
       ['What is included?', INCLUDED_ANSWER],
@@ -205,13 +205,13 @@
   // Opening bubbles, one short set per topic. The AI Handoff Plan leads with capacity across the
   // people who do the work, then the deal, then whose it is (Thomas, 2026-10-08).
   var PLAN_BUBBLES = [
-    "An hour a week each doesn't sound like much until you count the people. The AI Handoff Plan takes one workflow your team repeats and looks for the steps AI could take on for everyone who does it. It's C$795, with no tax added.",
-    "Here's the deal. If your AI plan can't show at least 3 net hours a week in total across the people who do that workflow, your full fee comes back automatically within 10 business days of your findings call. No forms, no hoops.",
+    "Repeated admin can crowd out the work your team would rather be doing. The AI Handoff Plan looks across your team’s work, identifies where AI could help and recommends practical priorities. It's C$795, with no tax added.",
+    "Here's the deal. If your AI plan cannot show evidence-backed potential for at least 3 net team hours a week across the agreed people and work reviewed, your full fee comes back automatically within 10 business days of your findings call. No forms, no hoops.",
     'Your AI plan is yours to put in place, on your own or with our help.'
   ];
   var PUBLIC_BUBBLES = [
-    "An hour a week each doesn't sound like much until you count the people. Name one workflow your staff repeat, and the AI Handoff Plan looks for the steps AI could take on for everyone who does it. It's C$795, with no tax added.",
-    "Here's the deal. If your AI plan can't show at least 3 net hours a week in total across the people who do that workflow, your full fee comes back automatically within 10 business days of your findings call. No forms, no hoops.",
+    "Repeated admin can crowd out council priorities. Tell us about the work your staff repeat, and the AI Handoff Plan looks across it for practical AI improvements with your staff in control. It's C$795, with no tax added.",
+    "Here's the deal. If your AI plan cannot show evidence-backed potential for at least 3 net team hours a week across the agreed people and work reviewed, your full fee comes back automatically within 10 business days of your findings call. No forms, no hoops.",
     "AI doesn't replace CAO judgment, council governance, or your privacy and records requirements. Your AI plan looks for time that can go back to council priorities, not positions to cut."
   ];
   var RETAINER_BUBBLES = [

@@ -32,11 +32,11 @@ const PLAN_KIT = [
   "Four-day quick-start plan: a day-by-day guide your team follows to set up, test and check the AI's work",
   'Starter kit: prompts, templates and a review checklist',
   'One-page summary for sign-off',
-  "Hours tracker: see how the workflow's time changes",
+  "Hours tracker: see how time across the agreed work changes",
 ];
 const FLOW_STEPS = [
-  { time: '60 minutes', name: 'Discovery', Icon: DiscoveryIcon, bullets: ['Up to two people who do the work', 'Map the workflow and time sinks'] },
-  { time: 'Within 5 business days*', name: 'Written plan', Icon: PlanDocIcon, bullets: ['What AI could take on, what your people keep', 'Tool choice, costs and setup effort', 'What information can go into which tool', 'Projected net team hours a week'], key: true },
+  { time: '60 minutes', name: 'Discovery', Icon: DiscoveryIcon, bullets: ['Meet virtually with up to two people who do the work', 'Review the work and agree priorities'] },
+  { time: 'Within 5 business days*', name: 'Handoff plan', Icon: PlanDocIcon, bullets: ['What AI could take on, what your people keep', 'Tool choice, costs and setup effort', 'What information can go into which tool', 'Projected net team hours a week'], key: true },
   { time: '45 minutes', name: 'Findings and setup', Icon: CallIcon, bullets: ['Walk through your AI plan', 'Set up the first step in an allowed tool', 'If needed: IT request ready to send'] },
   { time: 'About 30 days later', name: 'Check-in', Icon: ChecklistIcon, bullets: ['15-minute check-in on how it is going'] },
 ];
@@ -88,9 +88,9 @@ function CapacityExample({ guardrail }) {
 
 function WorkflowOverview() {
   return <section className="plan-workflow" aria-labelledby="plan-workflow-title">
-    <h2 id="plan-workflow-title">One workflow. Shared time.</h2>
+    <h2 id="plan-workflow-title">Your work. Shared time.</h2>
     <ol className="plan-workflow-list">
-      <li><span className="plan-workflow-number">01</span><strong>One repeated workflow</strong><span>Start with work your team already does.</span></li>
+      <li><span className="plan-workflow-number">01</span><strong>The work you repeat</strong><span>Start with work your team already does.</span></li>
       <li><span className="plan-workflow-number">02</span><strong>AI handles suitable steps</strong><span>Your AI plan identifies what could be handed over.</span></li>
       <li><span className="plan-workflow-number">03</span><strong>People review and decide</strong><span>Judgment and checking stay with your people.</span></li>
     </ol>
@@ -113,7 +113,7 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
 
       <header className="ai-hero glass-hero">
         <div className="glass-hero-copy">
-          <p className="ai-eyebrow">A written AI review of one workflow</p>
+          <p className="ai-eyebrow">A practical AI review of your team's work</p>
           <h1>The AI Handoff Plan</h1>
           <EditionSwitch edition={edition} search={search} />
           <h2 className="plan-headline">{copy.headline}</h2>
@@ -138,7 +138,7 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
           <ul className="plan-included-tools" aria-label="Included with your written plan">
             {PLAN_KIT.map(item => <li key={item}>{item}</li>)}
           </ul>
-          <p className="plan-box-timing">*Within five business days of having what the written plan needs. Before invoicing, we agree which roles do the workflow.</p>
+          <p className="plan-box-timing">*Within five business days after all needed information is received. We agree the priorities, people and work reviewed during discovery.</p>
           <div className="plan-scope-pair">
           <p className="plan-box-note"><strong>Your time:</strong> {BOX_YOUR_TIME}</p>
           <p className="plan-box-note"><strong>Not included:</strong> {BOX_NOT_INCLUDED}</p>
@@ -151,11 +151,13 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
         <p className="plan-safety-defs"><em>{SAFETY_NET_DEFINITIONS}</em></p>
         <p className="plan-safety-refund">See our <a href={REFUND_URL}>Refund Policy</a>, section 1.</p>
         <p className="plan-cta-lead">{CTA_LEAD}</p>
+        <p>Prefer to pay another way? <a href={`#chat?topic=${copy.chatTopic}`}>Reach out, and we can work something out.</a> Municipalities and public bodies can use a purchase order and invoice.</p>
         <p className="ai-cta-row"><PlanButton href={`#chat?topic=${copy.chatTopic}`}>Start the conversation</PlanButton></p>
       </GlassPanel>
 
       <GlassPanel as="section" className="glass-panel" aria-labelledby="ai-next-title">
         <h2 id="ai-next-title">{RETAINER_HEADING}</h2>
+        <p>BlueChip can lead implementation under a separately agreed scope and fee. HR advisory support is included at no additional fee within that implementation scope. No ongoing retainer is required.</p>
         <p>{RETAINER_BODY} Conditions are in our <a href={REFUND_URL}>Refund Policy</a>, section 1.</p>
 
       </GlassPanel>
@@ -167,7 +169,7 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
       <PlanInside />
 
       <GlassPanel className="glass-panel glass-faq" plasma={{ radius: 18, opacity: 0.5 }}>
-        <details><summary>Does the guarantee mean three hours for every employee?</summary><p>No. The 3 hours are the total across the people who do that workflow, not 3 hours each. The people who do the work means everyone who regularly does that workflow, agreed with you before we start.</p></details>
+        <details><summary>Does the guarantee mean three hours for every employee?</summary><p>No. The 3 hours are a total across the agreed people and work reviewed, not 3 hours per person or per task. We agree the priorities and whose time is counted during discovery.</p></details>
         <details><summary>Do you set the tools up for us?</summary><p>On the findings and setup call, one or two of the people who do the work set up the first step with us, in a tool you already allow. If none fits yet, the call ends with the IT request written and ready to send. Software and licences, anything your IT team installs, and rolling the change out to the rest of the team are not included.</p></details>
         <details><summary>Do I need to buy ongoing support?</summary><p>No. You can keep your AI plan and put it in place yourself or with another provider.</p></details>
       </GlassPanel>

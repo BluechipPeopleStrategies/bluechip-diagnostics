@@ -60,11 +60,11 @@ describe('look inside your AI plan (punch list 37, updated 2026-10-08)', () => {
     const section = screen.getByRole('region', { name: 'Look inside your AI plan' });
     expect(within(section).getByText('Illustrative structure, not a client result.')).toBeInTheDocument();
     [
-      'Current workflow and evidence',
+      'Agreed priorities, people, tasks and evidence',
       'Recommended tool, why it fits, and alternatives',
       'Baseline time, expected review time and net savings',
       "Costs, setup effort, and what should and shouldn't go into each tool",
-      'Which parts of the workflow AI can take on and which stay with your people',
+      'Which steps AI could take on and which stay with your people',
       'How the hours add up across the people who do it',
     ].forEach(t => expect(within(section).getByText(t)).toBeInTheDocument());
     expect(within(section).getAllByRole('listitem')).toHaveLength(6);
@@ -78,7 +78,7 @@ describe('closing CTA (punch list 40)', () => {
   it('keeps the chat hook on every primary button and gives the free check its own row', () => {
     renderPlan();
     const ctas = screen.getAllByRole('link', { name: 'Start the conversation' });
-    expect(ctas.length).toBe(2); // header and price panel
+    expect(ctas.length).toBe(2); // header and price panel; preserve the current single-CTA fix
     ctas.forEach(a => expect(a.className).toContain('plan-btn'));
     const free = screen.getByRole('link', { name: 'Start with the free AI Pulse' });
     expect(free).toHaveAttribute('href', '/ai-opportunity-check');

@@ -1,7 +1,7 @@
 import GlassPanel from '../glass/GlassPanel';
 
 const GROUPS = [
-  { name: 'The workflow', items: ['Current workflow and evidence', 'Which parts of the workflow AI can take on and which stay with your people'], diagram: <div className="plan-inside-diagram"><span>Current work</span><span aria-hidden="true">→</span><span>AI + human checkpoints</span></div> },
+  { name: 'The work reviewed', items: ['Agreed priorities, people, tasks and evidence', 'Which steps AI could take on and which stay with your people'], diagram: <div className="plan-inside-diagram"><span>Current work</span><span aria-hidden="true">→</span><span>AI + human checkpoints</span></div> },
   { name: 'The tools', items: ['Recommended tool, why it fits, and alternatives', "Costs, setup effort, and what should and shouldn't go into each tool"], diagram: <div className="plan-inside-diagram"><span>Tool fit</span><span aria-hidden="true">+</span><span>Costs + permissions</span></div> },
   { name: 'The time', items: ['Baseline time, expected review time and net savings', 'How the hours add up across the people who do it'], diagram: <div className="plan-inside-diagram"><span>Time saved</span><span aria-hidden="true">−</span><span>Review + upkeep</span><span aria-hidden="true">=</span><span>Net team hours</span></div> },
 ];

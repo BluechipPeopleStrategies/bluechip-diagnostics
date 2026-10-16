@@ -89,7 +89,7 @@ describe('new offering intake', () => {
     flushBot();
     fireEvent.click(ui.getByRole('button', { name: 'How does the three-hour guarantee work?' }));
     flushBot();
-    expect(document.body.textContent).toContain('in total across the people who do that workflow');
+    expect(document.body.textContent).toContain('across the agreed people and work reviewed');
     expect(document.body.textContent).toContain('not 3 hours each');
     expect(document.body.textContent).toContain('No forms, no hoops');
     expect(fetchMock).not.toHaveBeenCalled();
@@ -120,11 +120,11 @@ describe('new offering intake', () => {
   });
   it('answers the plan topic as three short bubbles: capacity first, the deal, whose it is', () => {
     const ui = choose('The AI Handoff Plan');
-    expect(document.body.textContent).toContain("An hour a week each doesn't sound like much until you count the people.");
-    expect(document.body.textContent).toContain('The AI Handoff Plan takes one workflow your team repeats');
+    expect(document.body.textContent).toContain('Repeated admin can crowd out the work your team would rather be doing.');
+    expect(document.body.textContent).toContain('The AI Handoff Plan looks across your team’s work');
     expect(document.body.textContent).toContain("It's C$795, with no tax added.");
     expect(document.body.textContent).toContain("Here's the deal");
-    expect(document.body.textContent).toContain('at least 3 net hours a week in total across the people who do that workflow');
+    expect(document.body.textContent).toContain('evidence-backed potential for at least 3 net team hours a week across the agreed people and work reviewed');
     expect(document.body.textContent).toContain('your full fee comes back automatically within 10 business days');
     expect(document.body.textContent).toContain('No forms, no hoops');
     expect(document.body.textContent).toContain('Your AI plan is yours to put in place');

@@ -166,7 +166,7 @@ export function ClosingNextStep({ planHref, showFit = false, children }) {
         {showFit && <p className="ai-fc-fit"><span className="ai-fc-fit-icon" aria-hidden="true"><FcIcon name="check" /></span><span>With this many hours across your team, this looks like a good place to start.</span></p>}
         <p className="ai-fc-gap">You know roughly where the time goes. Your AI plan shows which steps AI could take on for everyone who does that work, in tools you're allowed to use, and helps your people start on the first one.</p>
         <p className="ai-fc-close-cta-row"><Link className="ai-secondary ai-fc-cta" to={planHref}>See how the AI Handoff Plan works<FcIcon name="arrow" className="ai-fc-cta-arrow" /></Link></p>
-        <p className="ai-note ai-fc-seal"><span className="ai-fc-seal-icon" aria-hidden="true"><FcIcon name="shield" /></span><span>If your AI plan can't show at least 3 net hours a week in total across the people who do that workflow, your full fee comes back automatically within 10 business days of your findings call.</span></p>
+        <p className="ai-note ai-fc-seal"><span className="ai-fc-seal-icon" aria-hidden="true"><FcIcon name="shield" /></span><span>If your AI plan cannot show evidence-backed potential for at least 3 net team hours a week across the agreed people and work reviewed, your full fee comes back automatically within 10 business days of your findings call.</span></p>
       </div>
       <div className="ai-fc-close-art" aria-hidden="true">
         <span className="ai-fc-sheet ai-fc-sheet--3" />

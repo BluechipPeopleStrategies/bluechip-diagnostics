@@ -399,7 +399,7 @@ describe('the free check stepper', () => {
     expect(cta.className).toContain('ai-secondary');
     expect(cta.className).not.toContain('ai-button');
     expect(cta.getAttribute('href')).toBe('/ai-handoff-plan');
-    expect(screen.getByText(/If your AI plan can't show at least 3 net hours a week in total across the people who do that workflow, your full fee comes back automatically/)).toBeInTheDocument();
+    expect(screen.getByText(/If your AI plan cannot show evidence-backed potential for at least 3 net team hours a week across the agreed people and work reviewed, your full fee comes back automatically/)).toBeInTheDocument();
     expect(container.textContent).not.toMatch(/give one person back/);
   });
 
@@ -941,11 +941,12 @@ describe('Email my results (item 61)', () => {
 });
 
 describe('the AI Handoff Plan page', () => {
-  it('names the AI Handoff Plan, the C$795 price in the box, and the automatic no-forms guarantee', () => {
+  it('names the AI Handoff Plan, its C$795 fee and the automatic refund of plan findings', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
     expect(screen.getByRole('heading', { name: 'The AI Handoff Plan', level: 1 })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'What you get for C$795', level: 2 })).toBeInTheDocument();
-    expect(screen.getByText(/your full fee comes back automatically within 10 business days of your findings call\. No forms, no hoops\./)).toBeInTheDocument();
+    expect(screen.getByText(/your full fee is refunded automatically within 10 business days of your findings call/)).toBeInTheDocument();
+    expect(screen.getByText(/This covers plan findings, not actual implementation savings/)).toBeInTheDocument();
     expect(screen.queryByText(/claim window|within 7 days/i)).not.toBeInTheDocument();
   });
 
@@ -988,14 +989,14 @@ describe('the AI Handoff Plan page', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
     expect(screen.getByRole('heading', { name: 'What you get for C$795' }).closest('section').querySelectorAll('.plan-flow-step')).toHaveLength(4);
     expect(screen.getByText('Discovery')).toBeInTheDocument();
-    expect(screen.getByText('Written plan')).toBeInTheDocument();
+    expect(screen.getByText('Handoff plan')).toBeInTheDocument();
     expect(screen.getByText('Findings and setup')).toBeInTheDocument();
     expect(screen.getByText('Check-in')).toBeInTheDocument();
     expect(screen.queryByText('A focused plan, with clear deliverables.')).not.toBeInTheDocument();
     expect(screen.queryByText('What you take away')).not.toBeInTheDocument();
   });
 
-  it('describes the work as one workflow across the people who do it, not a redesign (scope, late 2026-10-08)', () => {
+  it('describes a broader review with implementation separately scoped (owner, 2026-10-15)', () => {
     const { container } = render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
     expect(container.textContent).not.toMatch(/redesign/i);
     expect(container.textContent).not.toMatch(/one person and one task|one individual|for one person/i);
@@ -1020,6 +1021,6 @@ describe('the AI Handoff Plan page', () => {
   it('sets the document title and meta description for the general edition', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
     expect(document.title).toBe('The AI Handoff Plan | BlueChip');
-    expect(document.querySelector('meta[name="description"]').getAttribute('content')).toMatch(/^Pick one workflow your team repeats, and for C\$795 you get a written plan/);
+    expect(document.querySelector('meta[name="description"]').getAttribute('content')).toMatch(/^A C\$795 review of your team/);
   });
 });

@@ -14,23 +14,23 @@ export const EDITIONS = {
     path: GENERAL_PATH,
     chatTopic: 'ai-handoff-plan',
     switchLabel: 'Business or nonprofit',
-    headline: 'Which routine task could your team hand to AI?',
-    lead: "Pick one workflow. We assess what AI could take on, what stays with your people, and how much time the team could get back.",
+    headline: 'Where could AI give your team some time back?',
+    lead: "We look across your team's work and recommend where AI could help, what your people keep, and where to start.",
     guardrail: "AI doesn't replace your people's judgment on people decisions. Your AI plan looks for time your organization can redirect, not people to cut.",
-    opener: 'One workflow. A written AI plan. Help setting up the first step.',
+    opener: 'A review of your work. A prioritised AI Handoff Plan. A first step to try.',
     title: 'The AI Handoff Plan | BlueChip',
-    description: 'Pick one workflow your team repeats, and for C$795 you get a written plan showing a realistic way to use AI to give the people who do it back at least 3 net hours a week between them, or your full fee comes back.',
+    description: 'A C$795 review of your team’s work with a prioritised AI Handoff Plan. Evidence-backed potential for 3 net team hours a week, or a full-fee refund.',
   },
   'public-sector': {
     path: PUBLIC_SECTOR_PATH,
     chatTopic: 'public-sector',
     switchLabel: 'Municipality or public body',
     headline: 'Make more time for council priorities.',
-    lead: "Pick one routine workflow. We assess what AI could take on, what stays with your staff, and how much time could go back to council priorities.",
+    lead: "We look across your team's work and recommend where AI could help, what your staff keep, and how time could go back to council priorities.",
     guardrail: "AI doesn't replace CAO judgment, council governance, or your privacy and records requirements. Your AI plan looks for time that can go back to council priorities, not positions to cut, and what you do with any time it frees up stays your decision.",
-    opener: 'One workflow. A written AI plan. Help setting up the first step.',
+    opener: 'A review of your work. A prioritised AI Handoff Plan. A first step to try.',
     title: 'The AI Handoff Plan for municipalities and public bodies | BlueChip',
-    description: 'Name one workflow your staff repeat, and for C$795 you get a written plan showing a realistic way to use AI to give the people who do it back at least 3 net hours a week between them, or your full fee comes back.',
+    description: 'A C$795 review of your team’s work with a prioritised AI Handoff Plan. Evidence-backed potential for 3 net team hours a week, or a full-fee refund.',
   },
 };
 
@@ -53,14 +53,14 @@ export const ILLUSTRATION_TEXT = `Say ${ILLUSTRATION.small.people} people do tha
 // inclusions now live in the four delivery steps and written-plan kit
 // (AiHandoffPlanPage FLOW_STEPS and PLAN_KIT). The guarantee line sits
 // in the "Your safety net" block below the box (Infy batch 3, item 1).
-export const BOX_YOUR_TIME = 'a short conversation with you before we start, and you on the findings call. Beyond that, about two hours each from one or two of the people who do the work, across the discovery session, the findings and setup call, and the check-in.';
-export const BOX_NOT_INCLUDED = 'software and licences, anything your IT team installs, rolling the change out to the rest of the team, and any other workflow.';
+export const BOX_YOUR_TIME = 'about two hours each from one or two of the people who do the work, across discovery, the findings and setup call, and the check-in, plus your time on the findings call.';
+export const BOX_NOT_INCLUDED = 'software and licences, anything your IT team installs, wider rollout, and implementation beyond the included first-step setup.';
 
 // "Your safety net" (Infy batch 3, item 1c). Body-text size, never behind a link or accordion.
-export const SAFETY_NET = "if your AI plan can't show at least 3 net hours a week in total across the people who do that workflow, your full fee comes back automatically within 10 business days of your findings call. No forms, no hoops. It's a promise about what your AI plan finds, not about what happens afterwards.";
+export const SAFETY_NET = "if your AI Handoff Plan cannot show evidence-backed potential for at least 3 net team hours a week across the agreed people and work reviewed, your full fee is refunded automatically within 10 business days of your findings call. This covers plan findings, not actual implementation savings.";
 export const SAFETY_NET_DEFINITIONS = "Net means after the weekly time needed to check the AI's work and keep the tools running.";
 
-export const CTA_LEAD = "Tell us which workflow you'd start with and roughly how many people do it, and we'll tell you plainly whether it looks like a good place to start. Asking doesn't book the AI Handoff Plan or take payment.";
+export const CTA_LEAD = "Tell us about your team's work and what you would like to improve, and we'll talk through where AI could help. Asking doesn't book the AI Handoff Plan or take payment.";
 
 // Retainer line (Infy batch 3, item 3), with the retainer named as Thomas confirmed it
 // ("Practical AI and/or Embedded HR"). No roadmap, no scope, no six-month minimum, no link.
