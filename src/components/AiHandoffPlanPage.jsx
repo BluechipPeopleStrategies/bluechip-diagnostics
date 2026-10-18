@@ -119,9 +119,7 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
         <span className="glass-sheet glass-sheet--mid" aria-hidden="true" />
         <GlassPanel as="section" className="glass-panel glass-panel--focal plan-box" aria-labelledby="ai-price-title"
           plasma={{ radius: 24, tint: '#0E2140', opacity: 0.62, elevation: 0.7 }}>
-          <h2 id="ai-price-title">What you get for {dollars(PLAN_FEE)}</h2>
-          <p className="plan-current-price">Current fee. {FUTURE_PRICE_NOTICE}</p>
-          <p className="plan-current-price">{PLAN_CAPACITY_NOTICE}</p>
+          <h2 id="ai-price-title">What your AI Handoff Plan includes</h2>
           <p className="plan-box-opener">{copy.opener}</p>
           <PlanFlow steps={FLOW_STEPS} />
           <ul className="plan-included-tools" aria-label="Included with your written plan">
@@ -135,12 +133,22 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
         </GlassPanel>
       </div>
 
+      <PlanInside />
+
+      <GlassPanel as="aside" className="glass-panel plan-booking-facts" aria-labelledby="plan-booking-title" plasma={{ radius: 20, opacity: 0.6 }}>
+        <h2 id="plan-booking-title">Fee & availability</h2>
+        <div className="plan-booking-grid">
+          <div><p className="plan-booking-label">One-time fee</p><p className="plan-booking-amount">{dollars(PLAN_FEE)}</p><p className="plan-booking-note">{FUTURE_PRICE_NOTICE}</p></div>
+          <div><p className="plan-booking-label">Monthly capacity</p><p className="plan-booking-note">{PLAN_CAPACITY_NOTICE}</p><p className="plan-booking-note">Ask us about timing before you book.</p></div>
+        </div>
+        <p className="plan-payment-note">Prefer to pay another way? <a href={`#chat?topic=${copy.chatTopic}`}>Reach out, and we can work something out.</a> Municipalities and public bodies can use a purchase order and invoice.</p>
+      </GlassPanel>
+
       <GlassPanel as="section" className="glass-panel plan-safety" aria-labelledby="plan-safety-title" plasma={{ radius: 20, opacity: 0.5 }}>
         <p className="plan-safety-body"><strong id="plan-safety-title">Your safety net:</strong> {SAFETY_NET}</p>
         <p className="plan-safety-defs"><em>{SAFETY_NET_DEFINITIONS}</em></p>
         <p className="plan-safety-refund">See our <a href={REFUND_URL}>Refund Policy</a>, section 1.</p>
         <p className="plan-cta-lead">{CTA_LEAD}</p>
-        <p>Prefer to pay another way? <a href={`#chat?topic=${copy.chatTopic}`}>Reach out, and we can work something out.</a> Municipalities and public bodies can use a purchase order and invoice.</p>
         <p className="ai-cta-row"><PlanButton href={`#chat?topic=${copy.chatTopic}`}>Start the conversation</PlanButton></p>
       </GlassPanel>
 
@@ -154,8 +162,6 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
       <GlassPanel as="section" className="glass-panel glass-strip ai-credibility" aria-label="About BlueChip" plasma={{ radius: 14, opacity: 0.5 }}>
         <p>Built and run by BlueChip People Strategies. <a href="https://www.bluechip-people-strategies.com/about">More about us &rarr;</a></p>
       </GlassPanel>
-
-      <PlanInside />
 
       <GlassPanel className="glass-panel glass-faq" plasma={{ radius: 18, opacity: 0.5 }}>
         <details><summary>Does the guarantee mean three hours for every employee?</summary><p>No. The 3 hours are a total across the agreed people and work reviewed, not 3 hours per person or per task. We agree the priorities and whose time is counted during discovery.</p></details>

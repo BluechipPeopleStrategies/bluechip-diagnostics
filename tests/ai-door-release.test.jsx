@@ -31,7 +31,7 @@ describe('plan page: order, both editions', () => {
     const { container } = renderEdition(path);
     const headline = container.querySelector('.plan-headline');
     const example = container.querySelector('#pulse-scale');
-    const box = screen.getByRole('heading', { name: 'What you get for C$795' }).closest('section');
+    const box = screen.getByRole('heading', { name: 'What your AI Handoff Plan includes' }).closest('section');
     const safety = container.querySelector('.plan-safety');
     const cta = within(safety).getByRole('link', { name: 'Start the conversation' });
     const follows = (a, b) => Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
@@ -52,9 +52,9 @@ describe('plan page: order, both editions', () => {
     expect(document.title).not.toMatch(/Practical AI Audit/);
   });
 
-  it('shows the price once as C$795 in the box heading and never the old prices', () => {
+  it('shows the price once in its booking section and never the old prices', () => {
     const { container } = renderEdition('/ai-handoff-plan');
-    expect(screen.getByRole('heading', { name: 'What you get for C$795' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'What your AI Handoff Plan includes' })).toBeInTheDocument();
     expect(container.textContent).not.toMatch(/C\$(595|999)/);
     // The scenario is fee-independent; the current fee appears in its own box.
     expect((container.textContent.match(/C\$795/g) || []).length).toBe(1);
@@ -64,7 +64,7 @@ describe('plan page: order, both editions', () => {
 describe('plan page: lead, example, box and safety net text', () => {
   it('uses a short lead and labels the team-hours equation as an illustration', () => {
     const { container } = renderEdition('/ai-handoff-plan');
-    expect(screen.getByRole('heading', { name: 'Where could AI give your team some time back?' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Where is repeat work costing your team time?' })).toBeInTheDocument();
     expect(container.querySelector('.glass-lede').textContent).toMatch(/what your people keep/);
     const example = container.querySelector('#pulse-scale');
     expect(within(example).getByText(/not a result calculated from your answers/)).toBeInTheDocument();
@@ -86,7 +86,7 @@ describe('plan page: lead, example, box and safety net text', () => {
 
   it('keeps all deliverables, timing conditions and exclusions in the compact package', () => {
     renderEdition('/ai-handoff-plan');
-    const box = screen.getByRole('heading', { name: 'What you get for C$795' }).closest('section');
+    const box = screen.getByRole('heading', { name: 'What your AI Handoff Plan includes' }).closest('section');
     const steps = box.querySelectorAll('.plan-flow-step');
     expect(steps).toHaveLength(4);
     expect(steps[0].textContent).toMatch(/60 minutes.*Meet virtually with up to two people/);
@@ -143,7 +143,7 @@ describe('plan page: two editions and the switch', () => {
 
   it('the public sector edition uses municipal wording and its own chat topic', () => {
     const { container } = renderEdition('/ai-handoff-plan/public-sector');
-    expect(screen.getByRole('heading', { name: 'Make more time for council priorities.' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'What is repeat work taking away from council priorities?' })).toBeInTheDocument();
     expect(container.querySelector('.plan-box-opener').textContent).toMatch(/^A review of your work\./);
     expect(container.querySelector('.glass-lede').textContent).toMatch(/how time could go back to council priorities\.$/);
     screen.getAllByRole('link', { name: 'Start the conversation' }).forEach(a => expect(a).toHaveAttribute('href', '#chat?topic=public-sector'));
@@ -182,7 +182,7 @@ describe('plan page: two editions and the switch', () => {
     render(<App />);
     expect(window.location.pathname).toBe('/ai-handoff-plan/public-sector');
     expect(window.location.search).toBe('?workflow=reporting');
-    expect(screen.getByRole('heading', { name: 'Make more time for council priorities.' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'What is repeat work taking away from council priorities?' })).toBeInTheDocument();
     const r = vercelConfig.redirects.find(x => x.source === '/ai-handoff-plan/municipal');
     expect(r).toEqual({ source: '/ai-handoff-plan/municipal', destination: '/ai-handoff-plan/public-sector', permanent: true });
   });

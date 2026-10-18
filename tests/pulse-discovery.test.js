@@ -5,7 +5,7 @@ describe('short discovery Pulse', () => {
   it('starts with three examples while retaining every selected work area for later exploration', () => {
     const state = { ...freshPulse(), families: FAMILIES.map(f => f.id) };
     expect(pulseQuestions(state)).toHaveLength(3);
-    expect(restorePulse(state).families).toHaveLength(7);
+    expect(restorePulse(state).families).toHaveLength(10);
     const industry = { ...freshPulse(), families: ['industry'], answers: { industryBrief: 'unknown' } };
     expect(pulseQuestions(industry)[0].id).toBe('industryBrief');
     expect(pulseSnapshot(industry).uncertain.map(o => o.id)).toEqual(['industryBrief']);
@@ -32,6 +32,6 @@ describe('short discovery Pulse', () => {
   });
   it('has a fixed transparent scale example independent of answers', () => {
     expect(SCALE).toMatchObject({ people: 10, hours: 2.5, weeks: 48, rate: 40, teamHours: 25, annualHours: 1200, annualValue: 48000 });
-    const r = pulseSnapshot(freshPulse()); expect(r.opportunities).toEqual([]); expect(r.startingPoint).toBeNull(); expect(r.unexplored).toHaveLength(17);
+    const r = pulseSnapshot(freshPulse()); expect(r.opportunities).toEqual([]); expect(r.startingPoint).toBeNull(); expect(r.unexplored).toHaveLength(20);
   });
 });

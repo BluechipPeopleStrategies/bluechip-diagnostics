@@ -225,7 +225,7 @@
     "From a half-day team session to a multi-month cohort, sized to you. Tell us what's prompting it and we'll suggest a size."
   ];
   var FREE_CHECK_BUBBLES = [
-    'Twelve quick questions about your recurring work, about four minutes in all. AI Pulse gives you a starting range of hours, with no email required. It is not the AI Handoff Plan, and it does not confirm the guarantee.'
+    'Explore familiar work and a few practical AI possibilities in about 3–4 minutes. Your AI Pulse and results are free, with no email required. A tailored AI Handoff Plan is a separate paid service.'
   ];
 
   // ---- styles ----
@@ -250,8 +250,11 @@
       'background:linear-gradient(180deg,#fff 0%,rgba(252,249,243,.98) 55%,rgba(247,241,231,.97) 100%);-webkit-backdrop-filter:blur(12px) saturate(1.3);backdrop-filter:blur(12px) saturate(1.3);' +
       'border:1px solid rgba(255,255,255,.75);border-radius:16px;border-bottom-right-radius:5px;' +
       'box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(11,26,51,.06),0 2px 4px rgba(11,26,51,.08),0 14px 26px -10px rgba(11,26,51,.3),0 32px 54px -26px rgba(11,26,51,.45);' +
-      'padding:13px 16px 13px 20px;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.45;cursor:pointer;' +
-      'transform-origin:100% 100%;animation:bcwGreetIn .7s cubic-bezier(.34,1.4,.5,1) .4s both,bcwFloat 6s ease-in-out 1.4s infinite;transition:box-shadow .25s ease}' +
+      'padding:0;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;font-size:14px;line-height:1.45;' +
+      'transform-origin:100% 100%;animation:bcwGreetIn .3s ease both;transition:box-shadow .25s ease}' +
+    '.bcw-greet-open{display:block;width:100%;border:0;background:none;text-align:left;font:inherit;color:inherit;padding:17px 40px 17px 20px;cursor:pointer;border-radius:16px}' +
+    '.bcw-greet-dismiss{position:absolute;right:0;top:0;width:44px;height:44px;border:0;background:none;color:' + NAVY + ';font-family:inherit;font-size:24px;line-height:1;cursor:pointer;border-radius:12px}' +
+    '.bcw-greet button:focus-visible{outline:3px solid ' + GOLD + ';outline-offset:2px}' +
     '.bcw-greet::before{content:"";position:absolute;left:9px;top:13px;bottom:13px;width:3px;border-radius:3px;background:linear-gradient(180deg,#F0D99A,' + GOLD + ');box-shadow:0 0 8px rgba(201,162,75,.55)}' +
     '.bcw-greet:hover,.bcw-greet:focus-visible{box-shadow:inset 0 1px 0 #fff,0 0 0 1px rgba(201,162,75,.35),0 2px 4px rgba(11,26,51,.08),0 18px 30px -10px rgba(11,26,51,.34),0 38px 60px -26px rgba(11,26,51,.5)}' +
     '.bcw-greet:focus-visible{outline:3px solid ' + GOLD + ';outline-offset:3px}' +
@@ -297,7 +300,7 @@
     '.bcw-done svg{width:34px;height:34px;fill:' + GOLD + ';margin-bottom:8px}' +
     '@media (prefers-reduced-motion:reduce){.bcw-panel,.bcw-launch,.bcw-launch svg,.bcw-send,.bcw-greet{transition:none}.bcw-typing span{animation:none;opacity:1}.bcw-greet{animation:none}.bcw-launch::after{animation:none;display:none}.bcw-launch:hover,.bcw-launch:focus-visible,.bcw-launch:active,.bcw-launch:hover svg{transform:none}}' +
     '.bcw-greet small{font-size:12px}' +
-    '@media (max-width:480px){.bcw-panel{right:8px;left:8px;bottom:84px;width:auto;max-width:none}.bcw-greet{display:none}.bcw-choice{min-height:44px}}';
+    '@media (max-width:480px){.bcw-panel{right:8px;left:8px;bottom:84px;width:auto;max-width:none}.bcw-greet{right:20px;bottom:94px;max-width:min(280px,calc(100vw - 40px))}.bcw-greet small{display:none}.bcw-choice{min-height:44px}}';
 
   // Chat funnel analytics (Oct 9, 2026): steps and topic labels only, never names, numbers, emails or message text.
   // On the main site the header code mirrors bc_* gtag events to PostHog; anywhere else, send to PostHog directly.
@@ -325,6 +328,17 @@
   }
 
   var launch, greet, panel, bodyEl, footEl, started = false;
+  var greetTimer = 0, greetHovered = false;
+  var GREET_SEEN_KEY = 'bluechip-chat-introduction-seen-v1';
+  function hideGreeting() {
+    clearTimeout(greetTimer);
+    if (greet) greet.style.display = 'none';
+  }
+  function scheduleGreetingEnd() {
+    clearTimeout(greetTimer);
+    if (greet.style.display === 'none' || greetHovered || greet.contains(document.activeElement)) return;
+    greetTimer = setTimeout(function () { hideGreeting(); }, 5000);
+  }
   var data = { name: '', need: '', contact: '', email: '', consent: false, heard: '' };
   // The lead is never held hostage by the optional question: while it shows, leadState is
   // 'pending', and closing the chat or leaving the page sends the lead without the answer.
@@ -341,8 +355,12 @@
     launch = el('button', { 'class': 'bcw-launch', id: 'bcwLaunch', 'aria-label': 'Chat with Chip', 'aria-haspopup': 'dialog' },
       '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H8l-4 4V6a2 2 0 0 1 2-2z"/></svg>');
 
-    greet = el('div', { 'class': 'bcw-greet', role: 'button', tabindex: '0', 'aria-label': 'Chat with Chip' },
+    greet = el('div', { 'class': 'bcw-greet', role: 'group', 'aria-label': 'Chat introduction' });
+    var greetOpen = el('button', { type: 'button', 'class': 'bcw-greet-open' },
       "<b>A people decision or a practical AI question?</b><small>Tell us where you need help. We will point you to the next step.</small>");
+    var greetDismiss = el('button', { type: 'button', 'class': 'bcw-greet-dismiss', 'aria-label': 'Dismiss chat introduction' }, '&times;');
+    greet.appendChild(greetOpen);
+    greet.appendChild(greetDismiss);
 
     panel = el('div', { 'class': 'bcw-panel', id: 'bcwPanel', role: 'dialog', 'aria-modal': 'false', 'aria-label': "Let's chat", 'aria-hidden': 'true' });
     var header = el('div', { 'class': 'bcw-header' }, '<h3>Let’s chat</h3>');
@@ -358,19 +376,19 @@
     document.body.appendChild(greet);
     document.body.appendChild(panel);
 
-    // On the homepage the hero instrument gets the first beat: Chip's greet
-    // bubble waits 12s (launch button stays visible the whole time). Other
-    // pages keep the immediate greeting.
-    if (location.pathname === '/' || location.pathname === '') {
-      greet.style.display = 'none';
-      setTimeout(function () {
-        if (!started && !panel.classList.contains('bcw-open')) greet.style.display = '';
-      }, 12000);
-    }
+    // One brief introduction per browser session. The launcher remains available.
+    var greetSeen = false;
+    try { greetSeen = sessionStorage.getItem(GREET_SEEN_KEY) === '1'; sessionStorage.setItem(GREET_SEEN_KEY, '1'); } catch { /* storage is optional */ }
+    if (greetSeen) hideGreeting(); else scheduleGreetingEnd();
 
     launch.addEventListener('click', function () { toggle(); });
-    greet.addEventListener('click', function () { open(); });
-    greet.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+    greetOpen.addEventListener('click', function () { open(); });
+    greetDismiss.addEventListener('click', function () { hideGreeting(); launch.focus(); });
+    greet.addEventListener('mouseenter', function () { greetHovered = true; clearTimeout(greetTimer); });
+    greet.addEventListener('mouseleave', function () { greetHovered = false; scheduleGreetingEnd(); });
+    greet.addEventListener('focusin', function () { clearTimeout(greetTimer); });
+    greet.addEventListener('focusout', function (e) { if (!greet.contains(e.relatedTarget)) scheduleGreetingEnd(); });
+    greet.addEventListener('keydown', function (e) { if (e.key === 'Escape') { hideGreeting(); launch.focus(); } });
     closeBtn.addEventListener('click', function () { close(); });
     window.addEventListener('pagehide', flushPendingLead);
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && panel.classList.contains('bcw-open')) close(); });
@@ -440,7 +458,7 @@
   function toggle() { panel.classList.contains('bcw-open') ? close() : open(); }
 
   function open(opts) {
-    if (greet) greet.style.display = 'none';
+    hideGreeting();
     panel.classList.add('bcw-open');
     panel.setAttribute('aria-hidden', 'false');
     var topic = opts && opts.topic ? topicBySlug(opts.topic) : null;

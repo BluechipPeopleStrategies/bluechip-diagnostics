@@ -8,7 +8,7 @@ import { GlassSurfaceContext } from './GlassContext';
 // so the rim is gold and the sheen is off. Pointer effects are off too: text that moves under
 // the cursor is harder to read, and this is a page people read, not a toy.
 const BLUECHIP_MOOD = {
-  colors: ['#0B1A33', '#13243F', '#C9A24B'],
+  colors: ['#0B1A33', '#101F36', '#34352F'],
   // Small blend distance: the five step cards sit 14px apart and must read as five separate
   // steps, not one liquid band (they fused at 30).
   blend: 10,
@@ -32,8 +32,8 @@ export default function PlasmaStage({ children }) {
       dispersion={0.35}
       refraction={0.9}
       highlight={0.4}
-      glow={0.5}
-      grain={0.3}
+      glow={0.12}
+      grain={0.08}
       stretch={0}
       flow={0}
       pointerDrop={false}

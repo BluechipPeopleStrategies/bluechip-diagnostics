@@ -6,7 +6,7 @@ export default function PulseScale() {
   const fourWeekHours = s.teamHours * 4;
   const fourWeekValue = fourWeekHours * s.rate;
   return <section className="pulse-panel pulse-scale" id="pulse-scale" aria-labelledby="pulse-scale-title">
-    <p className="pulse-eyebrow">Imagine a small weekly gain</p>
+    <p className="pulse-eyebrow">The time adds up</p>
     <h2 id="pulse-scale-title">Repetitive work can keep pushing your team&apos;s priorities back.</h2>
     <p className="pulse-lead">What if <strong>{s.people} people could each reclaim {s.hours} net hours a week</strong> for higher-value work?</p>
     <div className="pulse-equation" role="group" aria-label="Illustrative team hours">
