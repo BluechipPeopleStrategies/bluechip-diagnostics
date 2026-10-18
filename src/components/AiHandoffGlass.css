@@ -33,9 +33,9 @@
               radial-gradient(760px 560px at 6% 70%, #132b4f 0%, transparent 65%),
               linear-gradient(180deg, #0b1a33, #070f1e); }
 .glass-orb { position: absolute; border-radius: 50%; filter: blur(60px); }
-.glass-orb--gold { width: 460px; height: 460px; right: 2%; top: -4%; background: radial-gradient(circle, rgba(227, 196, 124, .34), rgba(201, 162, 75, 0) 70%); }
-.glass-orb--blue { width: 560px; height: 560px; left: -10%; top: 34%; background: radial-gradient(circle, rgba(70, 120, 190, .36), rgba(70, 120, 190, 0) 70%); }
-.glass-orb--low { width: 360px; height: 360px; right: 18%; bottom: -8%; background: radial-gradient(circle, rgba(90, 140, 210, .28), rgba(90, 140, 210, 0) 70%); }
+.glass-orb--gold { width: 460px; height: 460px; right: 2%; top: -4%; background: radial-gradient(circle, rgba(227, 196, 124, .10), rgba(201, 162, 75, 0) 70%); }
+.glass-orb--blue { width: 560px; height: 560px; left: -10%; top: 34%; background: radial-gradient(circle, rgba(70, 120, 190, .18), rgba(70, 120, 190, 0) 70%); }
+.glass-orb--low { width: 360px; height: 360px; right: 18%; bottom: -8%; background: radial-gradient(circle, rgba(90, 140, 210, .14), rgba(90, 140, 210, 0) 70%); }
 .glass-grid { position: absolute; inset: 0;
   background-image: linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px);
   background-size: 56px 56px;

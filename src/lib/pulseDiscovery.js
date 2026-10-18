@@ -3,7 +3,7 @@ export { PLAN_FEE } from './planPricing.js';
 export { FAMILIES, OPPORTUNITIES, STATUSES };
 export const PULSE_VERSION = 'ai-pulse-discovery-v1';
 export const SHARING_NOTICE = 'ai-pulse-discovery-results-v1';
-export const PRIMARY = { knowledge: 'findDocs', voice: 'dictation', inbox: 'emailDrafts', documents: 'reports', social: 'socialDrafts', operations: 'records' };
+export const PRIMARY = { knowledge: 'findDocs', voice: 'dictation', inbox: 'emailDrafts', documents: 'reports', social: 'socialDrafts', operations: 'records', industry: 'industryBrief', priorities: 'weeklyPriorities', accountability: 'actionOwnership', people: 'hrStartingPoints' };
 const people = 10, hours = 2.5, rate = 40, weeks = 48;
 export const SCALE = Object.freeze({ people, hours, rate, weeks, teamHours: people * hours, annualHours: people * hours * weeks, annualValue: people * hours * weeks * rate });
 export const PULSE_STORAGE_KEY = 'bluechip-pulse-discovery-v1';
@@ -26,7 +26,7 @@ export function restorePulse(value) {
     questionIndex: Number.isInteger(raw.questionIndex) && raw.questionIndex >= 0 && raw.questionIndex < FAMILIES.length ? raw.questionIndex : 0,
   };
 }
-export function pulseQuestions(state) { return state.families.map(id => OPPORTUNITIES.find(o => o.id === PRIMARY[id])).filter(Boolean); }
+export function pulseQuestions(state) { return state.families.map(id => OPPORTUNITIES.find(o => o.id === PRIMARY[id])).filter(Boolean).slice(0,3); }
 export function pulseSnapshot(raw) {
   const state = restorePulse(raw);
   const byStatus = status => OPPORTUNITIES.filter(o => state.answers[o.id] === status).map(o => ({ ...o, help: state.help[o.id] || 'not answered' }));

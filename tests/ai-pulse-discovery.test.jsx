@@ -7,7 +7,23 @@ const mount=()=>render(<MemoryRouter><AiPulseDiscovery /></MemoryRouter>);
 function start(){fireEvent.click(screen.getByRole('button',{name:/Find my opportunities/}));}
 function choose(name){fireEvent.click(screen.getByRole('button',{name:new RegExp(name)}));}
 function showEmptyResult(){start();choose('Not sure');fireEvent.click(screen.getByRole('button',{name:/Skip this for now/}));fireEvent.click(screen.getByRole('button',{name:/Skip this for now/}));fireEvent.click(screen.getByRole('button',{name:/Skip this for now/}));fireEvent.click(screen.getByRole('button',{name:/Show my opportunity snapshot/}));}
-it('lets all six areas be chosen and requires no workload arithmetic',()=>{const{container}=mount();start();const choices=container.querySelectorAll('[data-family]');expect(choices).toHaveLength(6);for(const button of choices)fireEvent.click(button);expect(container.querySelectorAll('[data-family][aria-pressed=true]')).toHaveLength(6);expect(container.querySelector('input[type=number]')).toBeNull();});
+it('lets all ten work areas be chosen and requires no workload arithmetic',()=>{const{container}=mount();start();const choices=container.querySelectorAll('[data-family]');expect(choices).toHaveLength(10);for(const button of choices)fireEvent.click(button);expect(container.querySelectorAll('[data-family][aria-pressed=true]')).toHaveLength(10);expect(container.querySelector('input[type=number]')).toBeNull();});
+it('groups familiar work and previews an idea without recording an answer',()=>{
+  mount();start();
+  expect(screen.getByRole('region',{name:'Information & insight'})).toBeInTheDocument();
+  expect(screen.getByRole('region',{name:'Communication & content'})).toBeInTheDocument();
+  expect(screen.getByRole('region',{name:'People & progress'})).toBeInTheDocument();
+  choose('Keeping commitments');
+  expect(screen.getByRole('status',{name:'A possibility to explore'})).toHaveTextContent('Turn meeting notes into proposed owners, actions and dates.');
+  const saved=Object.values(sessionStorage).map(v=>{try{return JSON.parse(v);}catch{return null;}}).find(v=>v?.families);
+  expect(saved.answers).toEqual({});
+  expect(globalThis.fetch).not.toHaveBeenCalled();
+});
+it('teaches one possibility before requiring an answer on the unsure path',()=>{
+  mount();start();choose('Not sure');
+  expect(screen.getByRole('region',{name:'An example to consider'})).toHaveTextContent('A searchable home for team knowledge');
+  expect(globalThis.fetch).not.toHaveBeenCalled();
+});
 it('discloses the optional fee after selection without interrupting the free check',()=>{
   mount();start();
   expect(screen.queryByRole('complementary',{name:'Optional plan pricing'})).not.toBeInTheDocument();

@@ -1,39 +1,63 @@
 export const FAMILIES=[
   {
     "id": "knowledge",
-    "title": "Find the right information",
-    "cue": "Documents, latest versions and team knowledge",
+    "title": "Finding documents and answers",
+    "cue": "Documents, latest versions and repeat questions",
     "mark": "01"
   },
   {
     "id": "voice",
-    "title": "Say it, then shape it",
-    "cue": "Dictation, meeting notes and next actions",
+    "title": "Taking notes and writing drafts",
+    "cue": "Meeting notes, ideas and messages you type",
     "mark": "02"
   },
   {
     "id": "inbox",
-    "title": "Keep email moving",
-    "cue": "Replies, buried decisions and follow-ups",
+    "title": "Handling email and follow-ups",
+    "cue": "Replies, inboxes and keeping track of next steps",
     "mark": "03"
   },
   {
     "id": "documents",
-    "title": "Get useful work onto the page",
-    "cue": "Reports, research and spreadsheets",
+    "title": "Preparing reports and research",
+    "cue": "Reports, spreadsheets and information to summarize",
     "mark": "04"
   },
   {
     "id": "social",
-    "title": "Keep showing up",
-    "cue": "Social posts, newsletters and useful content",
+    "title": "Creating content and updates",
+    "cue": "Social posts, newsletters and customer communications",
     "mark": "05"
   },
   {
     "id": "operations",
-    "title": "Make everyday work flow",
-    "cue": "Records, onboarding and repeat questions",
+    "title": "Keeping everyday admin moving",
+    "cue": "Records, onboarding and routine requests",
     "mark": "06"
+  },
+  {
+    "id": "priorities",
+    "title": "Deciding what comes first",
+    "cue": "Competing demands, weekly priorities and planning",
+    "mark": "08"
+  },
+  {
+    "id": "accountability",
+    "title": "Keeping commitments on track",
+    "cue": "Owners, deadlines and staff follow-through",
+    "mark": "09"
+  },
+  {
+    "id": "people",
+    "title": "Handling everyday HR work",
+    "cue": "Onboarding, policy questions and check-in preparation",
+    "mark": "10"
+  },
+  {
+    "id": "industry",
+    "title": "Keeping up with your industry",
+    "cue": "Industry news, niche creators and public competitor offers",
+    "mark": "07"
   }
 ];
 export const OPPORTUNITIES=[
@@ -164,6 +188,38 @@ export const OPPORTUNITIES=[
     "capability": "Consistent answers from approved sources",
     "explain": "A useful answer library can support staff and, where appropriate, a reviewed self-service option. Exceptions still need a person.",
     "first": "Collect five recurring questions. Check the correct answers and decide which should always come to a person."
+  },
+  {
+    "id": "industryBrief",
+    "family": "industry",
+    "prompt": "Do you check industry news, niche creators or competitor offers for useful updates?",
+    "capability": "A daily briefing from the sources you choose",
+    "explain": "AI can help summarize industry news, niche creators and public competitor updates into one short briefing with source links. Check the original sources for accuracy and what the summary may have missed.",
+    "first": "Choose three trusted public sources. Try one briefing with links, check it against the originals and decide what is worth following before setting up daily updates."
+  },
+  {
+    "id": "weeklyPriorities",
+    "family": "priorities",
+    "prompt": "Do competing requests make it hard to decide what to work on first?",
+    "capability": "A draft set of priorities your team can agree on",
+    "explain": "AI can organize a non-sensitive task list by deadlines, dependencies and the criteria you choose. The manager and the people doing the work decide what comes first.",
+    "first": "Use five tasks with no personal details. Agree the priority criteria, compare a draft order and adjust it together."
+  },
+  {
+    "id": "actionOwnership",
+    "family": "accountability",
+    "prompt": "Do agreed actions lose their owner or deadline after a meeting?",
+    "capability": "Clear actions, owners and follow-up dates",
+    "explain": "AI can turn approved notes into a proposed action list with owners, next steps and due dates. People confirm the commitments and use check-ins to understand progress and blockers.",
+    "first": "After a non-sensitive meeting, create a short action list. Ask each person to confirm the owner, next step and follow-up date."
+  },
+  {
+    "id": "hrStartingPoints",
+    "family": "people",
+    "prompt": "Do onboarding, policy questions or preparing for check-ins take repeated effort?",
+    "capability": "Reusable starting points for everyday HR work",
+    "explain": "AI can help draft onboarding checklists, find approved policy answers and prepare check-in agendas. A person checks the facts and wording and handles sensitive people decisions.",
+    "first": "Choose one onboarding checklist or non-sensitive policy question. Test a draft against approved sources before using it with your team."
   }
 ];
 export const STATUSES=[

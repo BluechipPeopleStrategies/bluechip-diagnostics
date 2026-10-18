@@ -946,7 +946,7 @@ describe('the AI Handoff Plan page', () => {
   it('names the AI Handoff Plan, its C$795 fee and the automatic refund of plan findings', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
     expect(screen.getByRole('heading', { name: 'The AI Handoff Plan', level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'What you get for C$795', level: 2 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'What your AI Handoff Plan includes', level: 2 })).toBeInTheDocument();
     expect(screen.getByText(/your full fee is refunded automatically within 10 business days of your findings call/)).toBeInTheDocument();
     expect(screen.getByText(/This covers plan findings, not actual implementation savings/)).toBeInTheDocument();
     expect(screen.queryByText(/claim window|within 7 days/i)).not.toBeInTheDocument();
@@ -989,7 +989,7 @@ describe('the AI Handoff Plan page', () => {
 
   it('replaces the old deliverables list and takeaway cards with the numbered step flow', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
-    expect(screen.getByRole('heading', { name: 'What you get for C$795' }).closest('section').querySelectorAll('.plan-flow-step')).toHaveLength(4);
+    expect(screen.getByRole('heading', { name: 'What your AI Handoff Plan includes' }).closest('section').querySelectorAll('.plan-flow-step')).toHaveLength(4);
     expect(screen.getByText('Discovery')).toBeInTheDocument();
     expect(screen.getByText('Handoff plan')).toBeInTheDocument();
     expect(screen.getByText('Findings and setup')).toBeInTheDocument();
@@ -1008,7 +1008,7 @@ describe('the AI Handoff Plan page', () => {
   it('keeps the free starting point and paid price clear, with ongoing support optional', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
     expect(screen.getByRole('link', { name: 'Start with the free AI Pulse' })).toHaveAttribute('href', '/ai-opportunity-check');
-    expect(screen.getByRole('heading', { name: 'What you get for C$795' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'What your AI Handoff Plan includes' })).toBeInTheDocument();
     expect(screen.getByText('Do I need to buy ongoing support?')).toBeInTheDocument();
     expect(screen.getByText('No. You can keep your AI plan and put it in place yourself or with another provider.')).toBeInTheDocument();
   });
