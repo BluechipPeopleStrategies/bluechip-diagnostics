@@ -122,7 +122,7 @@ describe('new offering intake', () => {
     const ui = choose('The AI Handoff Plan');
     expect(document.body.textContent).toContain('Repeated admin can crowd out the work your team would rather be doing.');
     expect(document.body.textContent).toContain('The AI Handoff Plan looks across your team’s work');
-    expect(document.body.textContent).toContain("It's C$795, with no tax added.");
+    expect(document.body.textContent).toContain('your fee is confirmed before booking.');
     expect(document.body.textContent).toContain("Here's the deal");
     expect(document.body.textContent).toContain('evidence-backed potential for at least 3 net team hours a week across the agreed people and work reviewed');
     expect(document.body.textContent).toContain('your full fee comes back automatically within 10 business days');

@@ -155,13 +155,13 @@
   // "What you get for C$795", in box order.
   var INCLUDED_ANSWER = "A discovery session, a written AI plan, a starter kit, a findings and setup call, and a check-in about 30 days later.";
   var SETUP_ANSWER = "On the findings and setup call, one or two of the people who do the work set up the first step with us, in a tool you already allow. If none fits yet, the call ends with the IT request written and ready to send. Rolling the change out to the rest of the team, software and licences, and anything your IT team installs are not included.";
-  var RETAINER_CREDIT = "If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, your C$795 is credited against its first invoice. Conditions are in our Refund Policy, section 1.";
+  var RETAINER_CREDIT = "If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, the eligible plan fee you paid is credited against its first invoice. Conditions are in our Refund Policy, section 1.";
 
   // Approved fixed answers. Update alongside the service pages when offers change. `slug` is
   // used by the topic-preselect API/hash param (window.BlueChipChat.open, #chat?topic=).
   var KNOWLEDGE = [
     { slug: 'ai-handoff-plan', title: 'The AI Handoff Plan', need: PLAN_NEED, url: 'https://check.bluechip-people-strategies.com/ai-handoff-plan', link: 'Read the full AI Handoff Plan details', answers: [
-      ['What does the AI Handoff Plan cost?', "C$795 per organization, no tax added. Asking here doesn't book anything or take payment."],
+      ['What does the AI Handoff Plan cost?', "See the AI Handoff Plan page for current pricing. Pricing for future bookings may change at BlueChip's sole discretion; your fee is confirmed before booking. Asking here doesn't book anything or take payment."],
       ['What is included?', INCLUDED_ANSWER],
       ['How does the three-hour guarantee work?', GUARANTEE_ANSWER],
       ['Do you set the tools up for us?', SETUP_ANSWER],
@@ -171,7 +171,7 @@
     ] },
     { slug: 'public-sector', title: 'The AI Handoff Plan for municipalities and public bodies', need: PUBLIC_NEED, url: 'https://check.bluechip-people-strategies.com/ai-handoff-plan/public-sector', link: 'Read the public sector page', answers: [
       ['What does it cover?', "Tell us about the work your staff repeat. You get an AI Handoff Plan with practical priorities and evidence-backed potential for at least 3 net team hours a week across the agreed work. Then, on the findings call, one or two of them set up the first step with us, because a process nobody uses is just a document."],
-      ['What does it cost, and how do we pay?', "C$795, with no tax added. We book the discovery session once your purchase order is issued, and you pay the invoice on your normal payment terms. If an invoice is still unpaid after its terms, we hold the remaining deliverables until it's paid. " + REFUND_REF],
+      ['What does it cost, and how do we pay?', "See the AI Handoff Plan page for current pricing. Your fee is confirmed before booking; pricing for future bookings may change at BlueChip's sole discretion. We book the discovery session once your purchase order is issued, and you pay the invoice on your normal payment terms. If an invoice is still unpaid after its terms, we hold the remaining deliverables until it's paid. " + REFUND_REF],
       ['Does AI replace CAO judgment or council governance?', "AI doesn't replace CAO judgment, council governance, or your privacy and records requirements. Your AI plan looks for time that can go back to council priorities, not positions to cut, and what you do with any time it frees up stays your decision."],
       ['What is included?', INCLUDED_ANSWER],
       ['How does the three-hour guarantee work?', GUARANTEE_ANSWER],
@@ -205,18 +205,18 @@
   // Opening bubbles, one short set per topic. The AI Handoff Plan leads with capacity across the
   // people who do the work, then the deal, then whose it is (Thomas, 2026-10-08).
   var PLAN_BUBBLES = [
-    "Repeated admin can crowd out the work your team would rather be doing. The AI Handoff Plan looks across your team’s work, identifies where AI could help and recommends practical priorities. It's C$795, with no tax added.",
+    "Repeated admin can crowd out the work your team would rather be doing. The AI Handoff Plan looks across your team’s work, identifies where AI could help and recommends practical priorities. See the AI Handoff Plan page for current pricing; your fee is confirmed before booking.",
     "Here's the deal. If your AI plan cannot show evidence-backed potential for at least 3 net team hours a week across the agreed people and work reviewed, your full fee comes back automatically within 10 business days of your findings call. No forms, no hoops.",
     'Your AI plan is yours to put in place, on your own or with our help.'
   ];
   var PUBLIC_BUBBLES = [
-    "Repeated admin can crowd out council priorities. Tell us about the work your staff repeat, and the AI Handoff Plan looks across it for practical AI improvements with your staff in control. It's C$795, with no tax added.",
+    "Repeated admin can crowd out council priorities. Tell us about the work your staff repeat, and the AI Handoff Plan looks across it for practical AI improvements with your staff in control. See the AI Handoff Plan page for current pricing; your fee is confirmed before booking.",
     "Here's the deal. If your AI plan cannot show evidence-backed potential for at least 3 net team hours a week across the agreed people and work reviewed, your full fee comes back automatically within 10 business days of your findings call. No forms, no hoops.",
     "AI doesn't replace CAO judgment, council governance, or your privacy and records requirements. Your AI plan looks for time that can go back to council priorities, not positions to cut."
   ];
   var RETAINER_BUBBLES = [
     'Practical AI, embedded HR or both, scoped to what you need.',
-    'You can also start with the AI Handoff Plan. If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, your C$795 is credited against its first invoice.'
+    'You can also start with the AI Handoff Plan. If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, the eligible plan fee you paid is credited against its first invoice.'
   ];
   var OTHER_BUBBLES = [
     "Tell us what's going on and we'll point you to the right next step."

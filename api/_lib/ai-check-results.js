@@ -8,6 +8,7 @@ import { isHoneypot } from './lead-helpers.js';
 import { sanitizeAttribution, sanitizeHeardAbout } from './attribution.js';
 import { cleanRecipient } from './email-address.js';
 import { answerSummary, computeRange, orgSizeMidpoint } from '../../src/lib/aiOpportunity.js';
+import { handlePulseDiscovery } from '../_emails/ai-pulse-discovery.js';
 
 export const AI_CHECK_ID = 'ai-opportunity-check';
 
@@ -17,6 +18,7 @@ export const AI_CHECK_ID = 'ai-opportunity-check';
 // visitor email, so the endpoint can't be used to mail third parties, but Thomas still gets a
 // flagged copy in case a real person's browser filled it.
 export async function handleAiCheckResults(body, res, { sendEmail }) {
+  if (body.pulseVersion !== undefined) return handlePulseDiscovery(body, res, { sendEmail });
   const email = cleanRecipient(body.email);
   if (!email) return res.status(400).json({ error: 'invalid_email' });
 

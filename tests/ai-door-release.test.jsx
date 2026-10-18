@@ -30,7 +30,7 @@ describe('plan page: order, both editions', () => {
   it.each([['/ai-handoff-plan'], ['/ai-handoff-plan/public-sector']])('runs lead, example, box, safety net, then Start the conversation on %s', (path) => {
     const { container } = renderEdition(path);
     const headline = container.querySelector('.plan-headline');
-    const example = container.querySelector('.plan-example');
+    const example = container.querySelector('#pulse-scale');
     const box = screen.getByRole('heading', { name: 'What you get for C$795' }).closest('section');
     const safety = container.querySelector('.plan-safety');
     const cta = within(safety).getByRole('link', { name: 'Start the conversation' });
@@ -56,7 +56,7 @@ describe('plan page: order, both editions', () => {
     const { container } = renderEdition('/ai-handoff-plan');
     expect(screen.getByRole('heading', { name: 'What you get for C$795' })).toBeInTheDocument();
     expect(container.textContent).not.toMatch(/C\$(595|999)/);
-    // the only other C$795 is the retainer credit sentence
+    // current fee appears in the illustration and box; the credit follows the actual amount paid
     expect((container.textContent.match(/C\$795/g) || []).length).toBe(2);
   });
 });
@@ -66,19 +66,20 @@ describe('plan page: lead, example, box and safety net text', () => {
     const { container } = renderEdition('/ai-handoff-plan');
     expect(screen.getByRole('heading', { name: 'Where could AI give your team some time back?' })).toBeInTheDocument();
     expect(container.querySelector('.glass-lede').textContent).toMatch(/what your people keep/);
-    const example = container.querySelector('.plan-example');
-    expect(within(example).getByText('Illustration, not a promise or a client result.')).toBeInTheDocument();
-    expect(within(example).getByRole('group', { name: 'Illustrative team hours' }).textContent).toMatch(/5people.*1net hour each.*5team hours/);
-    expect(example.textContent).toContain('240 hours a year at 48 working weeks');
-    expect(example.textContent).toContain("checking AI's work and keeping the tools running");
-    expect(example.textContent).not.toMatch(/C\$|\$/);
+    const example = container.querySelector('#pulse-scale');
+    expect(within(example).getByText(/not a result calculated from your answers/)).toBeInTheDocument();
+    expect(within(example).getByRole('group', { name: 'Illustrative team hours' }).textContent).toMatch(/10people.*2.5net hours each.*25team hours/);
+    expect(example.textContent).toContain('1,200 hours a year');
+    expect(example.textContent).toContain('48 working weeks');
+    expect(example.textContent).toContain("checking the AI's work and keeping the tools running");
+    expect(example.textContent).toContain('C$48,000');
   });
 
   it('puts the edition guardrail right after the example', () => {
-    const general = renderEdition('/ai-handoff-plan').container.querySelector('.plan-example .plan-guardrail').textContent;
+    const general = renderEdition('/ai-handoff-plan').container.querySelector('.plan-scale-learning .plan-guardrail').textContent;
     expect(general).toMatch(/^AI doesn't replace your people's judgment on people decisions\./);
     cleanup();
-    const municipal = renderEdition('/ai-handoff-plan/public-sector').container.querySelector('.plan-example .plan-guardrail').textContent;
+    const municipal = renderEdition('/ai-handoff-plan/public-sector').container.querySelector('.plan-scale-learning .plan-guardrail').textContent;
     expect(municipal).toMatch(/^AI doesn't replace CAO judgment, council governance, or your privacy and records requirements\./);
     expect(municipal).toMatch(/not positions to cut/);
   });
@@ -119,11 +120,14 @@ describe('plan page: lead, example, box and safety net text', () => {
     expect(safety.textContent).toMatch(/Asking doesn't book the AI Handoff Plan or take payment\./);
   });
 
-  it('closes the retainer line on the sixty-day credit, with the conditions in the Refund Policy', () => {
+  it('closes the retainer line on the sixty-day credit without repeating the refund-policy sentence', () => {
     const { container } = renderEdition('/ai-handoff-plan');
     expect(screen.getByRole('heading', { name: 'What comes next is up to you' })).toBeInTheDocument();
     expect(container.textContent).toContain('You can keep your AI plan and put it in place yourself or with another provider, or ask us about ongoing help.');
-    expect(container.textContent).toContain('If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, your C$795 is credited against its first invoice. Conditions are in our Refund Policy, section 1.');
+    expect(container.textContent).toContain('If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, the eligible plan fee you paid is credited against its first invoice.');
+    const retainer = container.querySelector('.plan-safety').nextElementSibling;
+    expect(retainer.textContent).not.toContain('Conditions are in our Refund Policy');
+    expect(within(container.querySelector('.plan-safety')).getByRole('link', { name: 'Refund Policy' })).toHaveAttribute('href', 'https://www.bluechip-people-strategies.com/refund');
   });
 });
 
@@ -135,7 +139,7 @@ describe('plan page: two editions and the switch', () => {
     expect(container.querySelector('.glass-lede').textContent).toMatch(/how time could go back to council priorities\.$/);
     screen.getAllByRole('link', { name: 'Start the conversation' }).forEach(a => expect(a).toHaveAttribute('href', '#chat?topic=public-sector'));
     expect(document.title).toMatch(/municipalities and public bodies/);
-    expect(document.querySelector('meta[name="description"]').getAttribute('content')).toMatch(/^A C\$795 review of your team/);
+    expect(document.querySelector('meta[name="description"]').getAttribute('content')).toMatch(/Current fee C\$795, confirmed before booking/);
   });
 
   it('the general edition reviews the team work without a single-task cap', () => {
@@ -385,7 +389,7 @@ describe('chat widget answers (AI door release)', () => {
 
   it('cost: C$795, no tax added, and asking books nothing', () => {
     const a = ask('The AI Handoff Plan', 'What does the AI Handoff Plan cost?');
-    expect(a).toBe("C$795 per organization, no tax added. Asking here doesn't book anything or take payment.");
+    expect(a).toBe("See the AI Handoff Plan page for current pricing. Pricing for future bookings may change at BlueChip's sole discretion; your fee is confirmed before booking. Asking here doesn't book anything or take payment.");
   });
 
   it('included: the short list, in box order', () => {
@@ -410,7 +414,7 @@ describe('chat widget answers (AI door release)', () => {
 
   it('retainer: the sixty-day credit on signing, conditions in the Refund Policy, no roadmap', () => {
     const a = ask('The AI Handoff Plan', 'Do I have to buy a retainer?');
-    expect(a).toContain('If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, your C$795 is credited against its first invoice.');
+    expect(a).toContain('If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, the eligible plan fee you paid is credited against its first invoice.');
     expect(a).toContain('Conditions are in our Refund Policy, section 1.');
     expect(a).not.toMatch(/roadmap|six-month/i);
   });
@@ -433,7 +437,8 @@ describe('chat widget answers (AI door release)', () => {
     flush();
     const cost = [...document.querySelectorAll('.bcw-msg-bot')].pop().textContent;
     expect(cost).toMatch(/purchase order is issued/);
-    expect(cost).toMatch(/C\$795, with no tax added/);
+    expect(cost).toMatch(/current pricing/);
+    expect(cost).toMatch(/fee is confirmed before booking/);
   });
 
   it('the public sector topic opens from #chat?topic=public-sector and is recorded as its own lead topic', () => {

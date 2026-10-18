@@ -3,6 +3,7 @@
 // ai-handoff-plan-795-infy-review-workflow-scope.md and ai-handoff-plan-795-offer.md ("What you
 // get for C$795" box). Naming rule: "the AI Handoff Plan" at first mention, "your AI plan" after,
 // never a bare "the plan". No em dashes in any string.
+import { PLAN_FEE, dollars } from '../../lib/planPricing.js';
 import { ILLUSTRATION_WEEKS, ILLUSTRATION_WEEK_HOURS } from '../../lib/aiOpportunity';
 
 export const PUBLIC_SECTOR_PATH = '/ai-handoff-plan/public-sector';
@@ -19,7 +20,7 @@ export const EDITIONS = {
     guardrail: "AI doesn't replace your people's judgment on people decisions. Your AI plan looks for time your organization can redirect, not people to cut.",
     opener: 'A review of your work. A prioritised AI Handoff Plan. A first step to try.',
     title: 'The AI Handoff Plan | BlueChip',
-    description: 'A C$795 review of your team’s work with a prioritised AI Handoff Plan. Evidence-backed potential for 3 net team hours a week, or a full-fee refund.',
+    description: `A review of your team's work with a prioritised AI Handoff Plan. Current fee ${dollars(PLAN_FEE)}, confirmed before booking. Evidence-backed potential for 3 net team hours a week, or a full-fee refund.`,
   },
   'public-sector': {
     path: PUBLIC_SECTOR_PATH,
@@ -30,7 +31,7 @@ export const EDITIONS = {
     guardrail: "AI doesn't replace CAO judgment, council governance, or your privacy and records requirements. Your AI plan looks for time that can go back to council priorities, not positions to cut, and what you do with any time it frees up stays your decision.",
     opener: 'A review of your work. A prioritised AI Handoff Plan. A first step to try.',
     title: 'The AI Handoff Plan for municipalities and public bodies | BlueChip',
-    description: 'A C$795 review of your team’s work with a prioritised AI Handoff Plan. Evidence-backed potential for 3 net team hours a week, or a full-fee refund.',
+    description: `A review of your team's work with a prioritised AI Handoff Plan. Current fee ${dollars(PLAN_FEE)}, confirmed before booking. Evidence-backed potential for 3 net team hours a week, or a full-fee refund.`,
   },
 };
 
@@ -65,5 +66,5 @@ export const CTA_LEAD = "Tell us about your team's work and what you would like 
 // Retainer line (Infy batch 3, item 3), with the retainer named as Thomas confirmed it
 // ("Practical AI and/or Embedded HR"). No roadmap, no scope, no six-month minimum, no link.
 export const RETAINER_HEADING = 'What comes next is up to you';
-export const RETAINER_BODY = 'You can keep your AI plan and put it in place yourself or with another provider, or ask us about ongoing help. If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, your C$795 is credited against its first invoice.';
+export const RETAINER_BODY = 'You can keep your AI plan and put it in place yourself or with another provider, or ask us about ongoing help. If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, the eligible plan fee you paid is credited against its first invoice.';
 export const RETAINER_LINE = `${RETAINER_HEADING}. ${RETAINER_BODY}`;
