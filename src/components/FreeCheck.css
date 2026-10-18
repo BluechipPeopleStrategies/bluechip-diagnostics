@@ -40,8 +40,9 @@
   100% { transform: translate(calc(var(--x) + 10px), 606px) rotate(80deg) scale(1); opacity: 0; } }
 @keyframes aiFcGlint { 0%, 55% { transform: skewX(-18deg) translateX(0); } 100% { transform: skewX(-18deg) translateX(900px); } }
 @media (max-width: 480px) {
-  .ai-funnel.ai-funnel--check .ai-fc-hourglass { width: 45vw; max-width: 220px; margin-top: 16px; }
+  .ai-funnel.ai-funnel--check .ai-fc-hourglass { display: none; }
   .ai-funnel.ai-funnel--check .ai-fc-hourglass .ai-intro-photo { width: 100%; margin-top: 0; }
+  .ai-funnel.ai-funnel--check .ai-intro-h1 { font-size: 32px; line-height: 1.13; }
 }
 
 /* ---------- shared: hidden-but-focusable radio, selected mark ---------- */

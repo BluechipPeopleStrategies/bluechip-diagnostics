@@ -13,7 +13,7 @@ function escapeHtml(s) {
 // lead record (Notion is legacy, read-only): the Lead-Data block at the bottom is what the
 // local Obsidian capture job parses. Reply-To is set to the lead's address by the caller,
 // so a reply goes straight to them.
-export function buildLeadNotificationEmail({ name, email, diagnosticId, bandLabel, total, resultLabel, orgSize, sector, emailSent, nudgeScheduled, spamTrap = false, submittedAt, attribution, heardAbout }) {
+export function buildLeadNotificationEmail({ name, email, diagnosticId, bandLabel, total, resultLabel, orgSize, sector, emailSent, nudgeScheduled, spamTrap = false, submittedAt, attribution, heardAbout, checkSnapshot }) {
   const safeName = escapeHtml(name);
   const safeEmail = escapeHtml(email);
   const safeDiagnostic = escapeHtml(diagnosticId);
@@ -36,6 +36,7 @@ export function buildLeadNotificationEmail({ name, email, diagnosticId, bandLabe
     <p><strong>Result:</strong> ${scoreLine}</p>
     ${orgLine ? `<p><strong>Org:</strong> ${orgLine}</p>` : ''}
     ${buildAttributionBlockHtml({ attribution, heardAbout })}
+    ${checkSnapshot ? `<h2>Completed AI Pulse answers</h2><pre style="font-family:inherit;white-space:pre-wrap;">${escapeHtml(checkSnapshot.answers)}</pre><h2>Result details</h2><pre style="font-family:inherit;white-space:pre-wrap;">${escapeHtml(checkSnapshot.details)}</pre><p>Shared under notice: ${escapeHtml(checkSnapshot.notice)}</p>` : ''}
     <p style="font-size:13px;color:#666;margin-top:24px;">${emailNote}</p>
     <p style="font-size:13px;color:#666;">Hit reply to reach them directly (their email is the Reply-To). This one is not saved anywhere else, so this email is the record: a local job files it in the Obsidian Website Leads note.</p>
     ${buildLeadDataBlock({
@@ -52,6 +53,10 @@ export function buildLeadNotificationEmail({ name, email, diagnosticId, bandLabe
       nudge_scheduled: nudgeScheduled === undefined ? undefined : !!nudgeScheduled,
       spam_trap: !!spamTrap,
       submitted_at: submittedAt || new Date().toISOString(),
+      check_sharing_notice: checkSnapshot?.notice,
+      check_answers: checkSnapshot?.answers,
+      check_result_details: checkSnapshot?.details,
+      check_result_snapshot: checkSnapshot?.json,
       ...attributionLeadData({ attribution, heardAbout }),
     })}
   </div>

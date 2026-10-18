@@ -7,6 +7,7 @@ import { buildAiCheckResultsEmail, cleanAiCheckInput } from '../_emails/ai-oppor
 import { isHoneypot } from './lead-helpers.js';
 import { sanitizeAttribution, sanitizeHeardAbout } from './attribution.js';
 import { cleanRecipient } from './email-address.js';
+import { answerSummary, computeRange, orgSizeMidpoint } from '../../src/lib/aiOpportunity.js';
 
 export const AI_CHECK_ID = 'ai-opportunity-check';
 
@@ -26,17 +27,32 @@ export async function handleAiCheckResults(body, res, { sendEmail }) {
   // Where they came from: for Thomas's notification only, never the visitor's email.
   const where = { attribution: sanitizeAttribution(body.attribution) || undefined, heardAbout: sanitizeHeardAbout(body.heard_about) || undefined };
   const label = `${resultLabel} (asked for ${input.include === 'answers' ? 'the estimate and their answers' : 'the estimate only'})`;
+  // Only the revised, disclosed email request shares a completed answer snapshot.
+  // Older clients keep their existing sharing scope.
+  let checkSnapshot;
+  if (body.shareCompletedCheck === true && body.sharingNoticeVersion === 'ai-pulse-results-v2') {
+    const result = computeRange((input.answers.areas || []).map(area => ({
+      area, hours: input.areaInputs[area]?.hours ?? 5, people: input.areaInputs[area]?.people ?? 1,
+    })));
+    checkSnapshot = {
+      notice: body.sharingNoticeVersion,
+      answers: answerSummary(input.answers, input).map(row => `${row.label}: ${row.items.join('; ')}`).join('\n'),
+      details: `${resultLabel}\nHourly staff cost: C$${input.rate}\nWorking weeks: ${input.weeks}\nTeam illustration headcount: ${input.headcount ?? orgSizeMidpoint(input.answers.orgSize)}`,
+      json: JSON.stringify({ version: 1, ...input, computedResult: result }),
+    };
+  }
 
   if (isHoneypot(body)) {
     console.warn('submit: ai-check honeypot triggered');
-    const flagged = buildLeadNotificationEmail({ name: '', email, diagnosticId: AI_CHECK_ID, bandLabel: '', total: null, resultLabel: label, emailSent: false, nudgeScheduled: false, spamTrap: true, submittedAt, ...where });
-    await sendEmail({ to: notifyTo, subject: `[Check: spam trap] ${flagged.subject}`, html: flagged.html });
-    return res.status(200).json({ ok: true, emailSent: true });
+    const flagged = buildLeadNotificationEmail({ name: '', email, diagnosticId: AI_CHECK_ID, bandLabel: '', total: null, resultLabel: label, emailSent: false, nudgeScheduled: false, spamTrap: true, submittedAt, checkSnapshot, ...where });
+    const leadNotificationSent = await sendEmail({ to: notifyTo, subject: `[Check: spam trap] ${flagged.subject}`, html: flagged.html });
+    return res.status(leadNotificationSent ? 200 : 502).json({ ok: leadNotificationSent, emailSent: false, leadNotificationSent, nudgeScheduled: false });
   }
 
   const emailSent = await sendEmail({ to: email, subject, html, replyTo: notifyTo });
-  const note = buildLeadNotificationEmail({ name: '', email, diagnosticId: AI_CHECK_ID, bandLabel: '', total: null, resultLabel: label, emailSent, nudgeScheduled: false, submittedAt, ...where });
+  const note = buildLeadNotificationEmail({ name: '', email, diagnosticId: AI_CHECK_ID, bandLabel: '', total: null, resultLabel: label, emailSent, nudgeScheduled: false, submittedAt, checkSnapshot, ...where });
   const leadNotificationSent = await sendEmail({ to: notifyTo, subject: note.subject, html: note.html, replyTo: email });
-  const ok = emailSent || leadNotificationSent;
+  // A visitor copy alone must not silently masquerade as a captured owner record.
+  const ok = leadNotificationSent;
   return res.status(ok ? 200 : 502).json({ ok, emailSent, leadNotificationSent, nudgeScheduled: false });
 }

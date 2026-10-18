@@ -61,7 +61,7 @@ describe('the free check stepper', () => {
   it('is 12 questions, with no mention of the plan, price or guarantee before the result', () => {
     const { container } = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     expect(screen.getByText('How much time could AI give back to your team?')).toBeInTheDocument();
-    expect(screen.getByText('Find out roughly how many hours a week AI could give your team back. About four minutes. No email needed.')).toBeInTheDocument();
+    expect(screen.getByText('Free check. Free results. No purchase required. About four minutes. No email needed to see your estimate.')).toBeInTheDocument();
     expect(screen.getByText('Question 1 of 12.')).toBeInTheDocument();
     // Scoped to the stepper content, not the shared SiteHeader nav (which always names the
     // plan as a navigation link -- that's wayfinding, not sales copy).
@@ -774,7 +774,7 @@ describe('the free check keeps a result across navigation (item 59)', () => {
 
   it('the intro note says answers stay in this tab, not that they clear on reload', () => {
     render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
-    expect(screen.getByText("Your answers stay in this browser tab until you close it, unless you choose to email them to yourself at the end. Please don't enter confidential information.")).toBeInTheDocument();
+    expect(screen.getByText("Your answers stay in this tab until you close it, unless you request an emailed copy and share your completed check with BlueChip. Please don't enter confidential information.")).toBeInTheDocument();
   });
 });
 
@@ -875,12 +875,14 @@ describe('Email my results (item 61)', () => {
   async function openEmail() {
     const utils = render(<MemoryRouter><AiOpportunityCheck /></MemoryRouter>);
     await driveToResult(utils.container);
-    fireEvent.click(screen.getByRole('button', { name: 'Email my results' }));
+    if (!screen.queryByLabelText('Your email') && !screen.queryByRole('button', { name: /Send to / })) {
+      fireEvent.click(screen.getByRole('button', { name: 'Email my results' }));
+    }
     return utils;
   }
 
   it('asks for an email, then sends the raw answers (never pre-built text) with an empty honeypot, estimate only by default', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, emailSent: true }) });
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, emailSent: true, leadNotificationSent: true }) });
     vi.stubGlobal('fetch', fetchMock);
     const { container } = await openEmail();
     fireEvent.change(screen.getByLabelText('Your email'), { target: { value: 'pat@example.com' } });
@@ -899,7 +901,7 @@ describe('Email my results (item 61)', () => {
   });
 
   it('lets the visitor include their answers', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, emailSent: true }) });
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, emailSent: true, leadNotificationSent: true }) });
     vi.stubGlobal('fetch', fetchMock);
     const { container } = await openEmail();
     fireEvent.click(screen.getByLabelText('The estimate and my answers'));
@@ -911,7 +913,7 @@ describe('Email my results (item 61)', () => {
 
   it('once an address was used this session, sending again is one click', async () => {
     sessionStorage.setItem('bluechip:ai-opportunity-check:email', 'pat@example.com');
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, emailSent: true }) });
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, json: async () => ({ ok: true, emailSent: true, leadNotificationSent: true }) });
     vi.stubGlobal('fetch', fetchMock);
     await openEmail();
     expect(screen.queryByLabelText('Your email')).not.toBeInTheDocument();

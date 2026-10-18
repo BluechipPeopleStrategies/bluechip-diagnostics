@@ -19,6 +19,8 @@ export async function sendFreeCheckResultsEmail({ email, include, answers, areaI
       email,
       include: include === 'answers' ? 'answers' : 'estimate',
       answers, areaInputs, rate, weeks, headcount, ownerOtherText, toolsOtherText,
+      shareCompletedCheck: true,
+      sharingNoticeVersion: 'ai-pulse-results-v2',
       bc_hp_trap: honeypot,
       attribution: getAttribution(),
       submittedAt: new Date().toISOString(),
@@ -26,5 +28,5 @@ export async function sendFreeCheckResultsEmail({ email, include, answers, areaI
   });
   let data = {};
   try { data = await res.json(); } catch { /* non-JSON response */ }
-  return { ok: res.ok && data.ok !== false, emailSent: data.emailSent !== false };
+  return { ok: res.ok && data.ok !== false, emailSent: data.emailSent === true, ownerRecorded: data.leadNotificationSent === true };
 }
