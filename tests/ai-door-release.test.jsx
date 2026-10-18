@@ -132,6 +132,15 @@ describe('plan page: lead, example, box and safety net text', () => {
 });
 
 describe('plan page: two editions and the switch', () => {
+  it.each([
+    ['/ai-handoff-plan', 'ai-handoff-plan'],
+    ['/ai-handoff-plan/public-sector', 'public-sector'],
+  ])('the closing contact action keeps the correct chat context on %s', (path, topic) => {
+    const { container } = renderEdition(path);
+    expect(within(container.querySelector('.plan-close')).getByRole('link', { name: 'Ask us about your work' }))
+      .toHaveAttribute('href', `#chat?topic=${topic}`);
+  });
+
   it('the public sector edition uses municipal wording and its own chat topic', () => {
     const { container } = renderEdition('/ai-handoff-plan/public-sector');
     expect(screen.getByRole('heading', { name: 'Make more time for council priorities.' })).toBeInTheDocument();

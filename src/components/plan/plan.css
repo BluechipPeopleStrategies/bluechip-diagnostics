@@ -305,9 +305,9 @@
 }
 
 /* =====================================================================================
-   Closing CTA (item 40): a lit glass slab + a floating chat composition.
+   Closing contact action.
    ===================================================================================== */
-.ai-plan .plan-close { position: relative; overflow: hidden; isolation: isolate; display: grid; grid-template-columns: minmax(0, 1fr) 220px; gap: 28px; align-items: center;
+.ai-plan .plan-close { position: relative; overflow: hidden; isolation: isolate; display: block;
   margin: 48px 0 0; padding: 34px 36px; border-radius: 20px; border: 1px solid rgba(201, 162, 75, .35);
   background:
     radial-gradient(520px 260px at 88% 20%, rgba(201, 162, 75, .2), rgba(201, 162, 75, 0) 70%),
