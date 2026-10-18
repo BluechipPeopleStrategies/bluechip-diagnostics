@@ -39,6 +39,22 @@ const LOADING_MESSAGES = [
 const LOADING_MS_FULL = 1800;
 const LOADING_MS_REDUCED = 600;
 
+// Explain the useful next step at each question without changing the check or its estimates.
+const QUESTION_PAYOFFS = {
+  orgType: 'Start with your organization, then choose the work you would most like to make easier.',
+  areas: 'Start with one recurring task. You can choose up to six.',
+  toolsToday: 'Think about the tools people already use for that work.',
+  aiTools: 'Include what people actually use, even if it is only a small experiment.',
+  information: 'A useful AI workflow starts with knowing what information it handles.',
+  protectInfo: 'The next steps include practical reminders about handling information.',
+  readiness: 'Think about who could support a small, practical trial.',
+  orgSize: 'Your team size sets the starting point for the team illustration in your result.',
+  owner: 'Think of the role that could help a small trial move forward.',
+  heldBack: 'Your result includes practical next steps you can take this week.',
+  feel: 'Two questions left, including this one. Your estimate and next steps are coming up.',
+  timing: 'Last question. Your estimate and next steps come next.',
+};
+
 // Moves focus to the next/previous sibling input inside an option grid on the arrow keys, so a
 // "pick all" checkbox group behaves like the native roving-focus radios do automatically.
 function handleGridArrowKeys(e) {
@@ -156,6 +172,8 @@ export default function AiOpportunityCheck() {
     setAnswers(prev => ({ ...prev, [id]: value }));
     if (byKeyboard.current) { setKeyboardPicked(id); return; }
     setKeyboardPicked(null);
+    // This choice reveals an optional role field; leave time to fill it before Next.
+    if (id === 'owner' && value === 'someoneElse') return;
     // Advance only from the question that was answered: a second pick inside the delay (two quick
     // taps) used to schedule a second advance and skip a question.
     setTimeout(() => {
@@ -254,9 +272,9 @@ export default function AiOpportunityCheck() {
       {qIndex === 0 && <div className="ai-intro-head">
         <p className="ai-eyebrow ai-intro-eyebrow">Free AI Pulse</p>
         <h1 className="ai-intro-h1" ref={headingRef} tabIndex={-1}>How much time could AI give back to your team?</h1>
-        <p className="ai-intro-sub">Find out roughly how many hours a week AI could give your team back. About four minutes. No email needed.</p>
+        <p className="ai-intro-sub">Free check. Free results. No purchase required. About four minutes. No email needed to see your estimate.</p>
         <HourglassHero />
-        <p className="ai-note ai-intro-note">Your answers stay in this browser tab until you close it, unless you choose to email them to yourself at the end. Please don't enter confidential information.</p>
+        <p className="ai-note ai-intro-note">Your answers stay in this tab until you close it, unless you request an emailed copy and share your completed check with BlueChip. Please don't enter confidential information.</p>
       </div>}
 
       <div className="ai-stepper">
@@ -268,7 +286,8 @@ export default function AiOpportunityCheck() {
         </p>}
 
         <fieldset className="ai-stepper-question" onKeyDown={markInput} onPointerDown={markInput} onClick={(e) => { if (e.detail > 0) byKeyboard.current = false; }}>
-          <legend>{qIndex > 0 && <span className="ai-stepper-count">{qIndex + 1} / {questions.length}</span>} <span ref={qIndex > 0 ? headingRef : null} tabIndex={qIndex > 0 ? -1 : undefined}>{question.label}</span></legend>
+          <legend><span className="ai-stepper-count">{qIndex + 1} / {questions.length}</span> <span ref={qIndex > 0 ? headingRef : null} tabIndex={qIndex > 0 ? -1 : undefined}>{question.label}</span></legend>
+          <p className="ai-note ai-question-payoff">{isAreas && sizing ? 'Your hours and people counts build the time estimate. Adjust them to fit the work.' : QUESTION_PAYOFFS[question.id]}</p>
 
           {isAreas && sizing && <>
             {livePreview && <HoursBackBar preview={livePreview} />}
@@ -310,7 +329,7 @@ export default function AiOpportunityCheck() {
           {/* Once every question has an answer (e.g. after "Change" from the results summary), the
               visitor can jump straight back instead of re-stepping the rest of the check. */}
           {allAnswered && <button type="button" className="ai-secondary ai-fc-back-to-results" onClick={() => setStep('result')}>Back to my results</button>}
-          {(question.type === 'multi' || keyboardPicked === question.id) && <button type="button" className="ai-button" onClick={goNext} disabled={!isComplete(question, answers)}>
+          {(question.type === 'multi' || keyboardPicked === question.id || isComplete(question, answers)) && <button type="button" className="ai-button" onClick={goNext} disabled={!isComplete(question, answers)}>
             {qIndex === questions.length - 1 && !(isAreas && !sizing) ? 'See my estimate' : 'Next'}
           </button>}
         </div>
@@ -482,6 +501,9 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
 
     <NextStepsSection steps={steps} />
 
+    <KeepResults answers={answers} areaInputs={areaInputs} rate={rate} weeks={weeks} headcount={headcount}
+      ownerOtherText={ownerOtherText} toolsOtherText={toolsOtherText} />
+
     <ClosingNextStep showFit={showFit} planHref="/ai-handoff-plan">
       <details className="ai-disclosure ai-fc-disclosure">
         <summary>How this estimate works</summary>
@@ -490,9 +512,6 @@ function ResultScreen({ answers, areaInputs, rate, weeks, onRate, onWeeks, onRev
     </ClosingNextStep>
 
     <AnswersSummary answers={answers} areaInputs={areaInputs} ownerOtherText={ownerOtherText} toolsOtherText={toolsOtherText} onEdit={onReview} />
-
-    <KeepResults answers={answers} areaInputs={areaInputs} rate={rate} weeks={weeks} headcount={headcount}
-      ownerOtherText={ownerOtherText} toolsOtherText={toolsOtherText} />
 
     <div className="ai-fc-result-foot">
       <button type="button" className="ai-secondary" onClick={() => onReview(0)}>Review my answers</button>

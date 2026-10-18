@@ -3,6 +3,7 @@ import { FcIcon } from './FreeCheckIcons';
 import { answerSummary } from '../lib/aiOpportunity';
 import { rememberedEmail, rememberEmail } from '../lib/freeCheckSession';
 import { sendFreeCheckResultsEmail } from '../lib/freeCheckEmail';
+import { trackEvent } from '../lib/checkAnalytics';
 
 // Items 60 + 61 (2026-09-25): a summary of every answer, print, a "continue the discussion" QR
 // code and "Email my results". The QR is a static SVG (public/img/ai/qr-continue-discussion.svg,
@@ -38,22 +39,17 @@ export function AnswersSummary({ answers, areaInputs, ownerOtherText, toolsOther
 }
 
 export function KeepResults(props) {
-  const [emailOpen, setEmailOpen] = useState(false);
   return (
     <section className="ai-panel ai-fc-keep" aria-labelledby="ai-fc-keep-title">
       <div className="ai-fc-keep-main">
-        <h2 id="ai-fc-keep-title">Keep your results</h2>
-        <p className="ai-fc-keep-copy">Print this page, or send yourself a copy.</p>
+        <h2 id="ai-fc-keep-title">Keep your breakdown and next steps</h2>
+        <p className="ai-fc-keep-copy">Get your free time estimate, the areas you picked and practical next steps in one email, ready to review with your team. No purchase required.</p>
+        <EmailResultsForm {...props} />
         <div className="ai-fc-keep-actions">
           <button type="button" className="ai-fc-action" onClick={() => window.print()}>
             <FcIcon name="print" /><span>Print my results</span>
           </button>
-          <button type="button" className={`ai-fc-action ${emailOpen ? 'is-open' : ''}`} aria-expanded={emailOpen}
-            aria-controls="ai-fc-email-panel" onClick={() => setEmailOpen(o => !o)}>
-            <FcIcon name="mail" /><span>Email my results</span>
-          </button>
         </div>
-        {emailOpen && <EmailResultsForm {...props} />}
       </div>
       <QrCard />
     </section>
@@ -85,17 +81,24 @@ function EmailResultsForm({ answers, areaInputs, rate, weeks, headcount, ownerOt
 
   async function send(to) {
     setStatus('sending');
+    trackEvent('check_results_email_requested', { include_answers: include === 'answers' });
     try {
       const result = await sendFreeCheckResultsEmail({
         email: to, include, answers, areaInputs, rate, weeks, headcount, ownerOtherText, toolsOtherText, honeypot: trap,
       });
-      if (!result.ok) { setStatus('error'); return; }
+      if (!result.ok || !result.ownerRecorded) {
+        setStatus(result.emailSent ? 'sentOwnerPending' : 'error');
+        trackEvent('check_results_email_failed', { visitor_email_accepted: result.emailSent, owner_recorded: result.ownerRecorded });
+        return;
+      }
+      trackEvent('check_results_email_accepted', { visitor_email_accepted: result.emailSent, owner_recorded: result.ownerRecorded });
       rememberEmail(to);
       setKnown(to);
       setSentTo(to);
       setStatus(result.emailSent ? 'sent' : 'sentNoEmail');
     } catch {
       setStatus('error');
+      trackEvent('check_results_email_failed', { failure: 'network' });
     }
   }
 
@@ -108,8 +111,9 @@ function EmailResultsForm({ answers, areaInputs, rate, weeks, headcount, ownerOt
 
   return (
     <form id="ai-fc-email-panel" className="ai-fc-email" onSubmit={onSubmit} noValidate={false}>
+      <p className="ai-note ai-fc-email-fine">Your email, completed answers and result are shared with Thomas at BlueChip to understand your result, develop useful workplace content, and help organizations improve how they use AI in practice. You'll receive one results email. Newsletter signup is a separate choice. Please don't enter confidential information.</p>
       <fieldset className="ai-fc-email-include">
-        <legend>What to include</legend>
+        <legend>What to include in your email</legend>
         <label className={include === 'estimate' ? 'is-selected' : ''}>
           <input type="radio" name="ai-fc-include" value="estimate" checked={include === 'estimate'} onChange={() => setInclude('estimate')} />
           <span>Just the estimate</span>
@@ -145,11 +149,11 @@ function EmailResultsForm({ answers, areaInputs, rate, weeks, headcount, ownerOt
           </button>
         </div>
       )}
-      <p className="ai-note ai-fc-email-fine">You'll get one email with your results and nothing after it, unless you write back. Your email address comes to Thomas so he can reply if you do.</p>
       <div role="status" className="ai-fc-email-status">
         {status === 'sent' && <p className="ai-fc-email-ok"><span aria-hidden="true">&#10003;</span> Sent to {sentTo}. It should arrive in a minute or two. If it doesn't, check your spam or junk folder.</p>}
         {status === 'sentNoEmail' && <p className="ai-fc-email-warn">Sorry, the email didn't go through. Your results are still on this page, so you can print them now, or write to thomas@bluechip-people-strategies.com and Thomas will send them.</p>}
         {status === 'error' && <p className="ai-fc-email-warn">Something went wrong. Try again, or write to thomas@bluechip-people-strategies.com.</p>}
+        {status === 'sentOwnerPending' && <p className="ai-fc-email-warn">Your results email was sent, but we couldn't confirm the copy for Thomas. Your results are still on this page. Try again, or write to thomas@bluechip-people-strategies.com.</p>}
       </div>
     </form>
   );

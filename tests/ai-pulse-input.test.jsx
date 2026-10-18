@@ -108,7 +108,8 @@ describe('AI Pulse single-choice questions', () => {
     renderCheck();
     fireEvent.pointerDown(radio('orgType', 'trades'));
     fireEvent.click(radio('orgType', 'trades'), { detail: 1 });
-    expect(screen.queryByRole('button', { name: 'Next' })).not.toBeInTheDocument();
+    // A manual way forward remains available when revisiting an answered question.
+    expect(screen.getByRole('button', { name: 'Next' })).toBeEnabled();
     advance();
     expect(screen.getByText(/^Question 2 of 12/)).toBeInTheDocument();
   });

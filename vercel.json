@@ -40,6 +40,10 @@
   ],
   "rewrites": [
     {
+      "source": "/email-analytics",
+      "destination": "/email-analytics.html"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }

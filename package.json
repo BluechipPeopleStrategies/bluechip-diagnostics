@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:tracker": "node --test scripts/test-email-open.node.mjs",
     "audit:layout": "vite build && node scripts/layout-audit/audit.mjs",
     "audit:layout:selftest": "node --test scripts/layout-audit/selftest.mjs"
   },
