@@ -83,6 +83,18 @@ it('keeps newsletter consent separate from the free result and opens the existin
   expect(window.posthog.capture).toHaveBeenCalledWith('newsletter_signup_opened',{source:'ai_pulse',placement:'result'});
   expect(globalThis.fetch).not.toHaveBeenCalled();
 });
+it('leads the paid next step with a conditional time-value example and preserves the findings-based refund',()=>{
+  const {container}=mount();showEmptyResult();
+  const offer=container.querySelector('#plan-next-step');
+  expect(offer.querySelector('h2')).toHaveTextContent('Could three hours a week be worth 7× your investment?');
+  expect(offer).toHaveTextContent('One-time investment: C$795');
+  expect(offer.querySelector('.pulse-value-example')).toHaveTextContent('Illustration if achieved: 3 net team hours/week × 48 working weeks × C$40/hour = C$5,760/year');
+  expect(offer).toHaveTextContent('This is not cash savings. Net allows for checking and upkeep.');
+  expect(offer).toHaveTextContent('This covers plan findings, not actual implementation savings.');
+  expect(offer).toHaveTextContent('The Pulse and its results are free.');
+  expect(offer.querySelector('h2')).not.toHaveTextContent(/money back|guaranteed return/i);
+  expect(globalThis.fetch).not.toHaveBeenCalled();
+});
 it('explicitly discloses sharing and preserves the visible result on an owner-record failure',async()=>{globalThis.fetch=vi.fn(async()=>({ok:false,json:async()=>({ok:false,emailSent:true,leadNotificationSent:false})}));const{container}=mount();showEmptyResult();fireEvent.click(screen.getByRole('button',{name:/Email my ideas/}));expect(screen.getByText(/completed answers, optional note and snapshot are shared with Thomas/)).toBeInTheDocument();fireEvent.change(screen.getByLabelText('Your email'),{target:{value:'visitor@example.com'}});fireEvent.submit(container.querySelector('#pulse-email-form'));await waitFor(()=>expect(screen.getByText(/could not confirm the copy for Thomas/)).toBeInTheDocument());const sent=JSON.parse(globalThis.fetch.mock.calls[0][1].body);expect(sent.sharingNoticeVersion).toBe('ai-pulse-discovery-results-v2');expect(sent.shareCompletedCheck).toBe(true);expect(screen.getByText('C$48,000')).toBeInTheDocument();expect(window.posthog.capture.mock.calls.some(([,p])=>p?.email||p?.answers||p?.information)).toBe(false);});
 it('keeps a bounded optional note in the tab until the disclosed email request',async()=>{
   globalThis.fetch=vi.fn(async()=>({ok:true,json:async()=>({ok:true,emailSent:true,leadNotificationSent:true})}));

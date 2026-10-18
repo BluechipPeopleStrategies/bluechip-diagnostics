@@ -5,7 +5,7 @@ import PulseNewsletterInvite from './PulseNewsletterInvite.jsx';
 import PulseWorkAreas from './PulseWorkAreas.jsx';
 import PulseIdeaCards from './PulseIdeaCards.jsx';
 import { pulseAnswerChoices } from '../data/pulseAnswerCopy.js';
-import { dollars, FUTURE_PRICE_NOTICE } from '../lib/planPricing.js';
+import { dollars, FUTURE_PRICE_NOTICE, PLAN_TIME_VALUE_EXAMPLE } from '../lib/planPricing.js';
 import { usePageMeta } from '../lib/seo.js';
 import { getAttribution } from '../lib/attribution.js';
 import { trackEvent } from '../lib/checkAnalytics.js';
@@ -96,10 +96,11 @@ export default function AiPulseDiscovery() {
       {emailOpen && <div ref={emailHeading}><EmailSnapshot state={state} /></div>}
       <details className="pulse-scale-toggle"><summary>See how a small weekly time saving adds up</summary><PulseScale /></details>
       <section className="pulse-panel pulse-next" id="plan-next-step">
-        <p className="pulse-eyebrow">Want a plan for your actual work?</p>
-        <h2>Go further with the AI Handoff Plan.</h2>
-        <p>Explore these areas and other opportunities across the work we agree to review. Get practical priorities, tool choices and an evidence-backed time estimate.</p>
+        <p className="pulse-eyebrow">The AI Handoff Plan</p>
+        <h2>Could three hours a week be worth {Math.floor(PLAN_TIME_VALUE_EXAMPLE.annualValue / PLAN_FEE)}× your investment?</h2>
+        <p>A practical AI plan for your team's actual work. You decide what to hand over.</p>
         <h3>One-time investment: {dollars(PLAN_FEE)}</h3>
+        <p className="pulse-small pulse-value-example">Illustration if achieved: {PLAN_TIME_VALUE_EXAMPLE.hours} net team hours/week × {PLAN_TIME_VALUE_EXAMPLE.weeks} working weeks × {dollars(PLAN_TIME_VALUE_EXAMPLE.hourlyRate)}/hour = {dollars(PLAN_TIME_VALUE_EXAMPLE.annualValue)}/year in staff-time value. This is not cash savings. Net allows for checking and upkeep.</p>
         <p className="pulse-small">{SAFETY_NET}</p>
         <div className="pulse-actions"><a className="pulse-button" href={PLAN}>See how the plan works →</a></div>
         <p className="pulse-small">The Pulse and its results are free. The AI Handoff Plan is a separate paid service. {FUTURE_PRICE_NOTICE}</p>
