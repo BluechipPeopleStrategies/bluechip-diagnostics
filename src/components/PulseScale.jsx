@@ -27,6 +27,6 @@ export default function PulseScale() {
       </div>
     </div>
     <p className="pulse-small">Example only, not a result from your answers or a promise. Time value is not cash savings. Hours allow for checking and upkeep.</p>
-    <p className="pulse-small">Software and setup beyond the included first step cost extra.</p>
+    <p className="pulse-small">If you choose to implement, extra software or setup costs apply only where needed.</p>
   </section>;
 }
