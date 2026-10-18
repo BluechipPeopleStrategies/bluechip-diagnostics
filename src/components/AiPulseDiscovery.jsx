@@ -5,7 +5,7 @@ import PulseNewsletterInvite from './PulseNewsletterInvite.jsx';
 import PulseWorkAreas from './PulseWorkAreas.jsx';
 import PulseIdeaCards from './PulseIdeaCards.jsx';
 import { pulseAnswerChoices } from '../data/pulseAnswerCopy.js';
-import { dollars, FUTURE_PRICE_NOTICE, PLAN_CAPACITY_NOTICE } from '../lib/planPricing.js';
+import { dollars, FUTURE_PRICE_NOTICE } from '../lib/planPricing.js';
 import { usePageMeta } from '../lib/seo.js';
 import { getAttribution } from '../lib/attribution.js';
 import { trackEvent } from '../lib/checkAnalytics.js';
@@ -99,9 +99,8 @@ export default function AiPulseDiscovery() {
         <p className="pulse-eyebrow">Want a plan for your actual work?</p>
         <h2>Go further with the AI Handoff Plan.</h2>
         <p>Explore these areas and other opportunities across the work we agree to review. Get practical priorities, tool choices and an evidence-backed time estimate.</p>
-        <h3>Current one-time fee: {dollars(PLAN_FEE)}</h3>
+        <h3>One-time investment: {dollars(PLAN_FEE)}</h3>
         <p className="pulse-small">{SAFETY_NET}</p>
-        <p className="pulse-capacity">{PLAN_CAPACITY_NOTICE}</p>
         <div className="pulse-actions"><a className="pulse-button" href={PLAN}>See how the plan works →</a></div>
         <p className="pulse-small">The Pulse and its results are free. The AI Handoff Plan is a separate paid service. {FUTURE_PRICE_NOTICE}</p>
         <hr /><h3>Not sure whether the AI Handoff Plan is right for your team?</h3><a className="pulse-button secondary" href="#chat?topic=ai-handoff-plan">Ask us →</a>

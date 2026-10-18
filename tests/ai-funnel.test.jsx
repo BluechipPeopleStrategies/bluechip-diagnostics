@@ -981,20 +981,19 @@ describe('the AI Handoff Plan page', () => {
     expect(screen.getByText('Recurring reports')).toBeInTheDocument();
   });
 
-  it('has no calculator and no dollar savings figure: the illustration is hours only', () => {
+  it('has no personalized calculator and labels the owner-approved staff-time illustration as conditional', () => {
     const { container } = render(<MemoryRouter initialEntries={['/ai-handoff-plan?perPersonHours=3.5&employees=80']}><AiHandoffPlanPage /></MemoryRouter>);
     expect(screen.queryByText('Employee cost')).not.toBeInTheDocument();
     expect(container.querySelector('input[type="range"], .ai-eq, .ai-save')).toBeNull();
-    expect(container.textContent).not.toMatch(/5,760|per hour|an hour in staff cost|staff capacity|pays back|payback/i);
+    expect(container.textContent).not.toMatch(/per hour|an hour in staff cost|staff capacity|pays back|payback/i);
+    expect(container.querySelector('.plan-booking-grid').textContent).toMatch(/C\$5,760.*if achieved.*not a business average or cash savings/);
   });
 
   it('replaces the old deliverables list and takeaway cards with the numbered step flow', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
-    expect(screen.getByRole('heading', { name: 'What your AI Handoff Plan includes' }).closest('section').querySelectorAll('.plan-flow-step')).toHaveLength(4);
-    expect(screen.getByText('Discovery')).toBeInTheDocument();
-    expect(screen.getByText('Handoff plan')).toBeInTheDocument();
-    expect(screen.getByText('Findings and setup')).toBeInTheDocument();
-    expect(screen.getByText('Check-in')).toBeInTheDocument();
+    const flow = screen.getByRole('heading', { name: 'What your AI Handoff Plan includes' }).closest('section').querySelector('.plan-flow');
+    expect(flow.querySelectorAll('.plan-flow-step')).toHaveLength(4);
+    ['Discovery', 'Handoff plan', 'Findings and setup', 'Check-in'].forEach(name => expect(within(flow).getByText(name)).toBeInTheDocument());
     expect(screen.queryByText('A focused plan, with clear deliverables.')).not.toBeInTheDocument();
     expect(screen.queryByText('What you take away')).not.toBeInTheDocument();
   });

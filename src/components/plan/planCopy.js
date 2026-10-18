@@ -54,8 +54,16 @@ export const ILLUSTRATION_TEXT = `Say ${ILLUSTRATION.small.people} people do tha
 // inclusions now live in the four delivery steps and written-plan kit
 // (AiHandoffPlanPage FLOW_STEPS and PLAN_KIT). The guarantee line sits
 // in the "Your safety net" block below the box (Infy batch 3, item 1).
-export const BOX_YOUR_TIME = 'about two hours each from one or two of the people who do the work, across discovery, the findings and setup call, and the check-in, plus your time on the findings call.';
-export const BOX_NOT_INCLUDED = 'software and licences, anything your IT team installs, wider rollout, and implementation beyond the limited first-step help within your 45-minute findings call.';
+export const PLAN_CALLS = [
+  { name: 'Discovery', minutes: 60 },
+  { name: 'Findings and first step', minutes: 45 },
+  { name: 'Check-in', minutes: 15 },
+];
+export const PLAN_EXTRA_COSTS = [
+  'Software and licences',
+  'IT installations and wider rollout',
+  'Implementation beyond the limited first-step help in your 45-minute findings call',
+];
 
 // "Your safety net" (Infy batch 3, item 1c). Body-text size, never behind a link or accordion.
 export const SAFETY_NET = "if your plan identifies less than 3 net team hours a week, we automatically refund your full fee within 10 business days of your findings call.";
