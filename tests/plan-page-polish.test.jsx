@@ -17,7 +17,7 @@ describe('plan page FAQ copy and retainer line (AI door release, 2026-10-08)', (
 
   it('states the retainer credit and points to the Refund Policy, with no roadmap, minimum or Implementation Sprint', () => {
     const { container } = renderPlan();
-    expect(container.textContent).toContain('If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, the eligible plan fee you paid is credited against its first invoice.');
+    expect(container.textContent).toContain('If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your AI Handoff findings call, the eligible plan fee you paid is credited against its first invoice.');
     expect(container.textContent).not.toMatch(/roadmap|six-month|Implementation Sprint/i);
     expect(screen.queryByRole('link', { name: /Retainer/ })).not.toBeInTheDocument(); // "ask us about ongoing help" has no link
     screen.getAllByRole('link', { name: 'Refund Policy' }).forEach(a => expect(a).toHaveAttribute('href', 'https://www.bluechip-people-strategies.com/refund'));

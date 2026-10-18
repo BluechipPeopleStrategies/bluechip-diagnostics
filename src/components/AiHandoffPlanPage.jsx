@@ -18,7 +18,7 @@ import PlanInside from './plan/PlanInside';
 import PlanClose from './plan/PlanClose';
 import {
   EDITIONS, GENERAL_PATH, PUBLIC_SECTOR_PATH, REFUND_URL,
-  PLAN_CALLS, PLAN_EXTRA_COSTS, SAFETY_NET, SAFETY_NET_DEFINITIONS, CTA_LEAD, RETAINER_HEADING, RETAINER_BODY,
+  PLAN_CALLS, PLAN_EXTRA_COSTS, SAFETY_NET, SAFETY_NET_DEFINITIONS, RETAINER_HEADING, RETAINER_BODY,
 } from './plan/planCopy';
 import './AiFunnel.css';
 import './AiHandoffGlass.css';
@@ -148,24 +148,22 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
       <GlassPanel as="section" className="glass-panel plan-booking-facts" aria-labelledby="plan-booking-title" plasma={{ radius: 20, opacity: 0.6 }}>
         <h2 id="plan-booking-title">Your investment. Your safety net.</h2>
         <div className="plan-booking-grid">
-          <div><p className="plan-booking-label">One-time investment</p><p className="plan-booking-amount">{dollars(PLAN_FEE)}</p><p className="plan-booking-note">{FUTURE_PRICE_NOTICE}</p></div>
+          <div><p className="plan-booking-label">One-time investment</p><p className="plan-booking-amount">{dollars(PLAN_FEE)}</p><p className="plan-booking-note">{FUTURE_PRICE_NOTICE}</p><p className="plan-scope-agreement">Before payment{edition === 'public-sector' ? ' or confirming a purchase order' : ''}, we agree the people and work areas to review. We set priorities together during discovery.</p></div>
           <div className="plan-minimum-value"><p className="plan-booking-label">What 3 net team hours could mean</p><p className="plan-booking-amount">C$5,760<span> / year</span></p><p className="plan-booking-note">3 hours/week × 48 working weeks × C$40/hour, if achieved.</p><p className="plan-booking-note">Illustrative staff-time value, not a business average or cash savings.</p></div>
         </div>
-        <p className="plan-scope-agreement">Before payment{edition === 'public-sector' ? ' or confirming a purchase order' : ''}, we agree the people and work areas to review. We set priorities together during discovery.</p>
         <section className="plan-safety" aria-labelledby="plan-safety-title">
         <p className="plan-safety-body"><strong id="plan-safety-title">Your safety net:</strong> {SAFETY_NET}</p>
         <p className="plan-safety-defs"><em>{SAFETY_NET_DEFINITIONS}</em></p>
         <p className="plan-safety-refund"><a href={REFUND_URL}>Refund Policy</a></p>
-        <p className="plan-cta-lead">{CTA_LEAD}</p>
-        <p className="ai-cta-row"><PlanButton href={`#chat?topic=${copy.chatTopic}`}>Start the conversation</PlanButton></p>
+        <p className="ai-cta-row"><PlanButton className="plan-btn--safety" href={`#chat?topic=${copy.chatTopic}`}>Start the conversation</PlanButton></p>
         </section>
         <div className="plan-booking-options"><p className="plan-booking-note">Not sure about timing? Send us a message and we’ll find a time that works.</p><a className="plan-timing-link" href={`#chat?topic=${copy.chatTopic}`}>Ask us about timing →</a><details><summary>Payment options</summary><p className="plan-payment-note">Prefer to pay another way? <a href={`#chat?topic=${copy.chatTopic}`}>Reach out, and we can work something out.</a> Municipalities and public bodies can use a purchase order and invoice.</p></details></div>
       </GlassPanel>
 
       <GlassPanel as="section" className="glass-panel" aria-labelledby="ai-next-title">
         <h2 id="ai-next-title">{RETAINER_HEADING}</h2>
-        <p>Use your plan yourself, with another provider, or with BlueChip. No retainer required.</p>
-        <p>Further BlueChip implementation is priced separately, with HR support included within that agreed scope.</p>
+        <p>Once you have your plan, you choose how to implement it: your team, another provider, or BlueChip.</p>
+        <p>If you'd like BlueChip to drive implementation, we'll agree the scope and price with you first.</p>
         <details className="plan-retainer-credit"><summary>Retainer credit</summary><p>{RETAINER_BODY}</p></details>
       </GlassPanel>
 

@@ -39,7 +39,7 @@ describe('plan page: order, both editions', () => {
     expect(follows(example, box)).toBe(true);
     expect(follows(box, safety)).toBe(true);
     // the button is the last thing inside the safety-net block, after the definitions and the Refund Policy reference
-    expect(follows(within(safety).getByText(/Based on evidence-backed potential/), cta)).toBe(true);
+    expect(follows(within(safety).getByText(/Evidence-backed potential across the agreed work/), cta)).toBe(true);
     expect(follows(within(safety).getByRole('link', { name: 'Refund Policy' }), cta)).toBe(true);
   });
 
@@ -124,6 +124,7 @@ describe('plan page: lead, example, box and safety net text', () => {
     expect(offer.textContent).toContain('if achieved');
     expect(offer.textContent).toContain('not a business average or cash savings');
     expect(offer.textContent).toContain('Before payment');
+    expect(offer.querySelector('.plan-booking-grid > div:first-child .plan-scope-agreement')).not.toBeNull();
     expect(within(offer).getByRole('link',{name:'Ask us about timing →'})).toHaveAttribute('href',`#chat?topic=${topic}`);
     expect(container.textContent).not.toContain('Monthly capacity');
     expect(container.textContent).not.toContain('12 AI Handoff');
@@ -136,20 +137,23 @@ describe('plan page: lead, example, box and safety net text', () => {
     const { container } = renderEdition('/ai-handoff-plan');
     const safety = container.querySelector('.plan-safety');
     expect(safety.closest('details')).toBeNull();
-    expect(safety.textContent).toContain('evidence-backed potential across the agreed people and work');
-    expect(safety.textContent).toContain('we automatically refund your full fee within 10 business days of your findings call.');
-    expect(safety.textContent).toContain('The guarantee covers plan findings, not achieved savings.');
-    expect(safety.textContent).toContain("after checking and upkeep.");
+    expect(safety.textContent).toContain('Evidence-backed potential across the agreed work');
+    expect(safety.textContent).toContain('3 net team hours a week in your plan, or your full investment back.');
+    expect(safety.textContent).toContain('Findings, not achieved savings.');
+    expect(safety.textContent).toContain('after checks and upkeep.');
     expect(safety.textContent).not.toMatch(/Net means the hours saved each week/);
     expect(within(safety).getByRole('link', { name: 'Refund Policy' })).toHaveAttribute('href', 'https://www.bluechip-people-strategies.com/refund');
-    expect(safety.textContent).toMatch(/No booking or payment required to ask\./);
+    expect(safety.querySelector('.plan-cta-lead')).toBeNull();
+    expect(within(safety).getByRole('link',{name:'Start the conversation'})).toHaveClass('plan-btn--safety');
   });
 
   it('closes the retainer line on the sixty-day credit without repeating the refund-policy sentence', () => {
     const { container } = renderEdition('/ai-handoff-plan');
     expect(screen.getByRole('heading', { name: 'Your plan. Your choice.' })).toBeInTheDocument();
-    expect(container.textContent).toContain('Use your plan yourself, with another provider, or with BlueChip. No retainer required.');
-    expect(container.textContent).toContain('If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, the eligible plan fee you paid is credited against its first invoice.');
+    const choice=screen.getByRole('heading',{name:'Your plan. Your choice.'}).closest('section');
+    expect(choice.textContent).toContain('Once you have your plan, you choose how to implement it: your team, another provider, or BlueChip.');
+    expect(choice.textContent).not.toContain('No retainer required');
+    expect(container.textContent).toContain('If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your AI Handoff findings call, the eligible plan fee you paid is credited against its first invoice.');
     const retainer = container.querySelector('.plan-safety').nextElementSibling;
     expect(retainer.textContent).not.toContain('Conditions are in our Refund Policy');
     expect(within(container.querySelector('.plan-safety')).getByRole('link', { name: 'Refund Policy' })).toHaveAttribute('href', 'https://www.bluechip-people-strategies.com/refund');
@@ -448,7 +452,7 @@ describe('chat widget answers (AI door release)', () => {
 
   it('retainer: the sixty-day credit on signing, conditions in the Refund Policy, no roadmap', () => {
     const a = ask('The AI Handoff Plan', 'Do I have to buy a retainer?');
-    expect(a).toContain('If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, the eligible plan fee you paid is credited against its first invoice.');
+    expect(a).toContain('If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your AI Handoff findings call, the eligible plan fee you paid is credited against its first invoice.');
     expect(a).toContain('Conditions are in our Refund Policy, section 1.');
     expect(a).not.toMatch(/roadmap|six-month/i);
   });
