@@ -56,8 +56,8 @@ describe('plan page: order, both editions', () => {
     const { container } = renderEdition('/ai-handoff-plan');
     expect(screen.getByRole('heading', { name: 'What you get for C$795' })).toBeInTheDocument();
     expect(container.textContent).not.toMatch(/C\$(595|999)/);
-    // current fee appears in the illustration and box; the credit follows the actual amount paid
-    expect((container.textContent.match(/C\$795/g) || []).length).toBe(2);
+    // The scenario is fee-independent; the current fee appears in its own box.
+    expect((container.textContent.match(/C\$795/g) || []).length).toBe(1);
   });
 });
 
@@ -69,7 +69,7 @@ describe('plan page: lead, example, box and safety net text', () => {
     const example = container.querySelector('#pulse-scale');
     expect(within(example).getByText(/not a result calculated from your answers/)).toBeInTheDocument();
     expect(within(example).getByRole('group', { name: 'Illustrative team hours' }).textContent).toMatch(/10people.*2.5net hours each.*25team hours/);
-    expect(example.textContent).toContain('1,200 hours a year');
+    expect(example.textContent).toContain('1,200 team hours a year');
     expect(example.textContent).toContain('48 working weeks');
     expect(example.textContent).toContain("checking the AI's work and keeping the tools running");
     expect(example.textContent).toContain('C$48,000');

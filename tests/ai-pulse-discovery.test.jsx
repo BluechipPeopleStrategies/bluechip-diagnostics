@@ -8,6 +8,20 @@ function start(){fireEvent.click(screen.getByRole('button',{name:/Find my opport
 function choose(name){fireEvent.click(screen.getByRole('button',{name:new RegExp(name)}));}
 function showEmptyResult(){start();choose('Not sure');fireEvent.click(screen.getByRole('button',{name:/Skip this for now/}));fireEvent.click(screen.getByRole('button',{name:/Skip this for now/}));fireEvent.click(screen.getByRole('button',{name:/Skip this for now/}));fireEvent.click(screen.getByRole('button',{name:/Show my opportunity snapshot/}));}
 it('lets all six areas be chosen and requires no workload arithmetic',()=>{const{container}=mount();start();const choices=container.querySelectorAll('[data-family]');expect(choices).toHaveLength(6);for(const button of choices)fireEvent.click(button);expect(container.querySelectorAll('[data-family][aria-pressed=true]')).toHaveLength(6);expect(container.querySelector('input[type=number]')).toBeNull();});
+it('discloses the optional fee after selection without interrupting the free check',()=>{
+  mount();start();
+  expect(screen.queryByRole('complementary',{name:'Optional plan pricing'})).not.toBeInTheDocument();
+  choose('Documents');
+  const disclosure=screen.getByRole('complementary',{name:'Optional plan pricing'});
+  expect(disclosure).toHaveTextContent('Your AI Pulse and results are free.');
+  expect(disclosure).toHaveTextContent('C$795');
+  expect(screen.getByRole('button',{name:/Documents/})).toHaveAttribute('aria-pressed','true');
+  expect(screen.getByRole('button',{name:/Show me what could help/})).toBeEnabled();
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  expect(globalThis.fetch).not.toHaveBeenCalled();
+  choose('Documents');
+  expect(screen.queryByRole('complementary',{name:'Optional plan pricing'})).not.toBeInTheDocument();
+});
 it('learns after an answer, keeps choice focus and can go back without losing progress',()=>{mount();start();choose('Documents');fireEvent.click(screen.getByRole('button',{name:/Show me what could help/}));const answer=screen.getByRole('button',{name:/too much effort/});answer.focus();fireEvent.click(answer);expect(answer).toHaveFocus();expect(screen.getByText(/An option worth exploring/)).toBeInTheDocument();fireEvent.click(screen.getByRole('button',{name:/See my snapshot/}));fireEvent.click(screen.getByRole('button',{name:'Back'}));expect(screen.getByRole('button',{name:/too much effort/})).toHaveAttribute('aria-pressed','true');});
 it('shows free results with fixed scale before long ideas and no invented hours',()=>{const{container}=mount();showEmptyResult();expect(screen.getByText('C$48,000')).toBeInTheDocument();expect(container.querySelector('#pulse-scale').compareDocumentPosition(container.querySelector('#pulse-ideas'))&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();expect(screen.getByText(/not a result calculated from your answers/)).toBeInTheDocument();expect(screen.getByText(/No opportunity has been assumed/)).toBeInTheDocument();expect(globalThis.fetch).not.toHaveBeenCalled();});
 it('explicitly discloses sharing and preserves the visible result on an owner-record failure',async()=>{globalThis.fetch=vi.fn(async()=>({ok:false,json:async()=>({ok:false,emailSent:true,leadNotificationSent:false})}));const{container}=mount();showEmptyResult();fireEvent.click(screen.getByRole('button',{name:/Keep my free snapshot/}));expect(screen.getByText(/completed answers and snapshot are shared with Thomas/)).toBeInTheDocument();fireEvent.change(screen.getByLabelText('Your email'),{target:{value:'visitor@example.com'}});fireEvent.submit(container.querySelector('#pulse-email-form'));await waitFor(()=>expect(screen.getByText(/could not confirm the copy for Thomas/)).toBeInTheDocument());const sent=JSON.parse(globalThis.fetch.mock.calls[0][1].body);expect(sent.sharingNoticeVersion).toBe('ai-pulse-discovery-results-v1');expect(sent.shareCompletedCheck).toBe(true);expect(screen.getByText('C$48,000')).toBeInTheDocument();expect(window.posthog.capture.mock.calls.some(([,p])=>p?.email||p?.answers||p?.information)).toBe(false);});

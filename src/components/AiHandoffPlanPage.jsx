@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import SiteHeader from './SiteHeader';
 import PulseScale from './PulseScale.jsx';
-import { PLAN_FEE, dollars, FUTURE_PRICE_NOTICE } from '../lib/planPricing.js';
+import { PLAN_FEE, dollars, FUTURE_PRICE_NOTICE, PLAN_CAPACITY_NOTICE } from '../lib/planPricing.js';
 import GlassStage from './glass/GlassStage';
 import GlassPanel from './glass/GlassPanel';
 import {
@@ -121,6 +121,7 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
           plasma={{ radius: 24, tint: '#0E2140', opacity: 0.62, elevation: 0.7 }}>
           <h2 id="ai-price-title">What you get for {dollars(PLAN_FEE)}</h2>
           <p className="plan-current-price">Current fee. {FUTURE_PRICE_NOTICE}</p>
+          <p className="plan-current-price">{PLAN_CAPACITY_NOTICE}</p>
           <p className="plan-box-opener">{copy.opener}</p>
           <PlanFlow steps={FLOW_STEPS} />
           <ul className="plan-included-tools" aria-label="Included with your written plan">
