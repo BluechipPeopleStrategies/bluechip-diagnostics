@@ -1,0 +1,23 @@
+// Short labels explain the transformation; the catalogue keeps the full checks.
+export const PULSE_IDEA_VISUALS = {
+  findDocs: ['Find answers faster', ['Approved documents', 'Find an answer', 'Check the source']],
+  versions: ['Know which copy to use', ['Document versions', 'One current copy', 'Owner confirms']],
+  teamAnswers: ['Make repeat answers findable', ['Approved answers', 'Find a response', 'Check the source']],
+  dictation: ['Speak a first draft', ['Your spoken ideas', 'A written draft', 'You check it']],
+  meetingCapture: ['Leave with clear next steps', ['Permitted notes', 'Draft actions', 'People confirm']],
+  emailDrafts: ['Start replies from good information', ['Approved reply info', 'A reply draft', 'Staff check it']],
+  emailFollowup: ['Keep the next action visible', ['An email thread', 'Draft next steps', 'You confirm']],
+  emailSearch: ['Find the detail in old emails', ['Allowed messages', 'Find an answer', 'Check the source']],
+  reports: ['Build on a reusable report', ['Approved facts', 'A report draft', 'Check the figures']],
+  research: ['Compare information in one place', ['Chosen sources', 'A comparison', 'You weigh it up']],
+  data: ['Reduce repeated spreadsheet work', ['A source copy', 'Cleanup steps', 'Check the result']],
+  socialDrafts: ['Turn your expertise into a draft', ['Your useful idea', 'Draft content', 'You check it']],
+  repurpose: ['Give good content another use', ['Approved material', 'A new format', 'Your review']],
+  records: ['Capture once, then reuse', ['Source details', 'Reuse the details', 'People approve']],
+  onboarding: ['Explain a process once, clearly', ['A real walkthrough', 'A how-to draft', 'Owner checks']],
+  enquiries: ['Start with a reliable answer', ['Approved answers', 'A reply draft', 'Staff check it']],
+  industryBrief: ['Bring useful updates together', ['Chosen sources', 'A short briefing', 'Check the links']],
+  weeklyPriorities: ['Make priorities easier to agree', ['Your task list', 'A draft order', 'Team decides']],
+  actionOwnership: ['Make commitments visible', ['Approved notes', 'Draft action list', 'Owners confirm']],
+  hrStartingPoints: ['Reuse good HR starting points', ['Approved policies', 'A checklist draft', 'People check']],
+};
