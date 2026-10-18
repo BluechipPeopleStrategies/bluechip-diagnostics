@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import SiteHeader from './SiteHeader';
+import PulseScale from './PulseScale.jsx';
+import { PLAN_FEE, dollars, FUTURE_PRICE_NOTICE } from '../lib/planPricing.js';
 import GlassStage from './glass/GlassStage';
 import GlassPanel from './glass/GlassPanel';
 import {
@@ -15,7 +17,7 @@ import PlanFlow from './plan/PlanFlow';
 import PlanInside from './plan/PlanInside';
 import PlanClose from './plan/PlanClose';
 import {
-  EDITIONS, GENERAL_PATH, PUBLIC_SECTOR_PATH, REFUND_URL, ILLUSTRATION,
+  EDITIONS, GENERAL_PATH, PUBLIC_SECTOR_PATH, REFUND_URL,
   BOX_YOUR_TIME, BOX_NOT_INCLUDED, SAFETY_NET, SAFETY_NET_DEFINITIONS, CTA_LEAD, RETAINER_HEADING, RETAINER_BODY,
 } from './plan/planCopy';
 import './AiFunnel.css';
@@ -68,22 +70,7 @@ function EditionSwitch({ edition, search }) {
 
 // One labeled illustration. The equation is real text for every reader.
 function CapacityExample({ guardrail }) {
-  const { small } = ILLUSTRATION;
-  return (
-    <GlassPanel as="section" className="glass-panel plan-example" aria-labelledby="plan-example-title" plasma={{ radius: 20, opacity: 0.55, elevation: 0.5 }}>
-      <h2 id="plan-example-title">Small amounts of time add up</h2>
-      <p className="plan-example-label">Illustration, not a promise or a client result.</p>
-      <div className="plan-equation" role="group" aria-label="Illustrative team hours">
-        <div><strong>{small.people}</strong><span>people</span></div>
-        <span className="plan-equation-sign" aria-label="times">×</span>
-        <div><strong>1</strong><span>net hour each / week</span></div>
-        <span className="plan-equation-sign" aria-label="equals">=</span>
-        <div className="plan-equation-total"><strong>{small.weekly}</strong><span>team hours / week</span></div>
-      </div>
-      <p className="plan-example-basis">About {small.yearly} hours a year at 48 working weeks. Net time allows for checking AI's work and keeping the tools running.</p>
-      <p className="plan-guardrail">{guardrail}</p>
-    </GlassPanel>
-  );
+  return <div className="plan-scale-learning"><PulseScale /><p className="plan-guardrail">{guardrail}</p></div>;
 }
 
 function WorkflowOverview() {
@@ -132,7 +119,8 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
         <span className="glass-sheet glass-sheet--mid" aria-hidden="true" />
         <GlassPanel as="section" className="glass-panel glass-panel--focal plan-box" aria-labelledby="ai-price-title"
           plasma={{ radius: 24, tint: '#0E2140', opacity: 0.62, elevation: 0.7 }}>
-          <h2 id="ai-price-title">What you get for C$795</h2>
+          <h2 id="ai-price-title">What you get for {dollars(PLAN_FEE)}</h2>
+          <p className="plan-current-price">Current fee. {FUTURE_PRICE_NOTICE}</p>
           <p className="plan-box-opener">{copy.opener}</p>
           <PlanFlow steps={FLOW_STEPS} />
           <ul className="plan-included-tools" aria-label="Included with your written plan">

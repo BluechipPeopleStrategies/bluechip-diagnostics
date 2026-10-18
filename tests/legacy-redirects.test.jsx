@@ -31,6 +31,6 @@ describe('client-side legacy redirect fallback', () => {
   it('sends /ai-check to the free check', () => {
     window.history.pushState({}, '', '/ai-check');
     render(<App />);
-    expect(screen.getByText('How much time could AI give back to your team?')).toBeInTheDocument();
+    expect(screen.getByText('Where could AI make your work easier?')).toBeInTheDocument();
   });
 });

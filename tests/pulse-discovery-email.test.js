@@ -1,0 +1,18 @@
+import { beforeEach, it, expect, vi } from 'vitest';
+import { handleAiCheckResults } from '../api/_lib/ai-check-results.js';
+import { parseLeadDataBlock } from '../api/_emails/lead-data.js';
+const body = { email: 'visitor@example.com', pulseVersion: 'ai-pulse-discovery-v1', shareCompletedCheck: true, sharingNoticeVersion: 'ai-pulse-discovery-results-v1', pulse: { version: 'ai-pulse-discovery-v1', families: ['knowledge','voice','social'], answers: { findDocs: 'friction', dictation: 'works', socialDrafts: 'aspire', records: 'unknown', malicious: '<script>bad</script>' }, help: { findDocs: 'underused' }, tools: 'm365', information: 'internal' }, computedResult: { hours: 99999 } };
+const response = () => ({ statusCode: 0, body: null, status(c) { this.statusCode=c; return this; }, json(v) { this.body=v; return this; } });
+beforeEach(() => vi.stubEnv('BLUECHIP_NOTIFY_EMAIL','owner@example.com'));
+it('sends a server-built qualitative snapshot and full disclosed owner record', async () => {
+  const sendEmail=vi.fn(async()=>true),res=response(); await handleAiCheckResults(body,res,{sendEmail});
+  expect(res.statusCode).toBe(200); expect(res.body).toMatchObject({ emailSent:true,leadNotificationSent:true,nudgeScheduled:false });
+  const visitor=sendEmail.mock.calls.map(([v])=>v).find(v=>v.to===body.email),owner=sendEmail.mock.calls.map(([v])=>v).find(v=>v.to==='owner@example.com');
+  expect(visitor.html).toContain('Your AI Pulse snapshot'); expect(visitor.html).not.toContain('99999'); expect(visitor.html).not.toContain('<script>bad');
+  const record=parseLeadDataBlock(owner.html); expect(record.check_sharing_notice).toBe(body.sharingNoticeVersion); expect(record.check_answers).toContain('Already works well'); expect(record.check_answers).toContain('Not sure'); expect(record.check_result_snapshot).toContain('socialDrafts'); expect(record.check_result_snapshot).not.toContain('malicious');
+});
+it.each([{shareCompletedCheck:false},{sharingNoticeVersion:'old'},{pulseVersion:'invented'}])('rejects undisclosed or unsupported requests before sending: %j',async change=>{
+  const sendEmail=vi.fn(async()=>true),res=response(); await handleAiCheckResults({...body,...change},res,{sendEmail}); expect(res.statusCode).toBe(400); expect(sendEmail).not.toHaveBeenCalled();
+});
+it('does not claim completion when owner capture fails',async()=>{const res=response();await handleAiCheckResults(body,res,{sendEmail:vi.fn(async({to})=>to!=='owner@example.com')});expect(res.statusCode).toBe(502);expect(res.body).toMatchObject({emailSent:true,leadNotificationSent:false,ok:false});});
+it('suppresses the visitor on honeypot while keeping a flagged owner record',async()=>{const sendEmail=vi.fn(async()=>true),res=response();await handleAiCheckResults({...body,bc_hp_trap:'filled'},res,{sendEmail});expect(sendEmail).toHaveBeenCalledTimes(1);expect(sendEmail.mock.calls[0][0].to).toBe('owner@example.com');expect(res.body.emailSent).toBe(false);});

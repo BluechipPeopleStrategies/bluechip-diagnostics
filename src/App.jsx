@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import IndexPage from './components/IndexPage';
 import QuizPage from './components/QuizPage';
-import AiOpportunityCheck from './components/AiOpportunityCheck';
+import AiPulseDiscovery from './components/AiPulseDiscovery';
 import AiHandoffPlanPage from './components/AiHandoffPlanPage';
 
 // Vercel 301s /ai-audit -> /ai-handoff-plan, /ai-check -> /ai-opportunity-check and
@@ -18,7 +18,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<IndexPage />} />
-        <Route path="/ai-opportunity-check" element={<AiOpportunityCheck />} />
+        <Route path="/ai-opportunity-check" element={<AiPulseDiscovery />} />
         <Route path="/ai-check" element={<LegacyRedirect to="/ai-opportunity-check" />} />
         <Route path="/ai-handoff-plan" element={<AiHandoffPlanPage />} />
         <Route path="/ai-handoff-plan/public-sector" element={<AiHandoffPlanPage edition="public-sector" />} />

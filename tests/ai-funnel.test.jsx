@@ -1023,6 +1023,6 @@ describe('the AI Handoff Plan page', () => {
   it('sets the document title and meta description for the general edition', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
     expect(document.title).toBe('The AI Handoff Plan | BlueChip');
-    expect(document.querySelector('meta[name="description"]').getAttribute('content')).toMatch(/^A C\$795 review of your team/);
+    expect(document.querySelector('meta[name="description"]').getAttribute('content')).toMatch(/Current fee C\$795, confirmed before booking/);
   });
 });
