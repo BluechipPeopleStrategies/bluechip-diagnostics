@@ -104,7 +104,10 @@ describe('plan page: lead, example, box and safety net text', () => {
     expect(box.textContent).toContain('About 2 hours each');
     expect([...box.querySelectorAll('.plan-call-list strong')].map(e=>e.textContent)).toEqual(['60 min','45 min','15 min']);
     expect(box.textContent).toContain('If you are one of those participants, it is already included in your 2 hours.');
-    expect(within(box).getByRole('heading',{name:'Costs outside this plan'})).toBeInTheDocument();
+    expect(within(box).getByRole('heading',{name:'If you choose to implement'})).toBeInTheDocument();
+    expect(box.textContent).toContain('Possible extra costs, only if needed:');
+    expect(box.textContent).toContain('We start with your existing tools and look for the most economical fit.');
+    expect(box.textContent).toContain('You approve any extra BlueChip work and price before it starts.');
     expect(box.textContent).toContain('Software and licences');
     expect(box.textContent).toContain('IT installations and wider rollout');
     expect(box.textContent).toContain('Implementation beyond the limited first-step help in your 45-minute findings call');

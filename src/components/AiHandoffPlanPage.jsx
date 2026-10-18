@@ -132,9 +132,11 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
               <p className="plan-scope-small">You join the 45-minute findings call. If you are one of those participants, it is already included in your 2 hours.</p>
             </section>
             <section className="plan-extra-costs" aria-labelledby="plan-extras-title">
-              <h3 id="plan-extras-title">Costs outside this plan</h3>
+              <h3 id="plan-extras-title">If you choose to implement</h3>
+              <p className="plan-scope-small">We start with your existing tools and look for the most economical fit.</p>
+              <p className="plan-scope-small">Possible extra costs, only if needed:</p>
               <ul>{PLAN_EXTRA_COSTS.map(item => <li key={item}>{item}</li>)}</ul>
-              <p className="plan-scope-small">We agree any extra BlueChip work and fee separately.</p>
+              <p className="plan-scope-small">You approve any extra BlueChip work and price before it starts.</p>
             </section>
           </div>
           <p className="plan-delivery-details">Delivery details: <a href="https://www.bluechip-people-strategies.com/terms">see our Terms</a>.</p>
@@ -170,7 +172,7 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
       <GlassPanel as="section" className="glass-panel glass-faq" aria-labelledby="plan-faq-title" plasma={{ radius: 18, opacity: 0.5 }}>
         <h2 id="plan-faq-title">FAQ</h2>
         <details><summary>Does the guarantee mean three hours for every employee?</summary><p>No. The 3 hours are a total across the agreed people and work reviewed, not 3 hours per person or per task. We agree the people and work areas before payment, or before confirming a public-body purchase order, then set priorities during discovery.</p></details>
-        <details><summary>Do you set the tools up for us?</summary><p>During the existing 45-minute findings call, we help with a first step in an approved tool, within the time available. If IT action is needed, we can prepare an IT request instead. Software and licences, anything your IT team installs, and rolling the change out to the rest of the team are not included.</p></details>
+        <details><summary>Do you set the tools up for us?</summary><p>During the existing 45-minute findings call, we help with a first step in an approved tool, within the time available. If IT action is needed, we can prepare an IT request instead. If you choose to implement, any needed software, licences, IT installations or wider rollout are separate. We start with your existing tools and agree any extra BlueChip work and price first.</p></details>
         <details><summary>Do I need to buy ongoing support?</summary><p>No. You can keep your AI plan and put it in place yourself or with another provider.</p></details>
       </GlassPanel>
 
