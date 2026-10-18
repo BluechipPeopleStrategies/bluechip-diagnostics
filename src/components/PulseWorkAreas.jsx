@@ -35,8 +35,22 @@ function WorkNode({ stage, variant }) {
         <rect x="6" y="36" width="22" height="22" rx="7" fill={`url(#${id}-gold)`} stroke="#d6b761"/>
       </>}
     </g>}
-    {stage === 1 && <><rect x="12" y="10" width="40" height="44" rx="8" fill={`url(#${id}-paper)`} stroke="#e6c77b"/><path d="M23 24h18M23 32h18M23 40h13" fill="none" stroke="#ac9459" strokeWidth="3" strokeLinecap="round"/></>}
-    {stage === 2 && <><rect x="10" y="10" width="44" height="44" rx="9" fill={`url(#${id}-gold)`} stroke="#f1d58d"/><path d="m22 32.5 7 7 13-15" fill="none" stroke="#0b1a33" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/></>}
+    {stage === 1 && <>
+      <rect x="10" y="10" width="44" height="44" rx="9" fill={`url(#${id}-paper)`} stroke="#e6c77b"/>
+      <g fill="none" stroke="#0b1a33" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+        {variant === 'information' && <><circle cx="29" cy="29" r="10"/><path d="m36 36 10 10M24 26h9M24 31h6"/></>}
+        {variant === 'communication' && <><path d="M21 23h13M21 29h8M21 43h20M30 37l3-9 10-10 6 6-10 10-9 3zM40 21l6 6"/></>}
+        {variant === 'people' && <><path d="M21 23h22M21 32h16M21 41h9m7-3 4 4 7-9"/><circle cx="16" cy="23" r=".8"/><circle cx="16" cy="32" r=".8"/><circle cx="16" cy="41" r=".8"/></>}
+      </g>
+    </>}
+    {stage === 2 && <>
+      <rect x="10" y="10" width="44" height="44" rx="9" fill={`url(#${id}-gold)`} stroke="#f1d58d"/>
+      <g fill="none" stroke="#0b1a33" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+        {variant === 'information' && <><path d="M21 20h16l6 6v17H21zM37 20v7h6M26 31h11m-11 6 4 4 8-9"/></>}
+        {variant === 'communication' && <><path d="M17 30s6-10 15-10 15 10 15 10-6 10-15 10-15-10-15-10z"/><circle cx="32" cy="30" r="4"/><path d="m33 45 4 4 9-10"/></>}
+        {variant === 'people' && <><circle cx="26" cy="24" r="5"/><path d="M17 43v-3a9 9 0 0 1 18 0v3M39 20a5 5 0 0 1 0 10M40 35l3 3 6-7"/></>}
+      </g>
+    </>}
   </svg>;
 }
 
@@ -54,9 +68,9 @@ function WorkDiagram({ steps, variant }) {
   </div>;
 }
 
-export function PulseWorkSketch({ family }) {
+export function PulseWorkSketch({ family, steps }) {
   const group = GROUPS.find(g => g.families.includes(family)) || GROUPS[0];
-  return <WorkDiagram steps={group.steps} variant={group.id} />;
+  return <WorkDiagram steps={steps || group.steps} variant={group.id} />;
 }
 
 export default function PulseWorkAreas({ selected, onToggle }) {
@@ -83,7 +97,7 @@ export default function PulseWorkAreas({ selected, onToggle }) {
     </div>
     {preview && <div className="pulse-work-preview" role="status" aria-label="A possibility to explore">
       <span className="pulse-preview-spark" aria-hidden="true">↗</span>
-      <div><p className="pulse-eyebrow">One possibility</p><p>{EXAMPLES[preview]}</p></div>
+      <div><p className="pulse-eyebrow">What this could look like</p><p>{EXAMPLES[preview]}</p><p className="pulse-preview-help">Want help putting this into practice? <a href="/ai-handoff-plan">Explore the AI Handoff Plan →</a></p></div>
     </div>}
   </>;
 }

@@ -137,7 +137,7 @@ describe('plan page: two editions and the switch', () => {
     ['/ai-handoff-plan/public-sector', 'public-sector'],
   ])('the closing contact action keeps the correct chat context on %s', (path, topic) => {
     const { container } = renderEdition(path);
-    expect(within(container.querySelector('.plan-close')).getByRole('link', { name: 'Ask us about your work' }))
+    expect(within(container.querySelector('.plan-close')).getByRole('link', { name: 'Ask us' }))
       .toHaveAttribute('href', `#chat?topic=${topic}`);
   });
 

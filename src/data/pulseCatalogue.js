@@ -64,7 +64,7 @@ export const OPPORTUNITIES=[
   {
     "id": "findDocs",
     "family": "knowledge",
-    "prompt": "How does your team find the right document?",
+    "prompt": "What is it like finding the right document?",
     "capability": "A searchable home for team knowledge",
     "explain": "Bring the useful sources together so people can find an answer and check where it came from. This is sometimes called a second brain.",
     "first": "Choose one recurring question. Put its approved source documents in one organized place and test whether someone else can find the answer."
@@ -72,7 +72,7 @@ export const OPPORTUNITIES=[
   {
     "id": "versions",
     "family": "knowledge",
-    "prompt": "How do people know they have the latest version?",
+    "prompt": "Is it clear which document version to use?",
     "capability": "One current source, with version history",
     "explain": "Clear ownership and version history can prevent repeated checking and rework. An AI search tool is only useful when the underlying sources are reliable.",
     "first": "Pick one frequently used document. Give it an owner, a single approved home and a clear review date."
@@ -80,7 +80,7 @@ export const OPPORTUNITIES=[
   {
     "id": "teamAnswers",
     "family": "knowledge",
-    "prompt": "How does your team answer repeat staff questions?",
+    "prompt": "What happens with repeat staff questions?",
     "capability": "Findable answers with named sources",
     "explain": "A small, maintained knowledge base can help people answer routine questions themselves. Sensitive or judgment-heavy questions still go to the right person.",
     "first": "Collect five recurring questions and the approved answers. Check that staff can access the sources they are allowed to see."
@@ -88,7 +88,7 @@ export const OPPORTUNITIES=[
   {
     "id": "dictation",
     "family": "voice",
-    "prompt": "How does your team turn ideas into written drafts?",
+    "prompt": "What is it like getting ideas into writing?",
     "capability": "Voice-to-text, then a checked draft",
     "explain": "Speak the first draft, then check names, numbers and meaning. Dictation can fit inside the writing workflow you already have.",
     "first": "Try dictating one non-sensitive message in an approved tool, then compare the full time including corrections."
@@ -96,7 +96,7 @@ export const OPPORTUNITIES=[
   {
     "id": "meetingCapture",
     "family": "voice",
-    "prompt": "How do you capture meeting notes and next steps?",
+    "prompt": "How well are meeting notes and next steps handled?",
     "capability": "A first draft of notes and next actions",
     "explain": "Approved note assistance can organize what was discussed so a person can check the record. Recording permission and information handling come first.",
     "first": "Start with non-sensitive notes you already have permission to use. Test the action list against the original record."
@@ -104,7 +104,7 @@ export const OPPORTUNITIES=[
   {
     "id": "emailDrafts",
     "family": "inbox",
-    "prompt": "How does your team write routine email replies?",
+    "prompt": "What is it like preparing routine email replies?",
     "capability": "Draft replies from approved information",
     "explain": "Use a reusable starting point for routine replies. A person checks the recipient, facts, tone and attachments before anything goes out.",
     "first": "Choose one common reply. Create an approved starting template and test drafting from it with non-sensitive information."
@@ -112,7 +112,7 @@ export const OPPORTUNITIES=[
   {
     "id": "emailFollowup",
     "family": "inbox",
-    "prompt": "How does your team keep track of email follow-ups?",
+    "prompt": "How well do email follow-ups stay on track?",
     "capability": "A clear next-action list",
     "explain": "Summaries and reminders can make a thread easier to act on. They should point back to the message so nothing important gets lost.",
     "first": "Take one non-sensitive thread and compare a proposed next-action list with the actual messages."
@@ -120,7 +120,7 @@ export const OPPORTUNITIES=[
   {
     "id": "emailSearch",
     "family": "inbox",
-    "prompt": "How does your team find things in old emails?",
+    "prompt": "What is it like finding details in old emails?",
     "capability": "Search across the sources you are allowed to use",
     "explain": "Connect the question to its source, with the right access permissions. Email search and document search may be the same pool of work.",
     "first": "Write three questions you repeatedly search email to answer. Identify the authoritative source for each."
@@ -128,7 +128,7 @@ export const OPPORTUNITIES=[
   {
     "id": "reports",
     "family": "documents",
-    "prompt": "How does your team put reports and updates together?",
+    "prompt": "What is it like putting reports and updates together?",
     "capability": "A reusable, source-based first draft",
     "explain": "Build from a consistent template and approved inputs. People still check the interpretation, figures and final wording.",
     "first": "Choose one recurring report. Separate its reusable structure from the facts that change each time."
@@ -136,7 +136,7 @@ export const OPPORTUNITIES=[
   {
     "id": "research",
     "family": "documents",
-    "prompt": "How does your team compare information before deciding?",
+    "prompt": "How manageable is comparing information before a decision?",
     "capability": "A source-linked summary and comparison",
     "explain": "A first-pass summary can bring key points together. Check quotations, omissions and competing views before relying on it.",
     "first": "Compare a short AI-assisted summary with two non-sensitive documents you already understand."
@@ -144,7 +144,7 @@ export const OPPORTUNITIES=[
   {
     "id": "data",
     "family": "documents",
-    "prompt": "How does your team update spreadsheets?",
+    "prompt": "What is it like keeping spreadsheets up to date?",
     "capability": "Repeatable cleanup and checking steps",
     "explain": "A clear rule or small automation may help before AI is needed. Keep a source copy and check the output.",
     "first": "Write down one repeated cleanup rule and test it on a copy of a small, non-sensitive sheet."
@@ -152,7 +152,7 @@ export const OPPORTUNITIES=[
   {
     "id": "socialDrafts",
     "family": "social",
-    "prompt": "How does your team create social posts and updates?",
+    "prompt": "What is it like creating social posts and updates?",
     "capability": "Turn your expertise into a checked draft",
     "explain": "Start with something useful you can actually teach or show. AI can help shape a draft while you retain the point of view and check the claims.",
     "first": "Take one real question a customer asks. Draft a useful answer and check it before considering a post."
@@ -160,7 +160,7 @@ export const OPPORTUNITIES=[
   {
     "id": "repurpose",
     "family": "social",
-    "prompt": "How do you reuse a good idea in other content?",
+    "prompt": "How well do you reuse good ideas in other content?",
     "capability": "Give approved material another useful format",
     "explain": "A talk, guide or article can supply several distinct pieces. Each should do a useful job instead of repeating the same generic post.",
     "first": "Choose one approved piece and identify a different audience question it could help answer."
@@ -168,7 +168,7 @@ export const OPPORTUNITIES=[
   {
     "id": "records",
     "family": "operations",
-    "prompt": "How does your team move details between records?",
+    "prompt": "What is it like moving details between records?",
     "capability": "Capture once, then reuse with checks",
     "explain": "A clearer form or existing automation may remove repeat typing. Keep an approval step for consequential changes.",
     "first": "Map one repeated transfer of information. Note the source, destination and person who checks it."
@@ -176,7 +176,7 @@ export const OPPORTUNITIES=[
   {
     "id": "onboarding",
     "family": "operations",
-    "prompt": "How do you explain a process to someone new?",
+    "prompt": "What is it like explaining a process to someone new?",
     "capability": "A maintained how-to guide",
     "explain": "Turn a real walkthrough into a usable starting guide, with an owner who keeps it current. Avoid putting private employee information into a general tool.",
     "first": "Record the steps of one routine process in an approved way, then ask a colleague to follow the draft guide."
@@ -184,7 +184,7 @@ export const OPPORTUNITIES=[
   {
     "id": "enquiries",
     "family": "operations",
-    "prompt": "How do you answer repeat customer questions?",
+    "prompt": "What is it like handling repeat customer questions?",
     "capability": "Consistent answers from approved sources",
     "explain": "A useful answer library can support staff and, where appropriate, a reviewed self-service option. Exceptions still need a person.",
     "first": "Collect five recurring questions. Check the correct answers and decide which should always come to a person."
@@ -192,7 +192,7 @@ export const OPPORTUNITIES=[
   {
     "id": "industryBrief",
     "family": "industry",
-    "prompt": "How do you keep up with industry news and competitors?",
+    "prompt": "How manageable is keeping up with industry news and competitors?",
     "capability": "A daily briefing from the sources you choose",
     "explain": "AI can help summarize industry news, niche creators and public competitor updates into one short briefing with source links. Check the original sources for accuracy and what the summary may have missed.",
     "first": "Choose three trusted public sources. Try one briefing with links, check it against the originals and decide what is worth following before setting up daily updates."
@@ -200,7 +200,7 @@ export const OPPORTUNITIES=[
   {
     "id": "weeklyPriorities",
     "family": "priorities",
-    "prompt": "How does your team decide what to work on first?",
+    "prompt": "Which best describes how your team sets priorities?",
     "capability": "A draft set of priorities your team can agree on",
     "explain": "AI can organize a non-sensitive task list by deadlines, dependencies and the criteria you choose. The manager and the people doing the work decide what comes first.",
     "first": "Use five tasks with no personal details. Agree the priority criteria, compare a draft order and adjust it together."
@@ -208,7 +208,7 @@ export const OPPORTUNITIES=[
   {
     "id": "actionOwnership",
     "family": "accountability",
-    "prompt": "How does your team track who promised what?",
+    "prompt": "How well do team commitments stay on track?",
     "capability": "Clear actions, owners and follow-up dates",
     "explain": "AI can turn approved notes into a proposed action list with owners, next steps and due dates. People confirm the commitments and use check-ins to understand progress and blockers.",
     "first": "After a non-sensitive meeting, create a short action list. Ask each person to confirm the owner, next step and follow-up date."
@@ -216,7 +216,7 @@ export const OPPORTUNITIES=[
   {
     "id": "hrStartingPoints",
     "family": "people",
-    "prompt": "How do you handle onboarding and staff questions?",
+    "prompt": "Which best describes onboarding and routine staff questions?",
     "capability": "Reusable starting points for everyday HR work",
     "explain": "AI can help draft onboarding checklists, find approved policy answers and prepare check-in agendas. A person checks the facts and wording and handles sensitive people decisions.",
     "first": "Choose one onboarding checklist or non-sensitive policy question. Test a draft against approved sources before using it with your team."

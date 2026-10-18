@@ -6,7 +6,7 @@ beforeEach(()=>{sessionStorage.clear();window.scrollTo=vi.fn();globalThis.fetch=
 const mount=()=>render(<MemoryRouter><AiPulseDiscovery /></MemoryRouter>);
 function start(){fireEvent.click(screen.getByRole('button',{name:/Find my opportunities/}));}
 function choose(name){fireEvent.click(screen.getByRole('button',{name:new RegExp(name)}));}
-function showEmptyResult(){start();choose('Not sure');fireEvent.click(screen.getByRole('button',{name:/Skip this for now/}));fireEvent.click(screen.getByRole('button',{name:/Skip this for now/}));fireEvent.click(screen.getByRole('button',{name:/Skip this for now/}));fireEvent.click(screen.getByRole('button',{name:/Show my opportunity snapshot/}));}
+function showEmptyResult(){start();choose('Not sure');fireEvent.click(screen.getByRole('button',{name:/Skip this for now/}));fireEvent.click(screen.getByRole('button',{name:/Skip this for now/}));fireEvent.click(screen.getByRole('button',{name:/Skip this for now/}));fireEvent.click(screen.getByRole('button',{name:/Show my AI starting points/}));}
 it('lets all ten work areas be chosen and requires no workload arithmetic',()=>{const{container}=mount();start();const choices=container.querySelectorAll('[data-family]');expect(choices).toHaveLength(10);for(const button of choices)fireEvent.click(button);expect(container.querySelectorAll('[data-family][aria-pressed=true]')).toHaveLength(10);expect(container.querySelector('input[type=number]')).toBeNull();});
 it('groups familiar work and previews an idea without recording an answer',()=>{
   mount();start();
@@ -21,8 +21,8 @@ it('groups familiar work and previews an idea without recording an answer',()=>{
 });
 it('asks about current work and teaches an idea after an unsure answer',()=>{
   mount();start();choose('Not sure');
-  expect(screen.getByRole('heading',{level:1})).toHaveTextContent('How does your team find the right document?');
-  fireEvent.click(screen.getByRole('button',{name:/I’m not sure/}));
+  expect(screen.getByRole('heading',{level:1})).toHaveTextContent('What is it like finding the right document?');
+  fireEvent.click(screen.getByRole('button',{name:/I would need to ask the team/}));
   expect(screen.getByRole('status')).toHaveTextContent('A searchable home for team knowledge');
   expect(globalThis.fetch).not.toHaveBeenCalled();
 });
@@ -40,8 +40,32 @@ it('discloses the optional fee after selection without interrupting the free che
   choose('Documents');
   expect(screen.queryByRole('complementary',{name:'Optional plan pricing'})).not.toBeInTheDocument();
 });
-it('learns after an answer, keeps choice focus and can go back without losing progress',()=>{mount();start();choose('Documents');fireEvent.click(screen.getByRole('button',{name:/Show me what could help/}));const answer=screen.getByRole('button',{name:/takes too much time/});answer.focus();fireEvent.click(answer);expect(answer).toHaveFocus();expect(screen.getByText(/An option worth exploring/)).toBeInTheDocument();fireEvent.click(screen.getByRole('button',{name:/See my snapshot/}));fireEvent.click(screen.getByRole('button',{name:'Back'}));expect(screen.getByRole('button',{name:/takes too much time/})).toHaveAttribute('aria-pressed','true');});
-it('shows free results with fixed scale before long ideas and no invented hours',()=>{const{container}=mount();showEmptyResult();expect(screen.getByText('C$48,000')).toBeInTheDocument();expect(container.querySelector('#pulse-scale').compareDocumentPosition(container.querySelector('#pulse-ideas'))&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();expect(screen.getByText(/not a result from your answers/)).toBeInTheDocument();expect(screen.getByText(/No opportunity has been assumed/)).toBeInTheDocument();expect(globalThis.fetch).not.toHaveBeenCalled();});
+it('learns after an answer, keeps choice focus and can go back without losing progress',()=>{mount();start();choose('Documents');fireEvent.click(screen.getByRole('button',{name:/Show me what could help/}));const answer=screen.getByRole('button',{name:/Finding documents slows us down/});answer.focus();fireEvent.click(answer);expect(answer).toHaveFocus();expect(screen.getByText(/An option worth exploring/)).toBeInTheDocument();fireEvent.click(screen.getByRole('button',{name:/See my ideas/}));fireEvent.click(screen.getByRole('button',{name:'Back'}));expect(screen.getByRole('button',{name:/Finding documents slows us down/})).toHaveAttribute('aria-pressed','true');});
+it('leads with useful starting points, keeps the scale optional and has no print or extra catalogue',()=>{
+  const {container}=mount();showEmptyResult();
+  expect(screen.getByRole('heading',{level:1})).toHaveTextContent('Your AI starting points.');
+  expect(container.querySelector('#pulse-ideas').compareDocumentPosition(container.querySelector('#pulse-scale')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(container.querySelector('.pulse-scale-toggle')).not.toHaveAttribute('open');
+  expect(screen.queryByRole('button',{name:/Print/})).not.toBeInTheDocument();
+  expect(screen.queryByText('Curious what else is possible?')).not.toBeInTheDocument();
+  expect(screen.getByText(/Your answers have not identified a gap/)).toBeInTheDocument();
+  expect(globalThis.fetch).not.toHaveBeenCalled();
+});
+it('matches priority and HR questions with specific answers and preserves their categories',()=>{
+  mount();start();choose('Deciding what comes first');choose('Handling everyday HR');
+  fireEvent.click(screen.getByRole('button',{name:/Show me what could help/}));
+  expect(screen.getByRole('heading',{level:1})).toHaveTextContent('Which best describes how your team sets priorities?');
+  fireEvent.click(screen.getByRole('button',{name:/People know what to work on first/}));
+  fireEvent.click(screen.getByRole('button',{name:/Next area/}));
+  expect(screen.getByRole('heading',{level:1})).toHaveTextContent('Which best describes onboarding and routine staff questions?');
+  fireEvent.click(screen.getByRole('button',{name:/We want to build more onboarding/}));
+  fireEvent.click(screen.getByRole('button',{name:/See my ideas/}));
+  fireEvent.click(screen.getByRole('button',{name:/Show my AI starting points/}));
+  expect(screen.getByRole('heading',{name:'Reuse good HR starting points'})).toBeInTheDocument();
+  expect(screen.getByRole('heading',{name:'Keep what works'})).toBeInTheDocument();
+  const saved=Object.values(sessionStorage).map(v=>{try{return JSON.parse(v);}catch{return null;}}).find(v=>v?.answers);
+  expect(saved.answers).toEqual({weeklyPriorities:'works',hrStartingPoints:'aspire'});
+});
 it('keeps newsletter consent separate from the free result and opens the existing tagged signup',()=>{
   mount();showEmptyResult();
   const invite=screen.getByRole('region',{name:'Stay in the loop with BlueChip'});
@@ -59,7 +83,7 @@ it('keeps newsletter consent separate from the free result and opens the existin
   expect(window.posthog.capture).toHaveBeenCalledWith('newsletter_signup_opened',{source:'ai_pulse',placement:'result'});
   expect(globalThis.fetch).not.toHaveBeenCalled();
 });
-it('explicitly discloses sharing and preserves the visible result on an owner-record failure',async()=>{globalThis.fetch=vi.fn(async()=>({ok:false,json:async()=>({ok:false,emailSent:true,leadNotificationSent:false})}));const{container}=mount();showEmptyResult();fireEvent.click(screen.getByRole('button',{name:/Keep my free snapshot/}));expect(screen.getByText(/completed answers, optional note and snapshot are shared with Thomas/)).toBeInTheDocument();fireEvent.change(screen.getByLabelText('Your email'),{target:{value:'visitor@example.com'}});fireEvent.submit(container.querySelector('#pulse-email-form'));await waitFor(()=>expect(screen.getByText(/could not confirm the copy for Thomas/)).toBeInTheDocument());const sent=JSON.parse(globalThis.fetch.mock.calls[0][1].body);expect(sent.sharingNoticeVersion).toBe('ai-pulse-discovery-results-v2');expect(sent.shareCompletedCheck).toBe(true);expect(screen.getByText('C$48,000')).toBeInTheDocument();expect(window.posthog.capture.mock.calls.some(([,p])=>p?.email||p?.answers||p?.information)).toBe(false);});
+it('explicitly discloses sharing and preserves the visible result on an owner-record failure',async()=>{globalThis.fetch=vi.fn(async()=>({ok:false,json:async()=>({ok:false,emailSent:true,leadNotificationSent:false})}));const{container}=mount();showEmptyResult();fireEvent.click(screen.getByRole('button',{name:/Email my ideas/}));expect(screen.getByText(/completed answers, optional note and snapshot are shared with Thomas/)).toBeInTheDocument();fireEvent.change(screen.getByLabelText('Your email'),{target:{value:'visitor@example.com'}});fireEvent.submit(container.querySelector('#pulse-email-form'));await waitFor(()=>expect(screen.getByText(/could not confirm the copy for Thomas/)).toBeInTheDocument());const sent=JSON.parse(globalThis.fetch.mock.calls[0][1].body);expect(sent.sharingNoticeVersion).toBe('ai-pulse-discovery-results-v2');expect(sent.shareCompletedCheck).toBe(true);expect(screen.getByText('C$48,000')).toBeInTheDocument();expect(window.posthog.capture.mock.calls.some(([,p])=>p?.email||p?.answers||p?.information)).toBe(false);});
 it('keeps a bounded optional note in the tab until the disclosed email request',async()=>{
   globalThis.fetch=vi.fn(async()=>({ok:true,json:async()=>({ok:true,emailSent:true,leadNotificationSent:true})}));
   const {container}=mount();start();choose('Not sure');
@@ -67,14 +91,14 @@ it('keeps a bounded optional note in the tab until the disclosed email request',
   const note=screen.getByRole('textbox',{name:/Anything we missed/});
   expect(note).toHaveAttribute('maxlength','600');expect(note).toHaveClass('ph-mask');
   fireEvent.change(note,{target:{value:'Tracking renewal dates'}});
-  fireEvent.click(screen.getByRole('button',{name:/Show my opportunity snapshot/}));
+  fireEvent.click(screen.getByRole('button',{name:/Show my AI starting points/}));
   expect(globalThis.fetch).not.toHaveBeenCalled();
   expect(screen.queryByText('Tracking renewal dates')).not.toBeInTheDocument();
   expect(JSON.stringify(window.posthog.capture.mock.calls)).not.toContain('Tracking renewal dates');
-  fireEvent.click(screen.getByRole('button',{name:/Keep my free snapshot/}));
+  fireEvent.click(screen.getByRole('button',{name:/Email my ideas/}));
   expect(screen.getByText(/optional note and snapshot are shared with Thomas/)).toBeInTheDocument();
   fireEvent.change(screen.getByLabelText('Your email'),{target:{value:'visitor@example.com'}});
   fireEvent.submit(container.querySelector('#pulse-email-form'));
-  await waitFor(()=>expect(screen.getByText(/Your snapshot was sent/)).toBeInTheDocument());
+  await waitFor(()=>expect(screen.getByText(/Your ideas were sent/)).toBeInTheDocument());
   expect(JSON.parse(globalThis.fetch.mock.calls[0][1].body).pulse.note).toBe('Tracking renewal dates');
 });
