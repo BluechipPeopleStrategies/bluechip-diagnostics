@@ -528,3 +528,12 @@
 .ai-plan .plan-inside-diagram span:not([aria-hidden]):last-child{background:linear-gradient(145deg,#d1b36a33,#1d304a);border-color:#d1b36a;color:#f1d58d}
 .ai-plan .plan-inside-diagram span[aria-hidden]{display:block;align-self:center;min-height:22px;line-height:22px;font-size:24px;color:#e6c77b}
 @media(max-width:620px){.ai-plan .plan-booking-grid{grid-template-columns:1fr;gap:18px}.ai-plan .plan-booking-grid>div+div{padding:18px 0 0;border-left:0;border-top:1px solid #ffffff29}.ai-plan .plan-inside-diagram{min-height:0}}
+
+/* Keep the type scale readable inside each diagram and booking boundary. */
+.ai-plan .plan-inside-card{container-type:inline-size;min-width:0}
+.ai-plan .plan-inside-card h3{font-size:clamp(20px,8cqi,22px);line-height:1.3;overflow-wrap:break-word}
+.ai-plan .plan-inside-card li{font-size:16px;line-height:1.6;overflow-wrap:break-word}
+.ai-plan .plan-inside-diagram span:not([aria-hidden]){min-width:0;min-height:56px;font-size:15px;line-height:1.45;overflow-wrap:break-word}
+.ai-plan .plan-booking-grid>div{min-width:0}
+.ai-plan p.plan-booking-note,.ai-plan p.plan-payment-note{font-size:15px;line-height:1.6;overflow-wrap:break-word}
+.ai-funnel.ai-glass .plan-box h2{font-size:clamp(26px,3vw,32px);line-height:1.25;overflow-wrap:break-word}
