@@ -170,7 +170,7 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
       </GlassPanel>
 
       <PlanClose chatTopic={copy.chatTopic} />
-      <p className="ai-legal"><a href="https://www.bluechip-people-strategies.com/terms">Terms</a> &middot; <a href={REFUND_URL}>Refund Policy</a> &middot; <a href="https://www.bluechip-people-strategies.com/privacy">Privacy</a></p>
+      <p className="ai-legal"><a href="https://www.bluechip-people-strategies.com/terms">Terms</a> &middot; <a href="https://www.bluechip-people-strategies.com/privacy">Privacy</a></p>
     </main>
   </GlassStage>;
 }
