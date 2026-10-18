@@ -40,4 +40,21 @@ it('discloses the optional fee after selection without interrupting the free che
 });
 it('learns after an answer, keeps choice focus and can go back without losing progress',()=>{mount();start();choose('Documents');fireEvent.click(screen.getByRole('button',{name:/Show me what could help/}));const answer=screen.getByRole('button',{name:/too much effort/});answer.focus();fireEvent.click(answer);expect(answer).toHaveFocus();expect(screen.getByText(/An option worth exploring/)).toBeInTheDocument();fireEvent.click(screen.getByRole('button',{name:/See my snapshot/}));fireEvent.click(screen.getByRole('button',{name:'Back'}));expect(screen.getByRole('button',{name:/too much effort/})).toHaveAttribute('aria-pressed','true');});
 it('shows free results with fixed scale before long ideas and no invented hours',()=>{const{container}=mount();showEmptyResult();expect(screen.getByText('C$48,000')).toBeInTheDocument();expect(container.querySelector('#pulse-scale').compareDocumentPosition(container.querySelector('#pulse-ideas'))&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();expect(screen.getByText(/not a result calculated from your answers/)).toBeInTheDocument();expect(screen.getByText(/No opportunity has been assumed/)).toBeInTheDocument();expect(globalThis.fetch).not.toHaveBeenCalled();});
+it('keeps newsletter consent separate from the free result and opens the existing tagged signup',()=>{
+  mount();showEmptyResult();
+  const invite=screen.getByRole('region',{name:'Stay in the loop with BlueChip'});
+  expect(invite).toHaveTextContent('twice-monthly emails');
+  expect(invite).toHaveTextContent('Optional and free. Unsubscribe at any time.');
+  const link=screen.getByRole('link',{name:/Sign up for BlueChip Updates/});
+  const destination=new URL(link.href);
+  expect(destination.origin+destination.pathname).toBe('https://stats.sender.net/forms/b68O7R/view');
+  expect(destination.searchParams.get('utm_source')).toBe('ai_pulse');
+  expect(link).toHaveAttribute('target','_blank');
+  expect(link).toHaveAttribute('rel','noopener noreferrer');
+  expect(screen.queryByLabelText('Your email')).not.toBeInTheDocument();
+  expect(globalThis.fetch).not.toHaveBeenCalled();
+  fireEvent.click(link);
+  expect(window.posthog.capture).toHaveBeenCalledWith('newsletter_signup_opened',{source:'ai_pulse',placement:'result'});
+  expect(globalThis.fetch).not.toHaveBeenCalled();
+});
 it('explicitly discloses sharing and preserves the visible result on an owner-record failure',async()=>{globalThis.fetch=vi.fn(async()=>({ok:false,json:async()=>({ok:false,emailSent:true,leadNotificationSent:false})}));const{container}=mount();showEmptyResult();fireEvent.click(screen.getByRole('button',{name:/Keep my free snapshot/}));expect(screen.getByText(/completed answers and snapshot are shared with Thomas/)).toBeInTheDocument();fireEvent.change(screen.getByLabelText('Your email'),{target:{value:'visitor@example.com'}});fireEvent.submit(container.querySelector('#pulse-email-form'));await waitFor(()=>expect(screen.getByText(/could not confirm the copy for Thomas/)).toBeInTheDocument());const sent=JSON.parse(globalThis.fetch.mock.calls[0][1].body);expect(sent.sharingNoticeVersion).toBe('ai-pulse-discovery-results-v1');expect(sent.shareCompletedCheck).toBe(true);expect(screen.getByText('C$48,000')).toBeInTheDocument();expect(window.posthog.capture.mock.calls.some(([,p])=>p?.email||p?.answers||p?.information)).toBe(false);});
