@@ -23,7 +23,7 @@ const renderEdition = (path) => {
 // The strings the release retires, on every visitor-facing surface.
 const RETIRED = [
   /taxes? included/i, /including applicable tax/i, /introductory/i, /C\$999/, /C\$595/, /Implementation Sprint/i,
-  /roadmap/i, /5,760/, /AI Opportunity Check/, /AI Capacity Check/, /—/, /org(anization)? architecture/i,
+  /roadmap/i, /AI Opportunity Check/, /AI Capacity Check/, /—/, /org(anization)? architecture/i,
 ];
 
 describe('plan page: order, both editions', () => {
@@ -84,7 +84,7 @@ describe('plan page: lead, example, box and safety net text', () => {
     expect(municipal).toMatch(/not positions to cut/);
   });
 
-  it('keeps all deliverables, timing conditions and exclusions in the compact package', () => {
+  it('keeps the deliverables clear, separates time and extra costs, and links delivery terms', () => {
     renderEdition('/ai-handoff-plan');
     const box = screen.getByRole('heading', { name: 'What your AI Handoff Plan includes' }).closest('section');
     const steps = box.querySelectorAll('.plan-flow-step');
@@ -93,18 +93,40 @@ describe('plan page: lead, example, box and safety net text', () => {
     ['What AI could take on, what your people keep', 'Tool choice, costs and setup effort', 'What information can go into which tool', 'Projected net team hours a week'].forEach(text => {
       expect(within(steps[1]).getByText(text).tagName).toBe('LI');
     });
-    expect(steps[1].textContent).toContain('Within 5 business days');
+    expect(steps[1].textContent).toContain('Written for your team');
     expect(steps[2].textContent).toMatch(/45 minutes.*approved tool, within this call.*IT request ready to send/);
     expect(steps[3].textContent).toMatch(/About 30 days later.*15-minute check-in on how it is going/);
-    expect(box.textContent).toContain('Within five business days after all needed information is received.');
-    expect(box.textContent).toContain('People and work areas are agreed before payment, or before confirming a public-body purchase order. Priorities are set during discovery.');
-    expect(box.textContent).toContain('Starter kit: prompts, templates and a review checklist');
-    expect(box.textContent).toContain('One-page summary for sign-off');
-    expect(box.textContent).toContain("Hours tracker: see how time across the agreed work changes");
-    expect(box.textContent).toContain("Four-day quick-start plan: a day-by-day guide your team follows to set up, test and check the AI's work");
-    expect(box.textContent).toMatch(/Your time: about two hours each from one or two of the people who do the work/);
-    expect(box.textContent).toContain('Not included: software and licences, anything your IT team installs, wider rollout, and implementation beyond the limited first-step help within your 45-minute findings call.');
+    expect(within(box).getByRole('link',{name:'see our Terms'})).toHaveAttribute('href','https://www.bluechip-people-strategies.com/terms');
+    expect(box.querySelectorAll('.plan-included-tools li')).toHaveLength(4);
+    expect(box.querySelectorAll('.plan-kit-icon svg')).toHaveLength(4);
+    ['4-day quick-start guide','Starter kit','Sign-off summary','Hours tracker','Prompts, templates and a review checklist.','One page to share and approve.','See how time changes across the agreed work.'].forEach(text=>expect(within(box).getByText(text)).toBeInTheDocument());
+    expect(within(box).getByRole('heading',{name:'Time we need from you'})).toBeInTheDocument();
+    expect(box.textContent).toContain('About 2 hours each');
+    expect([...box.querySelectorAll('.plan-call-list strong')].map(e=>e.textContent)).toEqual(['60 min','45 min','15 min']);
+    expect(box.textContent).toContain('If you are one of those participants, it is already included in your 2 hours.');
+    expect(within(box).getByRole('heading',{name:'Costs outside this plan'})).toBeInTheDocument();
+    expect(box.textContent).toContain('Software and licences');
+    expect(box.textContent).toContain('IT installations and wider rollout');
+    expect(box.textContent).toContain('Implementation beyond the limited first-step help in your 45-minute findings call');
     expect(box.textContent).not.toMatch(/guarantee|full fee/i);
+  });
+
+  it.each([['/ai-handoff-plan','ai-handoff-plan'],['/ai-handoff-plan/public-sector','public-sector']])('groups investment, value, safety and timing without monthly scarcity on %s',(path,topic)=>{
+    const {container}=renderEdition(path);
+    const offer=screen.getByRole('heading',{name:'Your investment. Your safety net.'}).closest('section');
+    expect(offer.querySelector('.plan-safety')).not.toBeNull();
+    expect(offer.textContent).toContain('One-time investment');
+    expect(offer.textContent).toContain('C$795');
+    expect(offer.textContent).toContain('C$5,760');
+    expect(offer.textContent).toContain('if achieved');
+    expect(offer.textContent).toContain('not a business average or cash savings');
+    expect(offer.textContent).toContain('Before payment');
+    expect(within(offer).getByRole('link',{name:'Ask us about timing →'})).toHaveAttribute('href',`#chat?topic=${topic}`);
+    expect(container.textContent).not.toContain('Monthly capacity');
+    expect(container.textContent).not.toContain('12 AI Handoff');
+    expect(screen.getByRole('heading',{name:'FAQ'})).toBeInTheDocument();
+    expect(screen.getByRole('heading',{name:'Your work. Your call.'})).toBeInTheDocument();
+    expect(container.querySelector('.plan-workflow-list').textContent).toContain('You decide what to hand over, what stays with your people, and what to try first.');
   });
 
   it('shows "Your safety net" in the page, at body size, with its definitions, never behind a link or a details block', () => {
