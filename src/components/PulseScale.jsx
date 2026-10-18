@@ -26,7 +26,7 @@ export default function PulseScale() {
         <p className="pulse-small">Time your team could redirect if those hours can be recovered.</p>
       </div>
     </div>
-    <p className="pulse-small">This illustration is not a result calculated from your answers, a business average or a client outcome. It is not your measured loss or ROI. Staff time freed for other work is not a cash saving. Net time allows for checking the AI&apos;s work and keeping the tools running.</p>
-    <p className="pulse-small">Software and implementation beyond the included first step cost extra.</p>
+    <p className="pulse-small">Example only, not a result from your answers or a promise. Time value is not cash savings. Hours allow for checking and upkeep.</p>
+    <p className="pulse-small">Software and setup beyond the included first step cost extra.</p>
   </section>;
 }

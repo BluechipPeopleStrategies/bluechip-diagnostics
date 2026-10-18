@@ -74,7 +74,7 @@ export default function PulseWorkAreas({ selected, onToggle }) {
               aria-label={`${family.title}. ${family.cue}`} aria-pressed={pressed}
               onClick={() => { onToggle(id); setPreview(pressed ? null : id); }}>
               <PulseWorkIcon family={id} size={23} />
-              <strong>{family.title}</strong>
+              <span className="pulse-family-copy"><strong>{family.title}</strong><span className="pulse-family-cue">{family.cue}</span></span>
               <span className="pulse-select-mark" aria-hidden="true"><SelectionMark selected={pressed}/></span>
             </button>;
           })}

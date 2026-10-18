@@ -55,16 +55,16 @@ export const ILLUSTRATION_TEXT = `Say ${ILLUSTRATION.small.people} people do tha
 // (AiHandoffPlanPage FLOW_STEPS and PLAN_KIT). The guarantee line sits
 // in the "Your safety net" block below the box (Infy batch 3, item 1).
 export const BOX_YOUR_TIME = 'about two hours each from one or two of the people who do the work, across discovery, the findings and setup call, and the check-in, plus your time on the findings call.';
-export const BOX_NOT_INCLUDED = 'software and licences, anything your IT team installs, wider rollout, and implementation beyond the included first-step setup.';
+export const BOX_NOT_INCLUDED = 'software and licences, anything your IT team installs, wider rollout, and implementation beyond the limited first-step help within your 45-minute findings call.';
 
 // "Your safety net" (Infy batch 3, item 1c). Body-text size, never behind a link or accordion.
-export const SAFETY_NET = "if your AI Handoff Plan cannot show evidence-backed potential for at least 3 net team hours a week across the agreed people and work reviewed, your full fee is refunded automatically within 10 business days of your findings call. This covers plan findings, not actual implementation savings.";
-export const SAFETY_NET_DEFINITIONS = "Net means after the weekly time needed to check the AI's work and keep the tools running.";
+export const SAFETY_NET = "if your plan identifies less than 3 net team hours a week, we automatically refund your full fee within 10 business days of your findings call.";
+export const SAFETY_NET_DEFINITIONS = "Based on evidence-backed potential across the agreed people and work, after checking and upkeep. The guarantee covers plan findings, not achieved savings.";
 
-export const CTA_LEAD = "Tell us about your team's work and what you would like to improve, and we'll talk through where AI could help. Asking doesn't book the AI Handoff Plan or take payment.";
+export const CTA_LEAD = "Tell us what you'd like to improve. No booking or payment required to ask.";
 
 // Retainer line (Infy batch 3, item 3), with the retainer named as Thomas confirmed it
 // ("Practical AI and/or Embedded HR"). No roadmap, no scope, no six-month minimum, no link.
-export const RETAINER_HEADING = 'What comes next is up to you';
-export const RETAINER_BODY = 'You can keep your AI plan and put it in place yourself or with another provider, or ask us about ongoing help. If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, the eligible plan fee you paid is credited against its first invoice.';
+export const RETAINER_HEADING = 'Your plan. Your choice.';
+export const RETAINER_BODY = 'If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, the eligible plan fee you paid is credited against its first invoice.';
 export const RETAINER_LINE = `${RETAINER_HEADING}. ${RETAINER_BODY}`;

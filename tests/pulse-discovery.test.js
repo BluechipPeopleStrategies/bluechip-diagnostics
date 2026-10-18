@@ -2,6 +2,14 @@ import { describe, it, expect } from 'vitest';
 import { freshPulse, restorePulse, pulseQuestions, pulseSnapshot, PULSE_VERSION, SCALE, FAMILIES } from '../src/lib/pulseDiscovery.js';
 
 describe('short discovery Pulse', () => {
+  it('keeps an optional note bounded and separate from the opportunity calculation', () => {
+    const r = pulseSnapshot({ ...freshPulse(), note: '  A'.repeat(700) });
+    expect(r.note).toHaveLength(600);
+    expect(r.note.startsWith('A')).toBe(true);
+    expect(r.opportunities).toEqual([]);
+    expect(r.startingPoint).toBeNull();
+    expect(restorePulse({ ...freshPulse(), note: { text: 'bad' } }).note).toBe('');
+  });
   it('starts with three examples while retaining every selected work area for later exploration', () => {
     const state = { ...freshPulse(), families: FAMILIES.map(f => f.id) };
     expect(pulseQuestions(state)).toHaveLength(3);
