@@ -158,7 +158,7 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
       <GlassPanel as="section" className="glass-panel" aria-labelledby="ai-next-title">
         <h2 id="ai-next-title">{RETAINER_HEADING}</h2>
         <p>BlueChip can lead implementation under a separately agreed scope and fee. HR advisory support is included at no additional fee within that implementation scope. No ongoing retainer is required.</p>
-        <p>{RETAINER_BODY} Conditions are in our <a href={REFUND_URL}>Refund Policy</a>, section 1.</p>
+        <p>{RETAINER_BODY}</p>
 
       </GlassPanel>
 

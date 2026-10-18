@@ -119,11 +119,14 @@ describe('plan page: lead, example, box and safety net text', () => {
     expect(safety.textContent).toMatch(/Asking doesn't book the AI Handoff Plan or take payment\./);
   });
 
-  it('closes the retainer line on the sixty-day credit, with the conditions in the Refund Policy', () => {
+  it('closes the retainer line on the sixty-day credit without repeating the refund-policy sentence', () => {
     const { container } = renderEdition('/ai-handoff-plan');
     expect(screen.getByRole('heading', { name: 'What comes next is up to you' })).toBeInTheDocument();
     expect(container.textContent).toContain('You can keep your AI plan and put it in place yourself or with another provider, or ask us about ongoing help.');
-    expect(container.textContent).toContain('If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, your C$795 is credited against its first invoice. Conditions are in our Refund Policy, section 1.');
+    expect(container.textContent).toContain('If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, your C$795 is credited against its first invoice.');
+    const retainer = container.querySelector('.plan-safety').nextElementSibling;
+    expect(retainer.textContent).not.toContain('Conditions are in our Refund Policy');
+    expect(within(container.querySelector('.plan-safety')).getByRole('link', { name: 'Refund Policy' })).toHaveAttribute('href', 'https://www.bluechip-people-strategies.com/refund');
   });
 });
 
