@@ -947,14 +947,14 @@ describe('the AI Handoff Plan page', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
     expect(screen.getByRole('heading', { name: 'The AI Handoff Plan', level: 1 })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'What your AI Handoff Plan includes', level: 2 })).toBeInTheDocument();
-    expect(screen.getByText(/your full fee is refunded automatically within 10 business days of your findings call/)).toBeInTheDocument();
-    expect(screen.getByText(/This covers plan findings, not actual implementation savings/)).toBeInTheDocument();
+    expect(screen.getByText(/we automatically refund your full fee within 10 business days of your findings call/)).toBeInTheDocument();
+    expect(screen.getByText(/The guarantee covers plan findings, not achieved savings/)).toBeInTheDocument();
     expect(screen.queryByText(/claim window|within 7 days/i)).not.toBeInTheDocument();
   });
 
   it('shows the retainer line and the journey, with no table of who does what', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
-    expect(screen.getByRole('heading', { name: 'What comes next is up to you', level: 2 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Your plan. Your choice.', level: 2 })).toBeInTheDocument();
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
@@ -969,9 +969,10 @@ describe('the AI Handoff Plan page', () => {
     expect(screen.queryByText('Discuss your Practical AI Audit')).not.toBeInTheDocument();
   });
 
-  it('shows the credibility strip linking to /about', () => {
+  it('keeps the about link in the footer without a repeated credibility strip', () => {
     render(<MemoryRouter><AiHandoffPlanPage /></MemoryRouter>);
-    expect(screen.getByRole('link', { name: /More about us/ })).toHaveAttribute('href', 'https://www.bluechip-people-strategies.com/about');
+    expect(screen.getByRole('link', { name: /About BlueChip/ })).toHaveAttribute('href', 'https://www.bluechip-people-strategies.com/about');
+    expect(screen.queryByText(/Built and run by BlueChip/)).not.toBeInTheDocument();
   });
 
   it('keeps an old ?workflow= link working', () => {

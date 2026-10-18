@@ -76,3 +76,18 @@
 
 /* Vector marks share a fixed center with their control borders. */
 .pulse-select-mark>svg{display:block;width:16px;height:16px;flex:0 0 16px}
+
+/* Match the Handoff Plan: Playfair display headings, Inter body and controls. */
+.pulse-page h1,.pulse-page h2{font-family:'Playfair Display',Georgia,serif;font-weight:700;letter-spacing:-.02em}
+.pulse-page h3{font-family:Inter,Arial,sans-serif}
+.pulse-family-copy{min-width:0}
+.pulse-bucket-choices .pulse-family-cue{display:block;margin-top:5px;font-size:13px;line-height:1.5;color:#c3ccda;font-weight:400}
+.pulse-options{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
+.pulse-options .pulse-choice{display:grid;grid-template-columns:22px minmax(0,1fr);gap:5px 10px;align-content:start;padding:18px;min-height:116px}
+.pulse-options .pulse-choice::before{grid-column:1;grid-row:1 / 3;margin:0;font-size:20px;line-height:1.25}
+.pulse-choice strong{grid-column:2;font-size:16px;line-height:1.4}
+.pulse-choice span{grid-column:2;font-size:14px;line-height:1.5;color:#c3ccda}
+.pulse-page textarea{font:inherit;box-sizing:border-box;resize:vertical;width:100%;min-height:120px;background:#0b1a33;border:1px solid #64738a;color:#f5efe6;padding:12px;border-radius:8px}
+.pulse-page textarea::placeholder{color:#aab8cb}
+.pulse-question-context{color:#c3ccda}
+@media(max-width:620px){.pulse-options{grid-template-columns:1fr}.pulse-options .pulse-choice{min-height:96px}}

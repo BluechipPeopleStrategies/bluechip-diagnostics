@@ -39,7 +39,7 @@ const PLAN_KIT = [
 const FLOW_STEPS = [
   { time: '60 minutes', name: 'Discovery', Icon: DiscoveryIcon, bullets: ['Meet virtually with up to two people who do the work', 'Review the work and agree priorities'] },
   { time: 'Within 5 business days*', name: 'Handoff plan', Icon: PlanDocIcon, bullets: ['What AI could take on, what your people keep', 'Tool choice, costs and setup effort', 'What information can go into which tool', 'Projected net team hours a week'], key: true },
-  { time: '45 minutes', name: 'Findings and setup', Icon: CallIcon, bullets: ['Walk through your AI plan', 'Set up the first step in an allowed tool', 'If needed: IT request ready to send'] },
+  { time: '45 minutes', name: 'Findings and setup', Icon: CallIcon, bullets: ['Walk through your AI plan', 'First-step help in an approved tool, within this call', 'If needed: IT request ready to send'] },
   { time: 'About 30 days later', name: 'Check-in', Icon: ChecklistIcon, bullets: ['15-minute check-in on how it is going'] },
 ];
 
@@ -100,7 +100,6 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
 
       <header className="ai-hero glass-hero">
         <div className="glass-hero-copy">
-          <p className="ai-eyebrow">A practical AI review of your team's work</p>
           <h1>The AI Handoff Plan</h1>
           <EditionSwitch edition={edition} search={search} />
           <h2 className="plan-headline">{copy.headline}</h2>
@@ -125,7 +124,7 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
           <ul className="plan-included-tools" aria-label="Included with your written plan">
             {PLAN_KIT.map(item => <li key={item}>{item}</li>)}
           </ul>
-          <p className="plan-box-timing">*Within five business days after all needed information is received. We agree the priorities, people and work reviewed during discovery.</p>
+          <p className="plan-box-timing">*Within five business days after all needed information is received. People and work areas are agreed before payment, or before confirming a public-body purchase order. Priorities are set during discovery.</p>
           <div className="plan-scope-pair">
           <p className="plan-box-note"><strong>Your time:</strong> {BOX_YOUR_TIME}</p>
           <p className="plan-box-note"><strong>Not included:</strong> {BOX_NOT_INCLUDED}</p>
@@ -147,30 +146,26 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
       <GlassPanel as="section" className="glass-panel plan-safety" aria-labelledby="plan-safety-title" plasma={{ radius: 20, opacity: 0.5 }}>
         <p className="plan-safety-body"><strong id="plan-safety-title">Your safety net:</strong> {SAFETY_NET}</p>
         <p className="plan-safety-defs"><em>{SAFETY_NET_DEFINITIONS}</em></p>
-        <p className="plan-safety-refund">See our <a href={REFUND_URL}>Refund Policy</a>, section 1.</p>
+        <p className="plan-safety-refund"><a href={REFUND_URL}>Refund Policy</a></p>
         <p className="plan-cta-lead">{CTA_LEAD}</p>
         <p className="ai-cta-row"><PlanButton href={`#chat?topic=${copy.chatTopic}`}>Start the conversation</PlanButton></p>
       </GlassPanel>
 
       <GlassPanel as="section" className="glass-panel" aria-labelledby="ai-next-title">
         <h2 id="ai-next-title">{RETAINER_HEADING}</h2>
-        <p>BlueChip can lead implementation under a separately agreed scope and fee. HR advisory support is included at no additional fee within that implementation scope. No ongoing retainer is required.</p>
-        <p>{RETAINER_BODY}</p>
-
-      </GlassPanel>
-
-      <GlassPanel as="section" className="glass-panel glass-strip ai-credibility" aria-label="About BlueChip" plasma={{ radius: 14, opacity: 0.5 }}>
-        <p>Built and run by BlueChip People Strategies. <a href="https://www.bluechip-people-strategies.com/about">More about us &rarr;</a></p>
+        <p>Use your plan yourself, with another provider, or with BlueChip. No retainer required.</p>
+        <p>Further BlueChip implementation is priced separately, with HR support included within that agreed scope.</p>
+        <details className="plan-retainer-credit"><summary>Retainer credit</summary><p>{RETAINER_BODY}</p></details>
       </GlassPanel>
 
       <GlassPanel className="glass-panel glass-faq" plasma={{ radius: 18, opacity: 0.5 }}>
-        <details><summary>Does the guarantee mean three hours for every employee?</summary><p>No. The 3 hours are a total across the agreed people and work reviewed, not 3 hours per person or per task. We agree the priorities and whose time is counted during discovery.</p></details>
-        <details><summary>Do you set the tools up for us?</summary><p>On the findings and setup call, one or two of the people who do the work set up the first step with us, in a tool you already allow. If none fits yet, the call ends with the IT request written and ready to send. Software and licences, anything your IT team installs, and rolling the change out to the rest of the team are not included.</p></details>
+        <details><summary>Does the guarantee mean three hours for every employee?</summary><p>No. The 3 hours are a total across the agreed people and work reviewed, not 3 hours per person or per task. We agree the people and work areas before payment, or before confirming a public-body purchase order, then set priorities during discovery.</p></details>
+        <details><summary>Do you set the tools up for us?</summary><p>During the existing 45-minute findings call, we help with a first step in an approved tool, within the time available. If IT action is needed, we can prepare an IT request instead. Software and licences, anything your IT team installs, and rolling the change out to the rest of the team are not included.</p></details>
         <details><summary>Do I need to buy ongoing support?</summary><p>No. You can keep your AI plan and put it in place yourself or with another provider.</p></details>
       </GlassPanel>
 
       <PlanClose chatTopic={copy.chatTopic} />
-      <p className="ai-legal"><a href="https://www.bluechip-people-strategies.com/terms">Terms</a> &middot; <a href="https://www.bluechip-people-strategies.com/privacy">Privacy</a></p>
+      <p className="ai-legal"><a href="https://www.bluechip-people-strategies.com/about">About BlueChip</a> &middot; <a href="https://www.bluechip-people-strategies.com/terms">Terms</a> &middot; <a href="https://www.bluechip-people-strategies.com/privacy">Privacy</a></p>
     </main>
   </GlassStage>;
 }

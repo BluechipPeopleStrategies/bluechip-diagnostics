@@ -58,14 +58,14 @@ describe('look inside your AI plan (punch list 37, updated 2026-10-08)', () => {
   it('is a labelled illustrative document with the six sections, matching the "What you get for C$795" box', () => {
     renderPlan();
     const section = screen.getByRole('region', { name: 'Look inside your AI plan' });
-    expect(within(section).getByText('Illustrative structure, not a client result.')).toBeInTheDocument();
+    expect(within(section).getByText('Here is what we look at. We estimate time only after reviewing your work.')).toBeInTheDocument();
     [
-      'Agreed priorities, people, tasks and evidence',
-      'Recommended tool, why it fits, and alternatives',
-      'Baseline time, expected review time and net savings',
-      "Costs, setup effort, and what should and shouldn't go into each tool",
-      'Which steps AI could take on and which stay with your people',
-      'How the hours add up across the people who do it',
+      'We look at real tasks with your team.',
+      'Use tools your organization approves.',
+      'We compare today\'s work with the proposed approach.',
+      "See the costs and what information each tool can use.",
+      'Your people keep control of decisions.',
+      'We add up time across the agreed people.',
     ].forEach(t => expect(within(section).getByText(t)).toBeInTheDocument());
     expect(within(section).getAllByRole('listitem')).toHaveLength(6);
     expect(section.textContent).not.toMatch(/redesign/i);

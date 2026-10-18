@@ -39,7 +39,7 @@ describe('plan page: order, both editions', () => {
     expect(follows(example, box)).toBe(true);
     expect(follows(box, safety)).toBe(true);
     // the button is the last thing inside the safety-net block, after the definitions and the Refund Policy reference
-    expect(follows(within(safety).getByText(/Net means after the weekly time needed/), cta)).toBe(true);
+    expect(follows(within(safety).getByText(/Based on evidence-backed potential/), cta)).toBe(true);
     expect(follows(within(safety).getByRole('link', { name: 'Refund Policy' }), cta)).toBe(true);
   });
 
@@ -67,11 +67,11 @@ describe('plan page: lead, example, box and safety net text', () => {
     expect(screen.getByRole('heading', { name: 'Where is repeat work costing your team time?' })).toBeInTheDocument();
     expect(container.querySelector('.glass-lede').textContent).toMatch(/what your people keep/);
     const example = container.querySelector('#pulse-scale');
-    expect(within(example).getByText(/not a result calculated from your answers/)).toBeInTheDocument();
+    expect(within(example).getByText(/not a result from your answers/)).toBeInTheDocument();
     expect(within(example).getByRole('group', { name: 'Illustrative team hours' }).textContent).toMatch(/10people.*2.5net hours each.*25team hours/);
     expect(example.textContent).toContain('1,200 team hours a year');
     expect(example.textContent).toContain('48 working weeks');
-    expect(example.textContent).toContain("checking the AI's work and keeping the tools running");
+    expect(example.textContent).toContain('Hours allow for checking and upkeep.');
     expect(example.textContent).toContain('C$48,000');
   });
 
@@ -94,16 +94,16 @@ describe('plan page: lead, example, box and safety net text', () => {
       expect(within(steps[1]).getByText(text).tagName).toBe('LI');
     });
     expect(steps[1].textContent).toContain('Within 5 business days');
-    expect(steps[2].textContent).toMatch(/45 minutes.*allowed tool.*IT request ready to send/);
+    expect(steps[2].textContent).toMatch(/45 minutes.*approved tool, within this call.*IT request ready to send/);
     expect(steps[3].textContent).toMatch(/About 30 days later.*15-minute check-in on how it is going/);
     expect(box.textContent).toContain('Within five business days after all needed information is received.');
-    expect(box.textContent).toContain('We agree the priorities, people and work reviewed during discovery.');
+    expect(box.textContent).toContain('People and work areas are agreed before payment, or before confirming a public-body purchase order. Priorities are set during discovery.');
     expect(box.textContent).toContain('Starter kit: prompts, templates and a review checklist');
     expect(box.textContent).toContain('One-page summary for sign-off');
     expect(box.textContent).toContain("Hours tracker: see how time across the agreed work changes");
     expect(box.textContent).toContain("Four-day quick-start plan: a day-by-day guide your team follows to set up, test and check the AI's work");
     expect(box.textContent).toMatch(/Your time: about two hours each from one or two of the people who do the work/);
-    expect(box.textContent).toContain('Not included: software and licences, anything your IT team installs, wider rollout, and implementation beyond the included first-step setup.');
+    expect(box.textContent).toContain('Not included: software and licences, anything your IT team installs, wider rollout, and implementation beyond the limited first-step help within your 45-minute findings call.');
     expect(box.textContent).not.toMatch(/guarantee|full fee/i);
   });
 
@@ -111,19 +111,19 @@ describe('plan page: lead, example, box and safety net text', () => {
     const { container } = renderEdition('/ai-handoff-plan');
     const safety = container.querySelector('.plan-safety');
     expect(safety.closest('details')).toBeNull();
-    expect(safety.textContent).toContain('evidence-backed potential for at least 3 net team hours a week across the agreed people');
-    expect(safety.textContent).toContain('your full fee is refunded automatically within 10 business days of your findings call.');
-    expect(safety.textContent).toContain('This covers plan findings, not actual implementation savings.');
-    expect(safety.textContent).toContain("Net means after the weekly time needed to check the AI's work and keep the tools running.");
+    expect(safety.textContent).toContain('evidence-backed potential across the agreed people and work');
+    expect(safety.textContent).toContain('we automatically refund your full fee within 10 business days of your findings call.');
+    expect(safety.textContent).toContain('The guarantee covers plan findings, not achieved savings.');
+    expect(safety.textContent).toContain("after checking and upkeep.");
     expect(safety.textContent).not.toMatch(/Net means the hours saved each week/);
     expect(within(safety).getByRole('link', { name: 'Refund Policy' })).toHaveAttribute('href', 'https://www.bluechip-people-strategies.com/refund');
-    expect(safety.textContent).toMatch(/Asking doesn't book the AI Handoff Plan or take payment\./);
+    expect(safety.textContent).toMatch(/No booking or payment required to ask\./);
   });
 
   it('closes the retainer line on the sixty-day credit without repeating the refund-policy sentence', () => {
     const { container } = renderEdition('/ai-handoff-plan');
-    expect(screen.getByRole('heading', { name: 'What comes next is up to you' })).toBeInTheDocument();
-    expect(container.textContent).toContain('You can keep your AI plan and put it in place yourself or with another provider, or ask us about ongoing help.');
+    expect(screen.getByRole('heading', { name: 'Your plan. Your choice.' })).toBeInTheDocument();
+    expect(container.textContent).toContain('Use your plan yourself, with another provider, or with BlueChip. No retainer required.');
     expect(container.textContent).toContain('If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, the eligible plan fee you paid is credited against its first invoice.');
     const retainer = container.querySelector('.plan-safety').nextElementSibling;
     expect(retainer.textContent).not.toContain('Conditions are in our Refund Policy');
@@ -416,7 +416,7 @@ describe('chat widget answers (AI door release)', () => {
 
   it('setup: the first step is set up on the findings call, rollout beyond it is not included', () => {
     const a = ask('The AI Handoff Plan', 'Do you set the tools up for us?');
-    expect(a).toMatch(/set up the first step with us/);
+    expect(a).toMatch(/45-minute findings call.*first step in an approved tool, within the time available/);
     expect(a).toMatch(/Rolling the change out to the rest of the team/);
     expect(a).toMatch(/not included/);
   });
