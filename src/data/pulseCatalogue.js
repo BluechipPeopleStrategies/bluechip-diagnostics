@@ -1,39 +1,45 @@
 export const FAMILIES=[
   {
     "id": "knowledge",
-    "title": "Find the right information",
-    "cue": "Documents, latest versions and team knowledge",
+    "title": "Finding documents and answers",
+    "cue": "Documents, latest versions and repeat questions",
     "mark": "01"
   },
   {
     "id": "voice",
-    "title": "Say it, then shape it",
-    "cue": "Dictation, meeting notes and next actions",
+    "title": "Taking notes and writing drafts",
+    "cue": "Meeting notes, ideas and messages you type",
     "mark": "02"
   },
   {
     "id": "inbox",
-    "title": "Keep email moving",
-    "cue": "Replies, buried decisions and follow-ups",
+    "title": "Handling email and follow-ups",
+    "cue": "Replies, inboxes and keeping track of next steps",
     "mark": "03"
   },
   {
     "id": "documents",
-    "title": "Get useful work onto the page",
-    "cue": "Reports, research and spreadsheets",
+    "title": "Preparing reports and research",
+    "cue": "Reports, spreadsheets and information to summarize",
     "mark": "04"
   },
   {
     "id": "social",
-    "title": "Keep showing up",
-    "cue": "Social posts, newsletters and useful content",
+    "title": "Creating content and updates",
+    "cue": "Social posts, newsletters and customer communications",
     "mark": "05"
   },
   {
     "id": "operations",
-    "title": "Make everyday work flow",
-    "cue": "Records, onboarding and repeat questions",
+    "title": "Keeping everyday admin moving",
+    "cue": "Records, onboarding and routine requests",
     "mark": "06"
+  },
+  {
+    "id": "industry",
+    "title": "Keeping up with your industry",
+    "cue": "Industry news, niche creators and public competitor offers",
+    "mark": "07"
   }
 ];
 export const OPPORTUNITIES=[
@@ -164,6 +170,14 @@ export const OPPORTUNITIES=[
     "capability": "Consistent answers from approved sources",
     "explain": "A useful answer library can support staff and, where appropriate, a reviewed self-service option. Exceptions still need a person.",
     "first": "Collect five recurring questions. Check the correct answers and decide which should always come to a person."
+  },
+  {
+    "id": "industryBrief",
+    "family": "industry",
+    "prompt": "Do you check industry news, niche creators or competitor offers for useful updates?",
+    "capability": "A daily briefing from the sources you choose",
+    "explain": "AI can help summarize industry news, niche creators and public competitor updates into one short briefing with source links. Check the original sources for accuracy and what the summary may have missed.",
+    "first": "Choose three trusted public sources. Try one briefing with links, check it against the originals and decide what is worth following before setting up daily updates."
   }
 ];
 export const STATUSES=[

@@ -1,7 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import { freshPulse, restorePulse, pulseSnapshot, PULSE_VERSION, SCALE } from '../src/lib/pulseDiscovery.js';
+import { freshPulse, restorePulse, pulseQuestions, pulseSnapshot, PULSE_VERSION, SCALE, FAMILIES } from '../src/lib/pulseDiscovery.js';
 
 describe('short discovery Pulse', () => {
+  it('starts with three examples while retaining every selected work area for later exploration', () => {
+    const state = { ...freshPulse(), families: FAMILIES.map(f => f.id) };
+    expect(pulseQuestions(state)).toHaveLength(3);
+    expect(restorePulse(state).families).toHaveLength(7);
+    const industry = { ...freshPulse(), families: ['industry'], answers: { industryBrief: 'unknown' } };
+    expect(pulseQuestions(industry)[0].id).toBe('industryBrief');
+    expect(pulseSnapshot(industry).uncertain.map(o => o.id)).toEqual(['industryBrief']);
+    expect(pulseSnapshot(industry).opportunities).toEqual([]);
+  });
   it('keeps all six choices and distinct statuses without deriving hours', () => {
     const s = { ...freshPulse(), families: ['knowledge','voice','inbox','documents','social','operations'], answers: { findDocs: 'friction', dictation: 'works', socialDrafts: 'aspire', reports: 'unknown', records: 'na' } };
     const r = pulseSnapshot(restorePulse(s));
@@ -23,6 +32,6 @@ describe('short discovery Pulse', () => {
   });
   it('has a fixed transparent scale example independent of answers', () => {
     expect(SCALE).toMatchObject({ people: 10, hours: 2.5, weeks: 48, rate: 40, teamHours: 25, annualHours: 1200, annualValue: 48000 });
-    const r = pulseSnapshot(freshPulse()); expect(r.opportunities).toEqual([]); expect(r.startingPoint).toBeNull(); expect(r.unexplored).toHaveLength(16);
+    const r = pulseSnapshot(freshPulse()); expect(r.opportunities).toEqual([]); expect(r.startingPoint).toBeNull(); expect(r.unexplored).toHaveLength(17);
   });
 });

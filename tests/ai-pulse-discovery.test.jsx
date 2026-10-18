@@ -7,7 +7,12 @@ const mount=()=>render(<MemoryRouter><AiPulseDiscovery /></MemoryRouter>);
 function start(){fireEvent.click(screen.getByRole('button',{name:/Find my opportunities/}));}
 function choose(name){fireEvent.click(screen.getByRole('button',{name:new RegExp(name)}));}
 function showEmptyResult(){start();choose('Not sure');fireEvent.click(screen.getByRole('button',{name:/Skip this for now/}));fireEvent.click(screen.getByRole('button',{name:/Skip this for now/}));fireEvent.click(screen.getByRole('button',{name:/Skip this for now/}));fireEvent.click(screen.getByRole('button',{name:/Show my opportunity snapshot/}));}
-it('lets all six areas be chosen and requires no workload arithmetic',()=>{const{container}=mount();start();const choices=container.querySelectorAll('[data-family]');expect(choices).toHaveLength(6);for(const button of choices)fireEvent.click(button);expect(container.querySelectorAll('[data-family][aria-pressed=true]')).toHaveLength(6);expect(container.querySelector('input[type=number]')).toBeNull();});
+it('lets all seven work areas be chosen and requires no workload arithmetic',()=>{const{container}=mount();start();const choices=container.querySelectorAll('[data-family]');expect(choices).toHaveLength(7);for(const button of choices)fireEvent.click(button);expect(container.querySelectorAll('[data-family][aria-pressed=true]')).toHaveLength(7);expect(container.querySelector('input[type=number]')).toBeNull();});
+it('teaches one possibility before requiring an answer on the unsure path',()=>{
+  mount();start();choose('Not sure');
+  expect(screen.getByRole('region',{name:'An example to consider'})).toHaveTextContent('A searchable home for team knowledge');
+  expect(globalThis.fetch).not.toHaveBeenCalled();
+});
 it('discloses the optional fee after selection without interrupting the free check',()=>{
   mount();start();
   expect(screen.queryByRole('complementary',{name:'Optional plan pricing'})).not.toBeInTheDocument();
