@@ -12,6 +12,9 @@
       posthog.init('phc_mkn6e8rKo7rWY43CNYGBqFn3Bui7wBvKfcaDymqm9Edw', {
         api_host: 'https://us.i.posthog.com',
         person_profiles: 'identified_only',
+        mask_all_text: true,
+        mask_all_element_attributes: true,
+        session_recording: { maskAllInputs: true },
         capture_pageview: 'history_change',
         // Real page speed from visitors' devices (LCP, INP, CLS, FCP) for the daily email (Oct 9, 2026).
         capture_performance: { web_vitals: true }
@@ -43,6 +46,7 @@
   </head>
   <body>
     <div id="root"></div>
+    <script defer src="/click-tracking.js"></script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
