@@ -66,13 +66,13 @@ export const PLAN_EXTRA_COSTS = [
 ];
 
 // "Your safety net" (Infy batch 3, item 1c). Body-text size, never behind a link or accordion.
-export const SAFETY_NET = "if your plan identifies less than 3 net team hours a week, we automatically refund your full fee within 10 business days of your findings call.";
-export const SAFETY_NET_DEFINITIONS = "Based on evidence-backed potential across the agreed people and work, after checking and upkeep. The guarantee covers plan findings, not achieved savings.";
+export const SAFETY_NET = "3 net team hours a week in your plan, or your full investment back.";
+export const SAFETY_NET_DEFINITIONS = "Evidence-backed potential across the agreed work, after checks and upkeep. Findings, not achieved savings.";
 
 export const CTA_LEAD = "Tell us what you'd like to improve. No booking or payment required to ask.";
 
 // Retainer line (Infy batch 3, item 3), with the retainer named as Thomas confirmed it
 // ("Practical AI and/or Embedded HR"). No roadmap, no scope, no six-month minimum, no link.
 export const RETAINER_HEADING = 'Your plan. Your choice.';
-export const RETAINER_BODY = 'If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, the eligible plan fee you paid is credited against its first invoice.';
+export const RETAINER_BODY = 'If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your AI Handoff findings call, the eligible plan fee you paid is credited against its first invoice.';
 export const RETAINER_LINE = `${RETAINER_HEADING}. ${RETAINER_BODY}`;

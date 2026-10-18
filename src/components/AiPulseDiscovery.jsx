@@ -89,7 +89,7 @@ export default function AiPulseDiscovery() {
     {state.screen === 'result' && <>
       <p className="pulse-eyebrow">Your free AI Pulse takeaway</p>
       <h1 ref={heading} tabIndex={-1}>Your AI starting points.</h1>
-      <p className="pulse-lead">{count ? `${Math.min(count,3)} practical ${count === 1 ? 'idea' : 'ideas'} to explore, with one first step to try.` : 'Keep what works. Ask one useful question. Choose your next step.'}</p>
+      <p className="pulse-lead">{count ? `${Math.min(count,3)} practical ${count === 1 ? 'opportunity' : 'opportunities'} to explore, with one first step to try.` : 'Keep what works. Ask one useful question. Choose your next step.'}</p>
       <p className="pulse-small">Based on the areas you chose. This is a starting point, not a time-savings estimate.</p>
       <PulseIdeaCards result={result} onChoose={id => update({priority:id})} />
       <div className="pulse-takeaway-actions"><div><h2>Keep your ideas handy.</h2><p>One free email. Newsletter signup is a separate choice.</p></div><button className="pulse-button" onClick={()=>setEmailOpen(true)}>Email my ideas →</button></div>

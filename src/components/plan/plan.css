@@ -565,3 +565,8 @@
 .ai-plan .plan-booking-options summary{font-size:15px}
 @media(max-width:620px){.ai-plan .plan-scope-pair{gap:26px}.ai-plan .plan-extra-costs{padding-top:22px;border-top:1px solid #ffffff24}}
 .ai-funnel.ai-glass .plan-box h2{font-size:clamp(26px,3vw,32px);line-height:1.25;overflow-wrap:break-word}
+
+/* Body-sized safety-net action, retaining a 44px touch target. */
+.ai-funnel.ai-glass .plan-safety .plan-btn--safety { min-height:44px; width:auto; padding:4px 5px 4px 16px; font-size:16px; }
+.ai-funnel.ai-glass .plan-safety .plan-btn--safety .plan-btn-chip { width:34px; height:34px; }
+.ai-funnel.ai-glass .plan-safety .plan-safety-refund { margin-bottom:12px; }

@@ -155,7 +155,7 @@
   // "What you get for C$795", in box order.
   var INCLUDED_ANSWER = "A discovery session, a written AI plan, a starter kit, a findings and setup call, and a check-in about 30 days later.";
   var SETUP_ANSWER = "During the existing 45-minute findings call, we help with a first step in an approved tool, within the time available. If IT action is needed, we can prepare an IT request instead. Rolling the change out to the rest of the team, software and licences, and anything your IT team installs are not included.";
-  var RETAINER_CREDIT = "If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, the eligible plan fee you paid is credited against its first invoice. Conditions are in our Refund Policy, section 1.";
+  var RETAINER_CREDIT = "If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your AI Handoff findings call, the eligible plan fee you paid is credited against its first invoice. Conditions are in our Refund Policy, section 1.";
 
   // Approved fixed answers. Update alongside the service pages when offers change. `slug` is
   // used by the topic-preselect API/hash param (window.BlueChipChat.open, #chat?topic=).
@@ -179,9 +179,9 @@
       ['Do I have to buy a retainer?', "No. You can keep your AI plan and put it in place yourself or with another provider, or ask us about ongoing help. " + RETAINER_CREDIT]
     ] },
     { slug: 'free-check', title: 'AI Pulse', need: PULSE_NEED, url: 'https://check.bluechip-people-strategies.com/ai-opportunity-check', link: 'Open the free AI Pulse', answers: [
-      ['What does AI Pulse give me?', "Twelve quick questions about your recurring work, about four minutes in all. You'll get a starting range of the hours in play, and the areas where we'd start looking, before deciding whether you want the AI Handoff Plan."],
+      ['What does AI Pulse give me?', "Choose the work your team does and explore practical AI opportunities in about four minutes. You get starting points and a first step to try. It is free and does not estimate time savings."],
       ['Do I need to give my email?', 'No email or contact details are required for AI Pulse. Its answers stay in your browser tab until you close it, unless you choose to email your results to yourself at the end. Please do not enter confidential information.'],
-      ['Does AI Pulse prove I will save three hours?', "No. It's a starting estimate from your own answers and published studies, not a plan and not a confirmation of the guarantee. The AI Handoff Plan checks your actual work to see where you really land."]
+      ['Does AI Pulse prove I will save three hours?', "No. AI Pulse offers starting points based on your answers, not a time-savings estimate or confirmation of the guarantee. The AI Handoff Plan reviews the agreed people and work to identify evidence-backed potential."]
     ] },
     { slug: 'retainers', title: 'Practical AI and/or Embedded HR Retainers', need: RETAINER_NEED, url: 'https://www.bluechip-people-strategies.com/embedded-hr-retainers', link: 'Explore Practical AI and/or Embedded HR Retainers', answers: [
       ['Can I retain BlueChip for AI alone?', 'Yes. AI alone, HR alone, or both, scoped to what you need.'],
@@ -216,7 +216,7 @@
   ];
   var RETAINER_BUBBLES = [
     'Practical AI, embedded HR or both, scoped to what you need.',
-    'You can also start with the AI Handoff Plan. If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your findings call, the eligible plan fee you paid is credited against its first invoice.'
+    'You can also start with the AI Handoff Plan. If you sign a Practical AI and/or Embedded HR retainer with us within 60 days of your AI Handoff findings call, the eligible plan fee you paid is credited against its first invoice.'
   ];
   var OTHER_BUBBLES = [
     "Tell us what's going on and we'll point you to the right next step."
@@ -638,7 +638,7 @@
     typingGeneration++;
     track('bc_chat_form', { topic: data.need || '' });
     footEl.innerHTML = '';
-    sayBotSequence(["What's the best email for BlueChip to reach you about this? You can also add a phone number and choose whether we may text you. We usually reply within a few hours on business days. This sends an inquiry. It doesn't book anything or charge you. Please keep employee and client details out of this chat."], function () {
+    sayBotSequence(["What's the best email for BlueChip to reach you about this? You can also add a phone number and choose whether we may text you. We usually reply within two business days. This sends an inquiry. It doesn't book anything or charge you. Please keep employee and client details out of this chat."], function () {
       var input = el('input', { 'class': 'bcw-input', type: 'tel', 'aria-label': 'Your phone number', placeholder: 'Phone number (optional)', style: 'width:100%;margin-top:8px' });
       var emailInput = el('input', { 'class': 'bcw-input', type: 'email', 'aria-label': 'Your email', placeholder: 'Email', autocomplete: 'email', style: 'width:100%' });
       var hp = el('input', { 'class': 'bcw-hp', type: 'text', name: 'bc_hp_trap', tabindex: '-1', 'aria-hidden': 'true', autocomplete: 'off' });   // not "company": browsers autofill that and flagged real visitors as bots
@@ -648,7 +648,7 @@
       cbText.textContent = "Yes, it's okay to text me at this number about my inquiry. I can reply STOP anytime.";
       consentWrap.appendChild(cb); consentWrap.appendChild(cbText);
       var fine = el('div', { 'class': 'bcw-fine' });
-      fine.textContent = "We text Canadian numbers only. Outside Canada? We'll reply by email. BlueChip People Strategies, Edmonton, Alberta. We won't share your number or message you about anything unrelated to the opt-in box above. A real person reads each message. We usually reply within a few hours on business days.";
+      fine.textContent = "We text Canadian numbers only. Outside Canada? We'll reply by email. BlueChip People Strategies, Edmonton, Alberta. We won't share your number or message you about anything unrelated to the opt-in box above. A real person reads each message. We usually reply within two business days.";
       var send = el('button', { 'class': 'bcw-send', type: 'button', disabled: 'disabled', style: 'margin-top:12px;width:100%' }, 'Send');
 
       footEl.appendChild(emailInput);
@@ -762,7 +762,7 @@
     var done = el('div', { 'class': 'bcw-done' },
       '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>');
     var line = document.createElement('div');
-    line.textContent = "Got it, " + data.name + ". You've taken the hard first step. Someone from BlueChip People Strategies will reply by " + (data.consent ? "text or email" : "email") + ", usually within a few hours on business days. Nothing you've shared goes any further.";
+    line.textContent = "Got it, " + data.name + ". You've taken the hard first step. Someone from BlueChip People Strategies will reply by " + (data.consent ? "text or email" : "email") + ", usually within two business days. Nothing you've shared goes any further.";
     done.appendChild(line);
     bodyEl.appendChild(done);
     bodyEl.scrollTop = bodyEl.scrollHeight;
