@@ -163,7 +163,7 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
         <details><summary>Do I need to buy ongoing support?</summary><p>No. You can keep your AI plan and put it in place yourself or with another provider.</p></details>
       </GlassPanel>
 
-      <PlanClose />
+      <PlanClose chatTopic={copy.chatTopic} />
       <p className="ai-legal"><a href="https://www.bluechip-people-strategies.com/terms">Terms</a> &middot; <a href={REFUND_URL}>Refund Policy</a> &middot; <a href="https://www.bluechip-people-strategies.com/privacy">Privacy</a></p>
     </main>
   </GlassStage>;

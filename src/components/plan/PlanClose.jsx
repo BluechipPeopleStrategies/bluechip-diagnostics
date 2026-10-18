@@ -1,18 +1,15 @@
 import { Link } from 'react-router-dom';
+import PlanButton from './PlanButton';
 
-// Closing conversation reminder. The free-check link keeps its own quiet row below the card.
-export default function PlanClose() {
+// A direct contact action, followed by the separate free-check link.
+export default function PlanClose({ chatTopic = 'ai-handoff-plan' }) {
   return (
     <>
       <section className="ai-panel plan-close" aria-label="Start the conversation">
         <div className="plan-close-copy">
-          <h2>Talk through the AI Handoff Plan</h2>
-          <p>Start a conversation with BlueChip to confirm the fit, scope and next steps.</p>
-        </div>
-        <div className="plan-close-art" aria-hidden="true">
-          <span className="plan-bubble plan-bubble--in"><i style={{ width: '78%' }} /><i style={{ width: '52%' }} /></span>
-          <span className="plan-bubble plan-bubble--out"><i style={{ width: '64%' }} /></span>
-          <span className="plan-bubble plan-bubble--in plan-bubble--typing"><b /><b /><b /></span>
+          <h2>Not sure whether the AI Handoff Plan is right for your team?</h2>
+          <p>Tell us what you'd like to improve. We will help you decide whether it makes sense before you book.</p>
+          <p className="plan-close-cta"><PlanButton href={`#chat?topic=${chatTopic}`}>Ask us about your work</PlanButton></p>
         </div>
       </section>
       <p className="plan-free-check">
