@@ -187,6 +187,7 @@
       ['Can I retain BlueChip for AI alone?', 'Yes. AI alone, HR alone, or both, scoped to what you need.'],
       ['What does embedded HR cover?', 'Senior advice on people decisions: hiring, structure, performance, pay and leadership.'],
       ['How are tools and sensitive information handled?', 'Only in tools you approve. Please keep personal and confidential details out of this chat.'],
+      ['Can you help with a leadership or people decision?', "Yes. Embedded HR gives senior advice on people decisions: hiring, structure, performance, pay and leadership. Leadership development runs from a half-day team session to a Leadership Cohort. Tell us what's going on and we'll suggest a starting point."],
       ['How much is ongoing advisory?', "Priced to the scope you need. Tell us what's going on and we'll suggest a starting point."]
     ] },
     { slug: 'leadership', title: 'Leadership development', need: LEADERSHIP_NEED, url: 'https://www.bluechip-people-strategies.com/leadership', link: 'Explore leadership development', answers: [
@@ -520,7 +521,7 @@
     ['free-check', 'What does AI Pulse give me?', 'What does the free AI Pulse give me?'],
     ['ai-handoff-plan', 'What is included?', 'What does the AI Handoff Plan include?'],
     ['ai-handoff-plan', 'How does the three-hour guarantee work?', 'How does the fee-back guarantee work?'],
-    ['ai-handoff-plan', 'Do you set the tools up for us?', 'Do you set the tools up for us?']
+    ['retainers', 'Can you help with a leadership or people decision?', 'Can you help with a leadership or people decision?']
   ];
   function renderStart() {
     typingGeneration++;
@@ -626,7 +627,7 @@
         if (data.name) renderContact(); else renderName(renderContact);
       });
       nextLink(topic.link, topic.url, 'topic_page');
-      if (topic.slug === 'ai-handoff-plan' || topic.slug === 'public-sector' || topic.slug === 'retainers') {
+      if (topic.slug === 'ai-handoff-plan' || topic.slug === 'public-sector') {
         nextLink('Start with the free AI Pulse, no email needed', 'https://check.bluechip-people-strategies.com/ai-opportunity-check', 'ai_pulse');
       }
     }

@@ -32,7 +32,7 @@ it('opens by saying what Chip does and offers tap-to-ask questions, without aski
     'What does the free AI Pulse give me?',
     'What does the AI Handoff Plan include?',
     'How does the fee-back guarantee work?',
-    'Do you set the tools up for us?',
+    'Can you help with a leadership or people decision?',
     'Something else? Ask BlueChip directly.',
     'Browse questions and answers'
   ].forEach(name => expect(ui.getByRole('button', { name, exact: true })).toBeVisible());
@@ -55,6 +55,13 @@ it('ends every answer with a next step before more questions', () => {
   expect(ui.getByRole('button', { name: 'Ask BlueChip about this' })).toBeVisible();
   expect(ui.getByRole('link', { name: 'Read the full AI Handoff Plan details' })).toHaveAttribute('href', 'https://check.bluechip-people-strategies.com/ai-handoff-plan');
   expect(ui.getByRole('link', { name: 'Start with the free AI Pulse, no email needed' })).toHaveAttribute('href', 'https://check.bluechip-people-strategies.com/ai-opportunity-check');
+});
+it('answers the people-decision question from approved wording, with a next step that is not a plan pitch', () => {
+  const ui = openChat();
+  fireEvent.click(ui.getByRole('button', { name: 'Can you help with a leadership or people decision?' }));
+  flushBot();
+  expect(document.body.textContent).toMatch(/Embedded HR gives senior advice on people decisions: hiring, structure, performance, pay and leadership/);
+  expect(ui.getByRole('button', { name: 'Ask BlueChip about this' })).toBeVisible();
 });
 it('makes the free AI Pulse the next step after a Pulse answer', () => {
   const ui = openChat();
@@ -82,7 +89,7 @@ it('still reaches the name step from "Something else" and from "Ask BlueChip abo
   sessionStorage.clear();
   mount();
   ui = openChat();
-  fireEvent.click(ui.getByRole('button', { name: 'Do you set the tools up for us?' }));
+  fireEvent.click(ui.getByRole('button', { name: 'Can you help with a leadership or people decision?' }));
   flushBot();
   fireEvent.click(ui.getByRole('button', { name: 'Ask BlueChip about this' }));
   flushBot();
