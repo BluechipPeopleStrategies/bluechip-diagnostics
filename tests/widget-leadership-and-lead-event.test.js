@@ -40,6 +40,8 @@ const flushPromises = async () => { await vi.advanceTimersByTimeAsync(10); };
 
 function giveName(ui) {
   flushBot();
+  const own = ui.queryByRole('button', { name: 'Something else? Ask BlueChip directly.' });
+  if (own) { fireEvent.click(own); flushBot(); }
   fireEvent.change(ui.getByLabelText('Your name'), { target: { value: 'Test' } });
   fireEvent.click(ui.getByRole('button', { name: 'Send', exact: true }));
   flushBot();

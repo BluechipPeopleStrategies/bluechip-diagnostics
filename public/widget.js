@@ -187,6 +187,7 @@
       ['Can I retain BlueChip for AI alone?', 'Yes. AI alone, HR alone, or both, scoped to what you need.'],
       ['What does embedded HR cover?', 'Senior advice on people decisions: hiring, structure, performance, pay and leadership.'],
       ['How are tools and sensitive information handled?', 'Only in tools you approve. Please keep personal and confidential details out of this chat.'],
+      ['Can you help with a leadership or people decision?', "Often, yes, through Embedded HR, which gives you senior advice on people decisions: hiring, structure, performance, pay and leadership. For leadership development, it can be anything from a half-day team session to a Leadership Cohort, set to the length that suits your leaders. Tell us a little about what's going on and we'll suggest a starting point."],
       ['How much is ongoing advisory?', "Priced to the scope you need. Tell us what's going on and we'll suggest a starting point."]
     ] },
     { slug: 'leadership', title: 'Leadership development', need: LEADERSHIP_NEED, url: 'https://www.bluechip-people-strategies.com/leadership', link: 'Explore leadership development', answers: [
@@ -300,6 +301,7 @@
     '.bcw-done svg{width:34px;height:34px;fill:' + GOLD + ';margin-bottom:8px}' +
     '@media (prefers-reduced-motion:reduce){.bcw-panel,.bcw-launch,.bcw-launch svg,.bcw-send,.bcw-greet{transition:none}.bcw-typing span{animation:none;opacity:1}.bcw-greet{animation:none}.bcw-launch::after{animation:none;display:none}.bcw-launch:hover,.bcw-launch:focus-visible,.bcw-launch:active,.bcw-launch:hover svg{transform:none}}' +
     '.bcw-greet small{font-size:12px}' +
+    '.bcw-next{font-family:inherit;font-weight:600;font-size:11px;line-height:1.2;letter-spacing:.08em;text-transform:uppercase;color:' + GOLD + ';margin:8px 2px 2px}' +
     '@media (max-width:480px){.bcw-panel{right:8px;left:8px;bottom:84px;width:auto;max-width:none}.bcw-greet{right:20px;bottom:94px;max-width:min(280px,calc(100vw - 40px))}.bcw-greet small{display:none}.bcw-choice{min-height:44px}}';
 
   // Chat funnel analytics (Oct 9, 2026): steps and topic labels only, never names, numbers, emails or message text.
@@ -330,6 +332,12 @@
   var launch, greet, panel, bodyEl, footEl, started = false;
   var greetTimer = 0, greetHovered = false;
   var GREET_SEEN_KEY = 'bluechip-chat-introduction-seen-v1';
+  // Prompt timing (Oct 21, 2026). Starting values, to be tuned from bc_chat_prompt_shown and
+  // bc_chat_prompt_open: the prompt waits until the visitor has had the tab in view for GREET_DELAY_MS
+  // AND has shown a human signal (scroll, pointer, touch or key), then stays GREET_SHOW_MS.
+  // Automatic traffic loads the page but never moves, so it never sees the prompt or opens the chat.
+  var GREET_DELAY_MS = 8000, GREET_SHOW_MS = 10000;
+  var GREET_SIGNALS = ['scroll', 'pointermove', 'touchstart', 'keydown'];
   function hideGreeting() {
     clearTimeout(greetTimer);
     if (greet) greet.style.display = 'none';
@@ -337,7 +345,28 @@
   function scheduleGreetingEnd() {
     clearTimeout(greetTimer);
     if (greet.style.display === 'none' || greetHovered || greet.contains(document.activeElement)) return;
-    greetTimer = setTimeout(function () { hideGreeting(); }, 5000);
+    greetTimer = setTimeout(function () { hideGreeting(); }, GREET_SHOW_MS);
+  }
+  function showGreeting() {
+    if (!greet || panel.classList.contains('bcw-open')) return;
+    try { sessionStorage.setItem(GREET_SEEN_KEY, '1'); } catch { /* storage is optional */ }
+    greet.style.display = '';
+    track('bc_chat_prompt_shown', { delay_ms: GREET_DELAY_MS });
+    scheduleGreetingEnd();
+  }
+  // Counts only the time the tab is in view; shows the prompt once both conditions are met.
+  function armGreeting() {
+    var shownMs = 0, last = Date.now(), human = false, timer = 0;
+    function onSignal() { human = true; }
+    function stop() { clearInterval(timer); GREET_SIGNALS.forEach(function (n) { window.removeEventListener(n, onSignal); }); }
+    GREET_SIGNALS.forEach(function (n) { window.addEventListener(n, onSignal, { passive: true }); });
+    timer = setInterval(function () {
+      var now = Date.now();
+      if (document.visibilityState !== 'hidden') shownMs += now - last;
+      last = now;
+      if (panel.classList.contains('bcw-open')) { stop(); return; }
+      if (human && shownMs >= GREET_DELAY_MS) { stop(); showGreeting(); }
+    }, 250);
   }
   var data = { name: '', need: '', contact: '', email: '', consent: false, heard: '' };
   // The lead is never held hostage by the optional question: while it shows, leadState is
@@ -357,7 +386,7 @@
 
     greet = el('div', { 'class': 'bcw-greet', role: 'group', 'aria-label': 'Chat introduction' });
     var greetOpen = el('button', { type: 'button', 'class': 'bcw-greet-open' },
-      "<b>A people decision or a practical AI question?</b><small>Tell us where you need help. We will point you to the next step.</small>");
+      "<b>Questions about AI at work, or a people decision?</b><small>Ask Chip for a plain answer to common questions, or a pointer to a good next step.</small>");
     var greetDismiss = el('button', { type: 'button', 'class': 'bcw-greet-dismiss', 'aria-label': 'Dismiss chat introduction' }, '&times;');
     greet.appendChild(greetOpen);
     greet.appendChild(greetDismiss);
@@ -376,13 +405,14 @@
     document.body.appendChild(greet);
     document.body.appendChild(panel);
 
-    // One brief introduction per browser session. The launcher remains available.
+    // One prompt per browser session, after the delay above. The launcher is there from the start.
     var greetSeen = false;
-    try { greetSeen = sessionStorage.getItem(GREET_SEEN_KEY) === '1'; sessionStorage.setItem(GREET_SEEN_KEY, '1'); } catch { /* storage is optional */ }
-    if (greetSeen) hideGreeting(); else scheduleGreetingEnd();
+    try { greetSeen = sessionStorage.getItem(GREET_SEEN_KEY) === '1'; } catch { /* storage is optional */ }
+    hideGreeting();
+    if (!greetSeen) armGreeting();
 
     launch.addEventListener('click', function () { toggle(); });
-    greetOpen.addEventListener('click', function () { open(); });
+    greetOpen.addEventListener('click', function () { track('bc_chat_prompt_open'); open(); });
     greetDismiss.addEventListener('click', function () { hideGreeting(); launch.focus(); });
     greet.addEventListener('mouseenter', function () { greetHovered = true; clearTimeout(greetTimer); });
     greet.addEventListener('mouseleave', function () { greetHovered = false; scheduleGreetingEnd(); });
@@ -465,7 +495,7 @@
     track('bc_chat_panel_open', { topic: topic ? topic.title : '', resumed: started });
     if (!started) {
       started = true;
-      renderName(topic ? function () { renderPreselected(topic); } : undefined);
+      if (topic) renderName(function () { renderPreselected(topic); }); else renderStart();
     } else if (leadState === 'pending' && !topic && !footEl.querySelector('button')) {
       renderHeard(pendingTrap);   // closed before the question finished appearing, and the send did not go through
     } else if (topic) {
@@ -482,6 +512,39 @@
     panel.classList.remove('bcw-open');
     panel.setAttribute('aria-hidden', 'true');
     launch.focus();
+  }
+
+  // ---- step 0: say what Chip does, offer tap-to-ask questions (Oct 21, 2026) ----
+  // No name needed to get an answer. Each entry is [topic slug, question text in KNOWLEDGE, label shown].
+  // Answers are the existing approved ones; nothing new is said here.
+  var QUICK_QUESTIONS = [
+    ['free-check', 'What does AI Pulse give me?', 'What does the free AI Pulse give me?'],
+    ['ai-handoff-plan', 'What is included?', 'What does the AI Handoff Plan include?'],
+    ['ai-handoff-plan', 'How does the three-hour guarantee work?', 'How does the fee-back guarantee work?'],
+    ['retainers', 'Can you help with a leadership or people decision?', 'Can you help with a leadership or people decision?']
+  ];
+  function renderStart() {
+    typingGeneration++;
+    footEl.innerHTML = '';
+    sayBotSequence(["Hi, I'm Chip, BlueChip's chat assistant. I have plain answers to common questions about practical AI for your team and about people decisions, and I can point you to a good next step. Tap a question below, or ask BlueChip directly if yours isn't here."], function () {
+      QUICK_QUESTIONS.forEach(function (q) {
+        choiceButton(q[2], function () { askQuick(q); });
+      });
+      choiceButton('Something else? Ask BlueChip directly.', function () { track('bc_chat_start_own'); renderName(); });
+      if (SHOW_BROWSE) choiceButton('Browse questions and answers', renderTopics);
+      focusChoices();
+    });
+  }
+  function askQuick(q) {
+    var topic = topicBySlug(q[0]), answer = null;
+    topic.answers.forEach(function (a) { if (a[0] === q[1]) answer = a[1]; });
+    if (!answer) { renderTopics(); return; }
+    typingGeneration++;
+    footEl.innerHTML = '';
+    track('bc_chat_quick', { topic: topic.title, question: q[1] });
+    track('bc_chat_question', { topic: topic.title, question: q[1] });
+    addMsg(q[2], 'user');
+    sayBotSequence([answer], function () { renderQuestions(topic); });
   }
 
   // ---- step 1: name ----
@@ -537,9 +600,38 @@
     });
   }
 
+  // A link-style choice that records which next step was taken.
+  function nextLink(label, href, step) {
+    var a = el('a', { 'class': 'bcw-choice', href: href });
+    var sp = document.createElement('span'); sp.textContent = label;
+    a.appendChild(sp);
+    a.addEventListener('click', function () { track('bc_chat_next', { step: step }); });
+    footEl.appendChild(a);
+    return a;
+  }
+  function footLabel(text) { footEl.appendChild(el('div', { 'class': 'bcw-next' }, text)); }
+
   function renderQuestions(topic) {
     typingGeneration++;
     footEl.innerHTML = '';
+    // Next step first (Oct 21, 2026): every answer ends in a way forward. AI Pulse is free and needs no
+    // email; "Ask BlueChip" opens the contact step. No new price, booking or guarantee wording here.
+    footLabel('Next step');
+    if (topic.slug === 'free-check') {
+      nextLink(topic.link, topic.url, 'ai_pulse');
+    } else {
+      choiceButton('Ask BlueChip about this', function () {
+        data.need = topic.need;
+        track('bc_chat_ask', { topic: topic.need });
+        track('bc_chat_next', { step: 'contact' });
+        if (data.name) renderContact(); else renderName(renderContact);
+      });
+      nextLink(topic.link, topic.url, 'topic_page');
+      if (topic.slug === 'ai-handoff-plan' || topic.slug === 'public-sector') {
+        nextLink('Start with the free AI Pulse, no email needed', 'https://check.bluechip-people-strategies.com/ai-opportunity-check', 'ai_pulse');
+      }
+    }
+    footLabel('More questions');
     topic.answers.forEach(function (answer) {
       choiceButton(answer[0], function () {
         typingGeneration++;
@@ -550,15 +642,13 @@
         });
       });
     });
-    var resource = el('a', { 'class': 'bcw-choice', href: topic.url });
-    var resSpan = document.createElement('span'); resSpan.textContent = topic.link;
-    resource.appendChild(resSpan);
-    footEl.appendChild(resource);
-    choiceButton('Ask BlueChip about this', function () {
-      data.need = topic.need;
-      track('bc_chat_ask', { topic: topic.need });
-      if (data.name) renderContact(); else renderName(renderContact);
-    });
+    if (topic.slug === 'free-check') {
+      choiceButton('Ask BlueChip about this', function () {
+        data.need = topic.need;
+        track('bc_chat_ask', { topic: topic.need });
+        if (data.name) renderContact(); else renderName(renderContact);
+      });
+    }
     choiceButton('All topics', renderTopics);
     focusChoices();
   }

@@ -503,6 +503,8 @@ describe('chat widget answers (AI door release)', () => {
     const ui = within(document.body);
     fireEvent.click(document.querySelector('#bcwLaunch'));
     flush();
+    fireEvent.click(ui.getByRole('button', { name: 'Something else? Ask BlueChip directly.' }));   // first screen offers tap-to-ask questions
+    flush();
     fireEvent.change(ui.getByLabelText('Your name'), { target: { value: 'Sam' } });
     fireEvent.click(ui.getByRole('button', { name: 'Send', exact: true }));
     flush();
