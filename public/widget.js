@@ -187,7 +187,7 @@
       ['Can I retain BlueChip for AI alone?', 'Yes. AI alone, HR alone, or both, scoped to what you need.'],
       ['What does embedded HR cover?', 'Senior advice on people decisions: hiring, structure, performance, pay and leadership.'],
       ['How are tools and sensitive information handled?', 'Only in tools you approve. Please keep personal and confidential details out of this chat.'],
-      ['Can you help with a leadership or people decision?', "Yes. Embedded HR gives senior advice on people decisions: hiring, structure, performance, pay and leadership. Leadership development runs from a half-day team session to a Leadership Cohort. Tell us what's going on and we'll suggest a starting point."],
+      ['Can you help with a leadership or people decision?', "Often, yes, through Embedded HR, which gives you senior advice on people decisions: hiring, structure, performance, pay and leadership. For leadership development, it can be anything from a half-day team session to a Leadership Cohort, set to the length that suits your leaders. Tell us a little about what's going on and we'll suggest a starting point."],
       ['How much is ongoing advisory?', "Priced to the scope you need. Tell us what's going on and we'll suggest a starting point."]
     ] },
     { slug: 'leadership', title: 'Leadership development', need: LEADERSHIP_NEED, url: 'https://www.bluechip-people-strategies.com/leadership', link: 'Explore leadership development', answers: [

@@ -60,7 +60,7 @@ it('answers the people-decision question from approved wording, with a next step
   const ui = openChat();
   fireEvent.click(ui.getByRole('button', { name: 'Can you help with a leadership or people decision?' }));
   flushBot();
-  expect(document.body.textContent).toMatch(/Embedded HR gives senior advice on people decisions: hiring, structure, performance, pay and leadership/);
+  expect(document.body.textContent).toMatch(/Often, yes, through Embedded HR, which gives you senior advice on people decisions: hiring, structure, performance, pay and leadership/);
   expect(ui.getByRole('button', { name: 'Ask BlueChip about this' })).toBeVisible();
 });
 it('makes the free AI Pulse the next step after a Pulse answer', () => {
