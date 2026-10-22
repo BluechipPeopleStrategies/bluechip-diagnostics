@@ -29,6 +29,9 @@ function openChat() {
 function sendName(name) {
   const ui = within(document.body);
   flushBot();
+  // The first screen now offers tap-to-ask questions; a visitor who wants to leave details taps this first.
+  const own = ui.queryByRole('button', { name: 'Something else? Ask BlueChip directly.' });
+  if (own) { fireEvent.click(own); flushBot(); }
   fireEvent.change(ui.getByLabelText('Your name'), { target: { value: name } });
   fireEvent.click(ui.getByRole('button', { name: 'Send', exact: true }));
 }
