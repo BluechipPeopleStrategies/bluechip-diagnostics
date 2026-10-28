@@ -16,8 +16,9 @@ import PlanHeroArt from './plan/PlanHeroArt';
 import PlanFlow from './plan/PlanFlow';
 import PlanInside from './plan/PlanInside';
 import PlanClose from './plan/PlanClose';
+import usePlanMessageExperiment from './plan/usePlanMessageExperiment.js';
 import {
-  EDITIONS, GENERAL_PATH, PUBLIC_SECTOR_PATH, REFUND_URL,
+  EDITIONS, OUTCOME_MESSAGE, GENERAL_PATH, PUBLIC_SECTOR_PATH, REFUND_URL,
   PLAN_CALLS, PLAN_EXTRA_COSTS, SAFETY_NET, SAFETY_NET_DEFINITIONS, RETAINER_HEADING, RETAINER_BODY,
 } from './plan/planCopy';
 import './AiFunnel.css';
@@ -39,7 +40,7 @@ const PLAN_KIT = [
 const FLOW_STEPS = [
   { time: '60 minutes', name: 'Discovery', Icon: DiscoveryIcon, bullets: ['Meet virtually with up to two people who do the work', 'Review the work and agree priorities'] },
   { time: 'Written for your team', name: 'Handoff plan', Icon: PlanDocIcon, bullets: ['What AI could take on, what your people keep', 'Tool choice, costs and setup effort', 'What information can go into which tool', 'Projected net team hours a week'], key: true },
-  { time: '45 minutes', name: 'Findings and setup', Icon: CallIcon, bullets: ['Walk through your AI plan', 'First-step help in an approved tool, within this call', 'If needed: IT request ready to send'] },
+  { time: '45 minutes', name: 'Findings and setup', Icon: CallIcon, bullets: ['Walk through your AI plan', 'Try a first step together in an approved tool', 'If needed: IT request ready to send'] },
   { time: 'About 30 days later', name: 'Check-in', Icon: ChecklistIcon, bullets: ['15-minute check-in on how it is going'] },
 ];
 
@@ -90,20 +91,26 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
   const legacyWorkflow = LEGACY_WORKFLOW_LABELS[params.get('workflow')]; // keeps old ?workflow= links working
   const search = params.toString() ? `?${params.toString()}` : '';
   const copy = EDITIONS[edition] || EDITIONS.general;
+  const experiment = usePlanMessageExperiment(params.get('message-variant'), edition);
+  const message = experiment.variant === 'b' ? (OUTCOME_MESSAGE[edition] || OUTCOME_MESSAGE.general) : copy;
 
   usePageMeta(copy.title, copy.description);
   useEffect(() => { loadChatWidget(); }, []);
 
   return <GlassStage>
-    <main className={`bc-page ai-funnel ai-glass ai-plan ai-plan--${edition}`}>
+    <main className={`bc-page ai-funnel ai-glass ai-plan ai-plan--${edition}`}
+      data-message-variant={experiment.active || experiment.preview ? experiment.variant : 'default'}
+      onClickCapture={event => {
+        if (event.target.closest?.('a[href^="#chat"]')) experiment.trackConversationClick();
+      }}>
       <SiteHeader showCta chatTopic={copy.chatTopic} />
 
       <header className="ai-hero glass-hero">
         <div className="glass-hero-copy">
           <h1>The AI Handoff Plan</h1>
           <EditionSwitch edition={edition} search={search} />
-          <h2 className="plan-headline">{copy.headline}</h2>
-          <p className="glass-lede">{copy.lead}</p>
+          <h2 className="plan-headline">{message.headline}</h2>
+          <p className="glass-lede">{message.lead}</p>
         </div>
         <PlanHeroArt />
       </header>
@@ -148,7 +155,7 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
       <GlassPanel as="section" className="glass-panel plan-booking-facts" aria-labelledby="plan-booking-title" plasma={{ radius: 20, opacity: 0.6 }}>
         <h2 id="plan-booking-title">Your investment. Your safety net.</h2>
         <div className="plan-booking-grid">
-          <div><p className="plan-booking-label">One-time investment</p><p className="plan-booking-amount">{dollars(PLAN_FEE)}</p><p className="plan-booking-note">{FUTURE_PRICE_NOTICE}</p><p className="plan-scope-agreement">Before payment{edition === 'public-sector' ? ' or confirming a purchase order' : ''}, we agree the people and work areas to review. We set priorities together during discovery.</p></div>
+          <div><p className="plan-booking-label">One-time investment</p><p className="plan-booking-amount">{dollars(PLAN_FEE)}</p><p className="plan-booking-note">{FUTURE_PRICE_NOTICE}</p><p className="plan-scope-agreement">We'll agree the people and work to look at together before you pay{edition === 'public-sector' ? ' or confirm a purchase order' : ''}. Discovery helps us choose the best place to start.</p></div>
           <div className="plan-minimum-value"><p className="plan-booking-label">What 3 net team hours could mean</p><p className="plan-booking-amount">C$5,760<span> / year</span></p><p className="plan-booking-note">3 hours/week × 48 working weeks × C$40/hour, if achieved.</p><p className="plan-booking-note">Illustrative staff-time value, not a business average or cash savings.</p></div>
         </div>
         <section className="plan-safety" aria-labelledby="plan-safety-title">
@@ -168,10 +175,19 @@ export default function AiHandoffPlanPage({ edition = 'general' }) {
       </GlassPanel>
 
       <GlassPanel as="section" className="glass-panel glass-faq" aria-labelledby="plan-faq-title" plasma={{ radius: 18, opacity: 0.5 }}>
-        <h2 id="plan-faq-title">FAQ</h2>
-        <details><summary>Does the guarantee mean three hours for every employee?</summary><p>No. The 3 hours are a total across the agreed people and work reviewed, not 3 hours per person or per task. We agree the people and work areas before payment, or before confirming a public-body purchase order, then set priorities during discovery.</p></details>
-        <details><summary>Do you set the tools up for us?</summary><p>During the existing 45-minute findings call, we help with a first step in an approved tool, within the time available. If IT action is needed, we can prepare an IT request instead. If you choose to implement, any needed software, licences, IT installations or wider rollout are separate. We start with your existing tools and agree any extra BlueChip work and price first.</p></details>
-        <details><summary>Do I need to buy ongoing support?</summary><p>No. You can keep your AI plan and put it in place yourself or with another provider.</p></details>
+        <h2 id="plan-faq-title">Questions about getting started</h2>
+        <details open><summary>What if we don't know where to start with AI?</summary><p>That's exactly what the AI Handoff Plan helps you figure out. You know your team's work, and we bring the practical AI knowledge. We look at it together and recommend a useful place to start, so you don't have to choose a tool or design a project before talking to us.</p></details>
+        <details><summary>What will we have when we're done?</summary><p>A written AI Handoff Plan that explains where AI can help, which tools fit your work, and what your team should try first. You'll also have setup steps, prompts, templates and a review checklist, with a one-page summary you can share with the people making the decision.</p></details>
+        <details><summary>Why wouldn't we just ask an AI tool what to do?</summary><p>You can, and it may give you useful ideas. We work through how your team actually does the work, including the handoffs, information, costs and human checks. Your AI plan turns that into a recommendation your team can act on, with a first step to try together.</p></details>
+        <details><summary>What if we're already using AI?</summary><p>We start with what you already do and the tools you have. Your AI plan can help you improve an existing use, connect steps that still take manual work, or decide which opportunity to tackle next.</p></details>
+        <details><summary>How does the three-hour promise work?</summary><p>We'll show you where to get at least 3 hours a week back across the people and work we review together. We account for the time needed to check AI's work and keep it running. If your AI plan doesn't identify that opportunity, we automatically refund your full fee within 10 business days of your findings call.</p><p>Your AI plan shows where the time can come from and how to put the changes into practice. You choose which changes to make, and the time you get back depends on putting them to work.</p><p><a href={REFUND_URL}>Read the refund details</a>.</p></details>
+        <details><summary>Is that three hours for every person?</summary><p>The promise is at least 3 hours a week in total across the people and work we review together. The opportunity may sit with one person or be shared across your team, and your AI plan shows how it adds up.</p></details>
+        <details><summary>How much time will our team need?</summary><p>About 2 hours each for 1 or 2 people who do the work: a 60-minute discovery session, a 45-minute findings call and a 15-minute check-in. You join the findings call, and if you're one of those participants, it's already included in your 2 hours.</p></details>
+        <details><summary>Do you help us take the first step?</summary><p>Yes. We use your 45-minute findings call to walk through your AI plan and help you try a first step in a tool your organization allows. If IT needs to act first, we can prepare the request. Further setup or a wider rollout can be scoped separately if you'd like our help.</p></details>
+        <details><summary>Will we need to buy new software?</summary><p>We start with the tools you already have and look for the most economical fit. Your AI plan identifies any recommended software or licence costs, so you can decide what to put in place. Those costs are separate from your plan fee.</p></details>
+        <details><summary>Do I need to buy ongoing support?</summary><p>No. You can keep your AI plan and put it in place yourself or with another provider.</p><p>If you'd like BlueChip to help with implementation, we'll agree the scope and price with you first.</p></details>
+        <details><summary>Can a municipality or public body use a purchase order?</summary><p>Yes. We agree the scope with you before you confirm the purchase order, then work through your normal invoicing process.</p></details>
+        <details><summary>What should we bring to the first conversation?</summary><p>Tell us about work your team repeats, something that takes longer than you'd like, or simply that you'd like help figuring out where AI fits. We'll help you work out the next step.</p></details>
       </GlassPanel>
 
       <PlanClose chatTopic={copy.chatTopic} />

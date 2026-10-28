@@ -39,7 +39,7 @@ describe('plan page: order, both editions', () => {
     expect(follows(example, box)).toBe(true);
     expect(follows(box, safety)).toBe(true);
     // the button is the last thing inside the safety-net block, after the definitions and the Refund Policy reference
-    expect(follows(within(safety).getByText(/Evidence-backed potential across the agreed work/), cta)).toBe(true);
+    expect(follows(within(safety).getByText(/accounts for the time spent checking the work and keeping it running/), cta)).toBe(true);
     expect(follows(within(safety).getByRole('link', { name: 'Refund Policy' }), cta)).toBe(true);
   });
 
@@ -64,8 +64,8 @@ describe('plan page: order, both editions', () => {
 describe('plan page: lead, example, box and safety net text', () => {
   it('uses a short lead and labels the team-hours equation as an illustration', () => {
     const { container } = renderEdition('/ai-handoff-plan');
-    expect(screen.getByRole('heading', { name: 'Where is repeat work costing your team time?' })).toBeInTheDocument();
-    expect(container.querySelector('.glass-lede').textContent).toMatch(/what your people keep/);
+    expect(screen.getByRole('heading', { name: "Not sure where AI fits in your team's work?" })).toBeInTheDocument();
+    expect(container.querySelector('.glass-lede').textContent).toMatch(/don't need to know the tools or arrive with a plan/);
     const example = container.querySelector('#pulse-scale');
     expect(within(example).getByText(/not a result from your answers/)).toBeInTheDocument();
     expect(within(example).getByRole('group', { name: 'Illustrative team hours' }).textContent).toMatch(/10people.*2.5net hours each.*25team hours/);
@@ -94,7 +94,7 @@ describe('plan page: lead, example, box and safety net text', () => {
       expect(within(steps[1]).getByText(text).tagName).toBe('LI');
     });
     expect(steps[1].textContent).toContain('Written for your team');
-    expect(steps[2].textContent).toMatch(/45 minutes.*approved tool, within this call.*IT request ready to send/);
+    expect(steps[2].textContent).toMatch(/45 minutes.*Try a first step together in an approved tool.*IT request ready to send/);
     expect(steps[3].textContent).toMatch(/About 30 days later.*15-minute check-in on how it is going/);
     expect(within(box).getByRole('link',{name:'see our Terms'})).toHaveAttribute('href','https://www.bluechip-people-strategies.com/terms');
     expect(box.querySelectorAll('.plan-included-tools li')).toHaveLength(4);
@@ -110,7 +110,7 @@ describe('plan page: lead, example, box and safety net text', () => {
     expect(box.textContent).toContain('You approve any extra BlueChip work and price before it starts.');
     expect(box.textContent).toContain('Software and licences');
     expect(box.textContent).toContain('IT installations and wider rollout');
-    expect(box.textContent).toContain('Implementation beyond the limited first-step help in your 45-minute findings call');
+    expect(box.textContent).toContain('Additional implementation support beyond your findings call');
     expect(box.textContent).not.toMatch(/guarantee|full fee/i);
   });
 
@@ -123,24 +123,27 @@ describe('plan page: lead, example, box and safety net text', () => {
     expect(offer.textContent).toContain('C$5,760');
     expect(offer.textContent).toContain('if achieved');
     expect(offer.textContent).toContain('not a business average or cash savings');
-    expect(offer.textContent).toContain('Before payment');
+    expect(offer.textContent).toContain("We'll agree the people and work to look at together before you pay");
     expect(offer.querySelector('.plan-booking-grid > div:first-child .plan-scope-agreement')).not.toBeNull();
     expect(within(offer).getByRole('link',{name:'Ask us about timing →'})).toHaveAttribute('href',`#chat?topic=${topic}`);
     expect(container.textContent).not.toContain('Monthly capacity');
     expect(container.textContent).not.toContain('12 AI Handoff');
-    expect(screen.getByRole('heading',{name:'FAQ'})).toBeInTheDocument();
+    expect(screen.getByRole('heading',{name:'Questions about getting started'})).toBeInTheDocument();
     expect(screen.getByRole('heading',{name:'Your work. Your call.'})).toBeInTheDocument();
     expect(container.querySelector('.plan-workflow-list').textContent).toContain('You decide what to hand over, what stays with your people, and what to try first.');
   });
 
-  it('shows "Your safety net" in the page, at body size, with its definitions, never behind a link or a details block', () => {
+  it('shows the plain-language promise and net-time basis openly, with practical refund details in the FAQ', () => {
     const { container } = renderEdition('/ai-handoff-plan');
     const safety = container.querySelector('.plan-safety');
     expect(safety.closest('details')).toBeNull();
-    expect(safety.textContent).toContain('Evidence-backed potential across the agreed work');
-    expect(safety.textContent).toContain('3 net team hours a week in your plan, or your full investment back.');
-    expect(safety.textContent).toContain('Findings, not achieved savings.');
-    expect(safety.textContent).toContain('after checks and upkeep.');
+    expect(safety.textContent).toContain("We'll show you where to get at least 3 hours a week back across your team, or refund your plan fee.");
+    expect(safety.textContent).toContain('accounts for the time spent checking the work and keeping it running');
+    const promise = screen.getByText('How does the three-hour promise work?').closest('details');
+    expect(promise.textContent).toContain('people and work we review together');
+    expect(promise.textContent).toContain('automatically refund your full fee within 10 business days of your findings call');
+    expect(promise.textContent).toContain('the time you get back depends on putting them to work');
+    expect(screen.getByText("What if we don't know where to start with AI?").closest('details')).toHaveAttribute('open');
     expect(safety.textContent).not.toMatch(/Net means the hours saved each week/);
     expect(within(safety).getByRole('link', { name: 'Refund Policy' })).toHaveAttribute('href', 'https://www.bluechip-people-strategies.com/refund');
     expect(safety.querySelector('.plan-cta-lead')).toBeNull();
@@ -172,9 +175,9 @@ describe('plan page: two editions and the switch', () => {
 
   it('the public sector edition uses municipal wording and its own chat topic', () => {
     const { container } = renderEdition('/ai-handoff-plan/public-sector');
-    expect(screen.getByRole('heading', { name: 'What is repeat work taking away from council priorities?' })).toBeInTheDocument();
-    expect(container.querySelector('.plan-box-opener').textContent).toMatch(/^A review of your work\./);
-    expect(container.querySelector('.glass-lede').textContent).toMatch(/how time could go back to council priorities\.$/);
+    expect(screen.getByRole('heading', { name: 'Not sure where AI fits in your municipality?' })).toBeInTheDocument();
+    expect(container.querySelector('.plan-box-opener').textContent).toMatch(/where AI can help your team/);
+    expect(container.querySelector('.glass-lede').textContent).toMatch(/free up staff time for council priorities/);
     screen.getAllByRole('link', { name: 'Start the conversation' }).forEach(a => expect(a).toHaveAttribute('href', '#chat?topic=public-sector'));
     expect(document.title).toMatch(/municipalities and public bodies/);
     expect(document.querySelector('meta[name="description"]').getAttribute('content')).toMatch(/Current fee C\$795, confirmed before booking/);
@@ -182,7 +185,7 @@ describe('plan page: two editions and the switch', () => {
 
   it('the general edition reviews the team work without a single-task cap', () => {
     const { container } = renderEdition('/ai-handoff-plan');
-    expect(container.querySelector('.plan-box-opener').textContent).toMatch(/^A review of your work\./);
+    expect(container.querySelector('.plan-box-opener').textContent).toMatch(/where AI can help your team/);
   });
 
   it('a visible switch links the two editions and marks the current one in words', () => {
@@ -211,7 +214,7 @@ describe('plan page: two editions and the switch', () => {
     render(<App />);
     expect(window.location.pathname).toBe('/ai-handoff-plan/public-sector');
     expect(window.location.search).toBe('?workflow=reporting');
-    expect(screen.getByRole('heading', { name: 'What is repeat work taking away from council priorities?' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Not sure where AI fits in your municipality?' })).toBeInTheDocument();
     const r = vercelConfig.redirects.find(x => x.source === '/ai-handoff-plan/municipal');
     expect(r).toEqual({ source: '/ai-handoff-plan/municipal', destination: '/ai-handoff-plan/public-sector', permanent: true });
   });
