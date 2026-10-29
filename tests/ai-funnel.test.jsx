@@ -948,7 +948,7 @@ describe('the AI Handoff Plan page', () => {
     expect(screen.getByRole('heading', { name: 'The AI Handoff Plan', level: 1 })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'What your AI Handoff Plan includes', level: 2 })).toBeInTheDocument();
     expect(screen.getByText(/we automatically refund your full fee within 10 business days of your findings call/)).toBeInTheDocument();
-    expect(screen.getByText(/The guarantee covers plan findings, not achieved savings/)).toBeInTheDocument();
+    expect(screen.getByText(/You choose which changes to make, and the time you get back depends on putting them to work/)).toBeInTheDocument();
     expect(screen.queryByText(/claim window|within 7 days/i)).not.toBeInTheDocument();
   });
 

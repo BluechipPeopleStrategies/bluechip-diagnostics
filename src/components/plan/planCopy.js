@@ -10,28 +10,40 @@ export const PUBLIC_SECTOR_PATH = '/ai-handoff-plan/public-sector';
 export const GENERAL_PATH = '/ai-handoff-plan';
 export const REFUND_URL = 'https://www.bluechip-people-strategies.com/refund';
 
+// Experiment B changes only the hero message; the offer and FAQ stay identical.
+export const OUTCOME_MESSAGE = {
+  general: {
+    headline: 'Give your team time back from repeat work.',
+    lead: "We show where AI can take work off your team's plate, with a practical plan and a clear first step. You don't need to choose the tools or figure it out on your own.",
+  },
+  'public-sector': {
+    headline: 'Free up staff time for council priorities.',
+    lead: "We show where AI can help with repeat work, with a practical plan and a clear first step. You don't need to choose the tools or figure it out on your own.",
+  },
+};
+
 export const EDITIONS = {
   general: {
     path: GENERAL_PATH,
     chatTopic: 'ai-handoff-plan',
     switchLabel: 'Business or nonprofit',
-    headline: 'Where is repeat work costing your team time?',
-    lead: "We look across your team's work and recommend where AI could help, what your people keep, and where to start.",
+    headline: "Not sure where AI fits in your team's work?",
+    lead: "You don't need to know the tools or arrive with a plan. We look at the work with you, show where AI can save time, and give you a practical first step.",
     guardrail: "AI doesn't replace your people's judgment on people decisions. Your AI plan looks for time your organization can redirect, not people to cut.",
-    opener: 'A review of your work. A prioritised AI Handoff Plan. A first step to try.',
+    opener: "A clear plan for where AI can help your team, which tools to use, and what to try first.",
     title: 'The AI Handoff Plan | BlueChip',
-    description: `A review of your team's work with a prioritised AI Handoff Plan. Current fee ${dollars(PLAN_FEE)}, confirmed before booking. Evidence-backed potential for 3 net team hours a week, or a full-fee refund.`,
+    description: `Not sure where to start with AI? Get a practical AI Handoff Plan for your team's work. Current fee ${dollars(PLAN_FEE)}, confirmed before booking. We'll show you where to get at least 3 hours a week back across your team, or refund your plan fee.`,
   },
   'public-sector': {
     path: PUBLIC_SECTOR_PATH,
     chatTopic: 'public-sector',
     switchLabel: 'Municipality or public body',
-    headline: 'What is repeat work taking away from council priorities?',
-    lead: "We look across your team's work and recommend where AI could help, what your staff keep, and how time could go back to council priorities.",
+    headline: 'Not sure where AI fits in your municipality?',
+    lead: "You don't need to know the tools or arrive with a plan. We help you find practical ways to free up staff time for council priorities, with a clear first step your team can take.",
     guardrail: "AI doesn't replace CAO judgment, council governance, or your privacy and records requirements. Your AI plan looks for time that can go back to council priorities, not positions to cut, and what you do with any time it frees up stays your decision.",
-    opener: 'A review of your work. A prioritised AI Handoff Plan. A first step to try.',
+    opener: "A clear plan for where AI can help your team, which tools to use, and what to try first.",
     title: 'The AI Handoff Plan for municipalities and public bodies | BlueChip',
-    description: `A review of your team's work with a prioritised AI Handoff Plan. Current fee ${dollars(PLAN_FEE)}, confirmed before booking. Evidence-backed potential for 3 net team hours a week, or a full-fee refund.`,
+    description: `A practical AI Handoff Plan for municipalities and public bodies. Current fee ${dollars(PLAN_FEE)}, confirmed before booking. We'll show you where to get at least 3 hours a week back across your team, or refund your plan fee.`,
   },
 };
 
@@ -62,12 +74,12 @@ export const PLAN_CALLS = [
 export const PLAN_EXTRA_COSTS = [
   'Software and licences',
   'IT installations and wider rollout',
-  'Implementation beyond the limited first-step help in your 45-minute findings call',
+  'Additional implementation support beyond your findings call',
 ];
 
 // "Your safety net" (Infy batch 3, item 1c). Body-text size, never behind a link or accordion.
-export const SAFETY_NET = "3 net team hours a week in your plan, or your full investment back.";
-export const SAFETY_NET_DEFINITIONS = "Evidence-backed potential across the agreed work, after checks and upkeep. Findings, not achieved savings.";
+export const SAFETY_NET = "We'll show you where to get at least 3 hours a week back across your team, or refund your plan fee.";
+export const SAFETY_NET_DEFINITIONS = "Your AI plan identifies the opportunities and accounts for the time spent checking the work and keeping it running.";
 
 export const CTA_LEAD = "Tell us what you'd like to improve. No booking or payment required to ask.";
 

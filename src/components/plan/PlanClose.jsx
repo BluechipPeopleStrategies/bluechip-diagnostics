@@ -7,7 +7,8 @@ export default function PlanClose({ chatTopic = 'ai-handoff-plan' }) {
     <>
       <section className="ai-panel plan-close" aria-label="Start the conversation">
         <div className="plan-close-copy">
-          <h2>Not sure whether the AI Handoff Plan is right for your team?</h2>
+          <h2>You don't need to have AI figured out.</h2>
+          <p>Tell us about your team's work. We'll help you find a starting point.</p>
           <p className="plan-close-cta"><PlanButton href={`#chat?topic=${chatTopic}`}>Ask us</PlanButton></p>
         </div>
       </section>
