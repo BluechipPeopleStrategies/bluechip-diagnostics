@@ -22,15 +22,15 @@ describe('vercel.json redirects', () => {
 // App.jsx owns its own <BrowserRouter>, so these drive the real jsdom URL (what BrowserRouter
 // reads) instead of wrapping App in a second, conflicting router.
 describe('client-side legacy redirect fallback', () => {
-  it('sends /ai-audit to the new plan page and keeps query params', () => {
+  it('sends /ai-audit to the new plan page and keeps query params', async () => {
     window.history.pushState({}, '', '/ai-audit?workflow=reporting');
     render(<App />);
-    expect(screen.getByRole('heading', { name: 'The AI Handoff Plan', level: 1 })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'The AI Handoff Plan', level: 1 })).toBeInTheDocument();
     expect(screen.getByText(/Your starting point:/)).toBeInTheDocument();
   });
-  it('sends /ai-check to the free check', () => {
+  it('sends /ai-check to the free check', async () => {
     window.history.pushState({}, '', '/ai-check');
     render(<App />);
-    expect(screen.getByText('Where could your organization be losing time and money?')).toBeInTheDocument();
+    expect(await screen.findByText('Where could your organization be losing time and money?')).toBeInTheDocument();
   });
 });

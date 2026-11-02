@@ -209,12 +209,12 @@ describe('plan page: two editions and the switch', () => {
     expect(within(nav).getByRole('link', { name: 'The AI Handoff Plan' })).toHaveAttribute('aria-current', 'page');
   });
 
-  it('serves the public sector page at its route and redirects /ai-handoff-plan/municipal there', () => {
+  it('serves the public sector page at its route and redirects /ai-handoff-plan/municipal there', async () => {
     window.history.pushState({}, '', '/ai-handoff-plan/municipal?workflow=reporting');
     render(<App />);
     expect(window.location.pathname).toBe('/ai-handoff-plan/public-sector');
     expect(window.location.search).toBe('?workflow=reporting');
-    expect(screen.getByRole('heading', { name: 'Not sure where AI fits in your municipality?' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Not sure where AI fits in your municipality?' })).toBeInTheDocument();
     const r = vercelConfig.redirects.find(x => x.source === '/ai-handoff-plan/municipal');
     expect(r).toEqual({ source: '/ai-handoff-plan/municipal', destination: '/ai-handoff-plan/public-sector', permanent: true });
   });
